@@ -16,16 +16,22 @@ namespace UltraFunGuns
 
         void GetStuff()
         {
-            gun = gameObject.GetComponentInParent<SonicReverberator>();
-            DataFile dataGet;
-            HydraLoader.dataRegistry.TryGetValue(gameObject.name, out dataGet);
-            data = (GyroRotatorData) dataGet;
+            try
+            {
+                gun = gameObject.GetComponentInParent<SonicReverberator>();
+                DataFile dataGet;
+                HydraLoader.dataRegistry.TryGetValue(gameObject.name, out dataGet);
+                data = (GyroRotatorData)dataGet;
+            }catch (System.Exception e)
+            {
+                return;
+            }
         }
 
 
         void Update()
         {
-            if (gun != null || data == null)
+            if (gun != null && data != null)
             {
                 if (gun.charging)
                 {
