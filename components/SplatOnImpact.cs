@@ -20,6 +20,9 @@ namespace UltraFunGuns
             if (collision.relativeVelocity.magnitude >= velocityToSplatThreshold)
             {
                 enemy.Splatter();
+            }else
+            {
+                Destroy(this.GetComponent<SplatOnImpact>());
             }
         }
     }
