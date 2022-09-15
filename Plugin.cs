@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.0.0")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.0.1")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         UltraFunGunsPatch gunPatch;
