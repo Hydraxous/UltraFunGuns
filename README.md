@@ -29,5 +29,5 @@ ________________________________________________________________________________
 **Installation**
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Place EasyPZ.dll into **BepinEx/plugins**
+2. Place UltraFunGuns.dll into **BepinEx/plugins**
 3. Enjoy!
