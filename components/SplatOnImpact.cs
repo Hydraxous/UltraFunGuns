@@ -7,8 +7,9 @@ namespace UltraFunGuns
     public class SplatOnImpact : MonoBehaviour
     {
         EnemyIdentifier enemy;
-        public float velocityToSplatThreshold = 50.0f; //TODO IGBalancing
-        public float invincibilityTimer = 0.75f;
+        public float velocityToSplatThreshold = 17.0f; //TODO IGBalancing
+        public float gravityTimer = 1.0f;
+        public float invincibilityTimer = 0.01f;
         private float timeElapsed = 0.0f;
         private int collisions = 0;
 
@@ -17,28 +18,34 @@ namespace UltraFunGuns
             enemy = gameObject.GetComponent<EnemyIdentifier>();
         }
 
-        void Update()
+        void FixedUpdate()
         {
-            invincibilityTimer += Time.deltaTime;
+            timeElapsed += Time.fixedDeltaTime;
         }
 
         private void OnCollisionEnter(Collision collision)
         {
             ++collisions;
+            if (collisions > 5)
+            {
+                Destroy(this.GetComponent<SplatOnImpact>());
+            }
             if (timeElapsed > invincibilityTimer)
             {
+                
                 if (collision.relativeVelocity.magnitude >= velocityToSplatThreshold)
                 {
                     enemy.Splatter();
                 }
                 else
                 {
-                    GetComponent<Rigidbody>().isKinematic = true;       
+                    GetComponent<Rigidbody>().isKinematic = true;
+                    collisions = 10;
                 }
             }
-            if(collisions > 20)
+            if (timeElapsed > gravityTimer)
             {
-                Destroy(this.GetComponent<SplatOnImpact>());
+                GetComponent<Rigidbody>().useGravity = true;
             }
         }
     }
