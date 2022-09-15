@@ -20,6 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\UltraFunGuns.resource" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\UltraFunGuns.resource" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HarmonyX" Version="2.10.0" />
   </ItemGroup>
 

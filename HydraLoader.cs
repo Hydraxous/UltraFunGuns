@@ -73,6 +73,7 @@ namespace UltraFunGuns
                 srIcon.variationColor = 0;
                 sonicReverberator.SetActive(false);
                 sonicGun.bang = sonicReverberation;
+                
                 prefabRegistry.Add("SonicReverberator", sonicReverberator);
 
                 assetsRegistered = true;

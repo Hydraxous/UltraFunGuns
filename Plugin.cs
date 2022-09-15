@@ -33,8 +33,7 @@ namespace UltraFunGuns
                 return;
             }
 
-            //Check monosingleton of guncontrol contains the component UltraFunGunsPatch, if it doesnt add it. Else do nothing lmao
-            GunControl gc = GameObject.FindObjectOfType<GunControl>();
+            GunControl gc = MonoSingleton<GunControl>.Instance;
             if (!gc.TryGetComponent<UltraFunGunsPatch>(out UltraFunGunsPatch ultraFGPatch))
             {
                 gunPatch = gc.gameObject.AddComponent<UltraFunGunsPatch>();
@@ -58,7 +57,15 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            CheckWeapons();
+            try
+            {
+                CheckWeapons();
+            }
+            catch(System.Exception e)
+            {
+
+            }
+            
         }
     }
 }
