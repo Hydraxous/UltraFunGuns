@@ -15,10 +15,10 @@ namespace UltraFunGuns
         private NewMovement player;
         private Transform mainCam;
         private Transform firePoint;
-        public bool enableGizmos = false; //TODO REMOVE
 
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
+        public bool skipConeCheck = true;
         public bool noCd = false;
         public bool enablePlayerKnockback = true;
 
@@ -54,7 +54,7 @@ namespace UltraFunGuns
         private void Start()
         {
             HelpChildren();
-            mainCam = Camera.main.transform;
+            mainCam = MonoSingleton<CameraController>.Instance.transform;
             player = transform.GetComponentInParent<NewMovement>();
         }
 
@@ -62,7 +62,7 @@ namespace UltraFunGuns
         {
             canFire = CanShoot();
 
-            if (Input.GetButton("Fire1") && canFire) //TODO change to monosingleton
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire)
             {
                 charging = true;
                 chargeLevel += Time.deltaTime*chargeSpeedMultiplier;
@@ -73,7 +73,7 @@ namespace UltraFunGuns
                 chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime*chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
-            if (Input.GetButtonDown("Fire2") && canFire) //TODO change to monosingleton
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && canFire)
             {
                 if (chargeLevel >= 2.0f && canFire)
                 {
@@ -86,16 +86,16 @@ namespace UltraFunGuns
 
         private void HelpChildren()
         {
-            transform.Find("MoyaiGun/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
-            transform.Find("MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();
-            firePoint = transform.Find("FirePoint");
+            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();
+            firePoint = transform.Find("viewModelWrapper/FirePoint");
 
-            capsuleAnimator = transform.Find("MoyaiGun/Capsule").GetComponent<Animator>();
-            moyaiAnimator = transform.Find("MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
-            pistonAnimator = transform.Find("MoyaiGun/PistonBase").GetComponent<Animator>();
-            gunAnimator = transform.Find("MoyaiGun").GetComponent<Animator>();
+            capsuleAnimator = transform.Find("viewModelWrapper/MoyaiGun/Capsule").GetComponent<Animator>();
+            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
+            pistonAnimator = transform.Find("viewModelWrapper/MoyaiGun/PistonBase").GetComponent<Animator>();
+            gunAnimator = transform.Find("viewModelWrapper/MoyaiGun").GetComponent<Animator>();
             
 
         }
@@ -153,8 +153,20 @@ namespace UltraFunGuns
             RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier),visionVector);
             foreach (RaycastHit hit in hits)
             {
-                if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0) //Checks if target is in front of player.
+                if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
                 {
+                    if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+                    {
+                        EffectEnemy(enemy, blastOrigin);
+                    } else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
+                    {
+                        glass.Shatter();
+                    }
+                    else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
+                    {
+                        breakable.Break();
+                    }
+                    /*OLD IMPLEMENTATION.
                     Component[] components = hit.collider.gameObject.GetComponents<Component>();
                     for (int i = 0; i < components.Length; i++)
                     {
@@ -171,6 +183,7 @@ namespace UltraFunGuns
                                 break;
                         }
                     }
+                    */
                 }
             }
 
@@ -201,55 +214,31 @@ namespace UltraFunGuns
         private void OnDisable()
         {
             lastKnownCooldown = Time.time;
-            chargeLevel = chargeLevel - (chargeLevel / 4);
         }
 
         private void OnEnable()
         {
-            timeUntilFire += lastKnownCooldown - Time.time;
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (enableGizmos)
+            if (timeUntilFire > 0.0)
             {
-                Gizmos.color = Color.red;
-                Vector3 blastStartPreview = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset));
-                Vector3 blastEndPreview = mainCam.transform.TransformPoint(new Vector3(0, 0, (GetChargeState() * blastOriginZOffset) + chargeLevel));
-                Vector3 coneUp = blastEndPreview + mainCam.transform.TransformDirection(Vector3.up * (6.0f + (chargeLevel * hitBoxRadiusMultiplier)));
-                Vector3 coneRight = blastEndPreview + mainCam.transform.TransformDirection(Vector3.right * (6.0f + (chargeLevel * hitBoxRadiusMultiplier)));
-                Vector3 coneDown = blastEndPreview + mainCam.transform.TransformDirection(Vector3.down * (6.0f + (chargeLevel * hitBoxRadiusMultiplier)));
-                Vector3 coneLeft = blastEndPreview + mainCam.transform.TransformDirection(Vector3.left * (6.0f + (chargeLevel * hitBoxRadiusMultiplier)));
-                Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset));
-                //Vector3 toEnemy = (mockEnemyPos.position - visionVector).normalized;
-                //Gizmos.DrawWireSphere(blastStartPreview, 6.0f + (chargeLevel * hitBoxRadiusMultiplier)); //BlastOrigin
-                Gizmos.DrawWireSphere(blastEndPreview, 6.0f + (chargeLevel * hitBoxRadiusMultiplier)); //BlastEnd
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(blastStartPreview, coneUp);
-                Gizmos.DrawLine(blastStartPreview, coneRight);
-                Gizmos.DrawLine(blastStartPreview, coneDown);
-                Gizmos.DrawLine(blastStartPreview, coneLeft);
-                Gizmos.color = Color.yellow;
-                //Gizmos.DrawLine(visionVector, mockEnemyPos.position);
-                Gizmos.color = Color.green;
-                //Gizmos.DrawLine(mainCam.transform.position, mockEnemyPos.position);
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(mainCam.transform.position, visionVector);
+                timeUntilFire += Mathf.Clamp(lastKnownCooldown - Time.time, 0.0f, maximumCooldown);
             }
-        }   
+        }
 
         private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO IGBalancing
         {
             int chargeState = GetChargeState();
             EnemyIdentifier enemy;
-            float force = (blastForceMultiplier * chargeState) + (chargeLevel*chargeState);
-            float upwardForce = (blastForceUpwardsMultiplier * chargeState);
+            float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
+            float distanceMultiplier = 10.0f/distanceFromBlast;
+            Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
+            forceVector = Vector3.Scale(forceVector, new Vector3(1, blastForceUpwardsMultiplier * chargeState, 1));
+            forceVector *= distanceMultiplier;
 
-            if(obj.TryGetComponent<EnemyIdentifier>(out enemy))
+            if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
             {
                 
                 Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
-                body.AddExplosionForce(force, forceOrigin, Mathf.Infinity, upwardForce);
+                body.velocity = forceVector;
                 enemy.gameObject.AddComponent<SplatOnImpact>();
             }
         }
@@ -308,7 +297,10 @@ namespace UltraFunGuns
             if (canKnockback)
             {
                 DoKnockback(enemy.gameObject, blastOrigin);
-                MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, 1, "", "");
+                if(GetChargeState() < chargeMilestones.Count)
+                {
+                    MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
+                }
             }
             if (GetChargeState() >= chargeMilestones.Count)
             {
@@ -366,10 +358,11 @@ namespace UltraFunGuns
 
                 Vector3 forceVector = Vector3.ClampMagnitude(mainCam.transform.TransformDirection(localDirection), playerKnockbackMaxRange);
 
-                player.Launch(forceVector);
+
+                //player.Launch(forceVector);
+                player.rb.velocity -= forceVector;
                 Debug.Log(localDirection);
                 Debug.Log(forceVector);
-                Debug.DrawRay(player.transform.position, forceVector, Color.red, 5.0f);
             }
         }
 

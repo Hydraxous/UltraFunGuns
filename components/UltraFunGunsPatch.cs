@@ -50,6 +50,12 @@ namespace UltraFunGuns
                         foreach (string weaponKey in weaponKeySlots[i])
                         {
                             HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab);
+                            weaponPrefab.layer = 13;
+                            Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                            foreach (Transform child in childs)
+                            {
+                                child.gameObject.layer = 13;
+                            }
                             customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
                         }
                     }
