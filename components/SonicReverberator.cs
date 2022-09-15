@@ -11,8 +11,9 @@ namespace UltraFunGuns
         public GameObject bang; //set by data loader
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
-        public float splatTimer = 0.75f;
-        public float splatThreshold = 20.0f;
+        //public float splatTimer = 0.05f;
+        //public float splatThreshold = 20.0f;
+        //public bool gravityEnemyModifier = true;
 
         private NewMovement player;
         private Transform mainCam;
@@ -28,14 +29,14 @@ namespace UltraFunGuns
         public float chargeLevel = 0.0f;
         public float chargeSpeedMultiplier = 1.0f;
         public float chargeDecayMultiplier = 0.25f;
-        private float blastForceMultiplier = 1000.0f;
-        private float blastForceUpwardsMultiplier = 4.0f;
+        private float blastForceMultiplier = 100.0f;
+        private float blastForceUpwardsMultiplier = 30.0f;
         private float hitBoxRadiusMultiplier = 0.75f;
         private float blastOriginZOffset = 0.49f;
 
-        public Vector3 playerKnockbackVector = new Vector3(0,25.0f,50.0f);
-        private float playerKnockbackMultiplier = 4f;
-        private float playerKnockbackVerticalMultiplier = 1.0f;
+        public Vector3 playerKnockbackVector = new Vector3(0,2.0f,8.0f);
+        private float playerKnockbackMultiplier = 0.8f;
+        private float playerKnockbackVerticalMultiplier = 1.2f;
         private float playerKnockbackJumpMultiplier = 1.5f;
         private float playerKnockbackMaxRange = 5000.0f;
 
@@ -138,6 +139,7 @@ namespace UltraFunGuns
             gunAnimator.SetTrigger("Shoot");
             capsuleAnimator.SetTrigger("Shoot");
             moyaiAnimator.SetTrigger("Shoot");
+            pistonAnimator.SetTrigger("Shoot");
             
             SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(bang, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
             BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
@@ -261,12 +263,14 @@ namespace UltraFunGuns
                     break;
                 case EnemyType.V2:
                     canKnockback = true;
+                    boss = true;
                     break;
                 case EnemyType.Filth:
                     canKnockback = true;
                     break;
                 case EnemyType.Gabriel:
                     canKnockback = true;
+                    boss = true;
                     break;
                 case EnemyType.Turret:
                     if(!enemy.gameObject.GetComponent<Turret>().aiming)
@@ -276,6 +280,21 @@ namespace UltraFunGuns
                     break;
                 case EnemyType.Schism:
                     canKnockback = true;
+                    break;
+                case EnemyType.Minos:
+                    boss = true;
+                    break;
+                case EnemyType.MinosPrime:
+                    boss = true;
+                    break;
+                case EnemyType.V2Second:
+                    boss = true;
+                    break;
+                case EnemyType.Wicked:
+                    boss = true;
+                    break;
+                case EnemyType.Leviathan:
+                    boss = true;
                     break;
                 default:
                     canKnockback = false;
@@ -292,9 +311,9 @@ namespace UltraFunGuns
             }
             if (GetChargeState() >= chargeMilestones.Count)
             {
-                if (boss)
+                if (boss || enemy.TryGetComponent<BossIdentifier>(out BossIdentifier bossId))
                 {
-                    if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp)) //hehe style :)
+                    if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp) || enemy.TryGetComponent<MinosBoss>(out MinosBoss minosBoss)) //hehe style :)
                     {
                         MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
                     }
@@ -319,7 +338,7 @@ namespace UltraFunGuns
                 else
                 {
                     enemy.Explode();
-                    MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, 1, "", "");
+                    MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "", "");
                 }
             }
 
@@ -332,7 +351,7 @@ namespace UltraFunGuns
             float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
             float distanceMultiplier = 10.0f / distanceFromBlast;
             Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
-            forceVector = Vector3.Scale(forceVector, new Vector3(1, blastForceUpwardsMultiplier * chargeState, 1));
+            Vector3 upVector = new Vector3(0, blastForceUpwardsMultiplier * chargeState, 0);
             forceVector *= distanceMultiplier;
 
             if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
@@ -340,11 +359,13 @@ namespace UltraFunGuns
 
                 Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
                 body.isKinematic = false;
-                body.velocity = forceVector;
+                body.useGravity = false;
+                body.velocity += forceVector;
+                body.velocity += upVector;
                 Debug.Log(enemy.enemyType.ToString() + "  " + body.velocity);
                 SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
-                splatt.invincibilityTimer = splatTimer;
-                splatt.velocityToSplatThreshold = 
+                //splatt.invincibilityTimer = splatTimer;
+                //splatt.velocityToSplatThreshold = splatThreshold;
             }
         }
 
