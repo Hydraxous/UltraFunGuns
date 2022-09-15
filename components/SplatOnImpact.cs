@@ -22,6 +22,7 @@ namespace UltraFunGuns
                 enemy.Splatter();
             }else
             {
+                GetComponent<Rigidbody>().isKinematic = true;
                 Destroy(this.GetComponent<SplatOnImpact>());
             }
         }

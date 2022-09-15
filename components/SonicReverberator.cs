@@ -194,6 +194,7 @@ namespace UltraFunGuns
             charging = false;
         }
 
+
         public int GetChargeState(float charge) //gets charge state from provided charge level.
         {
             for (int i = 0; i < chargeMilestones.Count; i++)
@@ -206,15 +207,18 @@ namespace UltraFunGuns
             return chargeMilestones.Count + 1;
         }
 
+
         public int GetChargeState() //Gets charge state from internal chargelevel
         {
             return GetChargeState(chargeLevel);
         }
 
+
         private void OnDisable()
         {
             lastKnownCooldown = Time.time;
         }
+
 
         private void OnEnable()
         {
@@ -224,25 +228,6 @@ namespace UltraFunGuns
             }
         }
 
-        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO IGBalancing
-        {
-            int chargeState = GetChargeState();
-            EnemyIdentifier enemy;
-            float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
-            float distanceMultiplier = 10.0f/distanceFromBlast;
-            Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
-            forceVector = Vector3.Scale(forceVector, new Vector3(1, blastForceUpwardsMultiplier * chargeState, 1));
-            forceVector *= distanceMultiplier;
-
-            if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
-            {
-                
-                Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
-                body.velocity = forceVector;
-                Debug.Log(body.velocity);
-                enemy.gameObject.AddComponent<SplatOnImpact>();
-            }
-        }
 
         private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin)
         {
@@ -338,6 +323,27 @@ namespace UltraFunGuns
 
         }
 
+        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO IGBalancing
+        {
+            int chargeState = GetChargeState();
+            EnemyIdentifier enemy;
+            float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
+            float distanceMultiplier = 10.0f / distanceFromBlast;
+            Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
+            forceVector = Vector3.Scale(forceVector, new Vector3(1, blastForceUpwardsMultiplier * chargeState, 1));
+            forceVector *= distanceMultiplier;
+
+            if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
+            {
+
+                Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
+                body.isKinematic = false;
+                body.velocity = forceVector;
+                Debug.Log(enemy.enemyType.ToString() + "  " + body.velocity);
+                enemy.gameObject.AddComponent<SplatOnImpact>();
+            }
+        }
+
         private void KnockbackPlayer() //TODO IGBalancing PLEASE....
         {
             if (enablePlayerKnockback) 
@@ -357,7 +363,7 @@ namespace UltraFunGuns
                 Vector3 localDirection = new Vector3(0, 0, 0);
                 localDirection.x = playerKnockbackVector.x * (chargeState - 1) * (chargeLevel * playerKnockbackMultiplier);
                 localDirection.y =  playerKnockbackVector.y * (chargeState - 1) * (chargeLevel * upwardsModifier);
-                localDirection.z = jumpModifier * (-playerKnockbackVector.z * (chargeState - 1) * (chargeLevel * playerKnockbackMultiplier));
+                localDirection.z = jumpModifier * (-playerKnockbackVector.z * (chargeState - Mathf.Clamp01(1*upwardsModifier)) * (chargeLevel * playerKnockbackMultiplier));
 
                 Vector3 forceVector = Vector3.ClampMagnitude(mainCam.transform.TransformDirection(localDirection), playerKnockbackMaxRange);
 
