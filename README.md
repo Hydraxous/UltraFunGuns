@@ -24,3 +24,10 @@ ________________________________________________________________________________
 This mod also includes some custom Style metrics to go along with the weapons. Some enemies have a unique Skill metric with certain weapons.
 
 ![custom skill points](https://cdn.discordapp.com/attachments/432329547023908884/1019852616303394876/awdsiuhai.PNG)
+
+_______________________________________________________________________________________________________________________________________
+**Installation**
+_______________________________________________________________________________________________________________________________________
+1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
+2. Place EasyPZ.dll into **BepinEx/plugins**
+3. Enjoy!
