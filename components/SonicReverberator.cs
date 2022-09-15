@@ -239,6 +239,7 @@ namespace UltraFunGuns
                 
                 Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
                 body.velocity = forceVector;
+                Debug.Log(body.velocity);
                 enemy.gameObject.AddComponent<SplatOnImpact>();
             }
         }
@@ -306,8 +307,7 @@ namespace UltraFunGuns
             {
                 if (boss)
                 {
-                    enemy.health = 0;
-                    if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp))
+                    if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp)) //hehe style :)
                     {
                         MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
                     }
@@ -327,7 +327,7 @@ namespace UltraFunGuns
                     {
                         MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "<b>BOSS </b>", "");
                     }
-                    
+                    enemy.health = 0;
                 }
                 else
                 {
@@ -338,31 +338,33 @@ namespace UltraFunGuns
 
         }
 
-        private void KnockbackPlayer() //TODO IGBalancing
+        private void KnockbackPlayer() //TODO IGBalancing PLEASE....
         {
             if (enablePlayerKnockback) 
             {
                 int chargeState = GetChargeState();
                 float jumpModifier = 1.0f;
                 float upwardsModifier = playerKnockbackVerticalMultiplier;
-                if (player.jumping)
+                if (player.jumping) //small boost if shooting right when jumping, like a rocket jump
                 {
                     jumpModifier = playerKnockbackJumpMultiplier;
+                }
+                if (!player.gc.onGround) //intuitive knockback when in the air.
+                {
                     upwardsModifier = 0.0f;
                 }
 
                 Vector3 localDirection = new Vector3(0, 0, 0);
-                localDirection.x = playerKnockbackVector.x * (chargeState - upwardsModifier) * (chargeLevel * playerKnockbackMultiplier);
-                localDirection.y = upwardsModifier * playerKnockbackVector.y * (chargeState - 1) * (chargeLevel * playerKnockbackMultiplier);
-                localDirection.z = jumpModifier * (-playerKnockbackVector.z * (chargeState - upwardsModifier) * (chargeLevel * playerKnockbackMultiplier));
+                localDirection.x = playerKnockbackVector.x * (chargeState - 1) * (chargeLevel * playerKnockbackMultiplier);
+                localDirection.y =  playerKnockbackVector.y * (chargeState - 1) * (chargeLevel * upwardsModifier);
+                localDirection.z = jumpModifier * (-playerKnockbackVector.z * (chargeState - 1) * (chargeLevel * playerKnockbackMultiplier));
 
                 Vector3 forceVector = Vector3.ClampMagnitude(mainCam.transform.TransformDirection(localDirection), playerKnockbackMaxRange);
 
-
-                //player.Launch(forceVector);
-                player.rb.velocity -= forceVector;
-                Debug.Log(localDirection);
-                Debug.Log(forceVector);
+                //player.Launch(forceVector); busted AND stinky. Fix hakita pls
+                player.rb.velocity += forceVector;
+                //Debug.Log(localDirection);
+                //Debug.Log(forceVector);
             }
         }
 
