@@ -8,22 +8,32 @@ namespace UltraFunGuns
     {
         EnemyIdentifier enemy;
         private float velocityToSplatThreshold = 50.0f; //TODO IGBalancing
+        public float invincibilityTimer = 0.75f;
+        private float timeElapsed = 0.0f;
 
         void Start()
         {
             enemy = gameObject.GetComponent<EnemyIdentifier>();
         }
 
+        void Update()
+        {
+            invincibilityTimer += Time.deltaTime;
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
-
-            if (collision.relativeVelocity.magnitude >= velocityToSplatThreshold)
+            if (timeElapsed > invincibilityTimer)
             {
-                enemy.Splatter();
-            }else
-            {
-                GetComponent<Rigidbody>().isKinematic = true;
-                Destroy(this.GetComponent<SplatOnImpact>());
+                if (collision.relativeVelocity.magnitude >= velocityToSplatThreshold)
+                {
+                    enemy.Splatter();
+                }
+                else
+                {
+                    GetComponent<Rigidbody>().isKinematic = true;
+                    Destroy(this.GetComponent<SplatOnImpact>());
+                }
             }
         }
     }

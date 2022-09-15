@@ -11,6 +11,7 @@ namespace UltraFunGuns
         public GameObject bang; //set by data loader
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
+        public float splatTimer = 0.75f;
 
         private NewMovement player;
         private Transform mainCam;
@@ -224,7 +225,7 @@ namespace UltraFunGuns
         {
             if (timeUntilFire > 0.0)
             {
-                timeUntilFire += Mathf.Clamp(lastKnownCooldown - Time.time, 0.0f, maximumCooldown);
+                timeUntilFire = Mathf.Clamp(timeUntilFire+(lastKnownCooldown - Time.time), 0.0f, maximumCooldown);
             }
         }
 
@@ -340,7 +341,8 @@ namespace UltraFunGuns
                 body.isKinematic = false;
                 body.velocity = forceVector;
                 Debug.Log(enemy.enemyType.ToString() + "  " + body.velocity);
-                enemy.gameObject.AddComponent<SplatOnImpact>();
+                SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
+                splatt.invincibilityTimer = splatTimer;
             }
         }
 
