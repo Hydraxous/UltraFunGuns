@@ -27,7 +27,7 @@ namespace UltraFunGuns
 
         public float rotationSpeed = 0.01f;
         public float chargeLevel = 0.0f;
-        public float chargeSpeedMultiplier = 1.0f;
+        public float chargeSpeedMultiplier = 1.7f;
         public float chargeDecayMultiplier = 0.25f;
         private float blastForceMultiplier = 100.0f;
         private float blastForceUpwardsMultiplier = 30.0f;
