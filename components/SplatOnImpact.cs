@@ -7,9 +7,10 @@ namespace UltraFunGuns
     public class SplatOnImpact : MonoBehaviour
     {
         EnemyIdentifier enemy;
-        private float velocityToSplatThreshold = 50.0f; //TODO IGBalancing
+        public float velocityToSplatThreshold = 50.0f; //TODO IGBalancing
         public float invincibilityTimer = 0.75f;
         private float timeElapsed = 0.0f;
+        private int collisions = 0;
 
         void Start()
         {
@@ -23,6 +24,7 @@ namespace UltraFunGuns
 
         private void OnCollisionEnter(Collision collision)
         {
+            ++collisions;
             if (timeElapsed > invincibilityTimer)
             {
                 if (collision.relativeVelocity.magnitude >= velocityToSplatThreshold)
@@ -31,9 +33,12 @@ namespace UltraFunGuns
                 }
                 else
                 {
-                    GetComponent<Rigidbody>().isKinematic = true;
-                    Destroy(this.GetComponent<SplatOnImpact>());
+                    GetComponent<Rigidbody>().isKinematic = true;       
                 }
+            }
+            if(collisions > 20)
+            {
+                Destroy(this.GetComponent<SplatOnImpact>());
             }
         }
     }
