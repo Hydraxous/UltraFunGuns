@@ -33,6 +33,7 @@ namespace UltraFunGuns
             NewStyleItem("gabrielkill", "<color=#ff0051>L-DISTRIBUTED</color>");
             NewStyleItem("wickedkill", "<color=#919191>NOT WICKED ENOUGH</color>");
             NewStyleItem("minoskill", "<color=#03ffa7>JUDGED</color>");
+            NewStyleItem("orbited", "ORBITAL LAUNCH");
 
 
             FetchWeapons();
