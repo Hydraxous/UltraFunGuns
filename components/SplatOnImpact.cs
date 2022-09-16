@@ -12,6 +12,7 @@ namespace UltraFunGuns
         public float invincibilityTimer = 0.01f;
         private float timeElapsed = 0.0f;
         private int collisions = 0;
+        private bool orbited = false;
 
         void Start()
         {
@@ -21,10 +22,12 @@ namespace UltraFunGuns
         void FixedUpdate()
         {
             timeElapsed += Time.fixedDeltaTime;
-            if (transform.position.y >= 1500.0f)
+            if (transform.position.y >= 1500.0f && !orbited)
             {
+                orbited = true;
                 MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.orbited", null, enemy, -1, "", "");
                 enemy.health = -1.0f;
+                enemy.Explode();
             }
         }
 
