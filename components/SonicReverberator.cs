@@ -296,15 +296,25 @@ namespace UltraFunGuns
                 case EnemyType.Leviathan:
                     boss = true;
                     break;
+                case EnemyType.GabrielSecond:
+                    boss = true;
+                    break;
+                case EnemyType.HideousMass:
+                    boss = true;
+                    break;
+                case EnemyType.Ferryman:
+                    boss = true;
+                    break;
                 default:
                     canKnockback = false;
                     break;
             }
 
+            int chargeState = GetChargeState();
             if (canKnockback)
             {
                 DoKnockback(enemy.gameObject, blastOrigin);
-                if(GetChargeState() < chargeMilestones.Count)
+                if(chargeState < chargeMilestones.Count && chargeState >= chargeMilestones.Count/1.5f)
                 {
                     MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
                 }

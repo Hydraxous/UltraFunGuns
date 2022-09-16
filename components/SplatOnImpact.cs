@@ -21,6 +21,11 @@ namespace UltraFunGuns
         void FixedUpdate()
         {
             timeElapsed += Time.fixedDeltaTime;
+            if (transform.position.y >= 1500.0f)
+            {
+                MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.orbited", null, enemy, -1, "", "");
+                enemy.health = -1.0f;
+            }
         }
 
         private void OnCollisionEnter(Collision collision)
