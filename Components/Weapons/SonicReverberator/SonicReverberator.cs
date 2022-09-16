@@ -7,23 +7,18 @@ namespace UltraFunGuns
 {
     public class SonicReverberator : MonoBehaviour
     {
-
+        //TODO Good lord fix this class.
         public GameObject bang; //set by data loader
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
-        //public float splatTimer = 0.05f;
-        //public float splatThreshold = 20.0f;
-        //public bool gravityEnemyModifier = true;
 
         private NewMovement player;
-        private Transform mainCam;
-        private Transform firePoint;
+
+        private Transform mainCam, firePoint;
 
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
-        public bool skipConeCheck = true;
-        public bool noCd = false;
-        public bool enablePlayerKnockback = true;
+        public bool skipConeCheck = true, noCooldown = false, enablePlayerKnockback = true;
 
         public float rotationSpeed = 0.01f;
         public float chargeLevel = 0.0f;
@@ -43,10 +38,7 @@ namespace UltraFunGuns
         public bool charging = false;
         private bool canFire = true;
 
-        private Animator capsuleAnimator;
-        private Animator pistonAnimator;
-        private Animator moyaiAnimator;
-        private Animator gunAnimator;
+        private Animator capsuleAnimator, pistonAnimator, moyaiAnimator, gunAnimator;
 
         public float timeUntilFire = 0.0f;
         private float cooldownRate = 0.17f;
@@ -54,8 +46,9 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldown = 0.0f;
 
-        private void Start()
+        private void Awake()
         {
+            LoadData();
             HelpChildren();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             player = transform.GetComponentInParent<NewMovement>();
@@ -64,16 +57,21 @@ namespace UltraFunGuns
         private void Update()
         {
             canFire = CanShoot();
+            GetInput();
+            DoAnimations();
+        }
 
+        private void GetInput()
+        {
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire)
             {
                 charging = true;
-                chargeLevel += Time.deltaTime*chargeSpeedMultiplier;
+                chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
             }
             else
             {
                 charging = false;
-                chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime*chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
+                chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime * chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && canFire)
@@ -83,9 +81,7 @@ namespace UltraFunGuns
                     Fire();
                 }
             }
-            DoAnimations();
         }
-
 
         private void HelpChildren()
         {
@@ -99,13 +95,36 @@ namespace UltraFunGuns
             moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
             pistonAnimator = transform.Find("viewModelWrapper/MoyaiGun/PistonBase").GetComponent<Animator>();
             gunAnimator = transform.Find("viewModelWrapper/MoyaiGun").GetComponent<Animator>();
-            
+        }
 
+        private void LoadData()
+        {
+            //AudioClips
+            HydraLoader.dataRegistry.TryGetValue("vB_standard", out UnityEngine.Object vB_standard_obj);
+            vB_standard = (AudioClip) vB_standard_obj;
+
+            HydraLoader.dataRegistry.TryGetValue("vB_loud", out UnityEngine.Object vB_loud_obj);
+            vB_loud = (AudioClip) vB_loud_obj;
+
+            HydraLoader.dataRegistry.TryGetValue("vB_loudest", out UnityEngine.Object vB_loudest_obj);
+            vB_loudest = (AudioClip) vB_loudest_obj;
+
+            //Icon
+            WeaponIcon wepIcon = gameObject.GetComponent<WeaponIcon>();
+            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_weaponIcon);
+            wepIcon.weaponIcon = (Sprite) SonicReverberator_weaponIcon;
+
+            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_glowIcon);
+            wepIcon.glowIcon = (Sprite) SonicReverberator_glowIcon;
+
+            wepIcon.variationColor = 0;
+
+            HydraLoader.prefabRegistry.TryGetValue("SonicReverberationExplosion", out bang);
         }
 
         private bool CanShoot()
         {
-            if (timeUntilFire <= 0.0f || noCd)
+            if (timeUntilFire <= 0.0f || noCooldown)
             {
                 return true;
             }else
@@ -151,8 +170,8 @@ namespace UltraFunGuns
             Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0,0,blastOriginZOffset)); //Player Vision vector based on camera
      
             VineBoom(); // :)
-            //TODO hitstop here
-            //TODO camera shake here
+            MonoSingleton<TimeController>.Instance.HitStop(0.5f * (chargeState - 1));
+            MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
 
             RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier),visionVector);
             foreach (RaycastHit hit in hits)

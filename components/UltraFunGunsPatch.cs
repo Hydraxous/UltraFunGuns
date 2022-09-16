@@ -10,7 +10,7 @@ namespace UltraFunGuns
         GunControl gc;
         List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> {"SonicReverberator"},
-            new List<string> { },
+            new List<string> {"EggToss" },
             new List<string> { },
             new List<string> { }
         };
@@ -24,7 +24,7 @@ namespace UltraFunGuns
         };
 
 
-        private void Start()
+        private void Awake()
         {
             gc = GetComponent<GunControl>();
             NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
@@ -34,6 +34,10 @@ namespace UltraFunGuns
             NewStyleItem("wickedkill", "<color=#919191>NOT WICKED ENOUGH</color>");
             NewStyleItem("minoskill", "<color=#03ffa7>JUDGED</color>");
             NewStyleItem("orbited", "ORBITAL LAUNCH");
+            NewStyleItem("egged", "EGGED");
+            NewStyleItem("eggshower", "<color=yellow>EGG RAIN</color>");
+
+
 
 
             FetchWeapons();
@@ -57,6 +61,7 @@ namespace UltraFunGuns
                             {
                                 child.gameObject.layer = 13;
                             }
+                            weaponPrefab.SetActive(false);
                             customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
                         }
                     }
@@ -65,7 +70,7 @@ namespace UltraFunGuns
             }
             catch(System.Exception e)
             {
-                Debug.Log("GunControl patcher componenet couldn't fetch weapons.");
+                Debug.Log("GunControl patcher component couldn't fetch weapons.");
                 Debug.Log(e.Message);
             }
         }

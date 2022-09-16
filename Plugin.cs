@@ -5,24 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.SceneManagement;
+using UltraFunGuns.Properties;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.0.1")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.0.2")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         UltraFunGunsPatch gunPatch;
 
         private void Awake()
         {
-            if (HydraLoader.RegisterAll())
+            if (RegisterAssets())
             {
-                BindConfigs();
                 Logger.LogInfo("UltraFunGuns Loaded.");
             }else
             {
-                Logger.LogError("Unable to load mod components. Disabling.");
-                gameObject.SetActive(false);
+                this.enabled = false;
             }
         }
 
@@ -53,6 +52,26 @@ namespace UltraFunGuns
         private void BindConfigs()
         {
 
+        }
+
+        private bool RegisterAssets()
+        {
+            BindConfigs();
+            
+            //Sonic gun gyros
+            new HydraLoader.CustomAssetData("InnerGyroBearing", new GyroRotator.GyroRotatorData(1.0f, Vector3.forward, 0.004f, 3f, 40.66f));
+            new HydraLoader.CustomAssetData("MiddleGyro", new GyroRotator.GyroRotatorData(1.2f, new Vector3(1, 0, 0), 0.004f, 3.5f, -53.58f));
+            new HydraLoader.CustomAssetData("InnerGyro", new GyroRotator.GyroRotatorData(1.5f, Vector3.back, 0.004f, 4f, -134.3f));
+            new HydraLoader.CustomAssetData("Moyai", new GyroRotator.GyroRotatorData(1.5f, Vector3.one, 0.005f, 15f, -248.5f));
+
+            //SonicReverberator
+            new HydraLoader.CustomAssetPrefab("SonicReverberation", new Component[] {new SonicReverberatorExplosion()});
+            new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] {new SonicReverberator(), new WeaponIcon()});
+
+            new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss() });
+            new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { });
+
+            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
         }
 
         private void Update()

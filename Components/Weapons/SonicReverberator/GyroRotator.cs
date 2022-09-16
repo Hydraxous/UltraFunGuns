@@ -19,9 +19,8 @@ namespace UltraFunGuns
             try
             {
                 gun = gameObject.GetComponentInParent<SonicReverberator>();
-                DataFile dataGet;
-                HydraLoader.dataRegistry.TryGetValue(gameObject.name, out dataGet);
-                data = (GyroRotatorData)dataGet;
+                HydraLoader.dataRegistry.TryGetValue(gameObject.name, out UnityEngine.Object dataGet);
+                data = (GyroRotatorData) dataGet;
             }catch (System.Exception e)
             {
                 return;
