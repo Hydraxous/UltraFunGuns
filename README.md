@@ -9,7 +9,7 @@ ________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
 
-## 1. Sonic Reverberator
+## 1. Sonic Reverberator - Slot 7
 
 ______________________________________________________________________________________________
 The Sonic Reverberator is a device built around a strange artifact which seems to hold an untold amount of energy.
@@ -27,6 +27,7 @@ This mod also includes some custom Style metrics to go along with the weapons. S
 
 ![custom skill points](https://cdn.discordapp.com/attachments/432329547023908884/1019852616303394876/awdsiuhai.PNG)
 
+The mod adds custom slots which will hold the weapons.
 _______________________________________________________________________________________________________________________________________
 **Installation**
 _______________________________________________________________________________________________________________________________________
