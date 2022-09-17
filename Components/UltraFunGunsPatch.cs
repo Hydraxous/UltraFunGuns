@@ -8,9 +8,10 @@ namespace UltraFunGuns
     public class UltraFunGunsPatch : MonoBehaviour
     {
         GunControl gc;
+        //RE ADD EGG TOSS!
         List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> {"SonicReverberator"},
-            new List<string> {"EggToss" },
+            new List<string> { },
             new List<string> { },
             new List<string> { }
         };
