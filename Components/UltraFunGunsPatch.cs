@@ -10,7 +10,7 @@ namespace UltraFunGuns
         GunControl gc;
         //RE ADD EGG TOSS!
         List<List<string>> weaponKeySlots = new List<List<string>>() {
-            new List<string> {"SonicReverberator"},
+            new List<string> {"SonicReverberator", "EggToss"},
             new List<string> { },
             new List<string> { },
             new List<string> { }

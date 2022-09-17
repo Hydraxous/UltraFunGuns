@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class SonicReverberator : UltraFunGunBase
+    public class SonicReverberator : MonoBehaviour
     {
         //TODO Good lord fix this class.
         public GameObject bang; //set by data loader
@@ -14,11 +14,11 @@ namespace UltraFunGuns
 
         private NewMovement player;
 
-
+        private Transform mainCam, firePoint;
 
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
-        public bool skipConeCheck = true, enablePlayerKnockback = true;
+        public bool skipConeCheck = true, noCooldown = false, enablePlayerKnockback = true;
 
         public float rotationSpeed = 0.01f;
         public float chargeLevel = 0.0f;
@@ -47,21 +47,22 @@ namespace UltraFunGuns
         private float lastKnownCooldown = 0.0f;
 
 
-        public override void InitializeWeaponVariables()
+        private void Awake()
         {
             LoadData();
             HelpChildren();
             player = transform.GetComponentInParent<NewMovement>();
+            mainCam = MonoSingleton<CameraController>.Instance.transform;
         }
 
-        public override void Update()
+        private void Update()
         {
             canFire = CanShoot();
             GetInput();
             DoAnimations();
         }
 
-        public override void GetInput()
+        private void GetInput()
         {
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire)
             {
@@ -89,7 +90,7 @@ namespace UltraFunGuns
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();
-            //firePoint = transform.Find("viewModelWrapper/FirePoint");
+            firePoint = transform.Find("viewModelWrapper/FirePoint");
 
             capsuleAnimator = transform.Find("viewModelWrapper/MoyaiGun/Capsule").GetComponent<Animator>();
             moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
@@ -99,27 +100,28 @@ namespace UltraFunGuns
 
         private void LoadData()
         {
-            //AudioClips
+
             HydraLoader.dataRegistry.TryGetValue("vB_standard", out UnityEngine.Object vB_standard_obj);
-            vB_standard = (AudioClip) vB_standard_obj;
+            vB_standard = (AudioClip)vB_standard_obj;
 
             HydraLoader.dataRegistry.TryGetValue("vB_loud", out UnityEngine.Object vB_loud_obj);
-            vB_loud = (AudioClip) vB_loud_obj;
+            vB_loud = (AudioClip)vB_loud_obj;
 
             HydraLoader.dataRegistry.TryGetValue("vB_loudest", out UnityEngine.Object vB_loudest_obj);
-            vB_loudest = (AudioClip) vB_loudest_obj;
+            vB_loudest = (AudioClip)vB_loudest_obj;
 
             //Icon
             WeaponIcon wepIcon = gameObject.GetComponent<WeaponIcon>();
             HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_weaponIcon);
-            wepIcon.weaponIcon = (Sprite) SonicReverberator_weaponIcon;
+            wepIcon.weaponIcon = (Sprite)SonicReverberator_weaponIcon;
 
-            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_glowIcon);
-            wepIcon.glowIcon = (Sprite) SonicReverberator_glowIcon;
+            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_glowIcon", out UnityEngine.Object SonicReverberator_glowIcon);
+            wepIcon.glowIcon = (Sprite)SonicReverberator_glowIcon;
 
             wepIcon.variationColor = 0;
 
             HydraLoader.prefabRegistry.TryGetValue("SonicReverberationExplosion", out bang);
+
         }
 
         private bool CanShoot()
@@ -134,7 +136,7 @@ namespace UltraFunGuns
             }
         }
 
-        public override void DoAnimations()
+        private void DoAnimations()
         {
             gunAnimator.SetBool("CanShoot", canFire);
             capsuleAnimator.SetBool("Charging", charging);
@@ -170,7 +172,7 @@ namespace UltraFunGuns
             Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0,0,blastOriginZOffset)); //Player Vision vector based on camera
      
             VineBoom(); // :)
-            MonoSingleton<TimeController>.Instance.HitStop(0.5f * (chargeState - 1));
+            MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
             MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
 
             RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier),visionVector);
@@ -188,6 +190,9 @@ namespace UltraFunGuns
                     else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
                     {
                         breakable.Break();
+                    }else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
+                    {
+                        EffectEnemy(bruh.eid, blastOrigin);
                     }
                 }
             }
