@@ -69,7 +69,7 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] {new SonicReverberator(), new WeaponIcon()});
 
             //Egg :)
-            new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss() });
+            new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon() });
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg() });
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
 
