@@ -36,11 +36,11 @@ namespace UltraFunGuns
             //TODO FIX LOAD ISSUES I think its the casting that does it .
 
 
-            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_weaponIcon);
-            wepIcon.weaponIcon = (Sprite)SonicReverberator_weaponIcon;
+            HydraLoader.dataRegistry.TryGetValue("EggToss_weaponIcon", out UnityEngine.Object EggToss_weaponIcon);
+            wepIcon.weaponIcon = (Sprite) EggToss_weaponIcon;
 
-            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_glowIcon", out UnityEngine.Object SonicReverberator_glowIcon);
-            wepIcon.glowIcon = (Sprite)SonicReverberator_glowIcon;
+            HydraLoader.dataRegistry.TryGetValue("EggToss_glowIcon", out UnityEngine.Object EggToss_glowIcon);
+            wepIcon.glowIcon = (Sprite) EggToss_glowIcon;
 
 
             HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
