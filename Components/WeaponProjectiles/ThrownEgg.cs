@@ -10,12 +10,11 @@ namespace UltraFunGuns
         public GameObject impactFX;
         private Rigidbody rb;
         private Vector3 oldVelocity;
-        private float invicibleTimer = 0.08f;
+        private float invicibleTimer = 0.02f;
         private bool canImpact = false;
 
         private void Awake()
         {
-            HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out impactFX);
             rb = GetComponent<Rigidbody>();
         }
 
@@ -48,6 +47,10 @@ namespace UltraFunGuns
                 if (col.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
                 {
                     enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
+                    MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.egged");
+                }else if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
+                {
+                    enemyPart.eid.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
                     MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.egged");
                 }
                 Destroy(gameObject);

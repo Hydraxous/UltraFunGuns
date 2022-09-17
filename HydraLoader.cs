@@ -23,7 +23,7 @@ namespace UltraFunGuns
         {
             try
             {
-                Debug.Log("HydraLoader: loading assets");
+                Debug.Log("HydraLoader: loading mod files");
                 assetBundle = AssetBundle.LoadFromMemory(bundle);
                 RegisterDataFiles();
                 RegisterCustomAssets();
@@ -43,16 +43,17 @@ namespace UltraFunGuns
             {
                 foreach (CustomAssetData assetData in dataToRegister)
                 {
-                    if (assetData.dataFile != null)
+                    if (assetData.hasData)
                     {
                         dataRegistry.Add(assetData.name, assetData.dataFile);
                     }
                     else
                     {
-                        dataRegistry.Add(assetData.name, assetBundle.LoadAsset(assetData.name));
+                        dataRegistry.Add(assetData.name, assetBundle.LoadAsset(assetData.name, assetData.dataType));
                     }
                     
                 }
+                Debug.Log("HydraLoader: data registered successfully");
                 dataRegistered = true;
             }
         }
@@ -70,6 +71,8 @@ namespace UltraFunGuns
                     }
                     prefabRegistry.Add(asset.name, newPrefab);
                 }
+                Debug.Log("HydraLoader: prefabs registered successfully");
+
                 assetsRegistered = true;
             }
         }
@@ -91,17 +94,22 @@ namespace UltraFunGuns
         {
             public string name;
             public DataFile dataFile;
+            public bool hasData = false;
+            public Type dataType;
 
             public CustomAssetData(string dataName, DataFile dataFile) //For loading custom script data
             {
+                this.hasData = true;
                 this.name = dataName;
                 this.dataFile = dataFile;
                 dataToRegister.Add(this);
             }
 
-            public CustomAssetData(string dataName) //For loading general assets
+            public CustomAssetData(string dataName, Type type) //For loading general assets
             {
                 this.name = dataName;
+                this.dataType = type;
+
                 dataToRegister.Add(this);
             }
         }
