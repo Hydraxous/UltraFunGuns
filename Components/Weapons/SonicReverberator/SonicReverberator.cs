@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class SonicReverberator : MonoBehaviour
+    public class SonicReverberator : UltraFunGunBase
     {
         //TODO Good lord fix this class.
         public GameObject bang; //set by data loader
@@ -14,11 +14,11 @@ namespace UltraFunGuns
 
         private NewMovement player;
 
-        private Transform mainCam, firePoint;
+
 
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
-        public bool skipConeCheck = true, noCooldown = false, enablePlayerKnockback = true;
+        public bool skipConeCheck = true, enablePlayerKnockback = true;
 
         public float rotationSpeed = 0.01f;
         public float chargeLevel = 0.0f;
@@ -46,22 +46,22 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldown = 0.0f;
 
-        private void Awake()
+
+        public override void InitializeWeaponVariables()
         {
             LoadData();
             HelpChildren();
-            mainCam = MonoSingleton<CameraController>.Instance.transform;
             player = transform.GetComponentInParent<NewMovement>();
         }
 
-        private void Update()
+        public override void Update()
         {
             canFire = CanShoot();
             GetInput();
             DoAnimations();
         }
 
-        private void GetInput()
+        public override void GetInput()
         {
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire)
             {
@@ -134,7 +134,7 @@ namespace UltraFunGuns
             }
         }
 
-        private void DoAnimations()
+        public override void DoAnimations()
         {
             gunAnimator.SetBool("CanShoot", canFire);
             capsuleAnimator.SetBool("Charging", charging);
@@ -189,24 +189,6 @@ namespace UltraFunGuns
                     {
                         breakable.Break();
                     }
-                    /*OLD IMPLEMENTATION.
-                    Component[] components = hit.collider.gameObject.GetComponents<Component>();
-                    for (int i = 0; i < components.Length; i++)
-                    {
-                        switch (components[i])
-                        {
-                            case EnemyIdentifier enemy:
-                                EffectEnemy(enemy, blastOrigin);
-                                break;
-                            case Glass glass:
-                                glass.Shatter();
-                                break;
-                            case Breakable breakable:
-                                breakable.Break();
-                                break;
-                        }
-                    }
-                    */
                 }
             }
 

@@ -28,7 +28,10 @@ namespace UltraFunGuns
         public virtual void Update()
         {
             GetInput();
+            DoAnimations();
         }
+
+        public virtual void DoAnimations() { }
 
         private void Awake()
         {
