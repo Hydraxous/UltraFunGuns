@@ -12,6 +12,7 @@ namespace UltraFunGuns
         private Vector3 oldVelocity;
         private float invicibleTimer = 0.02f;
         private bool canImpact = false;
+        private bool impacted = false;
 
         private void Awake()
         {
@@ -38,22 +39,27 @@ namespace UltraFunGuns
             oldVelocity = rb.velocity;
         }
 
+        private void Collide(Collision col)
+        {
+
+            EnemyIdentifier enemy;
+            GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
+            impact.transform.up = col.GetContact(0).normal;
+            impact.transform.parent = col.transform;
+            if ((col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy) && !enemy.dead) || (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart) && !enemyPart.eid.dead))
+            {
+                enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
+                MonoSingleton<StyleHUD>.Instance.AddPoints(300, "hydraxous.ultrafunguns.egged");
+
+            }
+            Destroy(gameObject);
+        }
+
         private void OnCollisionEnter(Collision col)
         {
-            if (canImpact)
+            if (canImpact && !impacted && col.gameObject.layer != 14 && col.gameObject.layer != 20)
             {
-                GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
-                impact.transform.up = col.GetContact(0).normal;
-                if (col.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-                {
-                    enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
-                    MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.egged");
-                }else if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
-                {
-                    enemyPart.eid.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
-                    MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.egged");
-                }
-                Destroy(gameObject);
+                Collide(col);
             }
         }
     }

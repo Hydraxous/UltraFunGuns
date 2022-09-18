@@ -9,7 +9,7 @@ namespace UltraFunGuns
         private SonicReverberator gun;
         private GyroRotatorData data;
 
-        void Start()
+        void Awake()
         {
             GetStuff();
         }
@@ -30,7 +30,11 @@ namespace UltraFunGuns
 
         void Update()
         {
-            if (gun != null && data != null)
+            if (gun == null && data == null)
+            {
+                GetStuff();
+            }
+            else
             {
                 if (gun.charging)
                 {
@@ -43,10 +47,6 @@ namespace UltraFunGuns
                 data.currentRot += data.angularVelocity;
                 transform.localRotation = Quaternion.AngleAxis(data.currentRot, data.rotateAxis); //bad bad gimbal lock go away stinky >:(
 
-            }
-            else
-            {
-                GetStuff();
             }
         }
 

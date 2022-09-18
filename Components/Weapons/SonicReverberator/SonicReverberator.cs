@@ -154,6 +154,7 @@ namespace UltraFunGuns
         //Gets point close to camera and a point far away that scales on charge level, then it casts a capsule and knocks back or destroys everything in the radius.
         private void Fire()
         {
+            //TODO Reflect enemy projectiles detected
             int chargeState = GetChargeState();
 
             gunAnimator.SetInteger("ChargeState", chargeState);
