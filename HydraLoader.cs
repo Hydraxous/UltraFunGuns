@@ -109,11 +109,13 @@ namespace UltraFunGuns
             {
                 this.name = dataName;
                 this.dataType = type;
-
                 dataToRegister.Add(this);
             }
         }
     }
 
-    public class DataFile : UnityEngine.Object { }
+
+    public class DataFile : UnityEngine.Object
+    {
+    }
 }

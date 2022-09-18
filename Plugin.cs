@@ -67,7 +67,6 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
 
-
             //Sonic gun gyros
             new HydraLoader.CustomAssetData("InnerGyroBearing", new GyroRotator.GyroRotatorData(1.0f, Vector3.forward, 0.004f, 3f, 40.66f));
             new HydraLoader.CustomAssetData("MiddleGyro", new GyroRotator.GyroRotatorData(1.2f, new Vector3(1, 0, 0), 0.004f, 3.5f, -53.58f));
