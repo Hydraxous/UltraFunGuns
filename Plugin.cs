@@ -83,6 +83,7 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
+            
         }
 
         private void Update()

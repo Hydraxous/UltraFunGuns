@@ -8,33 +8,27 @@ namespace UltraFunGuns
     {
         private SonicReverberator gun;
         private GyroRotatorData data;
+        private OptionsManager om;
 
-        void Awake()
+        void Start()
         {
             GetStuff();
         }
 
         void GetStuff()
         {
-            try
-            {
-                gun = gameObject.GetComponentInParent<SonicReverberator>();
-                HydraLoader.dataRegistry.TryGetValue(gameObject.name, out UnityEngine.Object dataGet);
-                data = (GyroRotatorData) dataGet;
-            }catch (System.Exception e)
-            {
-                return;
-            }
+            Debug.Log(gameObject.name + " data loadin start!");
+            gun = gameObject.GetComponentInParent<SonicReverberator>();
+            om = MonoSingleton<OptionsManager>.Instance;
+            HydraLoader.dataRegistry.TryGetValue(gameObject.name, out UnityEngine.Object dataGet);
+            data = (GyroRotatorData)dataGet;
+            Debug.Log(gameObject.name + " data finished");
         }
 
 
         void Update()
         {
-            if (gun == null && data == null)
-            {
-                GetStuff();
-            }
-            else
+            if (!om.paused)
             {
                 if (gun.charging)
                 {
@@ -46,7 +40,6 @@ namespace UltraFunGuns
                 }
                 data.currentRot += data.angularVelocity;
                 transform.localRotation = Quaternion.AngleAxis(data.currentRot, data.rotateAxis); //bad bad gimbal lock go away stinky >:(
-
             }
         }
 

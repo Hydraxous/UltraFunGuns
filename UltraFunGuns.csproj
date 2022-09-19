@@ -20,10 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\MasterDataFile.json" />
     <None Remove="Resources\UltraFunGuns.resource" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\MasterDataFile.json" />
     <EmbeddedResource Include="Resources\UltraFunGuns.resource" />
   </ItemGroup>
 

@@ -39,9 +39,21 @@ namespace UltraFunGuns
             oldVelocity = rb.velocity;
         }
 
-        private void Collide(Collision col)
+        //call when egg is shot
+        public void Explode()
         {
 
+        }
+
+        //Call when player grapples the egg should heal player for 10 hp
+        private void Cracked()
+        {
+            
+        }
+
+        private void Collide(Collision col)
+        {
+            //Fix this TODO also add code for shooting it and habving it explode
             EnemyIdentifier enemy;
             GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
             impact.transform.up = col.GetContact(0).normal;

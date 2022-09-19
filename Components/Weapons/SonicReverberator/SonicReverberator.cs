@@ -13,6 +13,7 @@ namespace UltraFunGuns
         public AudioClip vB_standard, vB_loud, vB_loudest;
 
         private NewMovement player;
+        private OptionsManager om;
 
         private Transform mainCam, firePoint;
 
@@ -47,11 +48,12 @@ namespace UltraFunGuns
         private float lastKnownCooldown = 0.0f;
 
 
-        private void Awake()
+        private void Start()
         {
             LoadData();
             HelpChildren();
             player = transform.GetComponentInParent<NewMovement>();
+            om = MonoSingleton<OptionsManager>.Instance;
             mainCam = MonoSingleton<CameraController>.Instance.transform;
         }
 
@@ -64,7 +66,7 @@ namespace UltraFunGuns
 
         private void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire && !om.paused)
             {
                 charging = true;
                 chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
@@ -75,7 +77,7 @@ namespace UltraFunGuns
                 chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime * chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && canFire)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && canFire && !om.paused)
             {
                 if (chargeLevel >= 2.0f && canFire)
                 {
