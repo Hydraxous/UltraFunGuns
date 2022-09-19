@@ -19,12 +19,13 @@ namespace UltraFunGuns
         public static bool dataRegistered = false;
         public static bool assetsRegistered = false;
 
-        public static bool RegisterAll(byte[] bundle)
+        public static bool RegisterAll(byte[] assetBundleObject)
         {
             try
             {
+                //Debug.Log(System.Text.Encoding.UTF8.GetString(scriptData));
                 Debug.Log("HydraLoader: loading mod files");
-                assetBundle = AssetBundle.LoadFromMemory(bundle);
+                assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
                 Debug.Log("HydraLoader: loading complete");
@@ -103,6 +104,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataFile = dataFile;
                 dataToRegister.Add(this);
+                Debug.Log(dataName + " registered!");
             }
 
             public CustomAssetData(string dataName, Type type) //For loading general assets
@@ -114,8 +116,21 @@ namespace UltraFunGuns
         }
     }
 
-
-    public class DataFile : UnityEngine.Object
+    [System.Serializable]
+    public class MasterDataFile : System.Object
     {
+        List<DataFile> data;
+    }
+
+    public class DataFile : UnityEngine.Object {}
+
+    public class ScriptDataDeserializer
+    {
+        public List<DataFile> masterFile;
+
+        public ScriptDataDeserializer(string jsonFile)
+        {
+            masterFile = JsonUtility.FromJson<List<DataFile>>(jsonFile);
+        }
     }
 }

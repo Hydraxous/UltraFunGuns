@@ -63,6 +63,16 @@ namespace UltraFunGuns.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] MasterDataFile {
+            get {
+                object obj = ResourceManager.GetObject("MasterDataFile", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] UltraFunGuns {
             get {
                 object obj = ResourceManager.GetObject("UltraFunGuns", resourceCulture);
