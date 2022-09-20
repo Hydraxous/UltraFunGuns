@@ -61,11 +61,11 @@ namespace UltraFunGuns
             impact.transform.parent = col.transform;
             if ((col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy) && !enemy.dead))
             {
-                enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
+                enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 0.4f, false);
                 MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
             }else if(col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart) && !enemyPart.eid.dead)
             {
-                enemyPart.eid.DeliverDamage(enemyPart.eid.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
+                enemyPart.eid.DeliverDamage(enemyPart.eid.gameObject, oldVelocity, col.GetContact(0).point, 0.4f, false);
                 MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
             }
             Destroy(gameObject);

@@ -15,6 +15,8 @@ namespace UltraFunGuns
         public LineRenderer lineRenderer;
         public Animator animator;
         public bool laserActive = false;
+        public int maxPylonRefractions = 4;
+        public int maxPylons = 5;
 
         void Start()
         {
@@ -25,10 +27,6 @@ namespace UltraFunGuns
         void Update()
         {
             animator.SetBool("Active", laserActive);
-            if (laserActive)
-            {
-                BuildLine();
-            }
         }
 
         public void AddPylon(FocalyzerPylon pylon)
@@ -52,24 +50,54 @@ namespace UltraFunGuns
             return pylonList.Count;
         }
 
-        public void SetLinePos(int index, Vector3 worldPosition)
-        {
-
-        }
-
         public void AddLinePosition(Vector3 position)
         {
             laserPoints.Add(position);
         }
 
-        public void BuildLine()
+        public void BuildLine(Vector3 normal)
         {
-
+            lineRenderer.SetPositions(laserPoints.ToArray());
+            transform.position = laserPoints[laserPoints.Count-1];
+            transform.up = normal;
+            laserPoints.Clear();
         }
 
-        public FocalyzerPylon GetRefractorTarget(FocalyzerPylon originPylon) //TODO
+        //TODO figure out a way to return null to a pylon to stop refraction
+
+        public FocalyzerPylon GetRefractorTarget(FocalyzerPylon originPylon)
         {
-            return null;
+            if (pylonList.Count > 1)
+            {
+                int lowestRefractionIndex = -1;
+                int lowestRefractionCount = maxPylonRefractions;
+                for (int i = 0; i < pylonList.Count; i++)
+                {
+                    if(originPylon != pylonList[i])
+                    {
+                        if (!pylonList[i].refracting)
+                        {
+                            return pylonList[i];
+                        }
+
+                        if (pylonList[i].refractionCount < lowestRefractionCount)
+                        {
+                            lowestRefractionCount = pylonList[i].refractionCount;
+                            lowestRefractionIndex = i;
+                        }
+                    }
+                    
+                }
+
+                if (lowestRefractionIndex > -1)
+                {
+                    return pylonList[lowestRefractionIndex];
+                }else
+                {
+
+                }
+            }
+            return originPylon;
         }
     }
 }
