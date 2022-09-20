@@ -24,7 +24,7 @@ namespace UltraFunGuns
             DoAnimations();
         }
 
-        private void Awake()
+        private void Start()
         {
             firePoint = transform.Find("viewModelWrapper/firePoint");
             mainCam = MonoSingleton<CameraController>.Instance.transform;

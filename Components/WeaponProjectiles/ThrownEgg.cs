@@ -45,7 +45,7 @@ namespace UltraFunGuns
 
         }
 
-        //Call when player grapples the egg should heal player for 10 hp
+        //Call when player grapples the egg should heal player for 10 hp or something cringe
         private void Cracked()
         {
             
@@ -53,16 +53,20 @@ namespace UltraFunGuns
 
         private void Collide(Collision col)
         {
+            impacted = true;
             //Fix this TODO also add code for shooting it and habving it explode
             EnemyIdentifier enemy;
             GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
             impact.transform.up = col.GetContact(0).normal;
             impact.transform.parent = col.transform;
-            if ((col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy) && !enemy.dead) || (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart) && !enemyPart.eid.dead))
+            if ((col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy) && !enemy.dead))
             {
                 enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
-                MonoSingleton<StyleHUD>.Instance.AddPoints(300, "hydraxous.ultrafunguns.egged");
-
+                MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
+            }else if(col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart) && !enemyPart.eid.dead)
+            {
+                enemyPart.eid.DeliverDamage(enemyPart.eid.gameObject, oldVelocity, col.GetContact(0).point, 1.0f, false);
+                MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
             }
             Destroy(gameObject);
         }
