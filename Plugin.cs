@@ -59,6 +59,9 @@ namespace UltraFunGuns
             BindConfigs();
 
             //Generic assets
+            new HydraLoader.CustomAssetData("debug_weaponIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("debug_glowIcon", typeof(Sprite));
+
             new HydraLoader.CustomAssetData("vB_loud", typeof(AudioClip));
             new HydraLoader.CustomAssetData("vB_loudest", typeof(AudioClip));
             new HydraLoader.CustomAssetData("vB_standard", typeof(AudioClip));

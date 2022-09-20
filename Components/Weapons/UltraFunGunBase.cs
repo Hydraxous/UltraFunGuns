@@ -59,13 +59,13 @@ namespace UltraFunGuns
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
             {
                 actionCooldowns["primaryFire"].AddCooldown();
-                FireLaser();
+                FirePrimary();
             }
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["secondaryFire"].CanFire() && !om.paused)
             {
                 actionCooldowns["secondaryFire"].AddCooldown();
-                ThrowPylon();
+                FireSecondary();
             }
         }
 
@@ -79,12 +79,12 @@ namespace UltraFunGuns
             return cooldowns;
         }
 
-        public virtual void FireLaser()
+        public virtual void FirePrimary()
         {
             Debug.Log("Fired Primary! (not implemented)");
         }
 
-        public virtual void ThrowPylon()
+        public virtual void FireSecondary()
         {
             Debug.Log("Fired Secondary! (not implemented)");
         }
