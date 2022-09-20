@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace UltraFunGuns
         public bool noCooldown = false;
         private float fireDelayPrimary = 0.6f;
         private float timeToFirePrimary = 0.0f;
+        private bool throwingEgg = false;
 
         private Transform mainCam, firePoint;
 
@@ -57,18 +59,26 @@ namespace UltraFunGuns
 
         private void FirePrimary()
         {
+            
+
+        }
+
+        IEnumerator ThrowEgg()
+        {
+            throwingEgg = true;
             eggThrowAnimator.Play("EggTossThrow");
-            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab,firePoint.position,Quaternion.identity);
+            yield return new WaitForSeconds(0.16f);
+            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, firePoint.position, Quaternion.identity);
             newThrownEgg.transform.forward = mainCam.forward;
             Vector3 newVelocity = mainCam.TransformDirection(0, 0, 1 * forceMultiplier);
             newVelocity += player.rb.velocity;
             newThrownEgg.GetComponent<Rigidbody>().velocity = newVelocity;
-
+            throwingEgg = false;
         }
 
         private void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && CanShoot(timeToFirePrimary))
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && CanShoot(timeToFirePrimary) && !throwingEgg)
             {
                 timeToFirePrimary = fireDelayPrimary + Time.time;
                 FirePrimary();

@@ -63,10 +63,20 @@ namespace UltraFunGuns
             laserPoints.Clear();
         }
 
+        public void StopAllRefractions()
+        {
+            foreach (FocalyzerPylon pylon in pylonList)
+            {
+                pylon.SetRefraction(false);
+            }
+        }
+
         //TODO figure out a way to return null to a pylon to stop refraction
 
         public FocalyzerPylon GetRefractorTarget(FocalyzerPylon originPylon)
         {
+            originPylon.SetRefraction(true);
+            FocalyzerPylon targetPylon = originPylon;
             if (pylonList.Count > 1)
             {
                 int lowestRefractionIndex = -1;
@@ -77,10 +87,10 @@ namespace UltraFunGuns
                     {
                         if (!pylonList[i].refracting)
                         {
-                            return pylonList[i];
+                            
+                            targetPylon = pylonList[i];
                         }
-
-                        if (pylonList[i].refractionCount < lowestRefractionCount)
+                        else if (pylonList[i].refractionCount < lowestRefractionCount)
                         {
                             lowestRefractionCount = pylonList[i].refractionCount;
                             lowestRefractionIndex = i;
@@ -91,13 +101,10 @@ namespace UltraFunGuns
 
                 if (lowestRefractionIndex > -1)
                 {
-                    return pylonList[lowestRefractionIndex];
-                }else
-                {
-
+                    targetPylon = pylonList[lowestRefractionIndex];
                 }
             }
-            return originPylon;
+            return targetPylon;
         }
     }
 }
