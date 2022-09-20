@@ -37,7 +37,7 @@ namespace UltraFunGuns
             NewStyleItem("orbited", "ORBITAL LAUNCH");
             NewStyleItem("egged", "EGGED");
             NewStyleItem("eggshower", "<color=yellow>EGG RAIN</color>");
-
+            NewStyleItem("refraction", "REFRACTED");
 
 
 

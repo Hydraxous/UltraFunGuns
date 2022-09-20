@@ -5,60 +5,122 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class UltraFunGunBase : MonoBehaviour
+    public abstract class UltraFunGunBase : MonoBehaviour
     {
-        public float fireDelayPrimary = 0.01f, fireDelaySecondary = 0.01f;
-        public float timeToFirePrimary = 0.0f, timeToFireSecondary = 0.0f;
+        public Dictionary<string, ActionCooldown> actionCooldowns;
 
         public Transform mainCam, firePoint;
+        public OptionsManager om;
+        public NewMovement player;
+        public WeaponIcon weaponIcon;
 
-        public bool noCooldown = false;
+        public abstract void DoAnimations();
 
-        public virtual bool CanShoot(float timeCounter)
+        private void Awake()
         {
-            if(timeCounter < Time.time || noCooldown)
+            actionCooldowns = SetActionCooldowns();
+            mainCam = MonoSingleton<CameraController>.Instance.transform;
+            om = MonoSingleton<OptionsManager>.Instance;
+            player = MonoSingleton<NewMovement>.Instance;
+            foreach (Transform transf in gameObject.GetComponentsInChildren<Transform>(true))
             {
-                return true;
-            }else
+                if (transf.name == "firePoint")
+                {
+                    firePoint = transf;
+                    break;
+                }
+            }
+
+            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", gameObject.name), out UnityEngine.Object weapon_weaponIcon);
+            weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
+
+            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", gameObject.name), out UnityEngine.Object weapon_glowIcon);
+            weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
+
+            weaponIcon.variationColor = 0; //TODO find a way to fix this
+
+            if (weaponIcon.weaponIcon == null || weaponIcon.glowIcon == null)
             {
-                return false;
+                HydraLoader.dataRegistry.TryGetValue("", out UnityEngine.Object debug_Icon);
+                weaponIcon.weaponIcon = (Sprite)debug_Icon;
+                weaponIcon.glowIcon = (Sprite)debug_Icon;
             }
         }
-
-        public virtual void Update()
+        
+        private void Update()
         {
             GetInput();
             DoAnimations();
         }
 
-        public virtual void DoAnimations() { }
-
-        private void Awake()
-        {
-            mainCam = MonoSingleton<CameraController>.Instance.transform;
-            firePoint = transform.Find("viewModelWrapper/FirePoint");
-            InitializeWeaponVariables();
-        }
-
+        //Example input function call this in update.
         public virtual void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && CanShoot(timeToFirePrimary))
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
             {
-                timeToFirePrimary = fireDelayPrimary + Time.time;
-                FirePrimary();
+                actionCooldowns["primaryFire"].AddCooldown();
+                FireLaser();
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && CanShoot(timeToFireSecondary))
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["secondaryFire"].CanFire() && !om.paused)
             {
-                timeToFirePrimary = fireDelayPrimary + Time.time;
-                FireSecondary();
+                actionCooldowns["secondaryFire"].AddCooldown();
+                ThrowPylon();
             }
         }
 
-        public virtual void InitializeWeaponVariables() { }
 
-        public virtual void FirePrimary() {}
+        //Implement the cooldowns here.
+        public virtual Dictionary<string, ActionCooldown> SetActionCooldowns()
+        {
+            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
+            cooldowns.Add("primaryFire", new ActionCooldown(1.0f));
+            cooldowns.Add("secondaryFire", new ActionCooldown(1.0f));
+            return cooldowns;
+        }
 
-        public virtual void FireSecondary() {}
+        public virtual void FireLaser()
+        {
+            Debug.Log("Fired Primary! (not implemented)");
+        }
+
+        public virtual void ThrowPylon()
+        {
+            Debug.Log("Fired Secondary! (not implemented)");
+        }
+
+        public class ActionCooldown
+        {
+            float timeToFire;
+            float fireDelay;
+            public bool noCooldown;
+
+            public ActionCooldown(float delay = 1f)
+            {
+                timeToFire = 0.0f;
+                this.noCooldown = (delay <= 0.0f);
+                this.fireDelay = delay;
+            }            
+
+            public void AddCooldown()
+            {
+                timeToFire = fireDelay + Time.time;
+            }
+
+            public void AddCooldown(float delayInSeconds)
+            {
+                timeToFire = delayInSeconds + Time.time;
+            }
+
+            public bool CanFire()
+            {
+                if(timeToFire < Time.time || noCooldown)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
     }
 }

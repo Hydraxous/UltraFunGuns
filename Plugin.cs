@@ -74,13 +74,18 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("Moyai", new GyroRotator.GyroRotatorData(1.5f, Vector3.one, 0.005f, 15f, -248.5f));
 
             //SonicReverberator
-            new HydraLoader.CustomAssetPrefab("SonicReverberationExplosion", new Component[] {new SonicReverberatorExplosion()});
-            new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] {new SonicReverberator(), new WeaponIcon() });
+            new HydraLoader.CustomAssetPrefab("SonicReverberationExplosion", new Component[] { new SonicReverberatorExplosion() });
+            new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] { new SonicReverberator(), new WeaponIcon() });
 
             //Egg :)
             new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon() });
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg() });
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
+
+            //Focalyzer
+            new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon() });
+            new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon()}); //ADD PYLON SCRIPT HERE
+            new HydraLoader.CustomAssetPrefab("FocalyzerLaser", new Component[] { new FocalyzerLaserController() });
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
             
