@@ -39,11 +39,10 @@ namespace UltraFunGuns
 
         }
 
-        public bool Refract(Vector3 origin, Vector3 hitPoint)
+        public void Refract(Vector3 origin, Vector3 hitPoint)
         {
             pylonManager.AddLinePosition(origin);
             ++refractionCount;
-            refracting = true;
 
             FocalyzerPylon pylon = pylonManager.GetRefractorTarget(this);
             if (pylon != null && pylon != this)
@@ -71,10 +70,8 @@ namespace UltraFunGuns
                             Eii.eid.DeliverDamage(Eii.eid.gameObject, refractDirection, hit.point, 0.025f, false);
                         }
                     }
-
-                    return pylon.Refract(transform.position, pylon.transform.position);
+                    pylon.Refract(transform.position, pylon.transform.position);
                 }
-                
             }
 
             if(pylon == this)
@@ -82,13 +79,16 @@ namespace UltraFunGuns
                 pylonManager.AddLinePosition(hitPoint);
                 Vector3 pylonNormal = MonoSingleton<NewMovement>.Instance.transform.position - hitPoint;
                 pylonManager.BuildLine(pylonNormal);
-                return true;
-            }else
+            }
+        }
+
+        public void SetRefraction(bool isRefracting)
+        {
+            if(!isRefracting)
             {
                 refractionCount = 0;
-                refracting = false;
-                return false;
             }
+            refracting = isRefracting;
         }
 
         void Shatter()

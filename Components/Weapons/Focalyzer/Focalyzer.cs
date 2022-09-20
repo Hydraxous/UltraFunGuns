@@ -16,7 +16,6 @@ namespace UltraFunGuns
         bool laserActive = false;
 
 
-
         private void Start()
         {
             HydraLoader.prefabRegistry.TryGetValue("FocalyzerPylon", out pylonPrefab);
@@ -39,7 +38,7 @@ namespace UltraFunGuns
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
             {
-                if (!om.paused && laser.PylonCount() < 3 && !throwingPylon)
+                if (!om.paused && laser.PylonCount() < laser.maxPylons && !throwingPylon)
                 {
                     StartCoroutine(ThrowPylon());
                 }
@@ -58,6 +57,7 @@ namespace UltraFunGuns
             if (hits.Length > 0)
             {
                 int endingHit = 0;
+                bool hitPylon = false;
 
                 for (int i = 0; i < hits.Length; i++)
                 {
@@ -86,11 +86,17 @@ namespace UltraFunGuns
 
                     if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
                     {
+                        hitPylon = true;
                         pylon.Refract(hits[i].point, firePoint.position);
                         break;
                     }
                 }
-                DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
+
+                if(!hitPylon)
+                {
+                    laser.StopAllRefractions();
+                    DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
+                }    
             }
         }
 
