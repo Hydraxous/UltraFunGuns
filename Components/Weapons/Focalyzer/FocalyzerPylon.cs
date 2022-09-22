@@ -157,7 +157,7 @@ namespace UltraFunGuns
                 Vector3[] laserPoints = new Vector3[] { transform.position, targetPylon.transform.position };
                 BuildLaser(laserPoints, laserPath * -1);
             }
-            else if(targetPylon == this) //TODO this goes in a random direction so fix it.
+            else if(targetPylon == this) //TODO this goes in a random direction so fix it. Update: it's a feature :^)
             {
                 if(randomDirectionCooldown.CanFire()) //delay between picking a direction
                 {
