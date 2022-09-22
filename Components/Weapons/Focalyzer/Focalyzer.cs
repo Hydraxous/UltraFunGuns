@@ -194,13 +194,15 @@ namespace UltraFunGuns
         private void OnDisable()
         {
             laserActive = false;
+            DoAnimations();
             hittingAPylon = false;
+            throwingPylon = false;
             //laser.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            
+            animator.Play("Focalyzer_Equip");
         }
     }
 }

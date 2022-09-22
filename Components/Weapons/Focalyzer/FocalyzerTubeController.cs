@@ -10,6 +10,7 @@ namespace UltraFunGuns
         private Animator[] crystals = new Animator[6];
         public int crystalsUsed = 6;
         private int lastCrystalsLeft;
+        bool initialized = false;
 
         void Awake()
         {
@@ -17,6 +18,7 @@ namespace UltraFunGuns
             {
                 crystals[i] = transform.Find(String.Format("Crystal{0}", i)).GetComponent<Animator>();
             }
+            initialized = true;
         }
 
         //6 crystal will be crystals used
@@ -25,18 +27,40 @@ namespace UltraFunGuns
             if(crystalsUsed != lastCrystalsLeft)
             {
                 lastCrystalsLeft = crystalsUsed;
-                for(int i=0;i<crystals.Length;i++)
+                UpdateCrystals();
+            }
+        }
+
+
+        void UpdateCrystals()
+        {
+            for (int i = 0; i < crystals.Length; i++)
+            {
+                if (crystalsUsed >= i)
                 {
-                    if(crystalsUsed >= i)
-                    {
-                        crystals[i].SetBool("Active", false);
-                    }else
-                    {
-                        crystals[i].SetBool("Active", true);
-                    }
+                    crystals[i].SetBool("Active", false);
+                }
+                else
+                {
+                    crystals[i].SetBool("Active", true);
                 }
             }
         }
 
+        void OnDisable()
+        {
+            if(initialized)
+            {
+                UpdateCrystals();
+            }
+        }
+
+        void OnEnable()
+        {
+            if(initialized)
+            {
+                UpdateCrystals();
+            }
+        }
     }
 }
