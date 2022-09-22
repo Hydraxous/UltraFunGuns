@@ -11,7 +11,7 @@ namespace UltraFunGuns
         //RE ADD EGG TOSS!
         List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> {"SonicReverberator", "EggToss"},
-            new List<string> { },
+            new List<string> {"Focalyzer" },
             new List<string> { },
             new List<string> { }
         };
@@ -104,21 +104,21 @@ namespace UltraFunGuns
                 {
                     gc.SwitchWeapon(7, customSlots[0], false, false);
                 }
-            }else if (MonoSingleton<InputManager>.Instance.InputSource.Slot8.WasPerformedThisFrame && (customSlots[1].Count > 1 || gc.currentSlot != 8))
+            }else if (Input.GetKeyDown(KeyCode.Alpha8) && (customSlots[1].Count > 1 || gc.currentSlot != 8))
             {
                 if (customSlots[1].Count > 1 && customSlots[1][0] != null)
                 {
                     gc.SwitchWeapon(8, customSlots[1], false, false);
                 }
             }
-            else if(MonoSingleton<InputManager>.Instance.InputSource.Slot9.WasPerformedThisFrame && (customSlots[2].Count > 1 || gc.currentSlot != 9))
+            else if(Input.GetKeyDown(KeyCode.Alpha9) && (customSlots[2].Count > 1 || gc.currentSlot != 9))
             {
                 if (customSlots[2].Count > 0 && customSlots[2][0] != null)
                 {
                     gc.SwitchWeapon(9, customSlots[2], false, false);
                 }
             }
-            else if(MonoSingleton<InputManager>.Instance.InputSource.Slot0.WasPerformedThisFrame && (customSlots[3].Count > 1 || gc.currentSlot != 10))
+            else if(Input.GetKeyDown(KeyCode.Alpha0) && (customSlots[3].Count > 1 || gc.currentSlot != 10))
             {
                 if (customSlots[3].Count > 0 && customSlots[3][0] != null)
                 {

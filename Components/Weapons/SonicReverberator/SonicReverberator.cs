@@ -242,7 +242,7 @@ namespace UltraFunGuns
         }
 
 
-        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin)
+        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this.
         {
             EnemyType enemyType = enemy.enemyType;
             bool canKnockback = false;
@@ -363,7 +363,7 @@ namespace UltraFunGuns
 
         }
 
-        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO IGBalancing
+        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO Fix this algorithm so it actually works
         {
             int chargeState = GetChargeState();
             EnemyIdentifier enemy;
@@ -395,10 +395,12 @@ namespace UltraFunGuns
                 int chargeState = GetChargeState();
                 float jumpModifier = 1.0f;
                 float upwardsModifier = playerKnockbackVerticalMultiplier;
+
                 if (player.jumping) //small boost if shooting right when jumping, like a rocket jump
                 {
                     jumpModifier = playerKnockbackJumpMultiplier;
                 }
+
                 if (!player.gc.onGround) //intuitive knockback when in the air.
                 {
                     upwardsModifier = 0.0f;
@@ -411,10 +413,7 @@ namespace UltraFunGuns
 
                 Vector3 forceVector = Vector3.ClampMagnitude(mainCam.transform.TransformDirection(localDirection), playerKnockbackMaxRange);
 
-                //player.Launch(forceVector); busted AND stinky. Fix hakita pls
                 player.rb.velocity += forceVector;
-                //Debug.Log(localDirection);
-                //Debug.Log(forceVector);
             }
         }
 
@@ -423,6 +422,7 @@ namespace UltraFunGuns
             GameObject vineBoomNoise = GameObject.Instantiate<GameObject>(new GameObject(),this.transform);
             Destroy(vineBoomNoise, 3.0f);
             AudioSource vineBoomAudioSource = vineBoomNoise.AddComponent<AudioSource>();
+            vineBoomNoise.AddComponent<DestroyAfterTime>();
             vineBoomAudioSource.playOnAwake = false;
             vineBoomAudioSource.loop = false;
             switch (GetChargeState())

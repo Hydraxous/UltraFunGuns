@@ -13,15 +13,21 @@ namespace UltraFunGuns
         public OptionsManager om;
         public NewMovement player;
         public WeaponIcon weaponIcon;
+        public Animator animator;
+
+        public string registryName;
 
         public abstract void DoAnimations();
 
         private void Awake()
         {
+            ResolveRegistryName();
             actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
             player = MonoSingleton<NewMovement>.Instance;
+            animator = GetComponent<Animator>();
+            weaponIcon = GetComponent<WeaponIcon>();
             foreach (Transform transf in gameObject.GetComponentsInChildren<Transform>(true))
             {
                 if (transf.name == "firePoint")
@@ -31,22 +37,43 @@ namespace UltraFunGuns
                 }
             }
 
-            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", gameObject.name), out UnityEngine.Object weapon_weaponIcon);
+            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", registryName), out UnityEngine.Object weapon_weaponIcon);
             weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
 
-            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", gameObject.name), out UnityEngine.Object weapon_glowIcon);
+            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", registryName), out UnityEngine.Object weapon_glowIcon);
             weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
 
-            weaponIcon.variationColor = 0; //TODO find a way to fix this
+            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now.
 
-            if (weaponIcon.weaponIcon == null || weaponIcon.glowIcon == null)
+            if (weaponIcon.weaponIcon == null)
             {
-                HydraLoader.dataRegistry.TryGetValue("", out UnityEngine.Object debug_Icon);
-                weaponIcon.weaponIcon = (Sprite)debug_Icon;
-                weaponIcon.glowIcon = (Sprite)debug_Icon;
+                HydraLoader.dataRegistry.TryGetValue("debug_weaponIcon", out UnityEngine.Object debug_weaponIcon);
+                weaponIcon.weaponIcon = (Sprite)debug_weaponIcon;   
             }
+
+            if(weaponIcon.glowIcon == null)
+            {
+                HydraLoader.dataRegistry.TryGetValue("debug_glowIcon", out UnityEngine.Object debug_glowIcon);
+                weaponIcon.glowIcon = (Sprite)debug_glowIcon;
+            }
+
+            OnAwakeFinished();
         }
         
+        public virtual void OnAwakeFinished()
+        {
+
+        }
+        
+        private void ResolveRegistryName()
+        {
+            registryName = gameObject.name;
+            if(registryName.Contains("(Clone)"))
+            {
+                registryName = registryName.Replace("(Clone)", "");
+            }
+        }
+
         private void Update()
         {
             GetInput();
@@ -68,7 +95,6 @@ namespace UltraFunGuns
                 FireSecondary();
             }
         }
-
 
         //Implement the cooldowns here.
         public virtual Dictionary<string, ActionCooldown> SetActionCooldowns()

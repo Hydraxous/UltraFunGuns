@@ -14,12 +14,15 @@ namespace UltraFunGuns
         public Focalyzer focalyzer;
         public LineRenderer lineRenderer;
         public Animator animator;
+
         public bool laserActive = false;
         public int maxPylonRefractions = 4;
-        public int maxPylons = 5;
+        public int maxPylons = 10;
+        public float maxPylonRange = 500.0f;
 
         void Start()
         {
+
             lineRenderer = GetComponent<LineRenderer>();
             animator = GetComponent<Animator>();
         }
@@ -63,45 +66,61 @@ namespace UltraFunGuns
             laserPoints.Clear();
         }
 
-        public void StopAllRefractions()
+
+        private bool LineOfSightCheck(FocalyzerPylon pylon1, FocalyzerPylon pylon2)
         {
-            foreach (FocalyzerPylon pylon in pylonList)
+            Vector3 rayCastDirection = pylon2.transform.position - pylon1.transform.position;
+            RaycastHit[] hits = Physics.RaycastAll(pylon1.transform.position, rayCastDirection, rayCastDirection.magnitude);
+            hits = focalyzer.SortHitsByDistance(hits);
+            foreach(RaycastHit hit in hits)
             {
-                pylon.SetRefraction(false);
+                if(hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
+                {
+                    return false;
+                }
+
+                if(hit.collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon hitPylon))
+                {
+                    return true;
+                }
             }
+            return false;
         }
-
-        //TODO figure out a way to return null to a pylon to stop refraction
-
+        
+        //Returns closest pylon within line of sight which isnt already refracting, if it cannot find one it will return itself.
         public FocalyzerPylon GetRefractorTarget(FocalyzerPylon originPylon)
         {
-            originPylon.SetRefraction(true);
             FocalyzerPylon targetPylon = originPylon;
             if (pylonList.Count > 1)
             {
-                int lowestRefractionIndex = -1;
-                int lowestRefractionCount = maxPylonRefractions;
+                int closestPylonIndex = -1;
+                float closestDistance = maxPylonRange;
                 for (int i = 0; i < pylonList.Count; i++)
                 {
+
                     if(originPylon != pylonList[i])
                     {
-                        if (!pylonList[i].refracting)
+                        Vector3 directionToPylon = pylonList[i].transform.position - originPylon.transform.position;
+                        if (!pylonList[i].refracting && LineOfSightCheck(originPylon, pylonList[i]) && pylonList[i] != originPylon.targetPylon)
                         {
-                            
                             targetPylon = pylonList[i];
+                            if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
+                            {
+                                closestDistance = directionToPylon.magnitude;
+                                closestPylonIndex = i;
+                            }
                         }
-                        else if (pylonList[i].refractionCount < lowestRefractionCount)
+                        /*else if (pylonList[i].refractionCount < lowestRefractionCount) TODO Uncomment if implementing split refracting.
                         {
                             lowestRefractionCount = pylonList[i].refractionCount;
                             lowestRefractionIndex = i;
-                        }
+                        }*/
                     }
-                    
                 }
 
-                if (lowestRefractionIndex > -1)
+                if (closestPylonIndex > -1)
                 {
-                    targetPylon = pylonList[lowestRefractionIndex];
+                    targetPylon = pylonList[closestPylonIndex];
                 }
             }
             return targetPylon;

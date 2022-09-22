@@ -6,67 +6,51 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class EggToss : MonoBehaviour
+    public class EggToss : UltraFunGunBase
     {
         private GameObject thrownEggPrefab;
-        private Animator eggThrowAnimator;
-        public float forceMultiplier = 50.0f;
-        public bool noCooldown = false;
-        private float fireDelayPrimary = 0.6f;
-        private float timeToFirePrimary = 0.0f;
+
+        public float forceMultiplier = 59.0f;
         private bool throwingEgg = false;
-
-        private Transform mainCam, firePoint;
-
-        private NewMovement player;
-
-        private void Update()
-        {
-            GetInput();
-            DoAnimations();
-        }
 
         private void Start()
         {
-            firePoint = transform.Find("viewModelWrapper/firePoint");
-            mainCam = MonoSingleton<CameraController>.Instance.transform;
-            player = MonoSingleton<NewMovement>.Instance;
-            WeaponIcon wepIcon = gameObject.GetComponent<WeaponIcon>();
-            wepIcon.variationColor = 1;
-            eggThrowAnimator = GetComponent<Animator>();
-
-            //TODO FIX LOAD ISSUES I think its the casting that does it .
-
-
-            HydraLoader.dataRegistry.TryGetValue("EggToss_weaponIcon", out UnityEngine.Object EggToss_weaponIcon);
-            wepIcon.weaponIcon = (Sprite) EggToss_weaponIcon;
-
-            HydraLoader.dataRegistry.TryGetValue("EggToss_glowIcon", out UnityEngine.Object EggToss_glowIcon);
-            wepIcon.glowIcon = (Sprite) EggToss_glowIcon;
-
 
             HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
             HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out thrownEggPrefab.GetComponent<ThrownEgg>().impactFX);
-            //fireDelayPrimary = 0.6f;
-            //fireDelaySecondary = 1.2f;
+            HydraLoader.prefabRegistry.TryGetValue("EggSplosion", out thrownEggPrefab.GetComponent<ThrownEgg>().eggsplosionPrefab);
 
         }
 
-        private void DoAnimations()
+        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
-            eggThrowAnimator.SetBool("CanShoot", CanShoot(timeToFirePrimary));
+            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
+            cooldowns.Add("primaryFire", new ActionCooldown(0.6f));
+            cooldowns.Add("secondaryFire", new ActionCooldown(0.3f));
+            return cooldowns;
         }
 
-        private void FirePrimary()
+        public override void DoAnimations()
         {
-            
+            bool ableToShoot = (actionCooldowns["primaryFire"].CanFire() || actionCooldowns["secondaryFire"].CanFire());
+            animator.SetBool("CanShoot", ableToShoot);
+        }
 
+        IEnumerator DropEgg()
+        {
+            throwingEgg = true;
+            animator.Play("EggTossDrop");
+            yield return new WaitForSeconds(0.15f);
+            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, player.transform.TransformPoint(0,-1.5f,0), Quaternion.identity);
+            newThrownEgg.transform.forward = mainCam.forward;
+            newThrownEgg.GetComponent<Rigidbody>().velocity = Vector3.down;
+            throwingEgg = false;
         }
 
         IEnumerator ThrowEgg()
         {
             throwingEgg = true;
-            eggThrowAnimator.Play("EggTossThrow");
+            animator.Play("EggTossThrow");
             yield return new WaitForSeconds(0.16f);
             GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, firePoint.position, Quaternion.identity);
             newThrownEgg.transform.forward = mainCam.forward;
@@ -76,25 +60,22 @@ namespace UltraFunGuns
             throwingEgg = false;
         }
 
-        private void GetInput()
+        public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && CanShoot(timeToFirePrimary) && !throwingEgg)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !throwingEgg)
             {
-                timeToFirePrimary = fireDelayPrimary + Time.time;
-                FirePrimary();
+                actionCooldowns["primaryFire"].AddCooldown();
+                StartCoroutine(ThrowEgg());
+            }else if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["secondaryFire"].CanFire() && !throwingEgg)
+            {
+                actionCooldowns["secondaryFire"].AddCooldown();
+                StartCoroutine(DropEgg());
             }
         }
 
-        private bool CanShoot(float timeCounter)
+        private void OnDisable()
         {
-            if (timeCounter < Time.time || noCooldown)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            throwingEgg = false;
         }
     }
 }

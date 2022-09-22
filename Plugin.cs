@@ -84,10 +84,11 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon() });
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg() });
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("EggSplosion", new Component[] { new DestroyAfterTime() });
 
             //Focalyzer
             new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon() });
-            new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon()}); //ADD PYLON SCRIPT HERE
+            new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() }); 
             new HydraLoader.CustomAssetPrefab("FocalyzerLaser", new Component[] { new FocalyzerLaserController() });
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
