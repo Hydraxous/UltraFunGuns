@@ -9,6 +9,7 @@ namespace UltraFunGuns
     public class Focalyzer : UltraFunGunBase
     {
         public FocalyzerLaserController laser;
+        public FocalyzerTubeController tubeController;
         public GameObject pylonPrefab;
 
         private bool throwingPylon = false;
@@ -16,6 +17,11 @@ namespace UltraFunGuns
         public bool hittingAPylon = false;
 
         private LayerMask laserHitMask;
+
+        public override void OnAwakeFinished()
+        {
+            tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeController>();
+        }
 
         private void Start()
         {
@@ -41,7 +47,7 @@ namespace UltraFunGuns
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
             {
-                if (!om.paused && laser.PylonCount() < laser.maxPylons && !throwingPylon)
+                if (!om.paused && laser.GetPylonCount() < laser.maxPylons && !throwingPylon)
                 {
                     StartCoroutine(ThrowPylon());
                 }
@@ -51,6 +57,8 @@ namespace UltraFunGuns
         public override void DoAnimations()
         {
             laser.laserActive = laserActive;
+            tubeController.crystalsUsed = laser.GetPylonCount()-1;
+            animator.SetBool("LaserActive", laserActive);
         }
 
         //sorts raycast hits by distance cause unity is weird about it.
@@ -111,6 +119,11 @@ namespace UltraFunGuns
                         }
                     }
 
+                    if(hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+                    {
+                        breakable.Break();
+                    }
+
                     if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
                         MonoSingleton<TimeController>.Instance.ParryFlash();
@@ -165,7 +178,7 @@ namespace UltraFunGuns
             pylon.focalyzer = this;
             pylon.pylonManager = laser;
 
-            newPylon.GetComponent<Rigidbody>().velocity = (mainCam.TransformDirection(0, 0, 1)*3.0f);
+            newPylon.GetComponent<Rigidbody>().velocity = (mainCam.TransformDirection(0, 0, 1)*40.0f);
             throwingPylon = false;
         }
 
