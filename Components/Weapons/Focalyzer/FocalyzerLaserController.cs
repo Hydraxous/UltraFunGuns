@@ -17,7 +17,7 @@ namespace UltraFunGuns
 
         public bool laserActive = false;
         public int maxPylonRefractions = 4;
-        public int maxPylons = 10;
+        public int maxPylons = 6;
         public float maxPylonRange = 500.0f;
 
         void Start()
@@ -48,7 +48,7 @@ namespace UltraFunGuns
             }
         }
 
-        public int PylonCount()
+        public int GetPylonCount()
         {
             return pylonList.Count;
         }

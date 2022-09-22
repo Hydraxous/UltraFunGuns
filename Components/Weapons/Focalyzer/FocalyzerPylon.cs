@@ -77,6 +77,39 @@ namespace UltraFunGuns
             refracting = false;
         }
 
+        private bool LaserHit(RaycastHit hit, Vector3 castDirection, float damageMultiplier, float critMultiplier = 0, bool tryExplode = false)
+        {
+            if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
+            {
+                return false;
+            }
+
+            if (hit.collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+            {
+                breakable.Break();
+            }
+
+            if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+            {
+                egg.Explode();
+            }
+
+            if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
+            {
+                grenade.Explode();
+            }
+
+            if (hit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
+            {
+                if (damageCooldown.CanFire())
+                {
+                    damageCooldown.AddCooldown();
+                    Eii.eid.DeliverDamage(Eii.eid.gameObject, castDirection, hit.point, damageMultiplier, tryExplode, critMultiplier);
+                }
+            }
+            return true;
+        }
+
         public void FireLaser()
         {
             //AOE Damage
@@ -114,29 +147,10 @@ namespace UltraFunGuns
                 Vector3 laserPath = targetPylon.transform.position - transform.position;
                 RaycastHit[] hits = Physics.RaycastAll(transform.position, laserPath, laserPath.magnitude, laserHitMask);
                 foreach (RaycastHit hit in hits)
-                {
-                    if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
+                {  
+                    if(!LaserHit(hit, laserPath, 0.3f))
                     {
                         break;
-                    }
-
-                    if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
-                    {
-                        egg.Explode();
-                    }
-
-                    if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                    {
-                        grenade.Explode();
-                    }
-
-                    if (hit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
-                    {
-                        if (damageCooldown.CanFire())
-                        {
-                            damageCooldown.AddCooldown();
-                            Eii.eid.DeliverDamage(Eii.eid.gameObject, laserPath, hit.point, 0.3f, false);
-                        }
                     }
                 }
                 targetPylon.DoRefraction(this);
@@ -164,37 +178,25 @@ namespace UltraFunGuns
                     foreach (RaycastHit hit in hits)
                     {
                         ++counter;
-                        if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
+                        if (!LaserHit(hit, randomizedDirection, 10.0f, 2.0f, true))
                         {
                             break;
-                        }
-
-                        if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
-                        {
-                            egg.Explode();
-                        }
-
-                        if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                        {
-                            grenade.Explode();
-                        }
-
-                        if (hit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
-                        {
-                            if (damageCooldown.CanFire())
-                            {
-                                damageCooldown.AddCooldown();
-                                Eii.eid.DeliverDamage(Eii.eid.gameObject, randomizedDirection, hit.point, 10.0f, true, 2.0f);
-                            }
                         }
                     }
                     Vector3[] laserPoints = new Vector3[] { transform.position, hits[counter].point };
                     BuildLaser(laserPoints, hits[counter].normal);
                 }else
                 {
-                    Vector3 cameraPos = MonoSingleton<CameraController>.Instance.transform.position;
-                    Vector3 offPlayer = cameraPos - transform.position;
-                    BuildLaser(new Vector3[] {transform.position, cameraPos }, offPlayer);
+                    if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, laserHitMask))
+                    {
+                        LaserHit(hit, randomizedDirection, 5.0f, 1.0f, true);
+                        BuildLaser(new Vector3[] { transform.position, hit.point }, hit.normal);
+                    }
+                    else
+                    {
+                        Vector3 towardsPlayer = MonoSingleton<CameraController>.Instance.transform.position - transform.position;
+                        BuildLaser(new Vector3[] { transform.position, transform.position }, towardsPlayer);
+                    }
                 }
                 
             }else
