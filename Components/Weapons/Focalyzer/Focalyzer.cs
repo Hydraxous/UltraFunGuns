@@ -10,14 +10,16 @@ namespace UltraFunGuns
     {
         public FocalyzerLaserController laser;
         public GameObject pylonPrefab;
-        private Animator animator;
 
-        bool throwingPylon = false;
-        bool laserActive = false;
+        private bool throwingPylon = false;
+        public bool laserActive = false;
+        public bool hittingAPylon = false;
 
+        private LayerMask laserHitMask;
 
         private void Start()
         {
+            laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default");
             HydraLoader.prefabRegistry.TryGetValue("FocalyzerPylon", out pylonPrefab);
             HydraLoader.prefabRegistry.TryGetValue("FocalyzerLaser", out GameObject laserPrefab);
             laser = GameObject.Instantiate<GameObject>(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<FocalyzerLaserController>();
@@ -33,6 +35,7 @@ namespace UltraFunGuns
             }else if (laserActive)
             {
                 laserActive = false;
+                hittingAPylon = false;
                 actionCooldowns["fireLaser"].AddCooldown();
             }
 
@@ -50,53 +53,95 @@ namespace UltraFunGuns
             laser.laserActive = laserActive;
         }
 
+        //sorts raycast hits by distance cause unity is weird about it.
+        public RaycastHit[] SortHitsByDistance(RaycastHit[] hits)
+        {
+            List<RaycastHit> sortedHits = new List<RaycastHit>(hits.Length);
+
+            for(int i=0;i<hits.Length;i++)
+            {
+                RaycastHit currentHit = hits[i];
+                int currentIndex = i;
+
+                while (currentIndex > 0 && sortedHits[currentIndex - 1].distance > currentHit.distance)
+                {
+                    currentIndex--;
+                }
+
+                sortedHits.Insert(currentIndex, currentHit);
+
+            }
+
+            return sortedHits.ToArray();
+        }
+
+
         public void FireLaser()
         {
             Vector3 laserVector = mainCam.TransformDirection(0, 0, 1);
-            RaycastHit[] hits = Physics.RaycastAll(mainCam.transform.position, laserVector, 200.0f, 117460224);
+            RaycastHit[] hits = Physics.RaycastAll(mainCam.transform.position, laserVector, 1000.0f, laserHitMask);
             if (hits.Length > 0)
             {
-                int endingHit = 0;
                 bool hitPylon = false;
-
+                int endingHit = 0;
+                hits = SortHitsByDistance(hits);
                 for (int i = 0; i < hits.Length; i++)
                 {
                     endingHit = i;
 
-                    if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
+                    if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
+                    {
+                        break;
+                    }
+
+                    if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                     {
                         if (actionCooldowns["damageTick"].CanFire())
                         {
                             actionCooldowns["damageTick"].AddCooldown();
-                            Eii.eid.DeliverDamage(Eii.eid.gameObject, laserVector, hits[i].point, 0.1f, false);
+                            enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                        }
+                    }
+                    else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+                    {
+                        if (actionCooldowns["damageTick"].CanFire())
+                        {
+                            actionCooldowns["damageTick"].AddCooldown();
+                            enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                         }
                     }
 
                     if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
+                        MonoSingleton<TimeController>.Instance.ParryFlash();
                         egg.Explode();
                         break;
                     }
 
                     if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
                     {
+                        MonoSingleton<TimeController>.Instance.ParryFlash();
                         grenade.Explode();
                         break;
                     }
 
                     if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
                     {
+                        hittingAPylon = true; //need this here because of the coroutine in FocalyzerPylon
+                        pylon.DoRefraction(pylon, true);
                         hitPylon = true;
-                        pylon.Refract(hits[i].point, firePoint.position);
                         break;
                     }
                 }
+                hittingAPylon = hitPylon;
 
-                if(!hitPylon)
-                {
-                    laser.StopAllRefractions();
-                    DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
-                }    
+                DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
+            }
+            else //if we didnt hit anything... somehow.. 
+            {
+                Vector3 missEndpoint = mainCam.TransformPoint(0, 0, 1000.0f);
+                Vector3 towardsPlayer = player.transform.position - missEndpoint;
+                DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
             }
         }
 
@@ -107,14 +152,20 @@ namespace UltraFunGuns
             laser.BuildLine(normal);
         }
 
+        //TODO check for consequences of your hubris.
         IEnumerator ThrowPylon()
         {
             throwingPylon = true;
             actionCooldowns["throwPylon"].AddCooldown();
-            animator.Play("ThrowPylon");
+            animator.Play("Focalyzer_ThrowPylon");
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
-            newPylon.GetComponent<Rigidbody>().AddForce(mainCam.TransformDirection(0, 0, 1)*100.0f);
+            FocalyzerPylon pylon = newPylon.GetComponent<FocalyzerPylon>();
+            pylon.laserHitMask = laserHitMask;
+            pylon.focalyzer = this;
+            pylon.pylonManager = laser;
+
+            newPylon.GetComponent<Rigidbody>().velocity = (mainCam.TransformDirection(0, 0, 1)*3.0f);
             throwingPylon = false;
         }
 
@@ -130,12 +181,13 @@ namespace UltraFunGuns
         private void OnDisable()
         {
             laserActive = false;
-            laser.gameObject.SetActive(false);
+            hittingAPylon = false;
+            //laser.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            laser.gameObject.SetActive(true);
+            
         }
     }
 }

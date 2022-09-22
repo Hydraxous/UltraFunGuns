@@ -17,12 +17,10 @@ namespace UltraFunGuns
 
         void GetStuff()
         {
-            Debug.Log(gameObject.name + " data loadin start!");
             gun = gameObject.GetComponentInParent<SonicReverberator>();
             om = MonoSingleton<OptionsManager>.Instance;
             HydraLoader.dataRegistry.TryGetValue(gameObject.name, out UnityEngine.Object dataGet);
             data = (GyroRotatorData)dataGet;
-            Debug.Log(gameObject.name + " data finished");
         }
 
 
