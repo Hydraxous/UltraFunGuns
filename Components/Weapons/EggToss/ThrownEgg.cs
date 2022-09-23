@@ -13,7 +13,7 @@ namespace UltraFunGuns
 
         private Rigidbody rb;
         private CapsuleCollider eggCollider;
-        private Vector3 oldVelocity;
+        public Vector3 oldVelocity;
         private float invicibleTimer = 0.015f;
         private bool canImpact = false;
         private bool impacted = false;
@@ -40,6 +40,11 @@ namespace UltraFunGuns
             {
                 canImpact = true;
             }
+
+            if(isEggsplosionEgg)
+            {
+                //rb.velocity = oldVelocity;
+            }
         }
 
         private void LateUpdate()
@@ -48,15 +53,15 @@ namespace UltraFunGuns
         }
 
         //TODO call when egg is shot eggsplosion hehe
-        public void Explode(float explosionSize)
+        public void Explode(float explosionSize = 10.0f)
         {
             if(!isEggsplosionEgg && !impacted)
             {
-                MonoSingleton<TimeController>.Instance.ParryFlash();
                 MonoSingleton<StyleHUD>.Instance.AddPoints(50, "hydraxous.ultrafunguns.eggsplosion");
+                MonoSingleton<TimeController>.Instance.ParryFlash();
                 EggSplosion newEggSplosion = Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
-                newEggSplosion.explosionSize = explosionSize;
-                Destroy(this);
+                //newEggSplosion.explosionSize = explosionSize;
+                Destroy(gameObject);
             }  
         }
 
@@ -69,8 +74,10 @@ namespace UltraFunGuns
         //TODO add code for shooting it and habving it explode and also grapple thing do the overload too.
         private void Collide(Collision col)
         {
-            if(!impacted)
+
+            if (!impacted)
             {
+                Debug.Log("EGG CRACK!");
                 impacted = true;
 
                 EnemyIdentifier enemy = null;
@@ -102,7 +109,7 @@ namespace UltraFunGuns
                         }
                         else
                         {
-                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*0.25f, col.GetContact(0).point, damage*0.25f, false);
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*0.25f, col.GetContact(0).point, damage*0.75f, false);
                             MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
                         }
                     }
@@ -124,6 +131,7 @@ namespace UltraFunGuns
 
         private void Collide(Collider col)
         {
+            Debug.Log("EGG CRACK!");
             if (!impacted)
             {
                 impacted = true;
@@ -148,15 +156,30 @@ namespace UltraFunGuns
                 {
                     if (!enemy.dead)
                     {
-                        enemy.DeliverDamage(enemy.gameObject, oldVelocity, transform.position, damage, false);
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
+                        if (!isEggsplosionEgg)
+                        {
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity, transform.position, damage, false);
+                            if (dropped)
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(110, "hydraxous.ultrafunguns.eggstrike");
+                            }
+                            else
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(110, "hydraxous.ultrafunguns.egged");
+                            }
+                        }
+                        else
+                        {
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity * 0.25f, transform.position, damage * 0.25f, false);
+                            MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
+                        }
                     }
                     else
                     {
                         UnityEngine.Physics.IgnoreCollision(eggCollider, col, true);
                         impacted = false;
                     }
-                }         
+                }
             }
 
             if (impacted)
@@ -167,6 +190,12 @@ namespace UltraFunGuns
 
         private void OnCollisionEnter(Collision col)
         {
+            if (col.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egggggggyDontUseThisVariable))
+            {
+                Physics.IgnoreCollision(eggCollider, col.collider, true);
+                return;
+            }
+
             if (canImpact || isEggsplosionEgg)
             {
                 Collide(col);
@@ -175,7 +204,8 @@ namespace UltraFunGuns
 
         private void OnTriggerEnter(Collider col)
         {
-            if (canImpact && col.gameObject.layer != 20 && (col.gameObject.layer == 10 || col.gameObject.layer == 11) && !col.isTrigger || isEggsplosionEgg)
+
+            if ((canImpact || isEggsplosionEgg) && col.gameObject.layer != 20 && (col.gameObject.layer == 10 || col.gameObject.layer == 11) && !col.isTrigger )
             {
                 Collide(col);
             }

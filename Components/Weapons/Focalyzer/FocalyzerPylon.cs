@@ -8,6 +8,10 @@ namespace UltraFunGuns
 {
 
     //Pylon of the focalyzer. When shot by a player using a focalyzer it will attempt to refract the laser to deal more damage.
+    /*PLANNED:
+     Shatter if punched.
+     Move towards player if hit with grapple.
+         */
     public class FocalyzerPylon : MonoBehaviour
     {
         public Animator animator;
@@ -34,16 +38,23 @@ namespace UltraFunGuns
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
 
+        public bool disco = false;
+
+        private AudioSource discoAudio;
+
         //TODO bug in which pylon has a null reference in it's firelaser coroutine when it's target pylon is destroyed.
 
         void Start()
         {
+            discoAudio = transform.Find("DiscoAudio").gameObject.GetComponent<AudioSource>();
             lifeTimeLeft = lifeTime + Time.time;
             animator = GetComponent<Animator>();
             refractedLaser = GetComponentInChildren<LineRenderer>();
             laserAnimator = refractedLaser.GetComponent<Animator>();
             transform.Find("FocalyzerCrystalVisual/RefractorVisual").gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
             pylonManager.AddPylon(this);
+            disco = (UnityEngine.Random.Range(0.0f, 100.0f) <= 5.0f);
+            discoAudio.Play();
         }
 
         void Update()
@@ -53,6 +64,14 @@ namespace UltraFunGuns
             if (lifeTimeLeft < Time.time)
             {
                 Shatter();
+            }
+
+            if(disco && refracting && targetPylon == this)
+            {
+                discoAudio.UnPause();
+            }else
+            {
+                discoAudio.Pause();
             }
         }
 
@@ -71,15 +90,19 @@ namespace UltraFunGuns
             refracting = true;
             while (focalyzer.hittingAPylon)
             {
-                if(targetPylon == null || (targetPylon == this && pylonChecker.CanFire()))
+                try
                 {
-                    pylonChecker.AddCooldown();
-                    targetPylon = pylonManager.GetRefractorTarget(pylonHit);
-                }
-                if(targetPylon != null) //TODO check if this fixed the null reference bug.
-                {
+                    if (targetPylon == null || pylonChecker.CanFire())
+                    {
+                        pylonChecker.AddCooldown();
+                        targetPylon = pylonManager.GetRefractorTarget(pylonHit);
+                    }
                     FireLaser();
+                }catch(Exception e)
+                {
+                    
                 }
+                
                 yield return new WaitForEndOfFrame();
             }
             refracting = false;
@@ -100,7 +123,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode(2.0f);
+                egg.Explode(8.0f);
             }
 
             if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
@@ -130,7 +153,7 @@ namespace UltraFunGuns
                 {
                     if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
-                        egg.Explode(1.0f);
+                        egg.Explode(1.0f); //TODO CHANGE
                     }
 
                     if (sphereHit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
