@@ -99,37 +99,20 @@ namespace UltraFunGuns
                 float closestDistance = maxPylonRange;
                 for (int i = 0; i < pylonList.Count; i++)
                 {
-                    //Pylon should not target itself.
-                    if(originPylon != pylonList[i])
+                    if (originPylon != pylonList[i])
                     {
                         Vector3 directionToPylon = pylonList[i].transform.position - originPylon.transform.position;
-                        //Pylon should not target a pylon that is already firing or out of line of sight
-                        if (LineOfSightCheck(originPylon, pylonList[i]))
+                        if ((!pylonList[i].refracting && LineOfSightCheck(originPylon, pylonList[i]) && pylonList[i] != originPylon.targetPylon))
                         {
-                            bool eligible = false;
-
-                            bool condition1 = (!pylonList[i].refracting); //First target pylons that aren't refracting.
-                            bool condition2 = (pylonList[i].targetPylon != originPylon && pylonList.Count > 2); //Second target pylons that aren't trgeting og pylon if theres more than 2.
-                            bool condition3 = (pylonList.Count < 3 && pylonList[i].refracting && pylonList[i].targetPylon == originPylon); //Third target pylons which are already targeting og if theres less than 3 pylons and is
-
-                            if(condition1 || condition2 || condition3)
+                            targetPylon = pylonList[i];
+                            if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
                             {
-                                eligible = true;
-                            }
-                            //TODO problem, you can trick a pylon into disco mode when it is being targeted.
-                            if(eligible)
-                            {
-                                targetPylon = pylonList[i];
-                                if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
-                                {
-                                    closestDistance = directionToPylon.magnitude;
-                                    closestPylonIndex = i;
-                                }
+                                closestDistance = directionToPylon.magnitude;
+                                closestPylonIndex = i;
                             }
                         }
                     }
                 }
-
                 if (closestPylonIndex > -1)
                 {
                     targetPylon = pylonList[closestPylonIndex];

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.SceneManagement;
 using UltraFunGuns.Properties;
+using HarmonyLib;
 
 namespace UltraFunGuns
 {
@@ -18,6 +19,7 @@ namespace UltraFunGuns
         {
             if (RegisterAssets())
             {
+                DoPatching();
                 Logger.LogInfo("UltraFunGuns Loaded.");
             }else
             {
@@ -47,6 +49,12 @@ namespace UltraFunGuns
                 return false;
             }
             return true;
+        }
+
+        private void DoPatching()
+        {
+            Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns.Patch");
+            harmony.PatchAll(typeof(UltraFunGuns));
         }
 
         private void BindConfigs()
@@ -116,5 +124,20 @@ namespace UltraFunGuns
             }
             
         }
+
+        [HarmonyPatch(typeof(RevolverBeam), nameof(RevolverBeam.ExecuteHits))]
+        public static class revolverBeamPatch
+        {
+            public static void Postfix(RevolverBeam ___instance, RaycastHit hit)
+            {
+                ThrownEgg hitEgg = hit.transform.GetComponent<ThrownEgg>();
+                if (hitEgg != null)
+                {
+                    hitEgg.Explode();
+                }
+            }
+        }
+
     }
+    
 }

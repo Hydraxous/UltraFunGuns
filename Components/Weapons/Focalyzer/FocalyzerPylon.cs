@@ -42,8 +42,6 @@ namespace UltraFunGuns
 
         private AudioSource discoAudio;
 
-        //TODO bug in which pylon has a null reference in it's firelaser coroutine when it's target pylon is destroyed.
-
         void Start()
         {
             discoAudio = transform.Find("DiscoAudio").gameObject.GetComponent<AudioSource>();
@@ -90,10 +88,17 @@ namespace UltraFunGuns
             refracting = true;
             while (focalyzer.hittingAPylon)
             {
-                if (targetPylon == null || (targetPylon == this && pylonChecker.CanFire()))
+                if (pylonChecker.CanFire())
                 {
                     pylonChecker.AddCooldown();
-                    targetPylon = pylonManager.GetRefractorTarget(pylonHit);
+                    try
+                    {
+                        targetPylon = pylonManager.GetRefractorTarget(pylonHit);
+                    }
+                    catch(Exception e)
+                    {
+                        //TODO FIX THIS IDK WHAT IS CAUSING IT.
+                    }          
                 }
                 FireLaser();
 
@@ -102,7 +107,7 @@ namespace UltraFunGuns
             refracting = false;
         }
 
-        //Executes a laser hit on given information. These lasers DO penetrate through enemies, grenades, etc, but do not work if line of sight is broken.
+        //Executes a laser hit on given information. These lasers DO penetrate through enemies, grenades, etc, but do not work if line of sight is broken. UPDATE: los check is weird idfk
         private bool LaserHit(RaycastHit hit, Vector3 castDirection, float damageMultiplier, float critMultiplier = 0, bool tryExplode = false)
         {
             if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
