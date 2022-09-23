@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Throwable projectile that bounces off of things, does damage to enemies and multiplies it's velocity every time it hits something. Should be really funny.
     public class Dodgeball : UltraFunGunBase
     {
 

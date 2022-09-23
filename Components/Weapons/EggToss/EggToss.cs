@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion. TODO add revolver/railgun interaction.
     public class EggToss : UltraFunGunBase
     {
         private GameObject thrownEggPrefab;
@@ -36,6 +37,7 @@ namespace UltraFunGuns
             animator.SetBool("CanShoot", ableToShoot);
         }
 
+        //Drops egg directly below player with minimal no velocity inheritance.
         IEnumerator DropEgg()
         {
             throwingEgg = true;
@@ -43,10 +45,12 @@ namespace UltraFunGuns
             yield return new WaitForSeconds(0.15f);
             GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, player.transform.TransformPoint(0,-1.5f,0), Quaternion.identity);
             newThrownEgg.transform.forward = mainCam.forward;
+            newThrownEgg.GetComponent<ThrownEgg>().dropped = true;
             newThrownEgg.GetComponent<Rigidbody>().velocity = Vector3.down;
             throwingEgg = false;
         }
 
+        //Throws egg inheriting the velocity of the player.
         IEnumerator ThrowEgg()
         {
             throwingEgg = true;

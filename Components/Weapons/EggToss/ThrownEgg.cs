@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Egg projectile script created by EggToss and EggSplosion.
     public class ThrownEgg : MonoBehaviour
     {
         public GameObject impactFX;
@@ -16,11 +17,14 @@ namespace UltraFunGuns
         private float invicibleTimer = 0.015f;
         private bool canImpact = false;
         private bool impacted = false;
+        public bool isEggsplosionEgg = false;
+        public bool dropped = false;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
             eggCollider = GetComponent<CapsuleCollider>();
+
         }
 
         private void Start()
@@ -44,10 +48,16 @@ namespace UltraFunGuns
         }
 
         //TODO call when egg is shot eggsplosion hehe
-        public void Explode()
+        public void Explode(float explosionSize)
         {
-            Debug.Log("EggSplosion not yet implemented.");
-            Destroy(this);
+            if(!isEggsplosionEgg && !impacted)
+            {
+                MonoSingleton<TimeController>.Instance.ParryFlash();
+                MonoSingleton<StyleHUD>.Instance.AddPoints(50, "hydraxous.ultrafunguns.eggsplosion");
+                EggSplosion newEggSplosion = Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
+                newEggSplosion.explosionSize = explosionSize;
+                Destroy(this);
+            }  
         }
 
         //TODO Call when player grapples the egg should heal player for 10 hp or something cringe idk
@@ -78,8 +88,23 @@ namespace UltraFunGuns
                 {
                     if (!enemy.dead)
                     {
-                        enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, damage, false);
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(150, "hydraxous.ultrafunguns.egged");
+                        if(!isEggsplosionEgg)
+                        {
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity, col.GetContact(0).point, damage, false);
+                            if (dropped)
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(110, "hydraxous.ultrafunguns.eggstrike");
+                            }
+                            else
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(110, "hydraxous.ultrafunguns.egged");
+                            }
+                        }
+                        else
+                        {
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*0.25f, col.GetContact(0).point, damage*0.25f, false);
+                            MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
+                        }
                     }
                     else
                     {
@@ -89,6 +114,7 @@ namespace UltraFunGuns
                 }
 
             }
+
             if (impacted)
             {
                 Destroy(gameObject);
@@ -113,6 +139,9 @@ namespace UltraFunGuns
                 if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
                 {
                     enemy = enemyPart.eid;
+                }else 
+                {
+                    col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy);
                 }
 
                 if (enemy != null)
@@ -127,10 +156,9 @@ namespace UltraFunGuns
                         UnityEngine.Physics.IgnoreCollision(eggCollider, col, true);
                         impacted = false;
                     }
-                }
-
-                
+                }         
             }
+
             if (impacted)
             {
                 Destroy(gameObject);
@@ -139,7 +167,7 @@ namespace UltraFunGuns
 
         private void OnCollisionEnter(Collision col)
         {
-            if (canImpact)
+            if (canImpact || isEggsplosionEgg)
             {
                 Collide(col);
             }
@@ -147,7 +175,7 @@ namespace UltraFunGuns
 
         private void OnTriggerEnter(Collider col)
         {
-            if (canImpact && col.gameObject.layer != 20 && (col.gameObject.layer == 10 || col.gameObject.layer == 11) && !col.isTrigger)
+            if (canImpact && col.gameObject.layer != 20 && (col.gameObject.layer == 10 || col.gameObject.layer == 11) && !col.isTrigger || isEggsplosionEgg)
             {
                 Collide(col);
             }

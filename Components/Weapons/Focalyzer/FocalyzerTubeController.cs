@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Used to control the display tubes on the focalyzer.
     public class FocalyzerTubeController : MonoBehaviour
     {
         private Animator[] crystals = new Animator[6];
@@ -21,7 +22,6 @@ namespace UltraFunGuns
             initialized = true;
         }
 
-        //6 crystal will be crystals used
         void Update()
         {
             if(crystalsUsed != lastCrystalsLeft)
@@ -31,7 +31,7 @@ namespace UltraFunGuns
             }
         }
 
-
+        //Updates the crystals to display how many pylons you have left to fire.
         void UpdateCrystals()
         {
             for (int i = 0; i < crystals.Length; i++)

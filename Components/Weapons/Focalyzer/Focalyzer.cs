@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+
+    //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
     public class Focalyzer : UltraFunGunBase
     {
         public FocalyzerLaserController laser;
@@ -15,6 +17,8 @@ namespace UltraFunGuns
         private bool throwingPylon = false;
         public bool laserActive = false;
         public bool hittingAPylon = false;
+
+        public float laserWidth = 0.3f;
 
         private LayerMask laserHitMask;
 
@@ -83,11 +87,15 @@ namespace UltraFunGuns
             return sortedHits.ToArray();
         }
 
-
+        /* Laser function sweeps a sphere in the direction the player is looking, returns all targets in order of distance, checks
+         *  each target and acts accordingly based on the information gathered from the target. Laser should stop when it hits an object.
+         *  if the laser hits a FocalyzerPylon it will attempt to tell the pylon to start firing it's own laser depending on the result of a pylon
+         *  targeting check. For laser penetration, remove the break statements.
+         */
         public void FireLaser()
         {
             Vector3 laserVector = mainCam.TransformDirection(0, 0, 1);
-            RaycastHit[] hits = Physics.RaycastAll(mainCam.transform.position, laserVector, 1000.0f, laserHitMask);
+            RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, 1000.0f, laserHitMask);
             if (hits.Length > 0)
             {
                 bool hitPylon = false;
@@ -109,6 +117,7 @@ namespace UltraFunGuns
                             actionCooldowns["damageTick"].AddCooldown();
                             enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                         }
+                        break;
                     }
                     else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
                     {
@@ -117,17 +126,19 @@ namespace UltraFunGuns
                             actionCooldowns["damageTick"].AddCooldown();
                             enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                         }
+                        break;
                     }
 
                     if(hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
                     {
                         breakable.Break();
+                        break;
                     }
 
                     if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
-                        MonoSingleton<TimeController>.Instance.ParryFlash();
-                        egg.Explode();
+                        
+                        egg.Explode(1.0f);
                         break;
                     }
 
@@ -152,8 +163,9 @@ namespace UltraFunGuns
             }
             else //if we didnt hit anything... somehow.. 
             {
+                Debug.Log("missed lol");
                 Vector3 missEndpoint = mainCam.TransformPoint(0, 0, 1000.0f);
-                Vector3 towardsPlayer = player.transform.position - missEndpoint;
+                Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
                 DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
             }
         }
@@ -165,7 +177,8 @@ namespace UltraFunGuns
             laser.BuildLine(normal);
         }
 
-        //TODO check for consequences of your hubris.
+        //Check for consequences of your hubris. Update: No hubris found... yet.
+        //Throws pylon out TODO maybe update position so it comes from the gun?
         IEnumerator ThrowPylon()
         {
             throwingPylon = true;

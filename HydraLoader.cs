@@ -23,7 +23,6 @@ namespace UltraFunGuns
         {
             try
             {
-                //Debug.Log(System.Text.Encoding.UTF8.GetString(scriptData));
                 Debug.Log("HydraLoader: loading mod files");
                 assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
@@ -98,7 +97,7 @@ namespace UltraFunGuns
             public bool hasData = false;
             public Type dataType;
 
-            public CustomAssetData(string dataName, DataFile dataFile) //For loading custom script data
+            public CustomAssetData(string dataName, DataFile dataFile) //For loading custom script data, try not to use this.
             {
                 this.hasData = true;
                 this.name = dataName;
@@ -117,21 +116,6 @@ namespace UltraFunGuns
         }
     }
 
-    [System.Serializable]
-    public class MasterDataFile : System.Object
-    {
-        List<DataFile> data;
-    }
-
     public class DataFile : UnityEngine.Object {}
 
-    public class ScriptDataDeserializer
-    {
-        public List<DataFile> masterFile;
-
-        public ScriptDataDeserializer(string jsonFile)
-        {
-            masterFile = JsonUtility.FromJson<List<DataFile>>(jsonFile);
-        }
-    }
 }

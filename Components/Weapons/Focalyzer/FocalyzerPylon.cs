@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+
+    //Pylon of the focalyzer. When shot by a player using a focalyzer it will attempt to refract the laser to deal more damage.
     public class FocalyzerPylon : MonoBehaviour
     {
         public Animator animator;
@@ -27,11 +29,12 @@ namespace UltraFunGuns
         public LayerMask laserHitMask;
 
         public int refractionCount = 0;
+        public float AOERadius = 3.5f;
 
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
 
-        //TODO Fix out of bounds error in firelaser function, make pylon grapplable
+        //TODO bug in which pylon has a null reference in it's firelaser coroutine when it's target pylon is destroyed.
 
         void Start()
         {
@@ -53,6 +56,7 @@ namespace UltraFunGuns
             }
         }
 
+        //Checks if the laser is being fired already to prevent buildup of unwanted coroutines.
         public void DoRefraction(FocalyzerPylon hitPylon, bool playerLaser = false)
         {
             if(!refracting)
@@ -61,6 +65,7 @@ namespace UltraFunGuns
             }  
         }
 
+        //Fires a laser while the player is shooting it with the Focalyzer.
         IEnumerator RefractLaser(FocalyzerPylon pylonHit, bool playerLaser = false)
         {
             refracting = true;
@@ -71,12 +76,16 @@ namespace UltraFunGuns
                     pylonChecker.AddCooldown();
                     targetPylon = pylonManager.GetRefractorTarget(pylonHit);
                 }
-                FireLaser();
+                if(targetPylon != null) //TODO check if this fixed the null reference bug.
+                {
+                    FireLaser();
+                }
                 yield return new WaitForEndOfFrame();
             }
             refracting = false;
         }
 
+        //Executes a laser hit on given information. These lasers DO penetrate through enemies, grenades, etc, but do not work if line of sight is broken.
         private bool LaserHit(RaycastHit hit, Vector3 castDirection, float damageMultiplier, float critMultiplier = 0, bool tryExplode = false)
         {
             if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
@@ -91,7 +100,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode();
+                egg.Explode(2.0f);
             }
 
             if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
@@ -110,17 +119,18 @@ namespace UltraFunGuns
             return true;
         }
 
+        //Controls the laser of the pylon. Deals AOE and big damage to enemies caught in the beam.
         public void FireLaser()
         {
             //AOE Damage
-            RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, 3.5f, transform.position);
+            RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, AOERadius, transform.position);
             if (sphereHits.Length > 0)
             {
                 foreach(RaycastHit sphereHit in sphereHits)
                 {
                     if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
-                        egg.Explode();
+                        egg.Explode(1.0f);
                     }
 
                     if (sphereHit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
@@ -157,7 +167,7 @@ namespace UltraFunGuns
                 Vector3[] laserPoints = new Vector3[] { transform.position, targetPylon.transform.position };
                 BuildLaser(laserPoints, laserPath * -1);
             }
-            else if(targetPylon == this) //TODO this goes in a random direction so fix it. Update: it's a feature :^)
+            else if(targetPylon == this) //TODO this goes in a random direction so fix it. Update: it's a feature :^) TODO: make the speed of the direction change go from slow to fast overtime for balancing.
             {
                 if(randomDirectionCooldown.CanFire()) //delay between picking a direction
                 {
@@ -171,14 +181,14 @@ namespace UltraFunGuns
                 
                 RaycastHit[] hits = Physics.RaycastAll(transform.position, randomizedDirection, randomizedDirection.sqrMagnitude, laserHitMask);
 
-                if (hits.Length > 0)
+                if (hits.Length > 0) //if nothing is hit it will fire the laser downward in worldspace.
                 {
                     hits = focalyzer.SortHitsByDistance(hits);
                     int counter = -1;
                     foreach (RaycastHit hit in hits)
                     {
                         ++counter;
-                        if (!LaserHit(hit, randomizedDirection, 10.0f, 2.0f, true))
+                        if (!LaserHit(hit, randomizedDirection, 6.0f, 2.0f, true))
                         {
                             break;
                         }
@@ -189,7 +199,7 @@ namespace UltraFunGuns
                 {
                     if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, laserHitMask))
                     {
-                        LaserHit(hit, randomizedDirection, 5.0f, 1.0f, true);
+                        LaserHit(hit, randomizedDirection, 3.0f, 1.0f, true);
                         BuildLaser(new Vector3[] { transform.position, hit.point }, hit.normal);
                     }
                     else
@@ -205,6 +215,7 @@ namespace UltraFunGuns
             }
         }
 
+        //Constructs the laser visually. Doesn't actually do anything mechanically.
         void BuildLaser(Vector3[] points, Vector3 normal)
         {
             refractedLaser.SetPositions(points);
@@ -212,11 +223,13 @@ namespace UltraFunGuns
             refractedLaser.gameObject.transform.up = normal;
         }
 
+        //TODO break animation
         void Shatter()
         {
             Destroy(gameObject);
         }
 
+        //Removes itself from the global pylon list when it dies.
         void OnDisable()
         {
             pylonManager.RemovePylon(this);

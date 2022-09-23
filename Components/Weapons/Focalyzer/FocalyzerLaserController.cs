@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Controls the pylons and the main laser for the focalyzer.
     public class FocalyzerLaserController : MonoBehaviour
     {
         private List<FocalyzerPylon> pylonList = new List<FocalyzerPylon>();
@@ -58,6 +59,7 @@ namespace UltraFunGuns
             laserPoints.Add(position);
         }
 
+        //Builds the laser visually, Mechanically does nothing.
         public void BuildLine(Vector3 normal)
         {
             lineRenderer.SetPositions(laserPoints.ToArray());
@@ -66,7 +68,7 @@ namespace UltraFunGuns
             laserPoints.Clear();
         }
 
-
+        //Checks the line of sight from one pylon to another.
         private bool LineOfSightCheck(FocalyzerPylon pylon1, FocalyzerPylon pylon2)
         {
             Vector3 rayCastDirection = pylon2.transform.position - pylon1.transform.position;

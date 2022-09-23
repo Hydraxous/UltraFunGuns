@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    //Base class for UFG weapons.
     public abstract class UltraFunGunBase : MonoBehaviour
     {
         public Dictionary<string, ActionCooldown> actionCooldowns;
