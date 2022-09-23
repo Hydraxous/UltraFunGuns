@@ -77,7 +77,6 @@ namespace UltraFunGuns
 
             if (!impacted)
             {
-                Debug.Log("EGG CRACK!");
                 impacted = true;
 
                 EnemyIdentifier enemy = null;
@@ -131,7 +130,6 @@ namespace UltraFunGuns
 
         private void Collide(Collider col)
         {
-            Debug.Log("EGG CRACK!");
             if (!impacted)
             {
                 impacted = true;

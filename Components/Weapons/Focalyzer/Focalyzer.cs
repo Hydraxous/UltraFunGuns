@@ -24,6 +24,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
+            weaponIcon.variationColor = 2;
             tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeController>();
         }
 

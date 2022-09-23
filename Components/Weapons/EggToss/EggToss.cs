@@ -81,5 +81,10 @@ namespace UltraFunGuns
         {
             throwingEgg = false;
         }
+
+        public override void OnAwakeFinished()
+        {
+            weaponIcon.variationColor = 1;
+        }
     }
 }
