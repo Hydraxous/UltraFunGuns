@@ -99,20 +99,27 @@ namespace UltraFunGuns
                 float closestDistance = maxPylonRange;
                 for (int i = 0; i < pylonList.Count; i++)
                 {
-
+                    //Pylon should not target itself.
                     if(originPylon != pylonList[i])
                     {
                         Vector3 directionToPylon = pylonList[i].transform.position - originPylon.transform.position;
-                        if (!pylonList[i].refracting && LineOfSightCheck(originPylon, pylonList[i]) && pylonList[i] != originPylon.targetPylon)
+                        //Pylon should not target a pylon that is already firing or out of line of sight
+                        if (!pylonList[i].refracting && LineOfSightCheck(originPylon, pylonList[i]))
                         {
-                            targetPylon = pylonList[i];
-                            if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
+                            //Pylon should not target a pylon that is targetting it unless the total number of pylons is less than 3. 
+                            //TODO problem, you can trick a pylon into disco mode when it is being targeted.
+                            if(pylonList[i].targetPylon != originPylon || pylonList.Count < 3)
                             {
-                                closestDistance = directionToPylon.magnitude;
-                                closestPylonIndex = i;
+                                targetPylon = pylonList[i];
+                                //Pylon should target the closest pylon by default.
+                                if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
+                                {
+                                    closestDistance = directionToPylon.magnitude;
+                                    closestPylonIndex = i;
+                                }
                             }
                         }
-                        /*else if (pylonList[i].refractionCount < lowestRefractionCount) TODO Uncomment if implementing split refracting.
+                        /*else if (pylonList[i].refractionCount < lowestRefractionCount) TODO Uncomment if implementing split refracting. Update: hell nah.
                         {
                             lowestRefractionCount = pylonList[i].refractionCount;
                             lowestRefractionIndex = i;
