@@ -90,19 +90,13 @@ namespace UltraFunGuns
             refracting = true;
             while (focalyzer.hittingAPylon)
             {
-                try
+                if (targetPylon == null || (targetPylon == this && pylonChecker.CanFire()))
                 {
-                    if (targetPylon == null || pylonChecker.CanFire())
-                    {
-                        pylonChecker.AddCooldown();
-                        targetPylon = pylonManager.GetRefractorTarget(pylonHit);
-                    }
-                    FireLaser();
-                }catch(Exception e)
-                {
-                    
+                    pylonChecker.AddCooldown();
+                    targetPylon = pylonManager.GetRefractorTarget(pylonHit);
                 }
-                
+                FireLaser();
+
                 yield return new WaitForEndOfFrame();
             }
             refracting = false;
@@ -211,7 +205,7 @@ namespace UltraFunGuns
                     foreach (RaycastHit hit in hits)
                     {
                         ++counter;
-                        if (!LaserHit(hit, randomizedDirection, 6.0f, 2.0f, true))
+                        if (!LaserHit(hit, randomizedDirection, 6.0f/pylonManager.GetPylonCount(), 2.0f, true))
                         {
                             break;
                         }
@@ -222,7 +216,7 @@ namespace UltraFunGuns
                 {
                     if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, laserHitMask))
                     {
-                        LaserHit(hit, randomizedDirection, 3.0f, 1.0f, true);
+                        LaserHit(hit, randomizedDirection, 3.0f/pylonManager.GetPylonCount(), 1.0f, true);
                         BuildLaser(new Vector3[] { transform.position, hit.point }, hit.normal);
                     }
                     else
