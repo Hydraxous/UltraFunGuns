@@ -118,8 +118,8 @@ namespace UltraFunGuns
 
         public class ActionCooldown
         {
-            float timeToFire;
-            float fireDelay;
+            public float timeToFire;
+            public float fireDelay;
             public bool noCooldown;
 
             public ActionCooldown(float delay = 1f)
