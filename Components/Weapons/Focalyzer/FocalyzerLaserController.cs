@@ -104,14 +104,22 @@ namespace UltraFunGuns
                     {
                         Vector3 directionToPylon = pylonList[i].transform.position - originPylon.transform.position;
                         //Pylon should not target a pylon that is already firing or out of line of sight
-                        if (!pylonList[i].refracting && LineOfSightCheck(originPylon, pylonList[i]))
+                        if (LineOfSightCheck(originPylon, pylonList[i]))
                         {
-                            //Pylon should not target a pylon that is targetting it unless the total number of pylons is less than 3. 
+                            bool eligible = false;
+
+                            bool condition1 = (!pylonList[i].refracting); //First target pylons that aren't refracting.
+                            bool condition2 = (pylonList[i].targetPylon != originPylon && pylonList.Count > 2); //Second target pylons that aren't trgeting og pylon if theres more than 2.
+                            bool condition3 = (pylonList.Count < 3 && pylonList[i].refracting && pylonList[i].targetPylon == originPylon); //Third target pylons which are already targeting og if theres less than 3 pylons and is
+
+                            if(condition1 || condition2 || condition3)
+                            {
+                                eligible = true;
+                            }
                             //TODO problem, you can trick a pylon into disco mode when it is being targeted.
-                            if(pylonList[i].targetPylon != originPylon || pylonList.Count < 3)
+                            if(eligible)
                             {
                                 targetPylon = pylonList[i];
-                                //Pylon should target the closest pylon by default.
                                 if (directionToPylon.sqrMagnitude < (closestDistance * closestDistance))
                                 {
                                     closestDistance = directionToPylon.magnitude;
@@ -119,11 +127,6 @@ namespace UltraFunGuns
                                 }
                             }
                         }
-                        /*else if (pylonList[i].refractionCount < lowestRefractionCount) TODO Uncomment if implementing split refracting. Update: hell nah.
-                        {
-                            lowestRefractionCount = pylonList[i].refractionCount;
-                            lowestRefractionIndex = i;
-                        }*/
                     }
                 }
 
