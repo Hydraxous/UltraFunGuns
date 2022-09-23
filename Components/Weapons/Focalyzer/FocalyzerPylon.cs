@@ -88,19 +88,21 @@ namespace UltraFunGuns
             refracting = true;
             while (focalyzer.hittingAPylon)
             {
-                if (pylonChecker.CanFire())
+                try
                 {
-                    pylonChecker.AddCooldown();
-                    try
+                    if (pylonChecker.CanFire())
                     {
+                        pylonChecker.AddCooldown();
                         targetPylon = pylonManager.GetRefractorTarget(pylonHit);
                     }
-                    catch(Exception e)
-                    {
-                        //TODO FIX THIS IDK WHAT IS CAUSING IT.
-                    }          
+                    FireLaser();
                 }
-                FireLaser();
+                catch (Exception e)
+                {
+                    //TODO FIX THIS IDK WHAT IS CAUSING IT.
+                }
+
+
 
                 yield return new WaitForEndOfFrame();
             }
@@ -231,7 +233,7 @@ namespace UltraFunGuns
                     }
                 }
                 
-            }else
+            }else if(targetPylon == null)
             {
                 targetPylon = pylonManager.GetRefractorTarget(this);
             }

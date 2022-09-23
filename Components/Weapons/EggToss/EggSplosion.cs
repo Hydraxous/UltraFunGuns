@@ -66,13 +66,8 @@ namespace UltraFunGuns
                     eggTrajectory.origin = offsetPosition;
                     eggTrajectory.direction = eggDirection;
 
-                    Debug.Log("EGG direction : " + eggDirection);
-                    Debug.Log("EGG Origin: " + offsetPosition);
-
                     eggTrajectories.Add(eggTrajectory);
                 }
-
-                Debug.Log("Tracjectories: " + eggTrajectories.Count);
 
                 foreach (Ray eggTrajectory in eggTrajectories)
                 {
@@ -82,9 +77,6 @@ namespace UltraFunGuns
                     newEgg.oldVelocity = eggTrajectory.direction * eggSpeedModifier;
                     newEgg.isEggsplosionEgg = true;
                 }
-            }else
-            {
-                Debug.Log("No hits!");
             }
         }
     }
