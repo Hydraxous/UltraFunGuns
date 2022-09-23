@@ -10,7 +10,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.0.2")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.2")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         UltraFunGunsPatch gunPatch;
@@ -54,7 +54,7 @@ namespace UltraFunGuns
         private void DoPatching()
         {
             Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns.Patch");
-            harmony.PatchAll(typeof(UltraFunGuns));
+            harmony.PatchAll();
         }
 
         private void BindConfigs()
@@ -74,7 +74,7 @@ namespace UltraFunGuns
 
             //SonicReverberator
             new HydraLoader.CustomAssetPrefab("SonicReverberationExplosion", new Component[] { new SonicReverberatorExplosion() });
-            new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] { new SonicReverberator(), new WeaponIcon() });
+            new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] { new SonicReverberator(), new WeaponIcon(), new WeaponIdentifier() });
             //Sonic gun gyros data
             new HydraLoader.CustomAssetData("InnerGyroBearing", new GyroRotator.GyroRotatorData(1.0f, Vector3.forward, 0.004f, 3f, 40.66f));
             new HydraLoader.CustomAssetData("MiddleGyro", new GyroRotator.GyroRotatorData(1.2f, new Vector3(1, 0, 0), 0.004f, 3.5f, -53.58f));
@@ -90,7 +90,7 @@ namespace UltraFunGuns
 
 
             //Egg :)
-            new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon() });
+            new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg(), new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("EggSplosion", new Component[] { new EggSplosion(), new DestroyAfterTime() });
@@ -100,7 +100,7 @@ namespace UltraFunGuns
 
 
             //Focalyzer
-            new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon() });
+            new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() }); 
             new HydraLoader.CustomAssetPrefab("FocalyzerLaser", new Component[] { new FocalyzerLaserController() });
             //Icons
@@ -125,18 +125,6 @@ namespace UltraFunGuns
             
         }
 
-        [HarmonyPatch(typeof(RevolverBeam), nameof(RevolverBeam.ExecuteHits))]
-        public static class revolverBeamPatch
-        {
-            public static void Postfix(RevolverBeam ___instance, RaycastHit hit)
-            {
-                ThrownEgg hitEgg = hit.transform.GetComponent<ThrownEgg>();
-                if (hitEgg != null)
-                {
-                    hitEgg.Explode();
-                }
-            }
-        }
 
     }
     

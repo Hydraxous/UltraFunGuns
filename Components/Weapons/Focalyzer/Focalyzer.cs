@@ -19,6 +19,7 @@ namespace UltraFunGuns
         public bool hittingAPylon = false;
 
         public float laserWidth = 0.3f;
+        public float laserMaxRange = 250.0f;
 
         private LayerMask laserHitMask;
 
@@ -43,7 +44,9 @@ namespace UltraFunGuns
             {
                 laserActive = true;
                 FireLaser();
-            }else if (laserActive)
+                MonoSingleton<CameraController>.Instance.CameraShake(0.05f);
+            }
+            else if (laserActive)
             {
                 laserActive = false;
                 hittingAPylon = false;
@@ -96,79 +99,80 @@ namespace UltraFunGuns
         public void FireLaser()
         {
             Vector3 laserVector = mainCam.TransformDirection(0, 0, 1);
-            RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, 1000.0f, laserHitMask);
+            RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask);
             if (hits.Length > 0)
             {
-                bool hitPylon = false;
-                int endingHit = 0;
-                hits = SortHitsByDistance(hits);
-                for (int i = 0; i < hits.Length; i++)
+                if (hits[0].collider.gameObject.name != "CameraCollisionChecker")
                 {
-                    endingHit = i;
-
-                    if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
+                    bool hitPylon = false;
+                    int endingHit = 0;
+                    hits = SortHitsByDistance(hits);
+                    for (int i = 0; i < hits.Length; i++)
                     {
-                        break;
-                    }
+                        endingHit = i;
 
-                    if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
-                    {
-                        if (actionCooldowns["damageTick"].CanFire())
+                        if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
                         {
-                            actionCooldowns["damageTick"].AddCooldown();
-                            enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                            break;
                         }
-                        break;
-                    }
-                    else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-                    {
-                        if (actionCooldowns["damageTick"].CanFire())
+
+                        if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            actionCooldowns["damageTick"].AddCooldown();
-                            enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                            if (actionCooldowns["damageTick"].CanFire())
+                            {
+                                actionCooldowns["damageTick"].AddCooldown();
+                                enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                            }
+                            break;
                         }
-                        break;
+                        else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+                        {
+                            if (actionCooldowns["damageTick"].CanFire())
+                            {
+                                actionCooldowns["damageTick"].AddCooldown();
+                                enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                            }
+                            break;
+                        }
+
+                        if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+                        {
+                            breakable.Break();
+                            break;
+                        }
+
+                        if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+                        {
+
+                            egg.Explode(10.0f);
+                            break;
+                        }
+
+                        if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
+                        {
+                            MonoSingleton<TimeController>.Instance.ParryFlash();
+                            grenade.Explode();
+                            break;
+                        }
+
+                        if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
+                        {
+                            hittingAPylon = true; //need this here because of the coroutine in FocalyzerPylon
+                            pylon.DoRefraction(pylon, true);
+                            hitPylon = true;
+                            break;
+                        }
                     }
 
-                    if(hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
-                    {
-                        breakable.Break();
-                        break;
-                    }
-
-                    if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
-                    {
-                        
-                        egg.Explode(10.0f);
-                        break;
-                    }
-
-                    if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                    {
-                        MonoSingleton<TimeController>.Instance.ParryFlash();
-                        grenade.Explode();
-                        break;
-                    }
-
-                    if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
-                    {
-                        hittingAPylon = true; //need this here because of the coroutine in FocalyzerPylon
-                        pylon.DoRefraction(pylon, true);
-                        hitPylon = true;
-                        break;
-                    }
+                    hittingAPylon = hitPylon;
+                    DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
+                    return;
                 }
-                hittingAPylon = hitPylon;
-
-                DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
             }
-            else //if we didnt hit anything... somehow.. 
-            {
-                Debug.Log("missed lol");
-                Vector3 missEndpoint = mainCam.TransformPoint(0, 0, 1000.0f);
-                Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
-                DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
-            }
+            
+            Vector3 missEndpoint = mainCam.TransformPoint(0, 0, 1).normalized * laserMaxRange;
+            Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
+            DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
         }
 
         private void DrawLaser(Vector3 origin, Vector3 endPoint, Vector3 normal)
@@ -187,6 +191,7 @@ namespace UltraFunGuns
             animator.Play("Focalyzer_ThrowPylon");
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+            MonoSingleton<CameraController>.Instance.CameraShake(0.2f);
             FocalyzerPylon pylon = newPylon.GetComponent<FocalyzerPylon>();
             pylon.laserHitMask = laserHitMask;
             pylon.focalyzer = this;

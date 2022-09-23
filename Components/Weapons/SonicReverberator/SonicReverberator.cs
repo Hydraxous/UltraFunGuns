@@ -10,30 +10,24 @@ namespace UltraFunGuns
      * 
      * It's a vine boom gun :)
      * 
-     * This class is not in a state which I want it and is considered completely broken atm. Spaghetti code and non-functionaliy.
+     * This class is not in a state which I want it and is considered completely broken atm. Spaghetti code and non-functionaliy. https://cdn.discordapp.com/attachments/432329547023908884/1022845628675534868/unknown.png
      * BUGS: 
      * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
      * Sometimes the weapon just breaks if enemies are present?
      * Animation weirdness: Make a seperate class to control the charge pistons.
      * The nature of being able to charge indefinitely causes many issues.
-     * Weapon icon bug due to non-inheritence of UFG base class.
      * Issue with reverberation object not spawning for some reason?
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
-    public class SonicReverberator : MonoBehaviour
+    public class SonicReverberator : UltraFunGunBase
     {
         public GameObject bang; //set by data loader TODO UPDATE: Is it though? ,':| see LoadData()
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
 
-        private NewMovement player;
-        private OptionsManager om;
-
-        private Transform mainCam, firePoint;
-
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
-        public bool skipConeCheck = true, noCooldown = false, enablePlayerKnockback = true;
+        public bool skipConeCheck = true, enablePlayerKnockback = true;
 
         public float rotationSpeed = 0.01f;
         public float chargeLevel = 0.0f;
@@ -55,33 +49,28 @@ namespace UltraFunGuns
 
         private Animator capsuleAnimator, pistonAnimator, moyaiAnimator, gunAnimator;
 
-        public float timeUntilFire = 0.0f;
         private float cooldownRate = 0.17f;
         private float minimumCooldown = 0.75f;
         private float maximumCooldown = 600.0f;
-        private float lastKnownCooldown = 0.0f;
+        private float lastKnownCooldownTime = 0.0f;
 
         //TODO fix when moving to inheritance model
         private void Start()
         {
             LoadData();
             HelpChildren();
-            player = transform.GetComponentInParent<NewMovement>();
-            om = MonoSingleton<OptionsManager>.Instance;
-            mainCam = MonoSingleton<CameraController>.Instance.transform;
         }
 
-        //TODO fix when moving to inheritance model
-        private void Update()
+        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
-            canFire = CanShoot();
-            GetInput();
-            DoAnimations();
+            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
+            cooldowns.Add("fire", new ActionCooldown(0.75f));
+            return cooldowns;
         }
 
-        private void GetInput()
+        public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && canFire && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && actionCooldowns["fire"].CanFire() && !om.paused)
             {
                 charging = true;
                 chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
@@ -92,12 +81,9 @@ namespace UltraFunGuns
                 chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime * chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && canFire && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["fire"].CanFire() && !om.paused && chargeLevel >= 2.0f)
             {
-                if (chargeLevel >= 2.0f && canFire)
-                {
-                    Fire();
-                }
+                Fire();
             }
         }
 
@@ -108,7 +94,6 @@ namespace UltraFunGuns
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();
-            firePoint = transform.Find("viewModelWrapper/FirePoint");
 
             capsuleAnimator = transform.Find("viewModelWrapper/MoyaiGun/Capsule").GetComponent<Animator>();
             moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
@@ -129,39 +114,15 @@ namespace UltraFunGuns
             HydraLoader.dataRegistry.TryGetValue("vB_loudest", out UnityEngine.Object vB_loudest_obj);
             vB_loudest = (AudioClip)vB_loudest_obj;
 
-            //Icon
-            WeaponIcon wepIcon = gameObject.GetComponent<WeaponIcon>();
-            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_weaponIcon", out UnityEngine.Object SonicReverberator_weaponIcon);
-            wepIcon.weaponIcon = (Sprite)SonicReverberator_weaponIcon;
-
-            HydraLoader.dataRegistry.TryGetValue("SonicReverberator_glowIcon", out UnityEngine.Object SonicReverberator_glowIcon);
-            wepIcon.glowIcon = (Sprite)SonicReverberator_glowIcon;
-
-            wepIcon.variationColor = 0;
-
             HydraLoader.prefabRegistry.TryGetValue("SonicReverberationExplosion", out bang);
 
         }
 
         //TODO fix when moving to inheritance model
 
-        private bool CanShoot()
+        public override void DoAnimations()
         {
-            if (timeUntilFire <= 0.0f || noCooldown)
-            {
-                return true;
-            }else
-            {
-                timeUntilFire -= Time.deltaTime;
-                return false;
-            }
-        }
-
-        //TODO fix when moving to inheritance model
-
-        private void DoAnimations()
-        {
-            gunAnimator.SetBool("CanShoot", canFire);
+            gunAnimator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
             capsuleAnimator.SetBool("Charging", charging);
             gunAnimator.SetBool("Charging", charging);
             
@@ -223,7 +184,7 @@ namespace UltraFunGuns
 
             KnockbackPlayer();
 
-            timeUntilFire = Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown); //Somewhat hyperbolic cooldown time based on charge level
+            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level
             chargeLevel = 0;
             charging = false;
         }
@@ -250,138 +211,146 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            lastKnownCooldown = Time.time;
+            lastKnownCooldownTime = Time.time;
         }
 
 
         private void OnEnable()
         {
-            if (timeUntilFire > 0.0f)
+            if ((actionCooldowns["fire"].timeToFire - Time.time) > 0.0f)
             {
-                timeUntilFire = Mathf.Clamp(timeUntilFire+(lastKnownCooldown - Time.time), 0.0f, maximumCooldown);
+                actionCooldowns["fire"].timeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
             }
         }
 
 
-        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this.
+        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
         {
-            EnemyType enemyType = enemy.enemyType;
-            bool canKnockback = false;
-            bool boss = enemy.gameObject.TryGetComponent<BossIdentifier>(out BossIdentifier b);
-            switch (enemyType)
+            try
             {
-                case EnemyType.Drone:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Virtue:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Soldier:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Stray:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Stalker:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Swordsmachine:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Streetcleaner:
-                    canKnockback = true;
-                    break;
-                case EnemyType.V2:
-                    canKnockback = true;
-                    boss = true;
-                    break;
-                case EnemyType.Filth:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Gabriel:
-                    canKnockback = true;
-                    boss = true;
-                    break;
-                case EnemyType.Turret:
-                    if(!enemy.gameObject.GetComponent<Turret>().aiming)
-                    {
+                if (!enemy.dead)
+                { 
+                EnemyType enemyType = enemy.enemyType;
+                bool canKnockback = false;
+                bool boss = enemy.gameObject.TryGetComponent<BossIdentifier>(out BossIdentifier b);
+                switch (enemyType)
+                {
+                    case EnemyType.Drone:
                         canKnockback = true;
-                    }
-                    break;
-                case EnemyType.Schism:
-                    canKnockback = true;
-                    break;
-                case EnemyType.Minos:
-                    boss = true;
-                    break;
-                case EnemyType.MinosPrime:
-                    boss = true;
-                    break;
-                case EnemyType.V2Second:
-                    boss = true;
-                    break;
-                case EnemyType.Wicked:
-                    boss = true;
-                    break;
-                case EnemyType.Leviathan:
-                    boss = true;
-                    break;
-                case EnemyType.GabrielSecond:
-                    boss = true;
-                    break;
-                case EnemyType.HideousMass:
-                    boss = true;
-                    break;
-                case EnemyType.Ferryman:
-                    boss = true;
-                    break;
-                default:
-                    canKnockback = false;
-                    break;
-            }
+                        break;
+                    case EnemyType.Virtue:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Soldier:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Stray:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Stalker:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Swordsmachine:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Streetcleaner:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.V2:
+                        canKnockback = true;
+                        boss = true;
+                        break;
+                    case EnemyType.Filth:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Gabriel:
+                        canKnockback = true;
+                        boss = true;
+                        break;
+                    case EnemyType.Turret:
+                        if (!enemy.gameObject.GetComponent<Turret>().aiming)
+                        {
+                            canKnockback = true;
+                        }
+                        break;
+                    case EnemyType.Schism:
+                        canKnockback = true;
+                        break;
+                    case EnemyType.Minos:
+                        boss = true;
+                        break;
+                    case EnemyType.MinosPrime:
+                        boss = true;
+                        break;
+                    case EnemyType.V2Second:
+                        boss = true;
+                        break;
+                    case EnemyType.Wicked:
+                        boss = true;
+                        break;
+                    case EnemyType.Leviathan:
+                        boss = true;
+                        break;
+                    case EnemyType.GabrielSecond:
+                        boss = true;
+                        break;
+                    case EnemyType.HideousMass:
+                        boss = true;
+                        break;
+                    case EnemyType.Ferryman:
+                        boss = true;
+                        break;
+                    default:
+                        canKnockback = false;
+                        break;
+                }
 
-            int chargeState = GetChargeState();
-            if (canKnockback)
+                int chargeState = GetChargeState();
+                if (canKnockback)
+                {
+                    DoKnockback(enemy.gameObject, blastOrigin);
+                    if (chargeState < chargeMilestones.Count && chargeState >= chargeMilestones.Count / 1.5f)
+                    {
+                        MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
+                    }
+                }
+                    if (GetChargeState() >= chargeMilestones.Count)
+                    {
+                        if (boss || enemy.TryGetComponent<BossIdentifier>(out BossIdentifier bossId))
+                        {
+                            if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp) || enemy.TryGetComponent<MinosBoss>(out MinosBoss minosBoss)) //hehe style :)
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
+                            }
+                            else if (enemy.TryGetComponent<Gabriel>(out Gabriel gaybe) || enemy.TryGetComponent<GabrielSecond>(out GabrielSecond gaybe2))
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.gabrielkill", this.gameObject, enemy, -1, "", "");
+                            }
+                            else if (enemy.TryGetComponent<Wicked>(out Wicked wicked))
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(20000, "hydraxous.ultrafunguns.wickedkill", this.gameObject, enemy, -1, "", "");
+                            }
+                            else if (enemy.TryGetComponent<V2>(out V2 v2))
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.v2kill", this.gameObject, enemy, -1, "", "");
+                            }
+                            else
+                            {
+                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "<b>BOSS </b>", "");
+                            }
+                            enemy.health = 0;
+                        }
+                        else
+                        {
+                            enemy.Explode();
+                            MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "", "");
+                        }
+                    }
+                }
+            }catch(System.Exception e)
             {
-                DoKnockback(enemy.gameObject, blastOrigin);
-                if(chargeState < chargeMilestones.Count && chargeState >= chargeMilestones.Count/1.5f)
-                {
-                    MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
-                }
+                //TODO Remove this try catch and fix this properly you degenerate.
             }
-            if (GetChargeState() >= chargeMilestones.Count)
-            {
-                if (boss || enemy.TryGetComponent<BossIdentifier>(out BossIdentifier bossId))
-                {
-                    if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp) || enemy.TryGetComponent<MinosBoss>(out MinosBoss minosBoss)) //hehe style :)
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
-                    }
-                    else if (enemy.TryGetComponent<Gabriel>(out Gabriel gaybe) || enemy.TryGetComponent<GabrielSecond>(out GabrielSecond gaybe2))
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.gabrielkill", this.gameObject, enemy, -1, "", "");
-                    }
-                    else if (enemy.TryGetComponent<Wicked>(out Wicked wicked))
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(20000, "hydraxous.ultrafunguns.wickedkill", this.gameObject, enemy, -1, "", "");
-                    }
-                    else if (enemy.TryGetComponent<V2>(out V2 v2))
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.v2kill", this.gameObject, enemy, -1, "", "");
-                    }
-                    else
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "<b>BOSS </b>", "");
-                    }
-                    enemy.health = 0;
-                }
-                else
-                {
-                    enemy.Explode();
-                    MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "", "");
-                }
-            }
-
         }
 
         private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO Fix this algorithm so it actually works
