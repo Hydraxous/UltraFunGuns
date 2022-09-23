@@ -5,10 +5,24 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    /*Gun that fires a "Sonic Wave" in a cone in front of it. Can be charged indefinitely.
+     * Charging scales with size of sonic wave, knockback velocity, and player knockback velocity.
+     * 
+     * It's a vine boom gun :)
+     * 
+     * This class is not in a state which I want it and is considered completely broken atm. Spaghetti code and non-functionaliy.
+     * BUGS: 
+     * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
+     * Sometimes the weapon just breaks if enemies are present?
+     * Animation weirdness: Make a seperate class to control the charge pistons.
+     * The nature of being able to charge indefinitely causes many issues.
+     * Weapon icon bug due to non-inheritence of UFG base class.
+     * Issue with reverberation object not spawning for some reason?
+     * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
+     */
     public class SonicReverberator : MonoBehaviour
     {
-        //TODO Good lord fix this class.
-        public GameObject bang; //set by data loader
+        public GameObject bang; //set by data loader TODO UPDATE: Is it though? ,':| see LoadData()
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
 
@@ -47,7 +61,7 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldown = 0.0f;
 
-
+        //TODO fix when moving to inheritance model
         private void Start()
         {
             LoadData();
@@ -57,6 +71,7 @@ namespace UltraFunGuns
             mainCam = MonoSingleton<CameraController>.Instance.transform;
         }
 
+        //TODO fix when moving to inheritance model
         private void Update()
         {
             canFire = CanShoot();
@@ -86,6 +101,7 @@ namespace UltraFunGuns
             }
         }
 
+        //TODO fix when moving to inheritance model
         private void HelpChildren()
         {
             transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
@@ -100,6 +116,7 @@ namespace UltraFunGuns
             gunAnimator = transform.Find("viewModelWrapper/MoyaiGun").GetComponent<Animator>();
         }
 
+        //TODO fix when moving to inheritance model
         private void LoadData()
         {
 
@@ -126,6 +143,8 @@ namespace UltraFunGuns
 
         }
 
+        //TODO fix when moving to inheritance model
+
         private bool CanShoot()
         {
             if (timeUntilFire <= 0.0f || noCooldown)
@@ -137,6 +156,8 @@ namespace UltraFunGuns
                 return false;
             }
         }
+
+        //TODO fix when moving to inheritance model
 
         private void DoAnimations()
         {

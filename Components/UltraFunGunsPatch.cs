@@ -5,18 +5,20 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
+    //Single instance patch which is applied directly to the GunControl object and inserts the custom weapons into the player's inventory.
     public class UltraFunGunsPatch : MonoBehaviour
     {
         GunControl gc;
-        //RE ADD EGG TOSS!
-        List<List<string>> weaponKeySlots = new List<List<string>>() {
+        //REGISTRY: Add string names of the weapon prefabs here.
+        private List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> {"SonicReverberator", "EggToss"},
             new List<string> {"Focalyzer" },
             new List<string> { },
             new List<string> { }
         };
 
-        List<List<GameObject>> customSlots = new List<List<GameObject>>()
+        //Empty slots for the weapons. Don't remove this.
+        private List<List<GameObject>> customSlots = new List<List<GameObject>>()
         {
             new List<GameObject>(),
             new List<GameObject>(),
@@ -24,7 +26,7 @@ namespace UltraFunGuns
             new List<GameObject>()
         };
 
-
+        //Use for intializing style items
         private void Awake()
         {
             gc = GetComponent<GunControl>();
@@ -36,7 +38,8 @@ namespace UltraFunGuns
             NewStyleItem("minoskill", "<color=#03ffa7>JUDGED</color>");
             NewStyleItem("orbited", "ORBITAL LAUNCH");
             NewStyleItem("egged", "EGGED");
-            NewStyleItem("eggshower", "<color=yellow>EGG RAIN</color>");
+            NewStyleItem("eggstrike", "TACTICAL EGG STRIKE");
+            NewStyleItem("eggsplosion", "<color=yellow>EGGSPLOSION</color>");
             NewStyleItem("refraction", "REFRACTED");
 
 
@@ -76,6 +79,7 @@ namespace UltraFunGuns
             }
         }
 
+        //adds weapons to the gun controller
         private void AddWeapons()
         {
             for (int i = 0; i < customSlots.Count; i++)
@@ -96,6 +100,7 @@ namespace UltraFunGuns
 
         }
 
+        //TODO fix this, for some reason the input on switching to weapons doesn't work past slot 7. No its not because of the keycodes, that was an attempt to fix it. Inspect the GunControl class closer.
         private void Update()
         {
             if (MonoSingleton<InputManager>.Instance.InputSource.Slot7.WasPerformedThisFrame && (customSlots[0].Count > 1 || gc.currentSlot != 7))
@@ -127,6 +132,7 @@ namespace UltraFunGuns
             }
         }
 
+        //simplified way to add new style items for this mod.
         private void NewStyleItem(string name, string text)
         {
             if (MonoSingleton<StyleHUD>.Instance.GetLocalizedName("hydraxous.ultrafunguns."+ name) == "hydraxous.ultrafunguns." + name)
