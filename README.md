@@ -7,6 +7,7 @@ In the meantime you can have some fun with the absolute hilariously buggy mess t
 
 Right now there is a bug with player input which does not allow you to select weapons in slots past #7 so they must be scrolled to.
 
+[DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/tag/1.1.0-Experimental)
 ______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
