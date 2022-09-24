@@ -4,10 +4,9 @@ An ULTRAKILL mod with fun weapons!!
 ### Disclaimer
 The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future.
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
+**THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
-Right now there is a bug with player input which does not allow you to select weapons in slots past #7 so they must be scrolled to.
-
-[DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/tag/1.1.0-Experimental)
+[DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
 ______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
@@ -29,11 +28,11 @@ Planned changes:
 - Fix to animations
 ______________________________________________________________________________________________
 
-## 2. EGG - Slot 7 Alternate - Thrown weapon
+## 2. EGG - Slot 8 - Thrown weapon
 
 ______________________________________________________________________________________________
 The EGG in the correct hands can be absolutely devastating. Nobody understands where it came from, but it's here.
-The EGG can be thrown or dropped below you. When the EGG is airborne, you can shoot it with the Focalyzer (I am currently working on interactions with base revolver and railgun) for an EGGSPLOSION which will hurl more EGG at nearby enemies.
+The EGG can be thrown or dropped below you. When the EGG is airborne, you can shoot it for an EGGSPLOSION which will hurl more EGG at nearby enemies.
 
 [![EGG weapon demo video](https://cdn.discordapp.com/attachments/432329547023908884/1022769971497025546/EGGImage.png)](https://youtu.be/KMYrRXTsWJc)
 Click the image for Demo Video ^^
@@ -45,7 +44,7 @@ Planned changes:
 - EGGsplosion can be executed by railgun/revolver
 ______________________________________________________________________________________________
 
-## 3. Focalyzer - Slot 8 - Energy weapon
+## 3. Focalyzer - Slot 9 - Energy weapon
 
 ______________________________________________________________________________________________
 The Focalyzer functions by focusing a weak laser beam into a specialized crystal which amplifies it's wavelength allowing it to deliver massive energy streams at vast distances. UNRELATED FUN FACT: The scientist who created it was apparently vaporized along with 12 others at a dance party shortly after the device's invention.
