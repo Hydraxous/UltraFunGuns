@@ -7,13 +7,15 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Throwable projectile that bounces off of things, does damage to enemies and multiplies it's velocity every time it hits something. Should be really funny.
+    //Also can force push/pull it with right click
+    //TODO add parry to make the thing home to an enemy.
     public class Dodgeball : UltraFunGunBase
     {
         public ThrownDodgeball activeDodgeball;
 
         public GameObject thrownDodgeballPrefab;
 
-        private SphereCollider catcherCollider;
+        private GameObject catcherCollider;
 
         private bool throwingBall = false;
         private bool pullingBall = false;
@@ -34,8 +36,8 @@ namespace UltraFunGuns
         {
             HydraLoader.prefabRegistry.TryGetValue("ThrownDodgeball", out thrownDodgeballPrefab);
             weaponIcon.variationColor = 1;
-            catcherCollider = firePoint.transform.Find("DodgeballCatcher").GetComponent<SphereCollider>();
-            catcherCollider.enabled = false;
+            catcherCollider = transform.Find("firePoint/DodgeballCatcher").gameObject;
+            catcherCollider.SetActive(false);
         }
 
         //press fire1 to throw, hold it to charge, hold right click to recall ball towards you.
@@ -48,19 +50,22 @@ namespace UltraFunGuns
                     chargingBall = true;
                     currentCharge = Mathf.Clamp(currentCharge + (Time.deltaTime * chargeMultiplier), minCharge, maxCharge);
                 }
-                else if (chargingBall && !throwingBall && !pullingBall && !om.paused)
+                else if (chargingBall && !throwingBall && !pullingBall)
                 {
                     StartCoroutine(ThrowDodgeball());
                 }
 
 
-                if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && !throwingBall && dodgeBallActive)
+                if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && !chargingBall && !throwingBall && dodgeBallActive)
                 {
                     ForceDodgeball(true);
                 }
                 else if (pullingBall && dodgeBallActive)
                 {
                     ForceDodgeball(false);
+                }else
+                {
+                    pullingBall = false;
                 }
 
             }
@@ -75,7 +80,7 @@ namespace UltraFunGuns
                 forceVelocity *= -1;
             }
             pullingBall = pull;
-            catcherCollider.enabled = pull;
+            catcherCollider.SetActive(pull);
             activeDodgeball.sustainedVelocity = forceVelocity;
         }
 
@@ -83,7 +88,6 @@ namespace UltraFunGuns
         {
             throwingBall = true;
             chargingBall = false;
-            currentCharge = 0;
             animator.Play("DodgeballThrow");
             yield return new WaitForSeconds(0.15f);
             dodgeBallActive = true;
@@ -103,13 +107,14 @@ namespace UltraFunGuns
             Vector3 dodgeBallVelocity = (ballDirection.direction * throwForce) * currentCharge;
             activeDodgeball.sustainedVelocity = dodgeBallVelocity;
             throwingBall = false;
-            
+            currentCharge = 0;
         }
 
         public void CatchBall()
         {
             pullingBall = false;
-            animator.Play("DodgeballCatchball");     
+            animator.Play("DodgeballCatchball");
+            transform.Find("Audios/CatchSound").GetComponent<AudioSource>().Play();
         }
 
         public override void DoAnimations()
@@ -124,11 +129,6 @@ namespace UltraFunGuns
             throwingBall = false;
             chargingBall = false;
             pullingBall = false;
-        }
-
-        private void OnEnable()
-        {
-            //animator.Play("DodgeballEquipAny");
         }
     }
 }

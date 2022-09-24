@@ -137,7 +137,10 @@ namespace UltraFunGuns
 
         private void OnDestroy()
         {
-            dodgeballWeapon.dodgeBallActive = false;
+            if(dodgeballWeapon != null)
+            {
+                dodgeballWeapon.dodgeBallActive = false;
+            }    
         }
     }
 }
