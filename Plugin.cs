@@ -10,7 +10,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.2")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.4")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         UltraFunGunsPatch gunPatch;
@@ -98,6 +98,15 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
 
+            //Dodgeball
+            new HydraLoader.CustomAssetPrefab("Dodgeball", new Component[] { new Dodgeball(), new WeaponIcon(), new WeaponIdentifier() });
+            new HydraLoader.CustomAssetPrefab("ThrownDodgeball", new Component[] { new ThrownDodgeball() });
+            new HydraLoader.CustomAssetPrefab("DodgeballImpactSound", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("DodgeballPopFX", new Component[] { new DestroyAfterTime() });
+            //TODO Icons 
+            //new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
+            //new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
+
 
             //Focalyzer
             new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon(), new WeaponIdentifier() });
@@ -112,11 +121,23 @@ namespace UltraFunGuns
             
         }
 
+        private void TurnOnAssists()
+        {
+            if (MonoSingleton<StatsManager>.Instance != null)
+            {
+                if (!MonoSingleton<StatsManager>.Instance.majorUsed)
+                {
+                    MonoSingleton<StatsManager>.Instance.majorUsed = true;
+                }
+            }
+        }
+
         private void Update()
         {
             try
             {
                 CheckWeapons();
+                TurnOnAssists();
             }
             catch(System.Exception e)
             {

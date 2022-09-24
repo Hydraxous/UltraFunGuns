@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.AI;
 
 namespace UltraFunGuns
 {
@@ -365,7 +365,7 @@ namespace UltraFunGuns
 
             if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
             {
-
+                enemy.gameObject.GetComponent<NavMeshAgent>().enabled = false;
                 Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
                 body.isKinematic = false;
                 body.useGravity = false;
