@@ -4,6 +4,7 @@ An ULTRAKILL mod with fun weapons!!
 ### Disclaimer
 The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future.
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
+**THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
 [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
 ______________________________________________________________________________________________
