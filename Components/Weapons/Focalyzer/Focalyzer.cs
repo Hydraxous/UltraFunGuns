@@ -19,7 +19,7 @@ namespace UltraFunGuns
         public bool hittingAPylon = false;
 
         public float laserWidth = 0.3f;
-        public float laserMaxRange = 250.0f;
+        public float laserMaxRange = 2000.0f;
 
         private LayerMask laserHitMask;
 
@@ -51,6 +51,15 @@ namespace UltraFunGuns
                 laserActive = false;
                 hittingAPylon = false;
                 actionCooldowns["fireLaser"].AddCooldown();
+            }else
+            {
+                //should make the laser follow the weapon even when it's turning off.
+                Ray missingRay = new Ray();
+                missingRay.origin = firePoint.position;
+                missingRay.direction = mainCam.TransformDirection(0, 0, 1);
+                Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
+                Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
+                DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
             }
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
@@ -102,7 +111,7 @@ namespace UltraFunGuns
             RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask);
             if (hits.Length > 0)
             {
-                if (hits[0].collider.gameObject.name != "CameraCollisionChecker")
+                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
                 {
                     bool hitPylon = false;
                     int endingHit = 0;
@@ -169,8 +178,11 @@ namespace UltraFunGuns
                     return;
                 }
             }
-            
-            Vector3 missEndpoint = mainCam.TransformPoint(0, 0, 1).normalized * laserMaxRange;
+
+            Ray missingRay = new Ray();
+            missingRay.origin = firePoint.position;
+            missingRay.direction = mainCam.TransformDirection(0, 0, 1);
+            Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
             Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
             DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
         }

@@ -12,7 +12,7 @@ namespace UltraFunGuns
         //REGISTRY: Add string names of the weapon prefabs here.
         private List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> {"SonicReverberator", },
-            new List<string> { "EggToss" },
+            new List<string> { "EggToss", "Dodgeball" },
             new List<string> { "Focalyzer" },
             new List<string> { }
         };
@@ -40,7 +40,9 @@ namespace UltraFunGuns
             NewStyleItem("egged", "EGGED");
             NewStyleItem("eggstrike", "TACTICAL EGG STRIKE");
             NewStyleItem("eggsplosion", "<color=yellow>EGGSPLOSION</color>");
-            NewStyleItem("refraction", "REFRACTED");
+            NewStyleItem("refractionhit", "BUG ZAPPER");
+            NewStyleItem("discohit", "DISCO INFERNO");
+            NewStyleItem("dodgeballhit", "OUT!!");
 
             FetchWeapons();
         }

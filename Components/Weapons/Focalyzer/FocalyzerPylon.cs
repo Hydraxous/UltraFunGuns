@@ -42,6 +42,8 @@ namespace UltraFunGuns
 
         private AudioSource discoAudio;
 
+        private enum LaserHitType {enemy, nothing, solid, interactable}
+
         void Start()
         {
             discoAudio = transform.Find("DiscoAudio").gameObject.GetComponent<AudioSource>();
@@ -110,26 +112,29 @@ namespace UltraFunGuns
         }
 
         //Executes a laser hit on given information. These lasers DO penetrate through enemies, grenades, etc, but do not work if line of sight is broken. UPDATE: los check is weird idfk
-        private bool LaserHit(RaycastHit hit, Vector3 castDirection, float damageMultiplier, float critMultiplier = 0, bool tryExplode = false)
+        private LaserHitType LaserHit(RaycastHit hit, Vector3 castDirection, float damageMultiplier, float critMultiplier = 0, bool tryExplode = false)
         {
+            LaserHitType hitType = LaserHitType.nothing;
             if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
             {
-                return false;
+                return LaserHitType.solid;
             }
 
             if (hit.collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
             {
-                breakable.Break();
+                breakable.Break();        
             }
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
                 egg.Explode(8.0f);
+                hitType = LaserHitType.interactable;
             }
 
             if (hit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
             {
                 grenade.Explode();
+                hitType = LaserHitType.interactable;
             }
 
             if (hit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
@@ -138,14 +143,19 @@ namespace UltraFunGuns
                 {
                     damageCooldown.AddCooldown();
                     Eii.eid.DeliverDamage(Eii.eid.gameObject, castDirection, hit.point, damageMultiplier, tryExplode, critMultiplier);
+                    hitType = LaserHitType.enemy;
                 }
             }
-            return true;
+            return hitType;
         }
 
         //Controls the laser of the pylon. Deals AOE and big damage to enemies caught in the beam.
         public void FireLaser()
         {
+            int enemyHits = 0;
+            int interactableHits = 0;
+            int discoHits = 0;
+
             //AOE Damage
             RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, AOERadius, transform.position);
             if (sphereHits.Length > 0)
@@ -169,6 +179,7 @@ namespace UltraFunGuns
                             sphereDamageCooldown.AddCooldown();
                             Vector3 damageDirection = Eii.eid.gameObject.transform.position - transform.position;
                             Eii.eid.DeliverDamage(Eii.eid.gameObject, damageDirection, Eii.eid.gameObject.transform.position, 0.35f, false);
+                            ++enemyHits;
                         }
                     }
                 }
@@ -182,11 +193,21 @@ namespace UltraFunGuns
                 RaycastHit[] hits = Physics.RaycastAll(transform.position, laserPath, laserPath.magnitude, laserHitMask);
                 foreach (RaycastHit hit in hits)
                 {  
-                    if(!LaserHit(hit, laserPath, 0.3f))
+                    switch(LaserHit(hit, laserPath, 0.3f, 0, false))
                     {
-                        break;
+                        case LaserHitType.solid:
+                            goto StopLoop;
+                        case LaserHitType.enemy:
+                            enemyHits++;
+                            break;
+                        case LaserHitType.nothing:
+                            break;
+                        case LaserHitType.interactable:
+                            interactableHits++;
+                            break;
                     }
                 }
+                StopLoop:
                 targetPylon.DoRefraction(this);
                 Vector3[] laserPoints = new Vector3[] { transform.position, targetPylon.transform.position };
                 BuildLaser(laserPoints, laserPath * -1);
@@ -212,11 +233,21 @@ namespace UltraFunGuns
                     foreach (RaycastHit hit in hits)
                     {
                         ++counter;
-                        if (!LaserHit(hit, randomizedDirection, 6.0f/pylonManager.GetPylonCount(), 2.0f, true))
+                        switch(LaserHit(hit, randomizedDirection, 6.0f/pylonManager.GetPylonCount(), 2.0f, true))
                         {
+                        case LaserHitType.solid:
+                            goto StopLoop;
+                        case LaserHitType.enemy:
+                            discoHits++;
+                            break;
+                        case LaserHitType.nothing:
+                            break;
+                        case LaserHitType.interactable:
+                            discoHits++;
                             break;
                         }
                     }
+                    StopLoop:
                     Vector3[] laserPoints = new Vector3[] { transform.position, hits[counter].point };
                     BuildLaser(laserPoints, hits[counter].normal);
                 }else
@@ -236,6 +267,17 @@ namespace UltraFunGuns
             }else if(targetPylon == null)
             {
                 targetPylon = pylonManager.GetRefractorTarget(this);
+            }
+
+            if(discoHits > 0)
+            {
+                MonoSingleton<StyleHUD>.Instance.AddPoints(15, "hydraxous.ultrafunguns.discohit", focalyzer.gameObject, null, discoHits);
+            }
+
+            if (enemyHits > 0 || interactableHits > 0)
+            {
+                MonoSingleton<StyleHUD>.Instance.AddPoints(2 + (50*(interactableHits/1)), "hydraxous.ultrafunguns.refractionhit", focalyzer.gameObject, null, enemyHits + interactableHits);
+
             }
         }
 
