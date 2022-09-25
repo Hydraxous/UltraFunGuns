@@ -11,6 +11,8 @@ namespace UltraFunGuns
     //TODO add parry to make the thing home to an enemy.
     public class Dodgeball : UltraFunGunBase
     {
+        ActionCooldown pullCooldown = new ActionCooldown(0.25f);//TODO check this
+
         public ThrownDodgeball activeDodgeball;
 
         public GameObject thrownDodgeballPrefab;
@@ -22,22 +24,35 @@ namespace UltraFunGuns
         private bool chargingBall = false;
 
         public bool dodgeBallActive = false;
-        public float throwForce = 50.0f;
+        public float throwForce = 90.0f;
+        public float softThrowForce = 30.0f;
 
-        private float pullForce = 130.0f;
+        public float pullForce = 150.0f;
 
-        private float chargeMultiplier = 0.952f;
+        private float chargeMultiplier = 1.42f;
 
         private float minCharge = 1.0f;
         private float currentCharge = 1.0f;
-        private float maxCharge = 3.0f;
+        private float maxCharge = 4.0f;
+
+        private float pullTimer = 0.0f;
+
+        public bool basketBallMode = false;
+        private Material standardSkin;
+        private Material basketballSkin;
 
         public override void OnAwakeFinished()
         {
+            basketBallMode = UltraFunGuns.USE_BASKETBALL_TEXTURE.Value;
+            HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
+            basketballSkin = (Material) obj;
+            standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
             HydraLoader.prefabRegistry.TryGetValue("ThrownDodgeball", out thrownDodgeballPrefab);
-            weaponIcon.variationColor = 1;
+            SetSkin(!basketBallMode);
+            weaponIcon.variationColor = 2;
             catcherCollider = transform.Find("firePoint/DodgeballCatcher").gameObject;
             catcherCollider.SetActive(false);
+            catcherCollider.gameObject.layer = 14;
         }
 
         //press fire1 to throw, hold it to charge, hold right click to recall ball towards you.
@@ -49,31 +64,80 @@ namespace UltraFunGuns
                 {
                     chargingBall = true;
                     currentCharge = Mathf.Clamp(currentCharge + (Time.deltaTime * chargeMultiplier), minCharge, maxCharge);
+
                 }
                 else if (chargingBall && !throwingBall && !pullingBall)
                 {
-                    StartCoroutine(ThrowDodgeball());
+                    StartCoroutine(ThrowDodgeball(false));
                 }
 
 
-                if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && !chargingBall && !throwingBall && dodgeBallActive)
+                if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !throwingBall && !pullingBall && !dodgeBallActive && !chargingBall)
+                {
+                    StartCoroutine(ThrowDodgeball(true));
+                    pullCooldown.AddCooldown(0.5f);
+                }
+
+                if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && !chargingBall && !throwingBall && dodgeBallActive && pullCooldown.CanFire())
                 {
                     ForceDodgeball(true);
+                    pullTimer += Time.deltaTime;
                 }
                 else if (pullingBall && dodgeBallActive)
                 {
+                    pullCooldown.AddCooldown();
                     ForceDodgeball(false);
                 }else
                 {
+                    pullTimer = 0.0f;
                     pullingBall = false;
+                    catcherCollider.SetActive(false);
                 }
 
+                if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
+                {
+                    activeDodgeball.ExciteBall();
+                }
+
+                if(Input.GetKeyDown(KeyCode.K))
+                {
+                    basketBallMode = !basketBallMode;
+                    SetSkin(basketBallMode);
+                }
+
+            }
+        }
+
+        private void SetSkin(bool standard)
+        {
+            Material newSkin = !standard ? basketballSkin : standardSkin;
+            if (newSkin != null)
+            {
+                transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
+                thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
+            }
+            UltraFunGuns.USE_BASKETBALL_TEXTURE.Value = !standard;
+            GameObject.FindObjectOfType<UltraFunGuns>().SaveConfig();
+        }
+
+        private void FixedUpdate()
+        {
+            if(dodgeBallActive)
+            {
+                activeDodgeball.beingPulled = pullingBall;
+            }
+
+            if(pullTimer >= 6.0f && dodgeBallActive) //Failsafe for missing ball to return to player.
+            {
+                CatchBall();
+                Destroy(activeDodgeball.gameObject);            
             }
         }
 
         private void ForceDodgeball(bool pull)
         {
             Vector3 forceVelocity = (catcherCollider.transform.position - activeDodgeball.gameObject.transform.position).normalized * pullForce;
+            MonoSingleton<CameraController>.Instance.CameraShake(0.025f);
 
             if (!pull)
             {
@@ -81,38 +145,55 @@ namespace UltraFunGuns
             }
             pullingBall = pull;
             catcherCollider.SetActive(pull);
-            activeDodgeball.sustainedVelocity = forceVelocity;
+            activeDodgeball.transform.forward = forceVelocity;
+            activeDodgeball.SetSustainVelocity(forceVelocity, pull); //TODO push velocity thing
         }
 
-        IEnumerator ThrowDodgeball()
+        IEnumerator ThrowDodgeball(bool softThrow)
         {
             throwingBall = true;
             chargingBall = false;
             animator.Play("DodgeballThrow");
             yield return new WaitForSeconds(0.15f);
+            MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
             dodgeBallActive = true;
             activeDodgeball = GameObject.Instantiate<GameObject>(thrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
             activeDodgeball.dodgeballWeapon = this;
             Ray ballDirection = new Ray();
             activeDodgeball.gameObject.transform.forward = mainCam.transform.forward;
-            if (Physics.Raycast(mainCam.transform.position, mainCam.TransformDirection(0, 0, 1), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default")))
+            if (Physics.Raycast(mainCam.transform.position, mainCam.TransformDirection(0, 0, 1), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default")) && hit.collider.name != "CameraCollisionChecker")
             {
                 ballDirection.origin = firePoint.position;
                 ballDirection.direction = hit.point - firePoint.position;
             }else
             {
-                ballDirection.origin = mainCam.transform.position;
-                ballDirection.direction = mainCam.TransformDirection(0, 0, 1);
+                ballDirection.origin = firePoint.position;
+                ballDirection.direction = firePoint.forward;
             }
-            Vector3 dodgeBallVelocity = (ballDirection.direction * throwForce) * currentCharge;
-            activeDodgeball.sustainedVelocity = dodgeBallVelocity;
+
+            float currentThrowForce = throwForce;
+            if (softThrow)
+            {
+                currentThrowForce = softThrowForce;
+                currentCharge = 1.0f;
+            }
+
+            Vector3 dodgeBallVelocity = (ballDirection.direction * currentThrowForce) * currentCharge;
+            activeDodgeball.SetSustainVelocity(dodgeBallVelocity, true);
+            if(!softThrow)
+            {
+                activeDodgeball.AddBounces((int)(4 * currentCharge));
+            }
             throwingBall = false;
             currentCharge = 0;
         }
 
         public void CatchBall()
         {
+            MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
             pullingBall = false;
+            pullCooldown.timeToFire = 0;
+            pullTimer = 0.0f;
             animator.Play("DodgeballCatchball");
             transform.Find("Audios/CatchSound").GetComponent<AudioSource>().Play();
         }

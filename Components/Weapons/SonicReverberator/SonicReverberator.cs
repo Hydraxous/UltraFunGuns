@@ -165,6 +165,11 @@ namespace UltraFunGuns
             {
                 if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
                 {
+                    if(hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
+                    {
+                        dodgeBall.ExciteBall(chargeState);
+                    }
+
                     if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
                     {
                         EffectEnemy(enemy, blastOrigin);
