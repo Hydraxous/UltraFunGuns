@@ -70,7 +70,7 @@ Right Click -> Soft throw/Force ball
 
 You can also enflame the ball by shooting it or parrying it for a homing strike.
 
-Press K to swap the skin on the ball between kickball and basketball.
+Press K while the weapon is eqiupped to swap the skin on the ball between kickball and basketball.
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
