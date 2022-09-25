@@ -2,7 +2,7 @@
 An ULTRAKILL mod with fun weapons!!
 
 ### Disclaimer
-The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future.
+The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future. Also almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when all the weapons are done. For now it's just for fun so try not to take it too seriously.
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
@@ -28,7 +28,7 @@ Planned changes:
 - Fix to animations
 ______________________________________________________________________________________________
 
-## 2. EGG - Slot 8 - Thrown weapon
+## 2. EGG - Slot 8 Alternate - Throwable device
 
 ______________________________________________________________________________________________
 The EGG in the correct hands can be absolutely devastating. Nobody understands where it came from, but it's here.
@@ -41,7 +41,6 @@ To use the weapon, you can press **Primary Fire** to throw an egg and **Secondar
 
 Planned changes:
 - Grapple EGG for small health boost
-- EGGsplosion can be executed by railgun/revolver
 ______________________________________________________________________________________________
 
 ## 3. Focalyzer - Slot 9 - Energy weapon
@@ -57,6 +56,21 @@ To use the weapon, you can hold **Primary Fire** to fire the laser. The laser ca
 Planned changes:
 - Break pylons with punch
 - Pull pylons towards player with grapple
+______________________________________________________________________________________________
+
+## 4. NEW WEAPON - ULTRABALLER - Slot 8 - Throwable Device
+______________________________________________________________________________________________
+Crafted from the finest rubber or leather or... yeah we don't know. But it's bouncy!
+
+![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)
+Demo video and more extensive notes coming soon!
+Controls: 
+Left Click -> Throw ball/Charge ball
+Right Click -> Soft throw/Force ball
+
+You can also enflame the ball by shooting it or parrying it for a homing strike.
+
+Press K to swap the skin on the ball between kickball and basketball.
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
