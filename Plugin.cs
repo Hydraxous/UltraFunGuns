@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using BepInEx.Configuration;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace UltraFunGuns
     public class UltraFunGuns : BaseUnityPlugin
     {
         UltraFunGunsPatch gunPatch;
-
+        
         private void Awake()
         {
             if (RegisterAssets())
@@ -55,11 +56,6 @@ namespace UltraFunGuns
         {
             Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns.Patch");
             harmony.PatchAll();
-        }
-
-        private void BindConfigs()
-        {
-
         }
 
         //REGISTRY: Register custom assets for the loader here! TODO IF ISSUES ARISE CHECK ORDER OF REGISTRATION.
@@ -103,9 +99,10 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("ThrownDodgeball", new Component[] { new ThrownDodgeball() });
             new HydraLoader.CustomAssetPrefab("DodgeballImpactSound", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("DodgeballPopFX", new Component[] { new DestroyAfterTime() });
-            //TODO Icons 
-            //new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
-            //new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("BasketballMaterial", typeof(Material));
+            //Icons 
+            new HydraLoader.CustomAssetData("Dodgeball_weaponIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("Dodgeball_glowIcon", typeof(Sprite));
 
 
             //Focalyzer
@@ -146,7 +143,17 @@ namespace UltraFunGuns
             
         }
 
+        public static ConfigEntry<bool> USE_BASKETBALL_TEXTURE;
 
+        private void BindConfigs()
+        {
+            USE_BASKETBALL_TEXTURE = Config.Bind("MISC", "USE_BASKETBALL_TEXTURE", false, "Setting to true will replace the dodgeball weapon texture to be a basketball. This was highly requested...");
+        }
+
+        public void SaveConfig()
+        {
+            Config.Save();
+        }
     }
     
 }

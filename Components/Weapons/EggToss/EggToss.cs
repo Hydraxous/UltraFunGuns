@@ -14,13 +14,16 @@ namespace UltraFunGuns
         public float forceMultiplier = 59.0f;
         private bool throwingEgg = false;
 
+        public override void OnAwakeFinished()
+        {
+            weaponIcon.variationColor = 3;
+        }
+
         private void Start()
         {
-
             HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
             HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out thrownEggPrefab.GetComponent<ThrownEgg>().impactFX);
             HydraLoader.prefabRegistry.TryGetValue("EggSplosion", out thrownEggPrefab.GetComponent<ThrownEgg>().eggsplosionPrefab);
-
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
@@ -82,9 +85,5 @@ namespace UltraFunGuns
             throwingEgg = false;
         }
 
-        public override void OnAwakeFinished()
-        {
-            weaponIcon.variationColor = 1;
-        }
     }
 }
