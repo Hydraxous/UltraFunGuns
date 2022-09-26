@@ -6,7 +6,7 @@ The mod is currently in VERY early development so more weapons will be released 
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
-[DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
+# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
 ______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
