@@ -6,7 +6,7 @@ The mod is currently in VERY early development so more weapons will be released 
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
-[DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
+# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
 ______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
@@ -62,15 +62,15 @@ ________________________________________________________________________________
 ______________________________________________________________________________________________
 Crafted from the finest rubber or leather or... yeah we don't know. But it's bouncy!
 
-![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)
-Demo video and more extensive notes coming soon!
+[![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)](https://www.youtube.com/watch?v=wE9VJR8xwnY)
+Click for "demo" video ^
 Controls: 
 Left Click -> Throw ball/Charge ball
 Right Click -> Soft throw/Force ball
 
 You can also enflame the ball by shooting it or parrying it for a homing strike.
 
-Press K to swap the skin on the ball between kickball and basketball.
+Press K while the weapon is eqiupped to swap the skin on the ball between kickball and basketball.
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
