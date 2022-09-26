@@ -96,7 +96,7 @@ namespace UltraFunGuns
 
                 if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
                 {
-                    activeDodgeball.ExciteBall();
+                    activeDodgeball.ExciteBall(); //TODO REMOVE this is a debug key.
                 }
 
                 if(Input.GetKeyDown(KeyCode.K))
@@ -149,12 +149,15 @@ namespace UltraFunGuns
             activeDodgeball.SetSustainVelocity(forceVelocity, pull); //TODO push velocity thing
         }
 
-        IEnumerator ThrowDodgeball(bool softThrow)
+        IEnumerator ThrowDodgeball(bool softThrow, bool skipTiming = false)
         {
             throwingBall = true;
             chargingBall = false;
             animator.Play("DodgeballThrow");
-            yield return new WaitForSeconds(0.15f);
+            if(!skipTiming) //Lines up the thrown ball with the animation, looks nice.
+            {
+                yield return new WaitForSeconds(0.15f);
+            }
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
             dodgeBallActive = true;
             activeDodgeball = GameObject.Instantiate<GameObject>(thrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
@@ -207,6 +210,16 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
+            if (chargingBall && !throwingBall && !pullingBall)
+            {
+                StartCoroutine(ThrowDodgeball(false,true));
+            }
+
+            if(dodgeBallActive)
+            {
+                activeDodgeball.beingPulled = false;
+            }
+
             throwingBall = false;
             chargingBall = false;
             pullingBall = false;
