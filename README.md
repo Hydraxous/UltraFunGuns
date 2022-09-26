@@ -62,8 +62,8 @@ ________________________________________________________________________________
 ______________________________________________________________________________________________
 Crafted from the finest rubber or leather or... yeah we don't know. But it's bouncy!
 
-![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)
-Demo video and more extensive notes coming soon!
+[![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)](https://www.youtube.com/watch?v=wE9VJR8xwnY)
+Click for "demo" video ^
 Controls: 
 Left Click -> Throw ball/Charge ball
 Right Click -> Soft throw/Force ball
