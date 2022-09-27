@@ -78,28 +78,6 @@ namespace UltraFunGuns
             animator.SetBool("LaserActive", laserActive);
         }
 
-        //sorts raycast hits by distance cause unity is weird about it.
-        public RaycastHit[] SortHitsByDistance(RaycastHit[] hits)
-        {
-            List<RaycastHit> sortedHits = new List<RaycastHit>(hits.Length);
-
-            for(int i=0;i<hits.Length;i++)
-            {
-                RaycastHit currentHit = hits[i];
-                int currentIndex = i;
-
-                while (currentIndex > 0 && sortedHits[currentIndex - 1].distance > currentHit.distance)
-                {
-                    currentIndex--;
-                }
-
-                sortedHits.Insert(currentIndex, currentHit);
-
-            }
-
-            return sortedHits.ToArray();
-        }
-
         /* Laser function sweeps a sphere in the direction the player is looking, returns all targets in order of distance, checks
          *  each target and acts accordingly based on the information gathered from the target. Laser should stop when it hits an object.
          *  if the laser hits a FocalyzerPylon it will attempt to tell the pylon to start firing it's own laser depending on the result of a pylon
@@ -115,7 +93,7 @@ namespace UltraFunGuns
                 {
                     bool hitPylon = false;
                     int endingHit = 0;
-                    hits = SortHitsByDistance(hits);
+                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
                     for (int i = 0; i < hits.Length; i++)
                     {
                         endingHit = i;

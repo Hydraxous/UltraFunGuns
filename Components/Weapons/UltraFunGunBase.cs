@@ -9,6 +9,7 @@ namespace UltraFunGuns
     public abstract class UltraFunGunBase : MonoBehaviour
     {
         public Dictionary<string, ActionCooldown> actionCooldowns;
+        public Dictionary<string, AudioSource> soundEffects;
 
         public Transform mainCam, firePoint;
         public OptionsManager om;
@@ -22,7 +23,11 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            ResolveRegistryName();
+            registryName = gameObject.name;
+            if (registryName.Contains("(Clone)"))
+            {
+                registryName = registryName.Replace("(Clone)", "");
+            }
             actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
@@ -61,19 +66,7 @@ namespace UltraFunGuns
             OnAwakeFinished();
         }
         
-        public virtual void OnAwakeFinished()
-        {
-
-        }
-        
-        private void ResolveRegistryName()
-        {
-            registryName = gameObject.name;
-            if(registryName.Contains("(Clone)"))
-            {
-                registryName = registryName.Replace("(Clone)", "");
-            }
-        }
+        public virtual void OnAwakeFinished() {}
 
         private void Update()
         {
