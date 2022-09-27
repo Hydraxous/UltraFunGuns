@@ -24,8 +24,7 @@ However, it's best to be careful. Overcharging this weapon could have disasterou
 To use the weapon, hold **Primary Fire** to charge it and press **Secondary Fire** to release charged energy.
 
 Planned changes:
-- Total rework of knockback mechanic
-- Fix to animations
+- Total rework
 ______________________________________________________________________________________________
 
 ## 2. EGG - Slot 8 Alternate - Throwable device
@@ -40,7 +39,7 @@ Click the image for Demo Video ^^
 To use the weapon, you can press **Primary Fire** to throw an egg and **Secondary Fire** to drop it below you without inheriting your speed.
 
 Planned changes:
-- Grapple EGG for small health boost
+- TBA
 ______________________________________________________________________________________________
 
 ## 3. Focalyzer - Slot 9 - Energy weapon
@@ -54,8 +53,7 @@ Click the image for Demo Video ^^
 To use the weapon, you can hold **Primary Fire** to fire the laser. The laser can be used to damage enemies by itself. However, by pressing **Secondary Fire** you can dispense one of the six Pylons from the weapon. When a Pylon is charged with a Focalyzer beam it will refract the beam in random directions. If several Pylons are within range of each other the Pylons will refract the beam to eachother dealing damage over an area. 
 
 Planned changes:
-- Break pylons with punch
-- Pull pylons towards player with grapple
+- Total rework
 ______________________________________________________________________________________________
 
 ## 4. NEW WEAPON - ULTRABALLER - Slot 8 - Throwable Device
@@ -71,6 +69,9 @@ Right Click -> Soft throw/Force ball
 You can also enflame the ball by shooting it or parrying it for a homing strike.
 
 Press K while the weapon is eqiupped to swap the skin on the ball between kickball and basketball.
+
+Planned changes:
+- None
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
