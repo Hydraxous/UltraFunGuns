@@ -73,7 +73,7 @@ namespace UltraFunGuns
         {
             Vector3 rayCastDirection = pylon2.transform.position - pylon1.transform.position;
             RaycastHit[] hits = Physics.RaycastAll(pylon1.transform.position, rayCastDirection, rayCastDirection.magnitude);
-            hits = focalyzer.SortHitsByDistance(hits);
+            hits = HydraUtils.SortRaycastHitsByDistance(hits);
             foreach(RaycastHit hit in hits)
             {
                 if(hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)

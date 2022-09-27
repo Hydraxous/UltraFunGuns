@@ -228,7 +228,7 @@ namespace UltraFunGuns
 
                 if (hits.Length > 0) //if nothing is hit it will fire the laser downward in worldspace.
                 {
-                    hits = focalyzer.SortHitsByDistance(hits);
+                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
                     int counter = -1;
                     foreach (RaycastHit hit in hits)
                     {

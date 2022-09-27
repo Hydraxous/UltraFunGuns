@@ -14,7 +14,7 @@ namespace UltraFunGuns
             new List<string> {"SonicReverberator", },
             new List<string> { "Dodgeball", "EggToss" },
             new List<string> { "Focalyzer" },
-            new List<string> { }
+            new List<string> { "Tricksniper" }
         };
 
         //Empty slots for the weapons. Don't remove this.

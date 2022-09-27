@@ -13,15 +13,13 @@ namespace UltraFunGuns
      * This class is not in a state which I want it and is considered completely broken atm. Spaghetti code and non-functionaliy. https://cdn.discordapp.com/attachments/432329547023908884/1022845628675534868/unknown.png
      * BUGS: 
      * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
-     * Sometimes the weapon just breaks if enemies are present?
      * Animation weirdness: Make a seperate class to control the charge pistons.
      * The nature of being able to charge indefinitely causes many issues.
-     * Issue with reverberation object not spawning for some reason?
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
     public class SonicReverberator : UltraFunGunBase
     {
-        public GameObject bang; //set by data loader TODO UPDATE: Is it though? ,':| see LoadData()
+        public GameObject bang;
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
 
