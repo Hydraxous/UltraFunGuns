@@ -2,7 +2,7 @@
 An ULTRAKILL mod with fun weapons!!
 
 ### Disclaimer
-The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future. Also almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when all the weapons are done. For now it's just for fun so try not to take it too seriously.
+The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future. Also almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when most of the weapons are done. For now it's just for fun so try not to take it too seriously.
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
 
