@@ -89,5 +89,5 @@ ________________________________________________________________________________
 _______________________________________________________________________________________________________________________________________
 **Planned features**
 _______________________________________________________________________________________________________________________________________
-- In-game shop menu integration
-- Working interactions with base-game weapons and UFG weapons.
+- In-game shop menu integration/weapon slot management
+- Improved interactions with base-game weapons and UFG weapons.
