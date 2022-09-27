@@ -80,12 +80,11 @@ This mod also includes some custom Style metrics to go along with the weapons. S
 
 The mod adds custom slots which will hold the weapons.
 _______________________________________________________________________________________________________________________________________
-**Installation**
+# Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Place UltraFunGuns.dll into **BepinEx/plugins**
+2. Download the UltraFunGuns.dll [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.4-Experimental/UltraFunGuns.dll) and place it into **BepinEx/plugins**
 3. Enjoy!
-
 _______________________________________________________________________________________________________________________________________
 **Planned features**
 _______________________________________________________________________________________________________________________________________
