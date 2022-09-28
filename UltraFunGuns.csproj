@@ -118,6 +118,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Weapons\Punchweapon\" />
+    <Folder Include="Components\Weapons\Bulletstorm\" />
   </ItemGroup>
 </Project>

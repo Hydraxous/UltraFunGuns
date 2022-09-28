@@ -13,10 +13,16 @@ namespace UltraFunGuns
         public float spreadTightness = 1.5f;
         public float bulletPenetrationChance = 20.0f; // 100 Percentage
 
-        public int completedRotations = 0;
+        public int revolutions = 0;
         public float rotationalAngleMultiplier = 4.5f;
 
         public float maxRange = 2000.0f;
+
+        public float turnCountThreshold = 6.0f;
+        public int revolveCountThreshold = 12; 
+
+        public int turnsCompleted = 0;
+        public float lastRecordedRotation = 0.0f;
 
         public override void OnAwakeFinished()
         {
@@ -47,6 +53,28 @@ namespace UltraFunGuns
                 actionCooldowns["primaryFire"].AddCooldown();
                 Shoot();
             }
+            CheckRotation();
+        }
+
+        private void CheckRotation()
+        {
+            float currentRotation = mainCam.transform.eulerAngles.y;
+            float rotationDifference = Mathf.Abs(lastRecordedRotation - currentRotation);
+            if (rotationDifference >= turnCountThreshold)
+            {
+                ++turnsCompleted;
+            }else
+            {
+                turnsCompleted = 0;
+                revolutions = 0;
+            }
+
+            if(turnsCompleted >= revolveCountThreshold)
+            {
+                turnsCompleted = 0;
+                ++revolutions;
+            }
+            lastRecordedRotation = currentRotation;
         }
 
         private bool GetTarget(out Vector3 targetDirection) //Return true if enemy target found.
@@ -83,7 +111,7 @@ namespace UltraFunGuns
                         Vector3 directionToEnemy = (enemyTargetPoint.position - mainCam.position).normalized;
                         Vector3 lookDirection = mainCam.TransformDirection(Vector3.forward).normalized;
 
-                        float currentTargetAngle = (completedRotations * (rotationalAngleMultiplier * (completedRotations + 1.25f)));
+                        float currentTargetAngle = (revolutions * (rotationalAngleMultiplier * (revolutions + 1.25f)));
                         if(Vector3.Angle(directionToEnemy, lookDirection) <= Mathf.Clamp(currentTargetAngle, 0.0f, maxTargetAngle))
                         {
                             targetPoints.Add(enemyTargetPoint);
@@ -121,21 +149,28 @@ namespace UltraFunGuns
         {
             Vector3 origin = mainCam.position;
             Vector3 direction;
+            
+            bool penetration;
 
-            if (!(completedRotations != 0 && GetTarget(out direction)))
+            if (!(revolutions != 0 && GetTarget(out direction)))
             {
                 float randomDirectionX = UnityEngine.Random.Range(-1.0f, 1.0f);
                 float randomDirectionY = UnityEngine.Random.Range(-1.0f, 1.0f);
 
                 direction = mainCam.TransformDirection(randomDirectionX, randomDirectionY, spreadTightness);
+                penetration = true;
+            }
+            else
+            {
+                penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f));
             }
 
-            DoHit(new Ray(origin, direction));
+            DoHit(new Ray(origin, direction), penetration);
         }
 
-        private void DoHit(Ray hitRay)
+        private void DoHit(Ray hitRay, bool penetration)
         {
-            bool penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f));
+            
             RaycastHit[] hits = Physics.RaycastAll(hitRay, maxRange, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default"));
             if (hits.Length > 0)
             {
