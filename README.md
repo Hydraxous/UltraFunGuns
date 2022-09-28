@@ -2,9 +2,9 @@
 An ULTRAKILL mod with fun weapons!!
 
 ### Disclaimer
-The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future. Also almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when all the weapons are done. For now it's just for fun so try not to take it too seriously.
+The mod is currently in VERY early development so more weapons will be released in time and the functionality of all of them will be improved upon greatly in the future. Also almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when most of the weapons are done. For now it's just for fun so try not to take it too seriously.
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
-**THE MOD DOES NOT DISABLE CYBERGRIND SCORES**
+**THE MOD ENABLES MAJOR ASSISTS WHEN IT IS LOADED**
 
 # [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/latest)
 ______________________________________________________________________________________________
@@ -24,8 +24,7 @@ However, it's best to be careful. Overcharging this weapon could have disasterou
 To use the weapon, hold **Primary Fire** to charge it and press **Secondary Fire** to release charged energy.
 
 Planned changes:
-- Total rework of knockback mechanic
-- Fix to animations
+- Total rework
 ______________________________________________________________________________________________
 
 ## 2. EGG - Slot 8 Alternate - Throwable device
@@ -40,7 +39,7 @@ Click the image for Demo Video ^^
 To use the weapon, you can press **Primary Fire** to throw an egg and **Secondary Fire** to drop it below you without inheriting your speed.
 
 Planned changes:
-- Grapple EGG for small health boost
+- TBA
 ______________________________________________________________________________________________
 
 ## 3. Focalyzer - Slot 9 - Energy weapon
@@ -54,8 +53,7 @@ Click the image for Demo Video ^^
 To use the weapon, you can hold **Primary Fire** to fire the laser. The laser can be used to damage enemies by itself. However, by pressing **Secondary Fire** you can dispense one of the six Pylons from the weapon. When a Pylon is charged with a Focalyzer beam it will refract the beam in random directions. If several Pylons are within range of each other the Pylons will refract the beam to eachother dealing damage over an area. 
 
 Planned changes:
-- Break pylons with punch
-- Pull pylons towards player with grapple
+- Total rework
 ______________________________________________________________________________________________
 
 ## 4. NEW WEAPON - ULTRABALLER - Slot 8 - Throwable Device
@@ -64,13 +62,20 @@ Crafted from the finest rubber or leather or... yeah we don't know. But it's bou
 
 [![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)](https://www.youtube.com/watch?v=wE9VJR8xwnY)
 Click for "demo" video ^
-Controls: 
-Left Click -> Throw ball/Charge ball
-Right Click -> Soft throw/Force ball
 
-You can also enflame the ball by shooting it or parrying it for a homing strike.
+How to use:
+You can throw the ball with primary fire. Alternatively you can charge your throw by holding primary fire and release for a stronger throw.
+You can also softly throw the ball with secondary fire.
+When the ball is in play, you can pull it towards you by holding secondary fire. Releasing secondary fire will send the ball away from you again.
+
+You can shoot the ball with the revolver or parry it to excite it. When the ball gets excited it will attempt to find the nearest enemy and perform a homing attack at it. 
+
+Every time the ball bounces it increases it's speed and damage. While excited the ball will have even further increased speed and damage output.
 
 Press K while the weapon is eqiupped to swap the skin on the ball between kickball and basketball.
+
+Planned changes:
+- None
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
@@ -80,14 +85,13 @@ This mod also includes some custom Style metrics to go along with the weapons. S
 
 The mod adds custom slots which will hold the weapons.
 _______________________________________________________________________________________________________________________________________
-**Installation**
+# Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Place UltraFunGuns.dll into **BepinEx/plugins**
+2. Download the UltraFunGuns.dll [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.4-Experimental/UltraFunGuns.dll) and place it into **BepinEx/plugins**
 3. Enjoy!
-
 _______________________________________________________________________________________________________________________________________
 **Planned features**
 _______________________________________________________________________________________________________________________________________
-- In-game shop menu integration
-- Working interactions with base-game weapons and UFG weapons.
+- In-game shop menu integration/weapon slot management
+- Improved interactions with base-game weapons and UFG weapons.
