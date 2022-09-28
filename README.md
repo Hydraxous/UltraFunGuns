@@ -62,11 +62,15 @@ Crafted from the finest rubber or leather or... yeah we don't know. But it's bou
 
 [![Ultraballerimage](https://cdn.discordapp.com/attachments/432329547023908884/1023616885889175622/UltraballerImage2.png)](https://www.youtube.com/watch?v=wE9VJR8xwnY)
 Click for "demo" video ^
-Controls: 
-Left Click -> Throw ball/Charge ball
-Right Click -> Soft throw/Force ball
 
-You can also enflame the ball by shooting it or parrying it for a homing strike.
+How to use:
+You can throw the ball with primary fire. Alternatively you can charge your throw by holding primary fire and release for a stronger throw.
+You can also softly throw the ball with secondary fire.
+When the ball is in play, you can pull it towards you by holding secondary fire. Releasing secondary fire will send the ball away from you again.
+
+You can shoot the ball with the revolver or parry it to excite it. When the ball gets excited it will attempt to find the nearest enemy and perform a homing attack at it. 
+
+Every time the ball bounces it increases it's speed and damage. While excited the ball will have even further increased speed and damage output.
 
 Press K while the weapon is eqiupped to swap the skin on the ball between kickball and basketball.
 
