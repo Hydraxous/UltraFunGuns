@@ -11,7 +11,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.4")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.5")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         public UFGWeaponManager gunPatch;
@@ -121,9 +121,9 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
             new HydraLoader.CustomAssetPrefab("FocalyzerLaserAlternate", new Component[] { new FocalyzerLaserControllerAlternate() });
-            //Icons TODO
-            new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
+            //Icons 
+            new HydraLoader.CustomAssetData("FocalyzerAlternate_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("FocalyzerAlternate_weaponIcon", typeof(Sprite));
 
 
             //Tricksniper

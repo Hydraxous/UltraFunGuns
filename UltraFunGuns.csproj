@@ -119,5 +119,6 @@
 
   <ItemGroup>
     <Folder Include="Components\Weapons\Bulletstorm\" />
+    <Folder Include="Components\Weapons\Focalyzer\Standard\" />
   </ItemGroup>
 </Project>
