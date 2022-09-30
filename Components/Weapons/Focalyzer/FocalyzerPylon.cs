@@ -17,11 +17,13 @@ namespace UltraFunGuns
         public Animator animator;
         public Animator laserAnimator;
 
-        public bool refracting = false;
+        public bool refracting = true;
         public Focalyzer focalyzer;
         public FocalyzerLaserController pylonManager;
         public LineRenderer refractedLaser;
         public FocalyzerPylon targetPylon;
+
+        public Transform targetPoint;
 
         private Vector3 randomizedDirection = Vector3.forward;
 
@@ -34,6 +36,7 @@ namespace UltraFunGuns
 
         public int refractionCount = 0;
         public float AOERadius = 3.5f;
+        public float laserBeamWidth = 0.5f;
 
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
@@ -59,7 +62,6 @@ namespace UltraFunGuns
 
         void Update()
         {
-            //TEST
             animator.SetBool("Refracting", refracting);
             laserAnimator.SetBool("Active", refracting);
             if (lifeTimeLeft < Time.time)
@@ -74,11 +76,14 @@ namespace UltraFunGuns
             {
                 discoAudio.Pause();
             }
+
+            FireLaser();
         }
 
         //Checks if the laser is being fired already to prevent buildup of unwanted coroutines.
         public void DoRefraction(FocalyzerPylon hitPylon, bool playerLaser = false)
         {
+            return; //TODO remove this whole thing and fix integration
             if(!refracting)
             {
                 StartCoroutine(RefractLaser(hitPylon, playerLaser));
@@ -104,8 +109,6 @@ namespace UltraFunGuns
                 {
                     //TODO FIX THIS IDK WHAT IS CAUSING IT.
                 }
-
-
 
                 yield return new WaitForEndOfFrame();
             }
@@ -140,7 +143,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii))
             {
-                if (damageCooldown.CanFire())
+                if (damageCooldown.CanFire() && !Eii.eid.dead)
                 {
                     damageCooldown.AddCooldown();
                     Eii.eid.DeliverDamage(Eii.eid.gameObject, castDirection, hit.point, damageMultiplier, tryExplode, critMultiplier);
@@ -158,10 +161,10 @@ namespace UltraFunGuns
             int discoHits = 0;
 
             //AOE Damage
-            RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, AOERadius, transform.position);
+            RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, AOERadius, Vector3.zero, 0.001f);
             if (sphereHits.Length > 0)
             {
-                foreach(RaycastHit sphereHit in sphereHits)
+                foreach (RaycastHit sphereHit in sphereHits)
                 {
                     if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
@@ -175,7 +178,7 @@ namespace UltraFunGuns
 
                     if (sphereHit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii) && sphereDamageCooldown.CanFire())
                     {
-                        if(!Eii.eid.dead)
+                        if (!Eii.eid.dead)
                         {
                             sphereDamageCooldown.AddCooldown();
                             Vector3 damageDirection = Eii.eid.gameObject.transform.position - transform.position;
@@ -184,109 +187,59 @@ namespace UltraFunGuns
                         }
                     }
                 }
-                
+
             }
 
-
-            if (targetPylon != this)
+            int endHitIndex = -1;
+            Vector3 laserPath = targetPoint.transform.position - transform.position;
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position, laserBeamWidth, laserPath, focalyzer.laserMaxRange, laserHitMask);
+            hits = HydraUtils.SortRaycastHitsByDistance(hits);
+            foreach (RaycastHit hit in hits)
             {
-                Vector3 laserPath = targetPylon.transform.position - transform.position;
-                RaycastHit[] hits = Physics.RaycastAll(transform.position, laserPath, laserPath.magnitude, laserHitMask);
-                foreach (RaycastHit hit in hits)
-                {  
-                    switch(LaserHit(hit, laserPath, 0.3f, 0, false))
-                    {
-                        case LaserHitType.solid:
-                            goto StopLoop;
-                        case LaserHitType.enemy:
-                            enemyHits++;
-                            break;
-                        case LaserHitType.nothing:
-                            break;
-                        case LaserHitType.interactable:
-                            interactableHits++;
-                            break;
-                    }
-                }
-                StopLoop:
-                targetPylon.DoRefraction(this);
-                Vector3[] laserPoints = new Vector3[] { transform.position, targetPylon.transform.position };
-                BuildLaser(laserPoints, laserPath * -1);
-            }
-            else if(targetPylon == this) //TODO this goes in a random direction so fix it. Update: it's a feature :^) TODO: make the speed of the direction change go from slow to fast overtime for balancing.
-            {
-                if(randomDirectionCooldown.CanFire()) //delay between picking a direction
+                ++endHitIndex;
+                if(LaserHit(hit, laserPath, 0.3f, 0, false) != LaserHitType.nothing)
                 {
-                    randomDirectionCooldown.AddCooldown();
-                    float randX = UnityEngine.Random.Range(-1f, 1f);
-                    float randY = UnityEngine.Random.Range(-1f, 1f);
-                    float randZ = UnityEngine.Random.Range(-1f, 1f);
-                    randomizedDirection = transform.TransformDirection(randX, randY, randZ).normalized;
-                    randomizedDirection *= 500;
+                    break;
                 }
-                
-                RaycastHit[] hits = Physics.RaycastAll(transform.position, randomizedDirection, randomizedDirection.sqrMagnitude, laserHitMask);
-
-                if (hits.Length > 0) //if nothing is hit it will fire the laser downward in worldspace.
-                {
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
-                    int counter = -1;
-                    foreach (RaycastHit hit in hits)
-                    {
-                        ++counter;
-                        switch(LaserHit(hit, randomizedDirection, 6.0f/pylonManager.GetPylonCount(), 2.0f, true))
-                        {
-                        case LaserHitType.solid:
-                            goto StopLoop;
-                        case LaserHitType.enemy:
-                            discoHits++;
-                            break;
-                        case LaserHitType.nothing:
-                            break;
-                        case LaserHitType.interactable:
-                            discoHits++;
-                            break;
-                        }
-                    }
-                    StopLoop:
-                    Vector3[] laserPoints = new Vector3[] { transform.position, hits[counter].point };
-                    BuildLaser(laserPoints, hits[counter].normal);
-                }else
-                {
-                    if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, laserHitMask))
-                    {
-                        LaserHit(hit, randomizedDirection, 3.0f/pylonManager.GetPylonCount(), 1.0f, true);
-                        BuildLaser(new Vector3[] { transform.position, hit.point }, hit.normal);
-                    }
-                    else
-                    {
-                        Vector3 towardsPlayer = MonoSingleton<CameraController>.Instance.transform.position - transform.position;
-                        BuildLaser(new Vector3[] { transform.position, transform.position }, towardsPlayer);
-                    }
-                }
-                
-            }else if(targetPylon == null)
-            {
-                targetPylon = pylonManager.GetRefractorTarget(this);
             }
 
-            if(discoHits > 0)
+            transform.forward = laserPath.normalized;
+
+            Vector3[] laserPoints = new Vector3[2] { transform.position, Vector3.zero};
+            Vector3 laserEndNormal;
+            if (hits.Length > 0)
             {
-                MonoSingleton<StyleHUD>.Instance.AddPoints(15, "hydraxous.ultrafunguns.discohit", focalyzer.gameObject, null, discoHits);
+                laserPoints[1] = hits[endHitIndex].point;
+                laserEndNormal = hits[endHitIndex].normal;
+            }
+            else
+            {
+                Ray missRay = new Ray();
+                missRay.origin = transform.position;
+                missRay.direction = laserPath;
+
+                laserPoints[1] = missRay.GetPoint(focalyzer.laserMaxRange);
+                laserEndNormal = laserPath * -1;
+            }
+
+            BuildLaser(laserPoints, laserEndNormal);
+
+            if (discoHits > 0)
+            {
+                //MonoSingleton<StyleHUD>.Instance.AddPoints(15, "hydraxous.ultrafunguns.discohit", focalyzer.gameObject, null, discoHits);
             }
 
             if (enemyHits > 0 || interactableHits > 0)
             {
-                MonoSingleton<StyleHUD>.Instance.AddPoints(2 + (50*(interactableHits/1)), "hydraxous.ultrafunguns.refractionhit", focalyzer.gameObject, null, enemyHits + interactableHits);
-
+                //MonoSingleton<StyleHUD>.Instance.AddPoints(2 + (50 * (interactableHits / 1)), "hydraxous.ultrafunguns.refractionhit", focalyzer.gameObject, null, enemyHits + interactableHits);
             }
         }
 
         //Constructs the laser visually. Doesn't actually do anything mechanically.
-        void BuildLaser(Vector3[] points, Vector3 normal)
+        void BuildLaser(Vector3[] laser, Vector3 normal)
         {
-            refractedLaser.SetPositions(points);
-            refractedLaser.gameObject.transform.position = points[1];
+            refractedLaser.SetPositions(laser);
+            refractedLaser.gameObject.transform.position = laser[1];
             refractedLaser.gameObject.transform.up = normal;
         }
 

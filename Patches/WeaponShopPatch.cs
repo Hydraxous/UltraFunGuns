@@ -24,9 +24,12 @@ namespace UltraFunGuns
     [HarmonyPatch(typeof(GunSetter),"ResetWeapons")]
     public static class GunSetterPatch
     {
-        public static void Postfix()
+        public static void Postfix(bool firstTime)
         {
-            GameObject.FindObjectOfType<UFGWeaponManager>().FetchWeapons();
+            if(!firstTime)
+            {
+                GameObject.FindObjectOfType<UFGWeaponManager>().FetchWeapons();
+            }
         }
 
     }

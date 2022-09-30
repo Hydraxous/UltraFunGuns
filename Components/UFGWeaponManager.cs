@@ -53,7 +53,7 @@ namespace UltraFunGuns
             NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
             NewStyleItem("dodgeballreversehit", "REBOUND");
 
-            //FetchWeapons();
+            FetchWeapons();
         }
 
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.

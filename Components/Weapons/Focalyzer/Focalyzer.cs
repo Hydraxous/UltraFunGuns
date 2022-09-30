@@ -13,6 +13,7 @@ namespace UltraFunGuns
         public FocalyzerLaserController laser;
         public FocalyzerTubeController tubeController;
         public GameObject pylonPrefab;
+        public Transform aimSpot;
 
         private bool throwingPylon = false;
         public bool laserActive = false;
@@ -27,6 +28,8 @@ namespace UltraFunGuns
         {
             weaponIcon.variationColor = 2;
             tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeController>();
+            aimSpot = GameObject.Instantiate<GameObject>(new GameObject(), Vector3.zero, Quaternion.identity).transform;
+            aimSpot.name = "PylonTarget";
         }
 
         private void Start()
@@ -167,8 +170,13 @@ namespace UltraFunGuns
 
         private void DrawLaser(Vector3 origin, Vector3 endPoint, Vector3 normal)
         {
+            if(laserActive)
+            {
+                aimSpot.position = endPoint;
+            }
+
             laser.AddLinePosition(origin);
-            laser.AddLinePosition(endPoint);
+            laser.AddLinePosition(endPoint);          
             laser.BuildLine(normal);
         }
 
@@ -186,6 +194,7 @@ namespace UltraFunGuns
             pylon.laserHitMask = laserHitMask;
             pylon.focalyzer = this;
             pylon.pylonManager = laser;
+            pylon.targetPoint = aimSpot;
 
             newPylon.GetComponent<Rigidbody>().velocity = (mainCam.TransformDirection(0, 0, 1)*40.0f);
             throwingPylon = false;
