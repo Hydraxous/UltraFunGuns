@@ -13,7 +13,7 @@ namespace UltraFunGuns
         private List<List<string>> weaponKeySlots = new List<List<string>>() {
             new List<string> { "SonicReverberator" },
             new List<string> { "Dodgeball", "EggToss" },
-            new List<string> { "Focalyzer" },
+            new List<string> { "Focalyzer" , "FocalyzerAlternate" },
             new List<string> { "Tricksniper" }
         };
 

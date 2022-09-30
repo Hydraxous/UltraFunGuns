@@ -23,7 +23,7 @@ namespace UltraFunGuns
 
         void Start()
         {
-
+            //TODO Do the tube animations and pylon limits/recharging mechanic
             lineRenderer = GetComponent<LineRenderer>();
             animator = GetComponent<Animator>();
         }

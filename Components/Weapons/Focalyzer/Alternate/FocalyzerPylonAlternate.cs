@@ -10,12 +10,11 @@ namespace UltraFunGuns
     //Pylon of the focalyzer alternate. It will target what the player does.
     public class FocalyzerPylonAlternate : MonoBehaviour
     {
-        public Animator animator;
+        //public Animator animator;
         public Animator laserAnimator;
 
         public FocalyzerAlternate focalyzer;
         public LineRenderer refractedLaser;
-        public FocalyzerPylonAlternate targetPylon;
 
         public Transform targetPoint;
 
@@ -26,7 +25,6 @@ namespace UltraFunGuns
         public LayerMask laserHitMask;
 
         public int refractionCount = 0;
-        public float AOERadius = 3.5f;
         public float laserBeamWidth = 0.1f;
 
         private float lifeTime = 16.0f;
@@ -37,10 +35,9 @@ namespace UltraFunGuns
         void Start()
         {
             lifeTimeLeft = lifeTime + Time.time;
-            animator = GetComponent<Animator>();
             refractedLaser = GetComponentInChildren<LineRenderer>();
             laserAnimator = refractedLaser.GetComponent<Animator>();
-            transform.Find("FocalyzerCrystalVisual/RefractorVisual").gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
+            transform.Find("FocalyzerPylonRemake/RefractorVisual").gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
         }
 
         void Update()
@@ -97,37 +94,6 @@ namespace UltraFunGuns
         {
             int enemyHits = 0;
             int interactableHits = 0;
-
-            /*
-            RaycastHit[] sphereHits = Physics.SphereCastAll(transform.position, AOERadius, Vector3.zero, 0.001f);
-            if (sphereHits.Length > 0)
-            {
-                foreach (RaycastHit sphereHit in sphereHits)
-                {
-                    if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
-                    {
-                        egg.Explode(1.0f); //TODO CHANGE
-                    }
-
-                    if (sphereHit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                    {
-                        grenade.Explode();
-                    }
-
-                    if (sphereHit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier Eii) && sphereDamageCooldown.CanFire())
-                    {
-                        if (!Eii.eid.dead)
-                        {
-                            sphereDamageCooldown.AddCooldown();
-                            Vector3 damageDirection = Eii.eid.gameObject.transform.position - transform.position;
-                            Eii.eid.DeliverDamage(Eii.eid.gameObject, damageDirection, Eii.eid.gameObject.transform.position, 0.35f, false);
-                            ++enemyHits;
-                        }
-                    }
-                }
-
-            }
-            */
             int endHitIndex = -1;
             Vector3 laserPath = targetPoint.transform.position - transform.position;
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, laserBeamWidth, laserPath, focalyzer.laserMaxRange, laserHitMask);
