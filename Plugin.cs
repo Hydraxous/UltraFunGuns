@@ -117,6 +117,14 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
 
+            //Focalyzer Alternate
+            new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
+            new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
+            new HydraLoader.CustomAssetPrefab("FocalyzerLaserAlternate", new Component[] { new FocalyzerLaserControllerAlternate() });
+            //Icons TODO
+            new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
+
 
             //Tricksniper
             new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
