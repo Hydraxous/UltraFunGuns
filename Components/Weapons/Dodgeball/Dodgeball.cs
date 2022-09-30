@@ -58,26 +58,29 @@ namespace UltraFunGuns
         //press fire1 to throw, hold it to charge, hold right click to recall ball towards you.
         public override void GetInput()
         {
-            if(!om.paused)
+           
+            if (!om.paused)
             {
+                //primary Charge input
                 if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !throwingBall && !pullingBall && !dodgeBallActive)
                 {
                     chargingBall = true;
                     currentCharge = Mathf.Clamp(currentCharge + (Time.deltaTime * chargeMultiplier), minCharge, maxCharge);
-
                 }
                 else if (chargingBall && !throwingBall && !pullingBall)
                 {
                     StartCoroutine(ThrowDodgeball(false));
+                    pullCooldown.AddCooldown(0.5f);
                 }
 
-
+                //Soft throw
                 if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !throwingBall && !pullingBall && !dodgeBallActive && !chargingBall)
                 {
                     StartCoroutine(ThrowDodgeball(true));
                     pullCooldown.AddCooldown(0.5f);
                 }
 
+                //Force push/pull ball
                 if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && !chargingBall && !throwingBall && dodgeBallActive && pullCooldown.CanFire())
                 {
                     ForceDodgeball(true);
@@ -122,9 +125,14 @@ namespace UltraFunGuns
 
         private void FixedUpdate()
         {
-            if(dodgeBallActive)
+            if (dodgeBallActive && activeDodgeball == null)
             {
-                activeDodgeball.beingPulled = pullingBall;
+                dodgeBallActive = false;
+            }
+
+            if (dodgeBallActive)
+            {
+                activeDodgeball.beingPulled = pullingBall; //Currently you can command the ball to you by swapping weapons when pulling, if this should be changed in the future set these to false in OnDisable
             }
 
             if(pullTimer >= 6.0f && dodgeBallActive) //Failsafe for missing ball to return to player.
@@ -134,19 +142,26 @@ namespace UltraFunGuns
             }
         }
 
+        //Secondary fire action when the ball is in play
         private void ForceDodgeball(bool pull)
         {
-            Vector3 forceVelocity = (catcherCollider.transform.position - activeDodgeball.gameObject.transform.position).normalized * pullForce;
-            MonoSingleton<CameraController>.Instance.CameraShake(0.025f);
-
-            if (!pull)
+            if (activeDodgeball != null)
             {
-                forceVelocity *= -1;
+                Vector3 forceVelocity = (catcherCollider.transform.position - activeDodgeball.gameObject.transform.position).normalized * pullForce;
+                MonoSingleton<CameraController>.Instance.CameraShake(0.025f);
+
+                if (!pull)
+                {
+                    forceVelocity *= -1;
+                }
+                pullingBall = pull;
+                catcherCollider.SetActive(pull);
+                activeDodgeball.transform.forward = forceVelocity;
+                activeDodgeball.SetSustainVelocity(forceVelocity, pull);
+            }else
+            {
+                dodgeBallActive = false;
             }
-            pullingBall = pull;
-            catcherCollider.SetActive(pull);
-            activeDodgeball.transform.forward = forceVelocity;
-            activeDodgeball.SetSustainVelocity(forceVelocity, pull); //TODO push velocity thing
         }
 
         IEnumerator ThrowDodgeball(bool softThrow, bool skipTiming = false)
@@ -191,6 +206,7 @@ namespace UltraFunGuns
             currentCharge = 0;
         }
 
+        //Called by ThrownDodgeball object when it touches the catcher trigger.
         public void CatchBall()
         {
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
@@ -210,7 +226,7 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            if (chargingBall && !throwingBall && !pullingBall)
+            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work.
             {
                 StartCoroutine(ThrowDodgeball(false,true));
             }

@@ -29,6 +29,7 @@ namespace UltraFunGuns
             return sortedHits.ToArray();
         }
 
+        //LOS check only counts the level, environment, etc. as obstruction of view.
         public static bool LineOfSightCheck(Vector3 source, Vector3 target)
         {
             Vector3 rayCastDirection = target - source;
