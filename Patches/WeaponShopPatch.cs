@@ -17,5 +17,17 @@ namespace UltraFunGuns
              
              */
         }
+
+
+    }
+
+    [HarmonyPatch(typeof(GunSetter),"ResetWeapons")]
+    public static class GunSetterPatch
+    {
+        public static void Postfix()
+        {
+            GameObject.FindObjectOfType<UFGWeaponManager>().FetchWeapons();
+        }
+
     }
 }

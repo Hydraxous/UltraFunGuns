@@ -14,7 +14,7 @@ namespace UltraFunGuns
     [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.4")]
     public class UltraFunGuns : BaseUnityPlugin
     {
-        UltraFunGunsPatch gunPatch;
+        public UFGWeaponManager gunPatch;
         
         private void Awake()
         {
@@ -36,9 +36,13 @@ namespace UltraFunGuns
             }
 
             GunControl gc = MonoSingleton<GunControl>.Instance;
-            if (!gc.TryGetComponent<UltraFunGunsPatch>(out UltraFunGunsPatch ultraFGPatch))
+            if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
             {
-                gunPatch = gc.gameObject.AddComponent<UltraFunGunsPatch>();
+                gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
+                gunPatch.Slot7Key = SLOT_7_KEY.Value;
+                gunPatch.Slot8Key = SLOT_8_KEY.Value;
+                gunPatch.Slot9Key = SLOT_9_KEY.Value;
+                gunPatch.Slot10Key = SLOT_10_KEY.Value;
             }
         }
 
@@ -149,10 +153,18 @@ namespace UltraFunGuns
         }
 
         public static ConfigEntry<bool> USE_BASKETBALL_TEXTURE;
+        public static ConfigEntry<KeyCode> SLOT_7_KEY;
+        public static ConfigEntry<KeyCode> SLOT_8_KEY;
+        public static ConfigEntry<KeyCode> SLOT_9_KEY;
+        public static ConfigEntry<KeyCode> SLOT_10_KEY;
 
         private void BindConfigs()
         {
             USE_BASKETBALL_TEXTURE = Config.Bind("MISC", "USE_BASKETBALL_TEXTURE", false, "Setting to true will replace the dodgeball weapon texture to be a basketball. This was highly requested...");
+            SLOT_7_KEY = Config.Bind("BINDINGS", "SLOT_7_KEY", KeyCode.Alpha7, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
+            SLOT_8_KEY = Config.Bind("BINDINGS", "SLOT_8_KEY", KeyCode.Alpha8, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
+            SLOT_9_KEY = Config.Bind("BINDINGS", "SLOT_9_KEY", KeyCode.Alpha9, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
+            SLOT_10_KEY = Config.Bind("BINDINGS", "SLOT_10_KEY", KeyCode.Alpha0, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
         }
 
         public void SaveConfig()
