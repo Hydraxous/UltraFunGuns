@@ -59,6 +59,7 @@ namespace UltraFunGuns
 
         void Update()
         {
+            //TEST
             animator.SetBool("Refracting", refracting);
             laserAnimator.SetBool("Active", refracting);
             if (lifeTimeLeft < Time.time)
