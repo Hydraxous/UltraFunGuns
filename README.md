@@ -56,7 +56,7 @@ Planned changes:
 - Total rework
 ______________________________________________________________________________________________
 
-## 4. NEW WEAPON - ULTRABALLER - Slot 8 - Throwable Device
+## 4. ULTRABALLER - Slot 8 - Throwable Device
 ______________________________________________________________________________________________
 Crafted from the finest rubber or leather or... yeah we don't know. But it's bouncy!
 
@@ -88,7 +88,7 @@ ________________________________________________________________________________
 # Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Download the UltraFunGuns.dll [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.4-Experimental/UltraFunGuns.dll) and place it into **BepinEx/plugins**
+2. Download the UltraFunGuns.dll [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.5-Experimental/UltraFunGuns.dll) and place it into **BepinEx/plugins**
 3. Enjoy!
 _______________________________________________________________________________________________________________________________________
 **Planned features**
