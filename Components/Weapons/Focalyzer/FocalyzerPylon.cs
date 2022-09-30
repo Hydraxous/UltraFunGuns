@@ -36,7 +36,7 @@ namespace UltraFunGuns
 
         public int refractionCount = 0;
         public float AOERadius = 3.5f;
-        public float laserBeamWidth = 0.5f;
+        public float laserBeamWidth = 0.1f;
 
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
