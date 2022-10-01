@@ -17,9 +17,6 @@ namespace UltraFunGuns
         public Animator animator;
 
         public bool laserActive = false;
-        public int maxPylonRefractions = 4;
-        public int maxPylons = 6;
-        public float maxPylonRange = 500.0f;
 
         void Start()
         {

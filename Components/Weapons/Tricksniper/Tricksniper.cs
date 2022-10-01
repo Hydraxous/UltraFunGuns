@@ -8,6 +8,7 @@ namespace UltraFunGuns
     public class Tricksniper : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;
+        public GameObject muzzleFX;
 
         public float maxTargetAngle = 90.0f;
         public float spreadTightness = 1.5f;
@@ -27,12 +28,14 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
+            HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
             cooldowns.Add("primaryFire",new ActionCooldown(0.65f));
+            cooldowns.Add("turnExpiry", new ActionCooldown(0.065f));
             return cooldowns;
         }
 
@@ -48,7 +51,7 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire())
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
             {
                 actionCooldowns["primaryFire"].AddCooldown();
                 Shoot();
@@ -63,7 +66,8 @@ namespace UltraFunGuns
             if (rotationDifference >= turnCountThreshold)
             {
                 ++turnsCompleted;
-            }else
+            }
+            else if(actionCooldowns["turnExpiry"].CanFire())
             {
                 turnsCompleted = 0;
                 revolutions = 0;
@@ -73,6 +77,7 @@ namespace UltraFunGuns
             {
                 turnsCompleted = 0;
                 ++revolutions;
+                actionCooldowns["turnExpiry"].AddCooldown();
             }
             lastRecordedRotation = currentRotation;
         }
@@ -166,6 +171,8 @@ namespace UltraFunGuns
             }
 
             DoHit(new Ray(origin, direction), penetration);
+            Instantiate<GameObject>(muzzleFX, firePoint.position, Quaternion.identity).transform.forward = firePoint.transform.forward;
+
         }
 
         private void DoHit(Ray hitRay, bool penetration)

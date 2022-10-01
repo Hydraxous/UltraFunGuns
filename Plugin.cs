@@ -129,6 +129,7 @@ namespace UltraFunGuns
             //Tricksniper
             new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
             new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("TricksniperMuzzleFX", new Component[] { new DestroyAfterTime() });
 
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
