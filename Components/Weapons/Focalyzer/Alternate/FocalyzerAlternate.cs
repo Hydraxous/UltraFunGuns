@@ -11,9 +11,17 @@ namespace UltraFunGuns
     public class FocalyzerAlternate : UltraFunGunBase
     {
         public FocalyzerLaserControllerAlternate laser;
-        //public FocalyzerTubeController tubeController;
+        public FocalyzerTubeControllerAlternate tubeController;
         public GameObject pylonPrefab;
         public Transform aimSpot;
+
+        private StyleHUD style;
+
+        public int maxStoredPylons = 3;
+        public int pylonsRemaining = 3;
+
+        public float pylonRechargeTime = 6.0f;
+        public float pylonRechargeTimeRemaining = 0.0f;
 
         private bool throwingPylon = false;
         public bool laserActive = false;
@@ -25,8 +33,9 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
+            style = MonoSingleton<StyleHUD>.Instance;
             weaponIcon.variationColor = 0;
-            //tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeController>();
+            tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeControllerAlternate>();
             aimSpot = GameObject.Instantiate<GameObject>(new GameObject(), Vector3.zero, Quaternion.identity).transform;
             aimSpot.name = "PylonTarget";
         }
@@ -65,17 +74,19 @@ namespace UltraFunGuns
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
             {
-                if (!om.paused && laser.GetPylonCount() < laser.maxPylons && !throwingPylon)
+                if (!om.paused && !throwingPylon && pylonsRemaining > 0)
                 {
                     StartCoroutine(ThrowPylon());
                 }
             }
+
+            CheckPylonRecharge();
         }
 
         public override void DoAnimations()
         {
             laser.laserActive = laserActive;
-            //tubeController.crystalsUsed = laser.GetPylonCount()-1;
+            tubeController.crystalsRemaining = pylonsRemaining;
             animator.SetBool("LaserActive", laserActive);
         }
 
@@ -166,6 +177,15 @@ namespace UltraFunGuns
             laser.BuildLine(normal);
         }
 
+        private void CheckPylonRecharge()
+        {
+            if(pylonRechargeTimeRemaining - style.rankIndex < Time.time) //As style rank increases, it lessens the cooldown time.
+            {
+                pylonRechargeTimeRemaining = Time.time + pylonRechargeTime;
+                pylonsRemaining = Mathf.Clamp(pylonsRemaining+1, 0, maxStoredPylons);
+            }
+        }
+
         //Check for consequences of your hubris. Update: No hubris found... yet.
         //Throws pylon out TODO maybe update position so it comes from the gun?
         IEnumerator ThrowPylon()
@@ -175,6 +195,10 @@ namespace UltraFunGuns
             animator.Play("Focalyzer_ThrowPylon");
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+
+            pylonRechargeTimeRemaining = Time.time + pylonRechargeTime;
+            --pylonsRemaining;
+
             MonoSingleton<CameraController>.Instance.CameraShake(0.2f);
             FocalyzerPylonAlternate pylon = newPylon.GetComponent<FocalyzerPylonAlternate>();
             pylon.laserHitMask = laserHitMask;
@@ -189,8 +213,8 @@ namespace UltraFunGuns
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
             cooldowns.Add("fireLaser", new ActionCooldown(0.16f));
-            cooldowns.Add("damageTick", new ActionCooldown(0.25f));
-            cooldowns.Add("throwPylon", new ActionCooldown(1.0f));
+            cooldowns.Add("damageTick", new ActionCooldown(0.2f));
+            cooldowns.Add("throwPylon", new ActionCooldown(0.25f));
             return cooldowns;
         }
 
@@ -204,6 +228,18 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator.Play("Focalyzer_Equip");
+            //TODO fix this algorithm it does not work.
+            return;
+            while (pylonRechargeTimeRemaining + (pylonRechargeTime - style.rankIndex) < Time.time && pylonsRemaining < maxStoredPylons)
+            {
+                pylonRechargeTimeRemaining += pylonRechargeTime;
+                pylonsRemaining = Mathf.Clamp(pylonsRemaining + 1, 0, maxStoredPylons);
+            }
+        }
+
+        public void OnPylonDeath()
+        {
+            pylonsRemaining = Mathf.Clamp(pylonsRemaining + 1, 0, maxStoredPylons);
         }
     }
 }

@@ -17,6 +17,7 @@ namespace UltraFunGuns
         public LineRenderer refractedLaser;
 
         public Transform targetPoint;
+        public Transform laserOriginPoint;
 
         UltraFunGunBase.ActionCooldown damageCooldown = new UltraFunGunBase.ActionCooldown(0.25f);
         UltraFunGunBase.ActionCooldown pylonChecker = new UltraFunGunBase.ActionCooldown(0.25f);
@@ -27,7 +28,7 @@ namespace UltraFunGuns
         public int refractionCount = 0;
         public float laserBeamWidth = 0.1f;
 
-        private float lifeTime = 16.0f;
+        private float lifeTime = 12.0f;
         private float lifeTimeLeft = 0.0f;
 
         private enum LaserHitType {enemy, nothing, solid, interactable}
@@ -37,7 +38,8 @@ namespace UltraFunGuns
             lifeTimeLeft = lifeTime + Time.time;
             refractedLaser = GetComponentInChildren<LineRenderer>();
             laserAnimator = refractedLaser.GetComponent<Animator>();
-            transform.Find("FocalyzerPylonRemake/RefractorVisual").gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
+            laserOriginPoint = transform.Find("FocalyzerPylonRemake/RefractorVisual");
+            laserOriginPoint.gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
         }
 
         void Update()
@@ -109,9 +111,10 @@ namespace UltraFunGuns
 
             transform.forward = laserPath.normalized;
 
-            Vector3[] laserPoints = new Vector3[2] { transform.position, Vector3.zero};
+            Vector3[] laserPoints = new Vector3[2] { laserOriginPoint.position, Vector3.zero};
             Vector3 laserEndNormal;
-            if (hits.Length > 0)
+
+            if (endHitIndex > -1 && hits[endHitIndex].collider.name != gameObject.name)
             {
                 laserPoints[1] = hits[endHitIndex].point;
                 laserEndNormal = hits[endHitIndex].normal;
@@ -119,7 +122,7 @@ namespace UltraFunGuns
             else
             {
                 Ray missRay = new Ray();
-                missRay.origin = transform.position;
+                missRay.origin = laserOriginPoint.position;
                 missRay.direction = laserPath;
 
                 laserPoints[1] = missRay.GetPoint(focalyzer.laserMaxRange);
@@ -146,6 +149,11 @@ namespace UltraFunGuns
         void Shatter()
         {
             Destroy(gameObject);
+        }
+
+        void OnDestroy()
+        {
+            focalyzer.OnPylonDeath();
         }
     }
 }
