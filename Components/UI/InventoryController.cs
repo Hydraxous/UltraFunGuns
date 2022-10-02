@@ -37,7 +37,7 @@ namespace UltraFunGuns
             for (int i = 0; i < maxSlots; i++)
             {
                 slots.Add(transform.Find(String.Format("MenuBorder/WeaponSlots/Slot{0}Wrapper", i)).gameObject.AddComponent<InventorySlot>());
-                slots[i].Initialize(slotData.data[i],i,this);
+                slots[i].Initialize(slotData.data[i].slotData,i,this);
             }
         }
 
@@ -124,23 +124,27 @@ namespace UltraFunGuns
 
         public InventoryControllerData GetCurrentInventoryData()
         {
-            List<List<InventoryNodeData>> newNodeArray = new List<List<InventoryNodeData>>();
+            List<InventorySlotData> newNodeArray = new List<InventorySlotData>();
             for(int i = 0; i < slots.Count; i++)
             {
-                List<InventoryNodeData> newNodeData = slots[i].GetNodeData();
-                newNodeArray.Add(newNodeData);
+                newNodeArray.Add(slots[i].GetSlotData());
             }
-            return new InventoryControllerData(newNodeArray);
+            return new InventoryControllerData(newNodeArray.ToArray());
         }
     }
 
     [System.Serializable]
     public class InventoryControllerData
     {
-        public List<List<InventoryNodeData>> data;
-        public InventoryControllerData(List<List<InventoryNodeData>> data)
+        public InventorySlotData[] data;
+        public InventoryControllerData(InventorySlotData[] data)
         {
             this.data = data;
+        }
+
+        public InventoryControllerData()
+        {
+
         }
     }
 }

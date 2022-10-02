@@ -19,6 +19,8 @@ namespace UltraFunGuns
 
         private void Awake()
         {
+            Debug.Log("InventoryContoller Spawned");
+            om = MonoSingleton<OptionsManager>.Instance;
             canvas = GetComponent<RectTransform>();
             pauseMenu = transform.Find("PauseMenu").gameObject;
             HydraLoader.prefabRegistry.TryGetValue("UFGInventoryUI", out GameObject controllerObject);
@@ -27,30 +29,36 @@ namespace UltraFunGuns
             invControllerButton.onClick.AddListener(DoButtonAction);
             invController = GameObject.Instantiate<GameObject>(controllerObject, canvas).GetComponent<InventoryController>();
             invController.gameObject.SetActive(false);
+            invControllerButton.gameObject.SetActive(false);
         }
 
         private void Update()
         {
-            if(om.paused)
-            {
-                if(inventoryManagerOpen)
+            if (UltraFunGuns.InLevel())
+            { 
+                if (om.paused)
                 {
-                    invController.gameObject.SetActive(true);
+                    if (inventoryManagerOpen)
+                    {
+                        invController.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        invController.gameObject.SetActive(false);
+                        invControllerButton.gameObject.SetActive(true);
+                    }
+
                 }
                 else
                 {
-                    invController.gameObject.SetActive(false);
-                    invControllerButton.gameObject.SetActive(true);
-                }
-
-            }else
-            {
-                if(inventoryManagerOpen)
-                {
-                    inventoryManagerOpen = false;
-                    invController.gameObject.SetActive(false);
+                    if (inventoryManagerOpen)
+                    {
+                        inventoryManagerOpen = false;
+                        invController.gameObject.SetActive(false);
+                    }
                 }
             }
+
         }
 
         public void DoButtonAction()

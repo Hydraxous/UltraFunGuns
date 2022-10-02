@@ -105,5 +105,10 @@ namespace UltraFunGuns
             this.weaponKey = weaponKey;
             this.weaponEnabled = enabled;
         }
+
+        public InventoryNodeData()
+        {
+
+        }
     }
 }

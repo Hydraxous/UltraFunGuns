@@ -15,7 +15,7 @@ namespace UltraFunGuns
 
         public RectTransform r_transform;
 
-        public void Initialize(List<InventoryNodeData> nodeDatas, int ID, InventoryController inventoryController)
+        public void Initialize(InventoryNodeData[] nodeDatas, int ID, InventoryController inventoryController)
         {
             this.inventoryController = inventoryController;
 
@@ -81,7 +81,7 @@ namespace UltraFunGuns
             inventoryController.ButtonPressed(node, this, button);
         }
 
-        private void SetupNodes(List<InventoryNodeData> nodeDatas)
+        private void SetupNodes(InventoryNodeData[] nodeDatas)
         {
             if (nodes.Count > 0)
             {
@@ -93,9 +93,9 @@ namespace UltraFunGuns
                 nodes.Clear();//TODO Redundant maybe
             }
 
-            for (int i = 0; i < nodeDatas.Count; i++)
+            for (int i = 0; i < nodeDatas.Length; i++)
             {
-                CreateNewNode(nodeDatas[i], i, nodeDatas.Count);
+                CreateNewNode(nodeDatas[i], i, nodeDatas.Length);
             }
         }
 
@@ -108,7 +108,7 @@ namespace UltraFunGuns
             }
         }
 
-        public List<InventoryNodeData> GetNodeData()
+        public InventorySlotData GetSlotData()
         {
             List<InventoryNodeData> nodeData = new List<InventoryNodeData>();
             foreach(InventoryNode node in nodes)
@@ -116,7 +116,24 @@ namespace UltraFunGuns
                 InventoryNodeData newNodeData = node.data;
                 nodeData.Add(newNodeData);
             }
-            return nodeData;
+            InventorySlotData slotData = new InventorySlotData(nodeData.ToArray());
+            return slotData;
+        }
+    }
+
+    [System.Serializable]
+    public class InventorySlotData
+    {
+        public InventoryNodeData[] slotData;
+
+        public InventorySlotData(InventoryNodeData[] slotData)
+        {
+            this.slotData = slotData;
+        }
+
+        public InventorySlotData()
+        {
+
         }
     }
 }
