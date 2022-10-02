@@ -15,6 +15,7 @@ namespace UltraFunGuns
     public class UltraFunGuns : BaseUnityPlugin
     {
         public UFGWeaponManager gunPatch;
+        public InventoryControllerDeployer invControllerDeployer;
         
         private void Awake()
         {
@@ -30,23 +31,37 @@ namespace UltraFunGuns
 
         private void CheckWeapons()
         {
-            if (gunPatch != null)
+            if (gunPatch != null && invControllerDeployer != null)
             {
                 return;
             }
 
-            GunControl gc = MonoSingleton<GunControl>.Instance;
-            if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
+            if (invControllerDeployer == null)
             {
-                gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
-                gunPatch.Slot7Key = SLOT_7_KEY.Value;
-                gunPatch.Slot8Key = SLOT_8_KEY.Value;
-                gunPatch.Slot9Key = SLOT_9_KEY.Value;
-                gunPatch.Slot10Key = SLOT_10_KEY.Value;
+                CanvasController canvas = MonoSingleton<CanvasController>.Instance;
+                if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
+                {
+                    invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
+                }
+
             }
+
+            if(gunPatch == null)
+            {
+                GunControl gc = MonoSingleton<GunControl>.Instance;
+                if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
+                {
+                    gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
+                    gunPatch.Slot7Key = SLOT_7_KEY.Value;
+                    gunPatch.Slot8Key = SLOT_8_KEY.Value;
+                    gunPatch.Slot9Key = SLOT_9_KEY.Value;
+                    gunPatch.Slot10Key = SLOT_10_KEY.Value;
+                }
+            }
+            
         }
 
-        private bool InLevel()
+        public static bool InLevel()
         {
             string sceneName = SceneManager.GetActiveScene().name;
             if (sceneName == "Intro" || sceneName == "Main Menu")
@@ -62,7 +77,7 @@ namespace UltraFunGuns
             harmony.PatchAll();
         }
 
-        //REGISTRY: Register custom assets for the loader here! TODO IF ISSUES ARISE CHECK ORDER OF REGISTRATION.
+        //REGISTRY: Register custom assets for the loader here!
         private bool RegisterAssets()
         {
             BindConfigs();
@@ -117,7 +132,7 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
 
-            //Focalyzer Alternate
+            //FocalyzerAlternate
             new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
             new HydraLoader.CustomAssetPrefab("FocalyzerLaserAlternate", new Component[] { new FocalyzerLaserControllerAlternate() });
@@ -130,6 +145,15 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
             new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("TricksniperMuzzleFX", new Component[] { new DestroyAfterTime() });
+
+            //Bulletstorm
+            new HydraLoader.CustomAssetPrefab("Bulletstorm", new Component[] { new Bulletstorm(), new WeaponIcon(), new WeaponIdentifier() });
+
+
+            //UI
+            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
+            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() });
+            new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
 
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);

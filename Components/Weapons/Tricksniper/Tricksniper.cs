@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
@@ -10,8 +11,10 @@ namespace UltraFunGuns
         public GameObject bulletTrailPrefab;
         public GameObject muzzleFX;
 
-        public float maxTargetAngle = 90.0f;
-        public float spreadTightness = 1.5f;
+        public Text debugText;
+
+        public float maxTargetAngle = 150.0f;
+        public float spreadTightness = 3.0f;
         public float bulletPenetrationChance = 20.0f; // 100 Percentage
 
         public int revolutions = 0;
@@ -20,7 +23,7 @@ namespace UltraFunGuns
         public float maxRange = 2000.0f;
 
         public float turnCountThreshold = 6.0f;
-        public int revolveCountThreshold = 12; 
+        public int revolveCountThreshold = 18;
 
         public int turnsCompleted = 0;
         public float lastRecordedRotation = 0.0f;
@@ -29,13 +32,14 @@ namespace UltraFunGuns
         {
             HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
             HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
+            debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
             cooldowns.Add("primaryFire",new ActionCooldown(0.65f));
-            cooldowns.Add("turnExpiry", new ActionCooldown(0.065f));
+            cooldowns.Add("turnExpiry", new ActionCooldown(0.2f));
             return cooldowns;
         }
 
@@ -57,6 +61,7 @@ namespace UltraFunGuns
                 Shoot();
             }
             CheckRotation();
+            debugText.text = String.Format("{0} ROT\n{1} TURN", revolutions, turnsCompleted);
         }
 
         private void CheckRotation()

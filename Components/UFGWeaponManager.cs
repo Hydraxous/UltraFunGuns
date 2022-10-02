@@ -9,13 +9,8 @@ namespace UltraFunGuns
     public class UFGWeaponManager : MonoBehaviour
     {
         GunControl gc;
-        //REGISTRY: Add string names of the weapon prefabs here.
-        private List<List<string>> weaponKeySlots = new List<List<string>>() {
-            new List<string> { "SonicReverberator" },
-            new List<string> { "Dodgeball", "EggToss" },
-            new List<string> { "Focalyzer" , "FocalyzerAlternate" },
-            new List<string> { "Tricksniper" }
-        };
+
+        private List<List<string>> weaponKeySlots = new List<List<string>>();
 
         //Empty slots for the weapons. Don't remove this.
         private List<List<GameObject>> customSlots = new List<List<GameObject>>()
@@ -52,8 +47,26 @@ namespace UltraFunGuns
             NewStyleItem("dodgeballparry", "BOOST BALL");
             NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
             NewStyleItem("dodgeballreversehit", "REBOUND");
-
+            weaponKeySlots = CreateWeaponKeys(InventoryDataManager.GetInventoryData());
             FetchWeapons();
+        }
+
+        public List<List<string>> CreateWeaponKeys(InventoryControllerData invControllerData)
+        {
+            List<List<string>> newWeaponKeys = new List<List<string>>();
+            for (int x = 0; x < invControllerData.data.Count; x++)
+            {
+                List<string> newWeaponKeyList = new List<string>();
+                for (int y = 0; y < invControllerData.data[x].Count; y++)
+                {
+                    if(invControllerData.data[x][y].weaponEnabled)
+                    {
+                        newWeaponKeyList.Add(invControllerData.data[x][y].weaponKey);
+                    }
+                }
+                newWeaponKeys.Add(newWeaponKeyList);
+            }
+            return newWeaponKeys;
         }
 
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
