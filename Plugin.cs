@@ -11,7 +11,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.5")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.6")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         public UFGWeaponManager gunPatch;
@@ -19,7 +19,7 @@ namespace UltraFunGuns
         
         private void Awake()
         {
-            if (RegisterAssets())
+            if (RegisterAssets() && InventoryDataManager.Initialize())
             {
                 DoPatching();
                 Logger.LogInfo("UltraFunGuns Loaded.");
@@ -151,7 +151,7 @@ namespace UltraFunGuns
 
 
             //UI
-            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
+            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
             new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() });
             new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
 

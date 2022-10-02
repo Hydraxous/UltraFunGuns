@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
-using UnityEngine.Serialization;
 using System.IO;
 
 namespace UltraFunGuns
@@ -20,7 +19,7 @@ namespace UltraFunGuns
         {
             try
             {
-                string loadoutDataPath = (Assembly.GetExecutingAssembly().Location + "loadoutData.json"); //TODO check for problems
+                loadoutDataPath = (Assembly.GetExecutingAssembly().Location.Replace("UltraFunGuns.dll", "loudoutData.json")); //TODO check for problems
                 if(!LoadInventoryData())
                 {
                     return false;
@@ -78,6 +77,7 @@ namespace UltraFunGuns
         {
             inventory = data;
             string loadoutData = UnityEngine.JsonUtility.ToJson(data);
+            Console.WriteLine("GOOOOOVER: " + loadoutData);
             File.WriteAllText(loadoutDataPath, loadoutData);
         }
 
@@ -90,7 +90,7 @@ namespace UltraFunGuns
             List<InventoryNodeData> slot3 = new List<InventoryNodeData>();
             List<InventoryNodeData> slot4 = new List<InventoryNodeData>();
 
-
+        
             slot1.Add(new InventoryNodeData("SonicReverberator", true));
             slot2.Add(new InventoryNodeData("Dodgeball", true));
             slot2.Add(new InventoryNodeData("Egg", true));
@@ -98,9 +98,9 @@ namespace UltraFunGuns
             slot3.Add(new InventoryNodeData("FocalyzerAlternate", true));
             slot4.Add(new InventoryNodeData("Tricksniper", true));
             slot4.Add(new InventoryNodeData("Bulletstorm", true));
-
-            List<List<InventoryNodeData>> newNodeDatas = new List<List<InventoryNodeData>> { slot1, slot2, slot3, slot4};
-            InventoryControllerData defaultData = new InventoryControllerData(newNodeDatas);
+    
+            List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
+            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray());
             SaveInventoryData(defaultData);
         }
     }
