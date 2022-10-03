@@ -45,7 +45,7 @@ namespace UltraFunGuns
         void Update()
         {
             laserAnimator.SetBool("Active", true);
-            if (lifeTimeLeft < Time.time)
+            if (lifeTimeLeft < Time.time || focalyzer == null)
             {
                 Shatter();
             }
@@ -153,7 +153,10 @@ namespace UltraFunGuns
 
         void OnDestroy()
         {
-            focalyzer.OnPylonDeath();
+            if(focalyzer != null)
+            {
+                focalyzer.OnPylonDeath();
+            }
         }
     }
 }

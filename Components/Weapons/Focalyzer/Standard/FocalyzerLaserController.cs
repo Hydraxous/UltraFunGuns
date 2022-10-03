@@ -23,7 +23,6 @@ namespace UltraFunGuns
 
         void Start()
         {
-
             lineRenderer = GetComponent<LineRenderer>();
             animator = GetComponent<Animator>();
         }
@@ -31,6 +30,10 @@ namespace UltraFunGuns
         void Update()
         {
             animator.SetBool("Active", laserActive);
+            if(focalyzer == null)
+            {
+                Destroy(gameObject);
+            }
         }
 
         public void AddPylon(FocalyzerPylon pylon)

@@ -43,9 +43,8 @@ namespace UltraFunGuns
         private float playerKnockbackMaxRange = 5000.0f;
 
         public bool charging = false;
-        private bool canFire = true;
 
-        private Animator capsuleAnimator, pistonAnimator, moyaiAnimator, gunAnimator;
+        private Animator capsuleAnimator, pistonAnimator, moyaiAnimator, gunAnimator; //TODO FIX THIS GARBAGE.
 
         private float cooldownRate = 0.17f;
         private float minimumCooldown = 0.75f;

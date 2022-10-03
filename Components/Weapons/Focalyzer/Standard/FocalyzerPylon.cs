@@ -61,7 +61,7 @@ namespace UltraFunGuns
         {
             animator.SetBool("Refracting", refracting);
             laserAnimator.SetBool("Active", refracting);
-            if (lifeTimeLeft < Time.time)
+            if (lifeTimeLeft < Time.time || focalyzer == null)
             {
                 Shatter();
             }
@@ -298,12 +298,18 @@ namespace UltraFunGuns
         //Removes itself from the global pylon list when it dies.
         void OnDisable()
         {
-            pylonManager.RemovePylon(this);
+            if (pylonManager != null)
+            {
+                pylonManager.RemovePylon(this);
+            }
         }
 
         void OnDestroy()
         {
-            pylonManager.RemovePylon(this);
+            if(pylonManager != null)
+            {
+                pylonManager.RemovePylon(this);
+            }
         }
     }
 }

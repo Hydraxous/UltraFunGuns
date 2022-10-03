@@ -156,7 +156,7 @@ namespace UltraFunGuns
                     return;
                 }
             }
-
+            hittingAPylon = false;
             Ray missingRay = new Ray();
             missingRay.origin = firePoint.position;
             missingRay.direction = mainCam.TransformDirection(0, 0, 1);
