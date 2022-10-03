@@ -17,8 +17,6 @@ namespace UltraFunGuns
         GunControl gc;
         public InventoryControllerData data;
 
-        private Coroutine waitForUnpause;
-
         private void Awake()
         {
             om = MonoSingleton<OptionsManager>.Instance;
@@ -28,21 +26,27 @@ namespace UltraFunGuns
 
         private void Start()
         {
-            CreateNewSlots(data);
+            CreateNewSlots();
             SetSlotKeyDisplays();
         }
 
-        private void CreateNewSlots(InventoryControllerData slotData)
+        private void CreateNewSlots()
         {
             for (int i = 0; i < maxSlots; i++)
             {
-                slots.Add(transform.Find(String.Format("MenuBorder/WeaponSlots/Slot{0}Wrapper", i)).gameObject.AddComponent<InventorySlot>());
-                slots[i].Initialize(slotData.data[i].slotData,i,this);
+                InventorySlot newSlot = transform.Find(String.Format("MenuBorder/WeaponSlots/Slot{0}Wrapper", i)).gameObject.AddComponent<InventorySlot>();
+                slots.Add(newSlot);
+            }
+
+            for(int j = 0; j < slots.Count; j++)
+            {
+                slots[j].Initialize(data.slots[j], j, this);
             }
         }
 
         private void SetSlotKeyDisplays()
         {
+            Debug.Log("UFG: Set inv menu key naems");
             List<Text> slotNameTexts = new List<Text>();
             for(int i = 0; i < slots.Count; i++)
             {
@@ -64,10 +68,10 @@ namespace UltraFunGuns
                     node.Refresh();
                     break;
                 case "Up":
-                    slot.ChangeNodeOrder(node, 1);
+                    slot.ChangeNodeOrder(node, -1);
                     break;
                 case "Down":
-                    slot.ChangeNodeOrder(node, -1);
+                    slot.ChangeNodeOrder(node, 1);
                     break;
                 case "Right":
                     slot.RemoveNode(node);
@@ -83,7 +87,7 @@ namespace UltraFunGuns
                     break;
                 case "Left":
                     slot.RemoveNode(node);
-                    int newSlot2 = slot.ID + 1;
+                    int newSlot2 = slot.ID - 1;
                     if (newSlot2 >= slots.Count)
                     {
                         newSlot2 = 0;
@@ -120,6 +124,7 @@ namespace UltraFunGuns
         {
             data = GetCurrentInventoryData();
             InventoryDataManager.SaveInventoryData(data);
+            Debug.Log("UFG: Inventory saved.");
         }
 
         public InventoryControllerData GetCurrentInventoryData()
@@ -136,10 +141,10 @@ namespace UltraFunGuns
     [System.Serializable]
     public class InventoryControllerData
     {
-        public InventorySlotData[] data;
-        public InventoryControllerData(InventorySlotData[] data)
+        public InventorySlotData[] slots;
+        public InventoryControllerData(InventorySlotData[] slots)
         {
-            this.data = data;
+            this.slots = slots;
         }
 
         public InventoryControllerData()

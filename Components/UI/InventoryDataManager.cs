@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace UltraFunGuns
 {
@@ -64,7 +65,7 @@ namespace UltraFunGuns
                 {
                     loadoutData = reader.ReadToEnd();
                 }
-                inventory = UnityEngine.JsonUtility.FromJson<InventoryControllerData>(loadoutData);
+                inventory = JsonConvert.DeserializeObject<InventoryControllerData>(loadoutData);
                 return true;
             }catch (System.Exception e)
             {
@@ -76,7 +77,7 @@ namespace UltraFunGuns
         public static void SaveInventoryData(InventoryControllerData data)
         {
             inventory = data;
-            string loadoutData = UnityEngine.JsonUtility.ToJson(data);
+            string loadoutData = JsonConvert.SerializeObject(inventory);
             Console.WriteLine("GOOOOOVER: " + loadoutData);
             File.WriteAllText(loadoutDataPath, loadoutData);
         }
@@ -91,13 +92,13 @@ namespace UltraFunGuns
             List<InventoryNodeData> slot4 = new List<InventoryNodeData>();
 
         
-            slot1.Add(new InventoryNodeData("SonicReverberator", true));
-            slot2.Add(new InventoryNodeData("Dodgeball", true));
-            slot2.Add(new InventoryNodeData("Egg", true));
-            slot3.Add(new InventoryNodeData("Focalyzer", true));
-            slot3.Add(new InventoryNodeData("FocalyzerAlternate", true));
-            slot4.Add(new InventoryNodeData("Tricksniper", true));
-            slot4.Add(new InventoryNodeData("Bulletstorm", true));
+            slot1.Add(new InventoryNodeData("SonicReverberator", true, 0));
+            slot2.Add(new InventoryNodeData("Dodgeball", true, 2));
+            slot2.Add(new InventoryNodeData("EggToss", true, 3));
+            slot3.Add(new InventoryNodeData("Focalyzer", true, 2));
+            slot3.Add(new InventoryNodeData("FocalyzerAlternate", true, 0));
+            slot4.Add(new InventoryNodeData("Tricksniper", true, 2));
+            slot4.Add(new InventoryNodeData("Bulletstorm", true, 0));
     
             List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
             InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray());

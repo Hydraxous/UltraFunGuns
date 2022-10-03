@@ -28,7 +28,7 @@ namespace UltraFunGuns
         {
             if(!firstTime)
             {
-                GameObject.FindObjectOfType<UFGWeaponManager>().FetchWeapons();
+                GameObject.FindObjectOfType<UFGWeaponManager>().DeployWeapons();
             }
         }
 

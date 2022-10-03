@@ -11,11 +11,11 @@ namespace UltraFunGuns
         InventoryController inventoryController;
         public int ID;
         public GameObject nodePrefab;
-        public List<InventoryNode> nodes;
+        public List<InventoryNode> nodes = new List<InventoryNode>();
 
         public RectTransform r_transform;
 
-        public void Initialize(InventoryNodeData[] nodeDatas, int ID, InventoryController inventoryController)
+        public void Initialize(InventorySlotData slotData, int ID, InventoryController inventoryController)
         {
             this.inventoryController = inventoryController;
 
@@ -23,7 +23,7 @@ namespace UltraFunGuns
             HydraLoader.prefabRegistry.TryGetValue("WMUINode", out nodePrefab);
             this.ID = ID;
 
-            SetupNodes(nodeDatas);
+            SetupNodes(slotData.slotNodes);
         }
 
         public void ChangeNodeOrder(InventoryNode node, int slotsToMove)
@@ -71,9 +71,9 @@ namespace UltraFunGuns
 
         private void CreateNewNode(InventoryNodeData nodeData, int slotIndex, int totalNodes)
         {
-            InventoryNode newNode = GameObject.Instantiate<GameObject>(nodePrefab, r_transform).GetComponent<InventoryNode>();
-            newNode.Initialize(nodeData, this, slotIndex);
+            InventoryNode newNode = GameObject.Instantiate<GameObject>(nodePrefab, r_transform).GetComponent<InventoryNode>();    
             nodes.Add(newNode);
+            newNode.Initialize(nodeData, this, slotIndex);
         }
 
         public void ButtonPressed(InventoryNode node, string button)
@@ -97,6 +97,8 @@ namespace UltraFunGuns
             {
                 CreateNewNode(nodeDatas[i], i, nodeDatas.Length);
             }
+
+            Refresh();
         }
 
         public void Refresh()
@@ -104,7 +106,7 @@ namespace UltraFunGuns
             for(int i = 0; i < nodes.Count; i++)
             {
                 nodes[i].slotIndexPosition = i;
-                nodes[i].RefreshPosition();
+                nodes[i].Refresh();
             }
         }
 
@@ -124,11 +126,11 @@ namespace UltraFunGuns
     [System.Serializable]
     public class InventorySlotData
     {
-        public InventoryNodeData[] slotData;
+        public InventoryNodeData[] slotNodes;
 
-        public InventorySlotData(InventoryNodeData[] slotData)
+        public InventorySlotData(InventoryNodeData[] slotNodes)
         {
-            this.slotData = slotData;
+            this.slotNodes = slotNodes;
         }
 
         public InventorySlotData()
