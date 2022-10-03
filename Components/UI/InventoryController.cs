@@ -46,7 +46,6 @@ namespace UltraFunGuns
 
         private void SetSlotKeyDisplays()
         {
-            Debug.Log("UFG: Set inv menu key naems");
             List<Text> slotNameTexts = new List<Text>();
             for(int i = 0; i < slots.Count; i++)
             {
@@ -134,17 +133,23 @@ namespace UltraFunGuns
             {
                 newNodeArray.Add(slots[i].GetSlotData());
             }
-            return new InventoryControllerData(newNodeArray.ToArray());
+            return new InventoryControllerData(newNodeArray.ToArray(), data.modVersion, data.firstTimeUsingInventory, data.firstTimeModLoaded);
         }
     }
 
     [System.Serializable]
     public class InventoryControllerData
     {
+        public string modVersion;
+        public bool firstTimeModLoaded;
+        public bool firstTimeUsingInventory;
         public InventorySlotData[] slots;
-        public InventoryControllerData(InventorySlotData[] slots)
+        public InventoryControllerData(InventorySlotData[] slots, string modVersion, bool firstTimeUse = false, bool firstTimeModLoaded = false)
         {
+            this.firstTimeModLoaded = firstTimeModLoaded;
+            this.firstTimeUsingInventory = firstTimeUse;
             this.slots = slots;
+            this.modVersion = modVersion;
         }
 
         public InventoryControllerData()

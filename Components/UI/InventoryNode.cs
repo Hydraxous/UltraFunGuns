@@ -81,6 +81,8 @@ namespace UltraFunGuns
             b_icon.GetComponent<Image>().sprite = weaponIcon;
             var buttonColors = b_icon.GetComponent<Button>().colors;
             buttonColors.normalColor = GetElementColor();
+            buttonColors.selectedColor = GetElementColor();
+            b_icon.GetComponent<Button>().colors = buttonColors;
             gameObject.GetComponent<Image>().color = GetElementColor(false);
 
             if (slotIndexPosition == 0 && slot.nodes.Count == 1)
@@ -108,24 +110,23 @@ namespace UltraFunGuns
             if (icon)
             {
                 color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[data.weaponVariation];
-                color.a = 255f;
 
-                if(!data.weaponEnabled)
+                if (!data.weaponEnabled)
                 {
-                    color = new Color(73f, 73f, 73f, 255f);
+                    color *= 0.5f;
                 }
+                color.a = 255f;
             }
             else
             {
                 color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[data.weaponVariation];
                 color *= 0.5f;
-                color.a = 110.0f;
-
+               
                 if (!data.weaponEnabled)
                 {
-                    color *= 0.5f;
-                    color.a = 110.0f;
+                    color *= 0.4f;
                 }
+                color.a = 110.0f;
             }
             return color;
         }
@@ -133,6 +134,12 @@ namespace UltraFunGuns
         public void Disappear()
         {
             Destroy(gameObject);
+        }
+
+        public override string ToString()
+        {
+            string check = (data.weaponEnabled) ? "(x)" : "( )";
+            return String.Format("{2} [{0}] {1}", slot.ID, data.weaponKey, check);
         }
     }
 

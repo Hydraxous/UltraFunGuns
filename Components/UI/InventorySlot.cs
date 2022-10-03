@@ -31,7 +31,7 @@ namespace UltraFunGuns
             List<InventoryNode> nodeListCopy = nodes;
             int newSlot = node.slotIndexPosition + slotsToMove;
             nodeListCopy.Remove(node);
-            if (newSlot >= nodes.Count)
+            if (newSlot > nodeListCopy.Count)
             {       
                 nodeListCopy.Insert(0, node);
             }
@@ -120,6 +120,11 @@ namespace UltraFunGuns
             }
             InventorySlotData slotData = new InventorySlotData(nodeData.ToArray());
             return slotData;
+        }
+
+        public override string ToString()
+        {
+            return String.Format("SLOT{0} [{1}]",ID,nodes.Count);
         }
     }
 

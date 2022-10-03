@@ -14,9 +14,12 @@ namespace UltraFunGuns
     [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.6")]
     public class UltraFunGuns : BaseUnityPlugin
     {
+        
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
-        
+
+        public static bool usedWeapons = true;
+        public static string version = "1.1.6";
         private void Awake()
         {
             if (RegisterAssets() && InventoryDataManager.Initialize())
@@ -41,6 +44,7 @@ namespace UltraFunGuns
                 CanvasController canvas = MonoSingleton<CanvasController>.Instance;
                 if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
                 {
+                    usedWeapons = false;
                     invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
                 }
 
@@ -51,6 +55,7 @@ namespace UltraFunGuns
                 GunControl gc = MonoSingleton<GunControl>.Instance;
                 if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
                 {
+                    usedWeapons = false;
                     gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
                     gunPatch.Slot7Key = SLOT_7_KEY.Value;
                     gunPatch.Slot8Key = SLOT_8_KEY.Value;
@@ -160,13 +165,13 @@ namespace UltraFunGuns
             
         }
 
-        private void TurnOnAssists()
+        private static void UpdateMajorAssistUsage()
         {
             if (MonoSingleton<StatsManager>.Instance != null)
             {
                 if (!MonoSingleton<StatsManager>.Instance.majorUsed)
                 {
-                    MonoSingleton<StatsManager>.Instance.majorUsed = true;
+                    MonoSingleton<StatsManager>.Instance.majorUsed = usedWeapons;
                 }
             }
         }
@@ -175,8 +180,12 @@ namespace UltraFunGuns
         {
             try
             {
+                if(!InLevel())
+                {
+                    usedWeapons = false;
+                }
                 CheckWeapons();
-                TurnOnAssists();
+                UpdateMajorAssistUsage();
             }
             catch(System.Exception e)
             {

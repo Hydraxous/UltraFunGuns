@@ -14,7 +14,7 @@ namespace UltraFunGuns
             /*PLAN
              * 1. Make tip box smaller -> set tip box anchorMin.y to 0.2f
              * 2. Create button for UFG menu under the Main Menu as a parent.-> 
-             
+             Meh...
              */
         }
 
@@ -26,10 +26,15 @@ namespace UltraFunGuns
     {
         public static void Postfix(bool firstTime)
         {
-            if(!firstTime)
+            try
             {
-                GameObject.FindObjectOfType<UFGWeaponManager>().DeployWeapons();
+                GameObject.FindObjectOfType<UFGWeaponManager>().DeployWeapons(firstTime);
             }
+            catch (System.Exception e)
+            {
+                Debug.Log("UFG: Weapon deployment attempted.");
+            }
+            
         }
 
     }

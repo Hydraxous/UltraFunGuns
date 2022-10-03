@@ -82,7 +82,7 @@ namespace UltraFunGuns
         private void Update()
         {
             lifeTime -= Time.deltaTime;
-            if(lifeTime <= 0.0f && !beingPulled && !isHoming)
+            if(lifeTime <= 0.0f && !beingPulled && !isHoming || dodgeballWeapon == null)
             {
                 Pop();
             }

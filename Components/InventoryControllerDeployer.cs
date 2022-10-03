@@ -19,7 +19,6 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            Debug.Log("InventoryContoller Spawned");
             om = MonoSingleton<OptionsManager>.Instance;
             canvas = GetComponent<RectTransform>();
             pauseMenu = transform.Find("PauseMenu").gameObject;
@@ -51,6 +50,12 @@ namespace UltraFunGuns
                 }
                 else
                 {
+                    if(invController.data.firstTimeModLoaded)
+                    {
+                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("UFG: You can set a custom loadout for UFG weapons in the pause menu.", "", "", 2);
+                        invController.data.firstTimeModLoaded = false;
+                    }
+
                     if (inventoryManagerOpen)
                     {
                         inventoryManagerOpen = false;
@@ -64,6 +69,11 @@ namespace UltraFunGuns
 
         public void DoButtonAction()
         {
+            if(invController.data.firstTimeUsingInventory)
+            {
+                MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
+                invController.data.firstTimeUsingInventory = false;
+            }
             pauseMenu.SetActive(false);
             invControllerButton.gameObject.SetActive(false);
             invController.gameObject.SetActive(true);

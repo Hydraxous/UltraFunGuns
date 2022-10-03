@@ -28,6 +28,10 @@ namespace UltraFunGuns
         void Update()
         {
             animator.SetBool("Active", laserActive);
+            if(focalyzer == null)
+            {
+                Destroy(gameObject);
+            }
         }
 
         public void AddPylon(FocalyzerPylonAlternate pylon)

@@ -66,6 +66,13 @@ namespace UltraFunGuns
                     loadoutData = reader.ReadToEnd();
                 }
                 inventory = JsonConvert.DeserializeObject<InventoryControllerData>(loadoutData);
+                if(inventory.modVersion != UltraFunGuns.version)
+                {
+                    Console.WriteLine("UFG: Inventory data found is for a different version of UFG, rebuilding.");
+                    FirstTimeLoad();
+                }
+                UpdateWeaponUsage(inventory);
+                Console.WriteLine("UFG: Inventory data loaded.");
                 return true;
             }catch (System.Exception e)
             {
@@ -74,24 +81,51 @@ namespace UltraFunGuns
             }
         }
 
-        public static void SaveInventoryData(InventoryControllerData data)
+        private static void UpdateWeaponUsage(InventoryControllerData data)
         {
+            bool weaponsInUse = false;
+            for (int x = 0; x < data.slots.Length; x++)
+            {
+                for (int y = 0; y < data.slots[x].slotNodes.Length; y++)
+                {
+                    if (weaponsInUse)
+                    {
+                        break;
+                    }
+
+                    if (data.slots[x].slotNodes[y].weaponEnabled)
+                    {
+                        weaponsInUse = true;
+                        break;
+                    }
+                }
+            }
+
+            if (weaponsInUse)
+            {
+                UltraFunGuns.usedWeapons = true;
+            }
+        }
+
+        public static void SaveInventoryData(InventoryControllerData data)
+        {   
             inventory = data;
             string loadoutData = JsonConvert.SerializeObject(inventory);
-            Console.WriteLine("GOOOOOVER: " + loadoutData);
             File.WriteAllText(loadoutDataPath, loadoutData);
+            UpdateWeaponUsage(data);
+            Console.WriteLine("UFG: Inventory data saved.");
         }
 
         //REGISTRY: Default loadout ALL GUNS HERE.
         private static void FirstTimeLoad()
         {
+            Console.WriteLine("UFG: Inventory data not found, building default.");
 
             List<InventoryNodeData> slot1 = new List<InventoryNodeData>();
             List<InventoryNodeData> slot2 = new List<InventoryNodeData>();
             List<InventoryNodeData> slot3 = new List<InventoryNodeData>();
             List<InventoryNodeData> slot4 = new List<InventoryNodeData>();
 
-        
             slot1.Add(new InventoryNodeData("SonicReverberator", true, 0));
             slot2.Add(new InventoryNodeData("Dodgeball", true, 2));
             slot2.Add(new InventoryNodeData("EggToss", true, 3));
@@ -101,7 +135,7 @@ namespace UltraFunGuns
             slot4.Add(new InventoryNodeData("Bulletstorm", true, 0));
     
             List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
-            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray());
+            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.version, true, true);
             SaveInventoryData(defaultData);
         }
     }
