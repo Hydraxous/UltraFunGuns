@@ -56,6 +56,7 @@ namespace UltraFunGuns
                         inventoryManagerOpen = false;
                         invController.gameObject.SetActive(false);
                     }
+                    invControllerButton.gameObject.SetActive(false);
                 }
             }
 

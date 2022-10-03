@@ -47,31 +47,37 @@ namespace UltraFunGuns
             NewStyleItem("dodgeballparry", "BOOST BALL");
             NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
             NewStyleItem("dodgeballreversehit", "REBOUND");
-            FetchWeapons();
+            DeployWeapons();
         }
 
-        public List<List<string>> CreateWeaponKeys(InventoryControllerData invControllerData)
+        public List<List<string>> CreateWeaponKeyset(InventoryControllerData invControllerData)
         {
             List<List<string>> newWeaponKeys = new List<List<string>>();
-            for (int x = 0; x < invControllerData.data.Length; x++)
+            for (int x = 0; x < invControllerData.slots.Length; x++)
             {
                 List<string> newWeaponKeyList = new List<string>();
-                for (int y = 0; y < invControllerData.data[x].slotData.Length; y++)
+                for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
                 {
-                    if(invControllerData.data[x].slotData[y].weaponEnabled)
+                    if(invControllerData.slots[x].slotNodes[y].weaponEnabled)
                     {
-                        newWeaponKeyList.Add(invControllerData.data[x].slotData[y].weaponKey);
+                        newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }
                 }
                 newWeaponKeys.Add(newWeaponKeyList);
             }
+            Debug.Log(newWeaponKeys.ToString());
             return newWeaponKeys;
         }
 
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
-        public void FetchWeapons()
+        public void DeployWeapons()
         {
-            weaponKeySlots = CreateWeaponKeys(InventoryDataManager.GetInventoryData());
+            foreach(List<GameObject> customSlot in customSlots)
+            {
+                customSlot.Clear();
+            }
+
+            weaponKeySlots = CreateWeaponKeyset(InventoryDataManager.GetInventoryData());
             try
             {
                 for (int i = 0; i < weaponKeySlots.Count;i++)
@@ -79,7 +85,7 @@ namespace UltraFunGuns
                     if (weaponKeySlots[i].Count > 0)
                     {
                         foreach (string weaponKey in weaponKeySlots[i])
-                        {
+                        {   
                             HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab);
                             weaponPrefab.layer = 13;
                             Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
@@ -89,6 +95,7 @@ namespace UltraFunGuns
                             }
                             weaponPrefab.SetActive(false);
                             customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
+                            Debug.Log("Gave player " + weaponKey);
                         }
                     }
                 }
@@ -104,10 +111,20 @@ namespace UltraFunGuns
         //adds weapons to the gun controller
         private void AddWeapons()
         {
+            for (int j = 0; j < customSlots.Count; j++)
+            {
+                if (gc.slots.Contains(customSlots[j]))
+                {
+                    gc.slots.Remove(customSlots[j]);
+                }
+            }
+
             for (int i = 0; i < customSlots.Count; i++)
             {
                 if (customSlots[i].Count > 0)
                 {
+                    
+
                     gc.slots.Add(customSlots[i]);
                     foreach (GameObject wep in customSlots[i])
                     {

@@ -152,7 +152,7 @@ namespace UltraFunGuns
 
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
-            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() });
+            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() , new HudOpenEffect()});
             new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
 
 
