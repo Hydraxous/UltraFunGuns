@@ -30,7 +30,7 @@ namespace UltraFunGuns
             {
                 if (gun.charging)
                 {
-                    data.angularVelocity = Mathf.Clamp((data.angularVelocity + (gun.rotationSpeed * data.rotationSpeedMultiplier)), 0, data.maxRotationSpeed);
+                    data.angularVelocity = Mathf.Clamp((data.angularVelocity + (gun.currentGyroRotationSpeed * data.rotationSpeedMultiplier)), 0, data.maxRotationSpeed);
                 }
                 else
                 {
