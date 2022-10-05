@@ -52,8 +52,6 @@ namespace UltraFunGuns
             NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
             NewStyleItem("fingergunprojhit", "DENIAL");
 
-
-
             DeployWeapons();
         }
 
