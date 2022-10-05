@@ -88,8 +88,10 @@ ________________________________________________________________________________
 # Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Download the UltraFunGuns.dll [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.5-Experimental/UltraFunGuns.dll) and place it into **BepinEx/plugins**
-3. Enjoy!
+2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.6-Experimental/UFG-1.1.6-Experimental.zip), then extract the archive and place the folder titled UFG into **BepinEx/plugins**
+Your BepInEx plugins folder should look something like this if you have other mods installed too.
+![wdawdawee](https://user-images.githubusercontent.com/8602389/194096157-bffdff6b-f04f-4569-a060-d3e5d770d33e.PNG)
+3. Enjoy.
 _______________________________________________________________________________________________________________________________________
 **Planned features**
 _______________________________________________________________________________________________________________________________________
