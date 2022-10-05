@@ -148,6 +148,10 @@ namespace UltraFunGuns
             //FingerGun
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
+            new HydraLoader.CustomAssetPrefab("BulletPierceTrail", new Component[] { new DestroyAfterTime() });
+            //TODO Icons
+            new HydraLoader.CustomAssetData("FingerGun_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("FingerGun_weaponIcon", typeof(Sprite));
 
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
