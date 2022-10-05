@@ -39,11 +39,11 @@ namespace UltraFunGuns
             {
                 if (hit.collider.gameObject.layer == 24 || hit.collider.gameObject.layer == 25 || hit.collider.gameObject.layer == 8 || hit.collider.gameObject.layer == 0)
                 {
-                    if(hit.collider.gameObject.name != "CameraCollisionChecker")
+                    if (hit.collider.gameObject.name != "CameraCollisionChecker")
                     {
                         return false;
                     }
-                    
+
                 }
             }
             return true;
@@ -123,13 +123,197 @@ namespace UltraFunGuns
                             }
                         }
                     }
-                    return new Vector3[] {hits[endingHit].point, hits[endingHit].normal };
+                    return new Vector3[] { hits[endingHit].point, hits[endingHit].normal };
                 }
             }
-            
+
             return new Vector3[] { Vector3.zero };
-            
+
         }
 
+        public static TargetObject GetTargetFromGameObject(GameObject targetGameObject)
+        {
+            TargetObject newTargetObject = new TargetObject(targetGameObject);
+            return newTargetObject;
+        }
+
+        public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
+        {
+            List<TargetObject> newTargets = new List<TargetObject>();
+            for(int i = 0; i < targetGameObjects.Length; i++)
+            {
+                TargetObject newTarget = new TargetObject(targetGameObjects[i]);
+                if(newTarget.validTarget)
+                {
+                    newTargets.Add(new TargetObject(targetGameObjects[i]));
+                }
+            }
+            return newTargets;
+        }
+
+        public static bool ConeCheck(Vector3 direction1, Vector3 direction2, float maximumAngle = 90.0f)
+        {
+            return Vector3.Angle(direction1, direction2) <= maximumAngle;
+        }
+    }
+
+    //TODO Placeholder
+    public class AltTarget
+    {
+        public enum TargetType { Zombie, Spider, Machine, Statue, Wicked, Drone, Idol, Dodgeball, GenericRigidbody, Egg, Pylon }
+        public TargetType targetType;
+        public GameObject gameObject;
+        public Transform weakPoint;
+        public Transform targetPoint;
+        public Rigidbody rigidbody;
+        public bool validTarget = true;
+        private void NULL()
+        {
+            if (this.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+            {
+                this.targetPoint = egg.transform;
+                this.targetType = TargetType.Egg;
+                return;
+            }
+            else if (this.gameObject.GetComponentInParent<ThrownEgg>() != null)
+            {
+                this.targetPoint = this.gameObject.GetComponentInParent<ThrownEgg>().transform;
+                this.targetType = TargetType.Egg;
+                return;
+            }
+
+
+            if (this.gameObject.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball thrownDodgeball))
+            {
+                this.targetPoint = egg.transform;
+                this.targetType = TargetType.Dodgeball;
+                return;
+            }
+            else if (this.gameObject.GetComponentInParent<ThrownDodgeball>() != null)
+            {
+                this.targetPoint = this.gameObject.GetComponentInParent<ThrownDodgeball>().transform;
+                this.targetType = TargetType.Dodgeball;
+                return;
+            }
+
+
+            if (this.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
+            {
+                this.targetPoint = pylon.transform;
+                this.targetType = TargetType.Pylon;
+                return;
+            }
+            else if (this.gameObject.GetComponentInParent<FocalyzerPylon>() != null)
+            {
+                this.targetPoint = this.gameObject.GetComponentInParent<FocalyzerPylon>().transform;
+                this.targetType = TargetType.Pylon;
+                return;
+            }
+
+
+            if (this.gameObject.TryGetComponent<FocalyzerPylonAlternate>(out FocalyzerPylonAlternate pylonAlt))
+            {
+                this.targetPoint = pylonAlt.transform;
+                this.targetType = TargetType.Pylon;
+                return;
+            }
+            else if (this.gameObject.GetComponentInParent<FocalyzerPylonAlternate>() != null)
+            {
+                this.targetPoint = this.gameObject.GetComponentInParent<FocalyzerPylonAlternate>().transform;
+                this.targetType = TargetType.Pylon;
+                return;
+            }
+        }
+    }
+
+    public class TargetObject
+    {
+        public enum TargetType { Zombie, Spider, Machine, Statue, Wicked, Drone, Idol, Dodgeball, GenericRigidbody, Egg, Pylon }
+        public TargetType targetType;
+        public GameObject gameObject;
+        public Transform weakPoint;
+        public Transform targetPoint;
+        public Rigidbody rigidbody;
+        public bool validTarget = true;
+
+        public TargetObject(GameObject gameObject)
+        {
+            this.gameObject = gameObject;
+
+            if(!this.gameObject.activeInHierarchy)
+            {
+                this.validTarget = false;
+                return;
+            }
+
+            //Generic rigibody check
+            if (this.gameObject.TryGetComponent<Rigidbody>(out Rigidbody genericRigidbody))
+            {
+                this.targetPoint = genericRigidbody.transform;
+                this.targetType = TargetType.GenericRigidbody;
+            }
+
+
+            if (this.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
+            {
+                if (!enemyFound.dead)
+                {
+                    if (enemyFound.zombie != null)
+                    {
+                        targetType = TargetType.Zombie;
+                    }
+                    else if (enemyFound.spider != null)
+                    {
+                        targetType = TargetType.Spider;
+                    }
+                    else if (enemyFound.machine != null)
+                    {
+                        targetType = TargetType.Machine;
+                    }
+                    else if (enemyFound.statue != null)
+                    {
+                        targetType = TargetType.Statue;
+                    }
+                    else if (enemyFound.wicked != null)
+                    {
+                        targetType = TargetType.Wicked;
+                    }
+                    else if (enemyFound.drone != null)
+                    {
+                        targetType = TargetType.Drone;
+                    }
+                    else if (enemyFound.idol != null)
+                    {
+                        targetType = TargetType.Idol;
+                    }
+
+                    if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
+                    {
+                        this.weakPoint = enemyFound.weakPoint.transform;
+                    }
+
+                    EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
+                    if (enemyFoundIdentifier)
+                    {
+                        this.targetPoint = enemyFoundIdentifier.transform;
+                    }
+                    else
+                    {
+                        this.targetPoint = enemyFound.transform;
+                    }
+                    return;
+                }
+            }
+
+
+            
+
+            //Ending validity check
+            if(this.targetType != TargetType.GenericRigidbody)
+            {
+                this.validTarget = false;
+                return;
+            }
+        }
     }
 }

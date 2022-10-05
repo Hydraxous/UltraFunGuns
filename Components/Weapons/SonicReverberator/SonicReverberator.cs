@@ -171,8 +171,23 @@ namespace UltraFunGuns
             moyaiAnimator.SetFloat("ChargeLevel", chargeLevel + 0.5f);
         }
 
-
-        //Gets point close to camera and a point far away that scales on charge level, then it casts a capsule and knocks back or destroys everything in the radius.
+        //RULES FOR HITREG
+        /*
+         * 1. Enemy must be within range.
+         * 1b. Enemy must be in line of sight.
+         * 2. Enemy must not be dead.
+         * 3. Enemy must be within target angle.
+         * - Zombie tags will get knockback
+         * - Drones will start to crash
+         * - Stone creatures will take damage
+         * - Fullcharge will instakill everything.
+         * - 
+         * 4. The closer the enemy is the stronger the force applied to them will be.
+         * 5. Any rigidbodies which aren't enemies should get knocked back if they aren't kinematic
+         * 6. Any Dodgeballs should be excited with the corresponding charge state
+         * 7. Any projectiles should be reflected using the player look direction as a normal
+         */
+        //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
         private void Fire()
         {
             //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron...
@@ -184,103 +199,61 @@ namespace UltraFunGuns
             BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
             BOOM.power = chargeLevel;
             BOOM.powerState = chargeState;
-
-            Vector3 blastOrigin = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset + (chargeLevel * 0.1f))); //Origin of the blast basically next to the camera
-            Vector3 blastEye = mainCam.transform.TransformPoint(new Vector3(0,0, (chargeState*blastOriginZOffset) + chargeLevel)); //End of the blast zone scales with charge
-            Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0,0,blastOriginZOffset)); //Player Vision vector based on camera
      
-            VineBoom(); // :)
+            VineBoom(); // does the thing
 
-            /*
-            List<EnemyIdentifier> possibleEnemyTarget = new List<EnemyIdentifier>();
-            List<Transform> targetPoints = new List<Transform>();
+            float currentAngle = Mathf.Clamp(chargeLevel, minTargetAngle, maxTargetAngle);
+
+            List<TargetObject> targets = new List<TargetObject>();
+
             GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
-            foreach (GameObject enemyObject in enemyObjectsActive)
-            {
-                if (enemyObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
-                {
-                    if (!enemyFound.dead && !possibleEnemyTarget.Contains(enemyFound))
-                    {
-                        possibleEnemyTarget.Add(enemyFound);
-                        Transform enemyTargetPoint;
-                        if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
-                        {
-                            enemyTargetPoint = enemyFound.weakPoint.transform;
-                        }
-                        else
-                        {
-                            EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
-                            if (enemyFoundIdentifier)
-                            {
-                                enemyTargetPoint = enemyFoundIdentifier.transform;
-                            }
-                            else
-                            {
-                                enemyTargetPoint = enemyFound.transform;
-                            }
-                        }
-
-                        //Cone check
-                        Vector3 directionToEnemy = (enemyTargetPoint.position - mainCam.position).normalized;
-                        Vector3 lookDirection = mainCam.TransformDirection(Vector3.forward).normalized;
-
-                        float currentTargetAngle = chargeLevel;
-                        if (Vector3.Angle(directionToEnemy, lookDirection) <= Mathf.Clamp(currentTargetAngle, minTargetAngle, maxTargetAngle))
-                        {
-                            targetPoints.Add(enemyTargetPoint);
-                        }
-                    }
-                }
-            }
-           */ 
+            targets = HydraUtils.GetTargetsFromGameObjects(enemyObjectsActive);
 
             //MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
             //MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
-
-            //RULES FOR HITREG
-            /*
-             * 1. Enemy must be within range.
-             * 1b. Enemy must be in line of sight.
-             * 2. Enemy must not be dead.
-             * 3. Enemy must be within target angle.
-             * 4. The closer the enemy is the stronger the force applied to them will be.
-             * 5. Any rigidbodies which aren't enemies should get knocked back if they aren't kinematic
-             * 6. Any Dodgeballs should be excited with the corresponding charge state
-             * 7. 
-             */
-            RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier),visionVector);
-            foreach (RaycastHit hit in hits)
+            //TODO restore old code. operate fine
+            for(int i = 0; i < targets.Count; i++)
             {
-                if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
-                {
-                    if(hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
-                    {
-                        dodgeBall.ExciteBall(chargeState);
-                    }
-
-                    if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-                    {
-                        EffectEnemy(enemy, blastOrigin);
-                    } else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
-                    {
-                        glass.Shatter();
-                    }
-                    else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
-                    {
-                        breakable.Break();
-                    }else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
-                    {
-                        EffectEnemy(bruh.eid, blastOrigin);
-                    }
-                }
+                EffectTarget(targets[i], currentAngle);
             }
 
             KnockbackPlayer();
 
-            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level
+            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
             chargeLevel = 0;
-            lastChargeState = 0; //Prevent charge diff audio from playing
+            lastChargeState = 0;
             charging = false;
+        }
+
+        private bool EffectTarget(TargetObject target, float angle)
+        {
+            Ray targetRay = new Ray();
+            targetRay.origin = mainCam.transform.position;
+            targetRay.direction = target.gameObject.transform.position - mainCam.transform.position;
+
+            if (!HydraUtils.LineOfSightCheck(targetRay.origin, target.gameObject.transform.position))
+            {
+                return false;
+            }
+
+            if(!HydraUtils.ConeCheck(mainCam.TransformDirection(0,0,1).normalized, targetRay.direction, angle))
+            {
+                return false;
+            }
+            Debug.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
+            switch (target.targetType)
+            {
+                case TargetObject.TargetType.Dodgeball:
+                    target.targetPoint.GetComponent<ThrownDodgeball>().ExciteBall(GetChargeState());
+                    break;
+                case TargetObject.TargetType.Zombie:
+                    target.targetPoint.GetComponent<Zombie>().KnockBack(targetRay.direction*chargeLevel);
+                    break;
+                default:
+                    break;
+            }
+
+            return false;
         }
 
 
@@ -295,7 +268,6 @@ namespace UltraFunGuns
             }
             return chargeMilestones.Count + 1;
         }
-
 
         public int GetChargeState() //Gets charge state from internal chargelevel
         {
