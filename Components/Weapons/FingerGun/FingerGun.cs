@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
@@ -11,24 +12,38 @@ namespace UltraFunGuns
         public GameObject bulletTrailPrefab;
         public GameObject hitExplodeFX;
 
-        public int currentAmmo = 8;
+        private int currentAmmo = 8;
+        public int CurrentAmmo
+        {
+            get{ return currentAmmo;}
+
+            set
+            {
+                currentAmmo = value;
+                if(ammoCounter != null)
+                {
+                    ammoCounter.text = currentAmmo.ToString();
+                }
+            }
+        }
         public int maxAmmo = 8;
 
         public int penetrations = 4;
 
         public float forceMultiplier = 5.0f;
-        public float damageMultipler = 1.5f;
+        public float damageMultipler = 2.2f;
 
-        public float explosionRadius = 2.0f;
-        public float explosionDamageMultiplier = 0.75f;
+        public float explosionRadius = 2.5f;
+        public float explosionDamageMultiplier = 0.5f;
 
         private bool reloading = false;
         private bool shooting = false;
 
         public float hitRayWidth = 0.5f;
-        private float maxRange = 2000.0f;
+        private float maxRange = 350.0f;
 
         private AudioSource bang, readyClick, reload, kabooma;
+        private Text ammoCounter;
 
         public override void OnAwakeFinished()
         {
@@ -39,23 +54,23 @@ namespace UltraFunGuns
             readyClick = transform.Find("Audios/GunReady").GetComponent<AudioSource>();
             reload = transform.Find("Audios/Reload").GetComponent<AudioSource>();
             kabooma = transform.Find("Audios/Kabooma").GetComponent<AudioSource>();
-
+            ammoCounter = transform.GetComponentInChildren<Text>();
 
         }
 
         public override void GetInput()
         {
-            if(currentAmmo < 1 && !reloading && !shooting)
+            if(CurrentAmmo < 1 && !reloading && !shooting)
             {
                 StartCoroutine(Reload());
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused && !reloading && !shooting && currentAmmo > 0)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused && !reloading && !shooting && CurrentAmmo > 0)
             {
                 StartCoroutine(Shoot());
             }
 
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused && !reloading && !shooting && currentAmmo < maxAmmo)
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused && !reloading && !shooting && CurrentAmmo < maxAmmo)
             {
                 StartCoroutine(Reload());
             }
@@ -68,7 +83,7 @@ namespace UltraFunGuns
             animator.Play("Shoot", 0, 0.0f);
             bang.pitch = UnityEngine.Random.Range(0.85f, 1.0f);
             bang.Play();
-            --currentAmmo;
+            --CurrentAmmo;
 
             Ray direction = new Ray();
             direction.origin = mainCam.transform.position;
@@ -224,7 +239,7 @@ namespace UltraFunGuns
                 MonoSingleton<StyleHUD>.Instance.AddPoints(10*hitEnemies.Count, "hydraxous.ultrafunguns.fingergunhit", this.gameObject, null, hitEnemies.Count);
             }
 
-            yield return new WaitForSeconds(0.48f);
+            yield return new WaitForSeconds(0.36f);
             readyClick.pitch = UnityEngine.Random.Range(0.95f, 1.0f);
             readyClick.Play();
             shooting = false;
@@ -237,7 +252,7 @@ namespace UltraFunGuns
             yield return new WaitForSeconds(0.4f);
             reload.pitch = UnityEngine.Random.Range(0.85f, 1.0f);
             reload.Play();
-            currentAmmo = maxAmmo;
+            CurrentAmmo = maxAmmo;
             yield return new WaitForSeconds(0.66f);
             reloading = false;
         }
@@ -282,21 +297,19 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            if(!alreadyHit.Contains(enemyIDID.eid))
+                            if(!alreadyHit.Contains(enemyIDID.eid) && !enemyIDID.eid.dead)
                             {
                                 alreadyHit.Add(enemyIDID.eid);
                                 enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, hits[i].normal * -1, hits[i].point, explosionDamageMultiplier, true, 0.0f, this.gameObject);
-            
                             }
 
                         }
                         else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
                         {
-                            if (!alreadyHit.Contains(enemyID))
+                            if (!alreadyHit.Contains(enemyID) && !enemyID.dead)
                             {
                                 alreadyHit.Add(enemyID);
                                 enemyID.DeliverDamage(hits[i].collider.gameObject, hits[i].normal * -1, hits[i].point, explosionDamageMultiplier, true, 0.0f, this.gameObject);
- 
                             }
                         }
 
