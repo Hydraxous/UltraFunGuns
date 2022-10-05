@@ -151,6 +151,7 @@ ________________________________________________________________________________
 Your BepInEx plugins folder should look something like this if you have other mods installed too.
 
 ![wdawdawee](https://user-images.githubusercontent.com/8602389/194096157-bffdff6b-f04f-4569-a060-d3e5d770d33e.PNG)
+
 3. Enjoy.
 _______________________________________________________________________________________________________________________________________
 **Planned features**
