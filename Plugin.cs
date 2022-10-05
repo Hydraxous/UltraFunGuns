@@ -149,11 +149,15 @@ namespace UltraFunGuns
             //Tricksniper
             new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
             new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("BulletPierceTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("TricksniperMuzzleFX", new Component[] { new DestroyAfterTime() });
 
             //Bulletstorm
             new HydraLoader.CustomAssetPrefab("Bulletstorm", new Component[] { new Bulletstorm(), new WeaponIcon(), new WeaponIdentifier() });
 
+            //Fingerguns
+            new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
 
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});

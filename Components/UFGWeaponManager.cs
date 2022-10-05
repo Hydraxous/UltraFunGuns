@@ -48,6 +48,12 @@ namespace UltraFunGuns
             NewStyleItem("dodgeballparry", "BOOST BALL");
             NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
             NewStyleItem("dodgeballreversehit", "REBOUND");
+            NewStyleItem("fingergunhit", "BANG'D");
+            NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
+            NewStyleItem("fingergunprojhit", "DENIAL");
+
+
+
             DeployWeapons();
         }
 
