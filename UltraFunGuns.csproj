@@ -117,8 +117,4 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Weapons\Melee\" />
-  </ItemGroup>
 </Project>
