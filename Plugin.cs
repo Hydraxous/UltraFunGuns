@@ -11,7 +11,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.6")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.7")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         
@@ -19,7 +19,7 @@ namespace UltraFunGuns
         public InventoryControllerDeployer invControllerDeployer;
 
         public static bool usedWeapons = true;
-        public static string version = "1.1.6";
+        public static string version = "1.1.7";
         private void Awake()
         {
             if (RegisterAssets() && InventoryDataManager.Initialize())
