@@ -11,14 +11,18 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.4")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.6")]
     public class UltraFunGuns : BaseUnityPlugin
     {
-        public UFGWeaponManager gunPatch;
         
+        public UFGWeaponManager gunPatch;
+        public InventoryControllerDeployer invControllerDeployer;
+
+        public static bool usedWeapons = true;
+        public static string version = "1.1.6";
         private void Awake()
         {
-            if (RegisterAssets())
+            if (RegisterAssets() && InventoryDataManager.Initialize())
             {
                 DoPatching();
                 Logger.LogInfo("UltraFunGuns Loaded.");
@@ -30,23 +34,39 @@ namespace UltraFunGuns
 
         private void CheckWeapons()
         {
-            if (gunPatch != null)
+            if (gunPatch != null && invControllerDeployer != null)
             {
                 return;
             }
 
-            GunControl gc = MonoSingleton<GunControl>.Instance;
-            if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
+            if (invControllerDeployer == null)
             {
-                gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
-                gunPatch.Slot7Key = SLOT_7_KEY.Value;
-                gunPatch.Slot8Key = SLOT_8_KEY.Value;
-                gunPatch.Slot9Key = SLOT_9_KEY.Value;
-                gunPatch.Slot10Key = SLOT_10_KEY.Value;
+                CanvasController canvas = MonoSingleton<CanvasController>.Instance;
+                if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
+                {
+                    usedWeapons = false;
+                    invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
+                }
+
             }
+
+            if(gunPatch == null)
+            {
+                GunControl gc = MonoSingleton<GunControl>.Instance;
+                if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
+                {
+                    usedWeapons = false;
+                    gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
+                    gunPatch.Slot7Key = SLOT_7_KEY.Value;
+                    gunPatch.Slot8Key = SLOT_8_KEY.Value;
+                    gunPatch.Slot9Key = SLOT_9_KEY.Value;
+                    gunPatch.Slot10Key = SLOT_10_KEY.Value;
+                }
+            }
+            
         }
 
-        private bool InLevel()
+        public static bool InLevel()
         {
             string sceneName = SceneManager.GetActiveScene().name;
             if (sceneName == "Intro" || sceneName == "Main Menu")
@@ -62,7 +82,7 @@ namespace UltraFunGuns
             harmony.PatchAll();
         }
 
-        //REGISTRY: Register custom assets for the loader here! TODO IF ISSUES ARISE CHECK ORDER OF REGISTRATION.
+        //REGISTRY: Register custom assets for the loader here!
         private bool RegisterAssets()
         {
             BindConfigs();
@@ -117,23 +137,39 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
 
+            //FocalyzerAlternate
+            new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
+            new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
+            new HydraLoader.CustomAssetPrefab("FocalyzerLaserAlternate", new Component[] { new FocalyzerLaserControllerAlternate() });
+            //Icons 
+            new HydraLoader.CustomAssetData("FocalyzerAlternate_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("FocalyzerAlternate_weaponIcon", typeof(Sprite));
 
-            //Tricksniper
-            new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
-            new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
+            //FingerGun
+            new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
+            new HydraLoader.CustomAssetPrefab("BulletPierceTrail", new Component[] { new DestroyAfterTime() });
+            //TODO Icons
+            new HydraLoader.CustomAssetData("FingerGun_glowIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("FingerGun_weaponIcon", typeof(Sprite));
+
+            //UI
+            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
+            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() , new HudOpenEffect()});
+            new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
 
 
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
             
         }
 
-        private void TurnOnAssists()
+        private static void UpdateMajorAssistUsage()
         {
             if (MonoSingleton<StatsManager>.Instance != null)
             {
                 if (!MonoSingleton<StatsManager>.Instance.majorUsed)
                 {
-                    MonoSingleton<StatsManager>.Instance.majorUsed = true;
+                    MonoSingleton<StatsManager>.Instance.majorUsed = usedWeapons;
                 }
             }
         }
@@ -142,8 +178,12 @@ namespace UltraFunGuns
         {
             try
             {
+                if(!InLevel())
+                {
+                    usedWeapons = false;
+                }
                 CheckWeapons();
-                TurnOnAssists();
+                UpdateMajorAssistUsage();
             }
             catch(System.Exception e)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HarmonyLib;
+using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
@@ -9,13 +10,8 @@ namespace UltraFunGuns
     public class UFGWeaponManager : MonoBehaviour
     {
         GunControl gc;
-        //REGISTRY: Add string names of the weapon prefabs here.
-        private List<List<string>> weaponKeySlots = new List<List<string>>() {
-            new List<string> { "SonicReverberator" },
-            new List<string> { "Dodgeball", "EggToss" },
-            new List<string> { "Focalyzer" },
-            new List<string> { "Tricksniper" }
-        };
+
+        private List<List<string>> weaponKeySlots = new List<List<string>>();
 
         //Empty slots for the weapons. Don't remove this.
         private List<List<GameObject>> customSlots = new List<List<GameObject>>()
@@ -52,58 +48,114 @@ namespace UltraFunGuns
             NewStyleItem("dodgeballparry", "BOOST BALL");
             NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
             NewStyleItem("dodgeballreversehit", "REBOUND");
+            NewStyleItem("fingergunhit", "BANG'D");
+            NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
+            NewStyleItem("fingergunprojhit", "DENIAL");
 
-            //FetchWeapons();
+            DeployWeapons();
+        }
+
+        public List<List<string>> CreateWeaponKeyset(InventoryControllerData invControllerData)
+        {
+            List<List<string>> newWeaponKeys = new List<List<string>>();
+            for (int x = 0; x < invControllerData.slots.Length; x++)
+            {
+                List<string> newWeaponKeyList = new List<string>();
+                for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
+                {
+                    if(invControllerData.slots[x].slotNodes[y].weaponEnabled)
+                    {
+                        newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
+                    }
+                }
+                newWeaponKeys.Add(newWeaponKeyList);
+            }
+            return newWeaponKeys;
         }
 
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
-        public void FetchWeapons()
+        public void DeployWeapons(bool firstTime = false)
         {
-            try
+            string sceneName = SceneManager.GetActiveScene().name;
+            bool deploy = true;
+
+            if(sceneName == "Level 0-1" && firstTime)
             {
-                for (int i = 0; i < weaponKeySlots.Count;i++)
+                deploy = true;
+            }
+            else if(firstTime)
+            {
+                deploy = false;
+            }
+
+            if(deploy)
+            {
+                foreach (List<GameObject> customSlot in customSlots)
                 {
-                    if (weaponKeySlots[i].Count > 0)
+                    customSlot.Clear();
+                }
+
+                weaponKeySlots = CreateWeaponKeyset(InventoryDataManager.GetInventoryData());
+                if(weaponKeySlots.Count > 0)
+                {
+                    try
                     {
-                        foreach (string weaponKey in weaponKeySlots[i])
+                        string weaponsGiven = "UFG: Weapons given: ";
+                        for (int i = 0; i < weaponKeySlots.Count; i++)
                         {
-                            HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab);
-                            weaponPrefab.layer = 13;
-                            Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                            foreach (Transform child in childs)
+                            if (weaponKeySlots[i].Count > 0)
                             {
-                                child.gameObject.layer = 13;
+                                foreach (string weaponKey in weaponKeySlots[i])
+                                {
+                                    HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab);
+                                    weaponPrefab.layer = 13;
+                                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                                    foreach (Transform child in childs)
+                                    {
+                                        child.gameObject.layer = 13;
+                                    }
+                                    weaponPrefab.SetActive(false);
+                                    customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
+                                    weaponsGiven += weaponKey + " ";
+                                }
                             }
-                            weaponPrefab.SetActive(false);
-                            customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
                         }
+                        Debug.Log(weaponsGiven);
+                        AddWeapons();
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.Log("UFG: WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message);
                     }
                 }
-                AddWeapons();
+                
             }
-            catch(System.Exception e)
-            {
-                Debug.Log("GunControl patcher component couldn't fetch weapons.");
-                Debug.Log(e.Message);
-            }
+
         }
 
         //adds weapons to the gun controller
         private void AddWeapons()
         {
+            for (int j = 0; j < customSlots.Count; j++)
+            {
+                if (gc.slots.Contains(customSlots[j]))
+                {
+                    gc.slots.Remove(customSlots[j]);
+                }
+            }
+
             for (int i = 0; i < customSlots.Count; i++)
             {
-                if (customSlots[i].Count > 0)
+
+                gc.slots.Add(customSlots[i]);
+                foreach (GameObject wep in customSlots[i])
                 {
-                    gc.slots.Add(customSlots[i]);
-                    foreach (GameObject wep in customSlots[i])
+                    if (!gc.allWeapons.Contains(wep))
                     {
-                        if (!gc.allWeapons.Contains(wep))
-                        {
-                            gc.allWeapons.Add(wep);
-                        }
+                        gc.allWeapons.Add(wep);
                     }
                 }
+
             }
             
 
@@ -148,11 +200,6 @@ namespace UltraFunGuns
             {
                 MonoSingleton<StyleHUD>.Instance.RegisterStyleItem("hydraxous.ultrafunguns." + name, text);
             }
-        }
-
-        public void UpdateLoadout()
-        {
-
         }
     }
 }

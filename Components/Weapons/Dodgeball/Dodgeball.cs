@@ -240,5 +240,13 @@ namespace UltraFunGuns
             chargingBall = false;
             pullingBall = false;
         }
+        
+        private void OnDestroy()
+        {
+            if(dodgeBallActive && activeDodgeball != null)
+            {
+                activeDodgeball.Pop();
+            }
+        }
     }
 }

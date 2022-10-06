@@ -10,10 +10,13 @@ namespace UltraFunGuns
      * 
      * It's a vine boom gun :)
      * 
-     * This class is not in a state which I want it and is considered completely broken atm. Spaghetti code and non-functionaliy. https://cdn.discordapp.com/attachments/432329547023908884/1022845628675534868/unknown.png
+     * TODO:
+     * - Fix charging animations jittering
+     * - Fix equip animation
+     * - Affect non-kinematic rigidbodies
+     * 
      * BUGS: 
      * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
-     * Animation weirdness: Make a seperate class to control the charge pistons.
      * The nature of being able to charge indefinitely causes many issues.
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
@@ -23,18 +26,32 @@ namespace UltraFunGuns
 
         public AudioClip vB_standard, vB_loud, vB_loudest;
 
+        private AudioSource chargeIncrease, chargeDecrease, chargeFinal;
+
         private List<float> chargeMilestones = new List<float> { 2.0f, 5.0f, 10.0f, 20.0f, 60.0f };
 
         public bool skipConeCheck = true, enablePlayerKnockback = true;
 
-        public float rotationSpeed = 0.01f;
+        public float baseGyroRotationSpeed = 0.01f;
+        public float currentGyroRotationSpeed = 0.01f;
+        public float gyroRotationSpeedModifier = 0.1f;
+
         public float chargeLevel = 0.0f;
         public float chargeSpeedMultiplier = 2.8f;
         public float chargeDecayMultiplier = 0.25f;
+
+        //TODO try to remove this.
         private float blastForceMultiplier = 100.0f;
         private float blastForceUpwardsMultiplier = 30.0f;
         private float hitBoxRadiusMultiplier = 0.75f;
         private float blastOriginZOffset = 0.49f;
+
+        private float maxTargetAngle = 80.0f;
+        private float minTargetAngle = 18.0f;
+
+        private float maxRange = 2000.0f;
+
+        private int lastChargeState = 0;
 
         public Vector3 playerKnockbackVector = new Vector3(0,2.0f,8.0f);
         private float playerKnockbackMultiplier = 0.8f;
@@ -43,14 +60,24 @@ namespace UltraFunGuns
         private float playerKnockbackMaxRange = 5000.0f;
 
         public bool charging = false;
-        private bool canFire = true;
 
-        private Animator capsuleAnimator, pistonAnimator, moyaiAnimator, gunAnimator;
+        private VisualCounterAnimator pistons;
+
+        private Animator moyaiAnimator;
 
         private float cooldownRate = 0.17f;
         private float minimumCooldown = 0.75f;
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldownTime = 0.0f;
+
+        public override void OnAwakeFinished()
+        {
+            pistons = transform.Find("viewModelWrapper/MoyaiGun/Animated/PistonBase").gameObject.AddComponent<VisualCounterAnimator>();
+            pistons.Initialize(4,"PistonHolder{0}/Pusher", true);
+            chargeIncrease = transform.Find("viewModelWrapper/Audios/ChargeIncrease").GetComponent<AudioSource>();
+            chargeDecrease = transform.Find("viewModelWrapper/Audios/ChargeDecrease").GetComponent<AudioSource>();
+            chargeFinal = transform.Find("viewModelWrapper/Audios/ChargeFinal").GetComponent<AudioSource>();
+        }
 
         //TODO fix when moving to inheritance model
         private void Start()
@@ -85,21 +112,17 @@ namespace UltraFunGuns
             }
         }
 
-        //TODO fix when moving to inheritance model
+
         private void HelpChildren()
         {
-            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();
-
-            capsuleAnimator = transform.Find("viewModelWrapper/MoyaiGun/Capsule").GetComponent<Animator>();
-            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
-            pistonAnimator = transform.Find("viewModelWrapper/MoyaiGun/PistonBase").GetComponent<Animator>();
-            gunAnimator = transform.Find("viewModelWrapper/MoyaiGun").GetComponent<Animator>();
+            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
+            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();    
+            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
         }
 
-        //TODO fix when moving to inheritance model
+
         private void LoadData()
         {
 
@@ -116,54 +139,81 @@ namespace UltraFunGuns
 
         }
 
-        //TODO fix when moving to inheritance model
-
         public override void DoAnimations()
         {
-            gunAnimator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
-            capsuleAnimator.SetBool("Charging", charging);
-            gunAnimator.SetBool("Charging", charging);
+            currentGyroRotationSpeed = baseGyroRotationSpeed * (chargeLevel*gyroRotationSpeedModifier);
+            animator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
+            animator.SetBool("Charging", charging);
             
             int chargeState = GetChargeState(chargeLevel);
-            gunAnimator.SetFloat(("ChargeLevel"), Mathf.Clamp((chargeLevel / 5.0f), 1f, 6f)); //clamps multiplier speed to prevent over animation
-            gunAnimator.SetInteger("ChargeState", chargeState);
-            pistonAnimator.SetInteger("ChargeLevel", chargeState);
-            capsuleAnimator.SetInteger("ChargeLevel", chargeState);
+            if (chargeState > lastChargeState)
+            {
+                if(chargeState == chargeMilestones.Count+1)
+                {
+                    chargeFinal.Play();
+                }
+                else
+                {
+                    chargeIncrease.Play();
+                }
+                
+            }
+            else if (chargeState < lastChargeState)
+            {
+                chargeDecrease.Play();
+            }
+
+            lastChargeState = chargeState;
+
+            animator.SetFloat(("ChargeLevel"), Mathf.Clamp((chargeLevel / 5.0f), 1f, 6f)); //clamps multiplier speed to prevent over animation
+            animator.SetInteger("ChargeState", chargeState);
+            pistons.DisplayCount = chargeState;
             moyaiAnimator.SetFloat("ChargeLevel", chargeLevel + 0.5f);
         }
 
-
-        //Gets point close to camera and a point far away that scales on charge level, then it casts a capsule and knocks back or destroys everything in the radius.
+        //RULES FOR HITREG
+        /*
+         * 1. Enemy must be within range.
+         * 1b. Enemy must be in line of sight.
+         * 2. Enemy must not be dead.
+         * 3. Enemy must be within target angle.
+         * - Zombie tags will get knockback
+         * - Drones will start to crash
+         * - Stone creatures will take damage
+         * - Fullcharge will instakill everything.
+         * - 
+         * 4. The closer the enemy is the stronger the force applied to them will be.
+         * 5. Any rigidbodies which aren't enemies should get knocked back if they aren't kinematic
+         * 6. Any Dodgeballs should be excited with the corresponding charge state
+         * 7. Any projectiles should be reflected using the player look direction as a normal
+         */
+        //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
         private void Fire()
         {
-            //TODO Reflect enemy projectiles detected
+            //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron...
             int chargeState = GetChargeState();
-
-            gunAnimator.SetInteger("ChargeState", chargeState);
-            gunAnimator.SetTrigger("Shoot");
-            capsuleAnimator.SetTrigger("Shoot");
-            moyaiAnimator.SetTrigger("Shoot");
-            pistonAnimator.SetTrigger("Shoot");
             
+            animator.Play("SonicReverberator_Shoot");
+            pistons.DisplayCount = chargeState;
             SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(bang, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
             BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
             BOOM.power = chargeLevel;
             BOOM.powerState = chargeState;
 
             Vector3 blastOrigin = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset + (chargeLevel * 0.1f))); //Origin of the blast basically next to the camera
-            Vector3 blastEye = mainCam.transform.TransformPoint(new Vector3(0,0, (chargeState*blastOriginZOffset) + chargeLevel)); //End of the blast zone scales with charge
-            Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0,0,blastOriginZOffset)); //Player Vision vector based on camera
-     
+            Vector3 blastEye = mainCam.transform.TransformPoint(new Vector3(0, 0, (chargeState * blastOriginZOffset) + chargeLevel)); //End of the blast zone scales with charge
+            Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset)); //Player Vision vector based on camera
+
             VineBoom(); // :)
             MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
             MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
 
-            RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier),visionVector);
+            RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier), visionVector);
             foreach (RaycastHit hit in hits)
             {
                 if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
                 {
-                    if(hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
+                    if (hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
                     {
                         dodgeBall.ExciteBall(chargeState);
                     }
@@ -171,14 +221,16 @@ namespace UltraFunGuns
                     if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
                     {
                         EffectEnemy(enemy, blastOrigin);
-                    } else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
+                    }
+                    else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
                     {
                         glass.Shatter();
                     }
                     else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
                     {
                         breakable.Break();
-                    }else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
+                    }
+                    else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
                     {
                         EffectEnemy(bruh.eid, blastOrigin);
                     }
@@ -187,9 +239,41 @@ namespace UltraFunGuns
 
             KnockbackPlayer();
 
-            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level
+            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
             chargeLevel = 0;
+            lastChargeState = 0;
             charging = false;
+        }
+
+        private bool EffectTarget(TargetObject target, float angle)
+        {
+            Ray targetRay = new Ray();
+            targetRay.origin = mainCam.transform.position;
+            targetRay.direction = target.gameObject.transform.position - mainCam.transform.position;
+
+            if (!HydraUtils.LineOfSightCheck(targetRay.origin, target.gameObject.transform.position))
+            {
+                return false;
+            }
+
+            if(!HydraUtils.ConeCheck(mainCam.TransformDirection(0,0,1).normalized, targetRay.direction, angle))
+            {
+                return false;
+            }
+            Debug.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
+            switch (target.targetType)
+            {
+                case TargetObject.TargetType.Dodgeball:
+                    target.targetPoint.GetComponent<ThrownDodgeball>().ExciteBall(GetChargeState());
+                    break;
+                case TargetObject.TargetType.Zombie:
+                    target.targetPoint.GetComponent<Zombie>().KnockBack(targetRay.direction*chargeLevel);
+                    break;
+                default:
+                    break;
+            }
+
+            return false;
         }
 
 
@@ -205,7 +289,6 @@ namespace UltraFunGuns
             return chargeMilestones.Count + 1;
         }
 
-
         public int GetChargeState() //Gets charge state from internal chargelevel
         {
             return GetChargeState(chargeLevel);
@@ -217,7 +300,7 @@ namespace UltraFunGuns
             lastKnownCooldownTime = Time.time;
         }
 
-
+        //TODO FIX THIS IT FORCES COOLDOWN VERY DUMB!!
         private void OnEnable()
         {
             if ((actionCooldowns["fire"].timeToFire - Time.time) > 0.0f)
@@ -226,7 +309,9 @@ namespace UltraFunGuns
             }
         }
 
-
+        //TODO FUCKING HELL FIX THIS AWFUL SHIT
+        //TODO FIX THIS 
+        //TODO STOP WRITING MORE TODO COMMENTS AND FUCKING DO IT TOFUCKINGDAY
         private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
         {
             try
@@ -356,6 +441,7 @@ namespace UltraFunGuns
             }
         }
 
+        //TODO eat shit and die
         private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO Fix this algorithm so it actually works
         {
             int chargeState = GetChargeState();
@@ -381,7 +467,7 @@ namespace UltraFunGuns
             }
         }
 
-        private void KnockbackPlayer() //TODO IGBalancing PLEASE....
+        private void KnockbackPlayer() //TODO IGBalancing PLEASE.... Update: no its fine. :^)
         {
             if (enablePlayerKnockback) 
             {
@@ -410,6 +496,7 @@ namespace UltraFunGuns
             }
         }
 
+        //This is yucky but its fine.
         private void VineBoom()
         {
             GameObject vineBoomNoise = GameObject.Instantiate<GameObject>(new GameObject(),this.transform);
@@ -422,11 +509,11 @@ namespace UltraFunGuns
             {
                 case 1:
                     vineBoomAudioSource.clip = vB_standard;
-                    vineBoomAudioSource.volume = 0.5f;
+                    vineBoomAudioSource.volume = 0.75f;
                     break;
                 case 2:
                     vineBoomAudioSource.clip = vB_standard;
-                    vineBoomAudioSource.volume = 0.8f;
+                    vineBoomAudioSource.volume = 1.0f;
                     break;
                 case 3:
                     vineBoomAudioSource.clip = vB_loud;
@@ -446,7 +533,7 @@ namespace UltraFunGuns
                     break;
                 default:
                     vineBoomAudioSource.clip = vB_standard;
-                    vineBoomAudioSource.volume = 0.5f;
+                    vineBoomAudioSource.volume = 0.75f;
                     break;
             }
             vineBoomAudioSource.pitch = 1.0f;
