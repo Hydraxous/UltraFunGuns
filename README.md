@@ -156,5 +156,5 @@ Your BepInEx plugins folder should look something like this if you have other mo
 _______________________________________________________________________________________________________________________________________
 **Planned features**
 _______________________________________________________________________________________________________________________________________
-- In-game shop menu integration/weapon slot management
 - Improved interactions with base-game weapons and UFG weapons.
+- more gun
