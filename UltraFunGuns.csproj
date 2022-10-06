@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>UltraFunGuns</AssemblyName>
     <Description>A mod with fun guns!</Description>
-    <Version>1.1.4</Version>
+    <Version>1.1.6</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="HarmonyX" Version="2.10.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -115,9 +116,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Weapons\Bulletstorm\" />
   </ItemGroup>
 </Project>
