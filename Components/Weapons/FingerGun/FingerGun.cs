@@ -15,12 +15,12 @@ namespace UltraFunGuns
         private int currentAmmo = 8;
         public int CurrentAmmo
         {
-            get{ return currentAmmo;}
+            get { return currentAmmo;}
 
             set
             {
                 currentAmmo = value;
-                if(ammoCounter != null)
+                if (ammoCounter != null)
                 {
                     ammoCounter.text = currentAmmo.ToString();
                 }
@@ -70,7 +70,7 @@ namespace UltraFunGuns
                 StartCoroutine(Shoot());
             }
 
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused && !reloading && !shooting && CurrentAmmo < maxAmmo)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused && !reloading && !shooting && CurrentAmmo < maxAmmo)
             {
                 StartCoroutine(Reload());
             }
@@ -297,7 +297,7 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            if(!alreadyHit.Contains(enemyIDID.eid) && !enemyIDID.eid.dead)
+                            if (!alreadyHit.Contains(enemyIDID.eid) && !enemyIDID.eid.dead)
                             {
                                 alreadyHit.Add(enemyIDID.eid);
                                 enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, hits[i].normal * -1, hits[i].point, explosionDamageMultiplier, true, 0.0f, this.gameObject);
