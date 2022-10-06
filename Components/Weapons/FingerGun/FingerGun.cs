@@ -15,7 +15,7 @@ namespace UltraFunGuns
         private int currentAmmo = 8;
         public int CurrentAmmo
         {
-            get { return currentAmmo;}
+            get { return currentAmmo; }
 
             set
             {
@@ -60,7 +60,7 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if(CurrentAmmo < 1 && !reloading && !shooting)
+            if (CurrentAmmo < 1 && !reloading && !shooting)
             {
                 StartCoroutine(Reload());
             }
