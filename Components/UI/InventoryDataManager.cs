@@ -131,7 +131,9 @@ namespace UltraFunGuns
             slot2.Add(new InventoryNodeData("EggToss", true, 3));
             slot3.Add(new InventoryNodeData("Focalyzer", true, 2));
             slot3.Add(new InventoryNodeData("FocalyzerAlternate", true, 0));
-            slot4.Add(new InventoryNodeData("FingerGun", true, 1));
+            slot4.Add(new InventoryNodeData("Tricksniper", true, 2));
+            slot4.Add(new InventoryNodeData("Bulletstorm", true, 0));
+            slot4.Add(new InventoryNodeData("FingerGun", true, 2));
     
             List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
             InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.version, true, true);
