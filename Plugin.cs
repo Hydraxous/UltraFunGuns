@@ -203,6 +203,8 @@ namespace UltraFunGuns
         public static ConfigEntry<KeyCode> SLOT_8_KEY;
         public static ConfigEntry<KeyCode> SLOT_9_KEY;
         public static ConfigEntry<KeyCode> SLOT_10_KEY;
+        public static ConfigEntry<KeyCode> INVENTORY_KEY;
+
 
         private void BindConfigs()
         {
@@ -211,6 +213,7 @@ namespace UltraFunGuns
             SLOT_8_KEY = Config.Bind("BINDINGS", "SLOT_8_KEY", KeyCode.Alpha8, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
             SLOT_9_KEY = Config.Bind("BINDINGS", "SLOT_9_KEY", KeyCode.Alpha9, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
             SLOT_10_KEY = Config.Bind("BINDINGS", "SLOT_10_KEY", KeyCode.Alpha0, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
+            INVENTORY_KEY = Config.Bind("BINDINGS", "INVENTORY_KEY", KeyCode.I, "Keybind to open the inventory directly.");
         }
 
         public void SaveConfig()
