@@ -11,5 +11,10 @@ namespace UltraFunGuns
         {
             Destroy(gameObject, 8.0f);
         }
+
+        void OnDisable()
+        {
+            Destroy(gameObject);
+        }
     }
 }
