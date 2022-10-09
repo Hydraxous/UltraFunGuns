@@ -134,7 +134,7 @@ Planned changes:
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
-Weapon manager available in the pause menu in-game for easy UFG weapon management.
+Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button can be rebound in the config.
 
 ![newWeaponManager](https://user-images.githubusercontent.com/8602389/194091030-5b16e8b8-a0fc-4bf0-ae4a-cd8d3c7305f0.png)
 
