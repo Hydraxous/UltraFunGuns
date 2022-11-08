@@ -11,7 +11,7 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.7")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         
@@ -19,7 +19,7 @@ namespace UltraFunGuns
         public InventoryControllerDeployer invControllerDeployer;
 
         public static bool usedWeapons = true;
-        public static string version = "1.1.7";
+        public static string version = "1.1.8";
         private void Awake()
         {
             if (RegisterAssets() && InventoryDataManager.Initialize())
@@ -158,6 +158,10 @@ namespace UltraFunGuns
             //Fingerguns
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
+
+            //Payloader
+            new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile(), new DestroyAfterTime() });
 
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
