@@ -161,7 +161,9 @@ namespace UltraFunGuns
 
             //Payloader
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
-            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile(), new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
+
 
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
