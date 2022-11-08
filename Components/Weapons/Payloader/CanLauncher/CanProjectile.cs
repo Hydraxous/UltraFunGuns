@@ -8,50 +8,57 @@ namespace UltraFunGuns
 {
     public class CanProjectile : MonoBehaviour
     {
-        public GameObject canPopFX;
-        public GameObject canShrapnelExplosion;
+        public GameObject canExplosion;
 
         public bool impactedEnemy = false;
-        public bool canBeParried = false;
+        public bool canBeParried = true;
         public bool parried = false;
         public bool bouncedOffOtherCan = false;
         public bool sleeping = false;
         public bool revived = false;
         public bool dead = false;
         public bool tracking = false;
+        public bool superCharge = false;
 
         public float trackTargetReachDistance = 1.0f;
         public float trackSpeed = 1.0f;
 
+        public float enemyHitDamage = 1.0f;
 
-        public float reviveParryThrowForce;
+        public float reviveParryThrowForce = 180.0f;
 
         public float killTime = 4.5f;
         private float killTimer = 0.0f;
 
         private Rigidbody rb;
 
-        public Vector3 bounceForce;
+        public Vector3 bounceForce = new Vector3(0,18.0f,0);
+        public float returnToPlayerForce = 80.0f;
+        public float playerPredictTime = 0.25f;
         public Vector3 oldVelocity;
 
         private void Awake()
         {
+            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanExplosion", out canExplosion);
             rb = GetComponent<Rigidbody>();
         }
 
         private void Start()
         {
-            
+            killTimer = killTime;
+
         }
 
         private void Update()
         {
             killTimer -= Time.deltaTime;
-            if(!(killTimer > 0.0f))
+            if(killTimer <= 0.0f)
             {
-                Die();
+                Explode(transform.up, 0);
             }
         }
+
+        
 
         private void LateUpdate()
         {
@@ -93,11 +100,23 @@ namespace UltraFunGuns
             {
                 sleeping = true;
                 canBeParried = false;
+                return;
             }
 
-            if(col.gameObject.TryGetComponent<CanProjectile>(out CanProjectile anotherCan))
+            if(col.collider.TryGetComponent<CanProjectile>(out CanProjectile anotherCan))
             {
                 anotherCan.AlterVelocity(col.GetContact(0).normal * (col.relativeVelocity.magnitude), true);
+                HitOtherCan();
+                return;
+            }
+
+            if(col.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+            {
+                if(!enemy.dead)
+                {
+                    HitEnemy();//TODO do damage lol
+                    return;
+                } 
             }
         }
 
@@ -124,26 +143,41 @@ namespace UltraFunGuns
 
         public void HitEnemy()
         {
+            Debug.Log("We hit de enemei");
             if(dead)
             {
                 return;
             }
 
-            canBeParried = true;
             if(parried && revived)
             {
                 revived = false;
+                superCharge = true;
             }
+            Vector3 newPath = PathToPlayer();
+            transform.forward = newPath;
+            canBeParried = true;
+            AlterVelocity(newPath, false);
+        }
 
-            //shoot can at where player will be
+        private Vector3 PathToPlayer()
+        {
+            Vector3 currentProjectedPosition = CameraController.Instance.transform.position + (NewMovement.Instance.rb.velocity*playerPredictTime);
 
-
+            Vector3 newVelocity = (currentProjectedPosition - transform.position).normalized * returnToPlayerForce;
+            return newVelocity;
         }
 
         public void HitOtherCan()
         {
             canBeParried = true;
             if(parried)
+            {
+                //TODO idk why this is here
+                Debug.Log("Parried and hit other can");
+            }
+            transform.forward = -oldVelocity;
+            killTimer += killTime;
             AlterVelocity(-oldVelocity, false);
 
         }
@@ -160,6 +194,7 @@ namespace UltraFunGuns
                 revived = true;
                 sleeping = false;
             }
+            killTimer += killTime;
             canBeParried = true;
             AlterVelocity(bounceForce, false);
         }
@@ -167,47 +202,49 @@ namespace UltraFunGuns
         public void Explode(Vector3 direction, int strength = 0)
         {
             //SpawnCanShrapnelExplosion strength 0 is normal explosion when parried, 1 is big explosion when can banked and parried, 2 is 360 shrapnel explosion and huge shot by railgun
-            TimeController.Instance.ParryFlash();
-            GameObject newExplosion = Instantiate<GameObject>(canShrapnelExplosion, transform.position, Quaternion.identity);
+            if(strength == 3)
+            {
+                TimeController.Instance.ParryFlash();
+            }
+            GameObject newExplosion = Instantiate<GameObject>(canExplosion, transform.position, Quaternion.identity);
             newExplosion.transform.forward = direction;
             Die();
             newExplosion.gameObject.GetComponent<CanExplosion>().Explode(strength);
         }
 
-        public void Parry()
+        public bool Parry()
         {
             if (dead || sleeping || !canBeParried)
             {
-                return;
+                return false;
             }
 
             canBeParried = false;
 
-            if(revived && !parried && !bouncedOffOtherCan)
+            killTimer += killTime;
+
+            if (!revived && !parried && !bouncedOffOtherCan)
             {
-                revived = false;
                 parried = true;
                 AlterVelocity(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized*reviveParryThrowForce,false);
-                return;
+                rb.AddTorque(200.0f, 0.0f, 0.0f);//iDk funny
+                return true;
             }
 
-            if(bouncedOffOtherCan)
+            if(bouncedOffOtherCan || superCharge)
             {
-                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized);
+                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 2);
             }
             else
             {
                 Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 1);
-
             }
 
             parried = true;
-            dead = true;
+            return true;
         }
 
-        
-
-        //pops soda does tiny aoe damage
+        //pops soda does tiny aoe damage later
         private void Die()
         {
             //instantiate tiny explosion pop fx that does tiny aoe damage.

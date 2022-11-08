@@ -41,6 +41,28 @@ namespace UltraFunGuns
                     }
 
                 }
+
+                CanProjectile hitCan = currentHit.transform.GetComponentInParent<CanProjectile>();
+                if (hitCan != null)
+                {
+                    Debug.Log("Shot thingy with thingy");
+                    switch (__instance.beamType)
+                    {
+                        case BeamType.Railgun:
+                            hitCan.Explode(Vector3.up,3);
+                            break;
+                        case BeamType.Revolver:
+                            hitCan.Bounce();
+                            break;
+                        case BeamType.MaliciousFace:
+                            hitCan.Explode(Vector3.up, 3);
+                            break;
+                        case BeamType.Enemy:
+                            hitCan.Bounce();
+                            break;
+                    }
+
+                }
             }
             catch(System.Exception e)
             {

@@ -21,6 +21,20 @@ namespace UltraFunGuns
                 __result = true;
                 return false;
             }
+
+            CanProjectile canProjectile;
+            if (target.TryGetComponent<CanProjectile>(out canProjectile))
+            {
+                if(canProjectile.Parry())
+                {
+                    __instance.anim.Play("Hook", 0, 0.065f);
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    ___hitSomething = true;
+                    __result = true;
+                    return false;
+                }        
+            }
+
             return true;
         }
     }

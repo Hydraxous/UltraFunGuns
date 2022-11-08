@@ -27,8 +27,8 @@ namespace UltraFunGuns
         private CanExplosionProfile[] explosionProfiles = new CanExplosionProfile[] {
             null,
             new CanExplosionProfile(0.15f, 24, 5.0f, false),
-            new CanExplosionProfile(0.2f, 64, 3.0f, false),
-            new CanExplosionProfile(0.3f, 128, 1.0f, true),
+            new CanExplosionProfile(0.2f, 128, 3.0f, false),
+            new CanExplosionProfile(0.3f, 512, 1.0f, true),
         };
 
         /* Strengths
@@ -40,11 +40,12 @@ namespace UltraFunGuns
 
         private void Awake()
         {
+            HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrail);
+
             List<Transform> newFXs = new List<Transform>();
             for(int i =0;i<4;i++)
             {
                 newFXs.Add(transform.Find(string.Format("FX/{0}", i)));
-                newFXs[i].gameObject.SetActive(false);
             }
 
             explosionFX = newFXs.ToArray();
@@ -63,7 +64,7 @@ namespace UltraFunGuns
 
         private void DoBoom()
         {
-
+            Debug.Log("Did boom!");
         }
 
         private void DoRays(CanExplosionProfile profile)
@@ -78,7 +79,7 @@ namespace UltraFunGuns
                 else
                 {
                     Vector2 rand = UnityEngine.Random.insideUnitCircle;
-                    rand *= Mathf.Sign(UnityEngine.Random.Range(-1.0f, 1.0f));
+                    rand *= Mathf.Sign(UnityEngine.Random.Range(-10.0f, 10.0f));
 
                     direction = transform.TransformDirection(new Vector3(rand.x, rand.y, profile.rayChoke));
                 }
@@ -182,19 +183,18 @@ namespace UltraFunGuns
                             }
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<Projectile>(out Projectile projectile))
+                        if (hits[i].collider.gameObject.TryGetComponent<CanProjectile>(out CanProjectile can))
                         {
-                            projectile.Explode();
-                            if (!projectile.friendly)
-                            {
-                                MonoSingleton<TimeController>.Instance.ParryFlash();
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.fingergunprojhit", this.gameObject, null);
-                            }
-                            if (!penetration)
+                            MonoSingleton<TimeController>.Instance.ParryFlash();
+                            can.Explode(-hits[i].normal, 1);
+                            if(!penetration)
                             {
                                 break;
                             }
+
                         }
+
+
                     }
                     CreateBulletTrail(transform.position, hits[endingHit].point, hits[endingHit].normal, hits[endingHit].collider.transform);
                 }
