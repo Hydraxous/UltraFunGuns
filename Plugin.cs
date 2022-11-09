@@ -159,12 +159,19 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
 
+            #region payloader
             //Payloader
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
 
+            //Can Materials
+            for(int i = 0;i<6;i++)
+            {
+                new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}",i), typeof(Material));
+            }
 
+            #endregion
             //UI
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
             new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() , new HudOpenEffect()});

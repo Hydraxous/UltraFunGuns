@@ -17,11 +17,28 @@ namespace UltraFunGuns
         public Vector3 shootVector;
 
         public Text debugText;
-
+        private Material[] canMaterials;
+        private int canMaterialCount = 6;
+        private MeshRenderer canPrefabMeshRenderer;
+        private MeshRenderer fakeCanMeshRenderer;
 
         public override void OnAwakeFinished()
         {
+            Debug.Log("Starting material grab");
+            List<Material> canTextureList = new List<Material>();
+            for(int i =0;i<canMaterialCount;i++)
+            {
+                Material newCanMaterial;
+                HydraLoader.dataRegistry.TryGetValue(string.Format("CanLauncher_CanProjectile_Material_{0}", i), out UnityEngine.Object obj);
+                newCanMaterial = (Material) obj;
+                canTextureList.Add(newCanMaterial);
+            }
+            canMaterials = canTextureList.ToArray();
+
             HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanProjectile", out canPrefab);
+
+            canPrefabMeshRenderer = canPrefab.GetComponentInChildren<MeshRenderer>();
+
             //TODO FX HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
             //debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
         }
@@ -29,7 +46,7 @@ namespace UltraFunGuns
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(1.2f));
+            cooldowns.Add("primaryFire", new ActionCooldown(0.75f));
             //cooldowns.Add("explodeDelay", new ActionCooldown(0.2f));
             return cooldowns;
         }
@@ -71,6 +88,7 @@ namespace UltraFunGuns
                         if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker"))
                         {
                             target = hits[i].point;
+                            Debug.Log("we hituhhhhh " + hits[i].collider.gameObject.name);
                             break;
                         }
                     }
@@ -107,6 +125,9 @@ namespace UltraFunGuns
         {
             Vector3 origin = mainCam.position;
             Vector3 direction = mainCam.TransformDirection(new Vector3(0, 0, 1));
+
+            int randomCanMaterial = UnityEngine.Random.Range(0, canMaterials.Length);
+            canPrefabMeshRenderer.material = canMaterials[randomCanMaterial];
 
             Shoot(new Ray(origin, direction));
 
