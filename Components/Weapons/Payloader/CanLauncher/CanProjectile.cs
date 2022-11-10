@@ -9,18 +9,22 @@ namespace UltraFunGuns
     public class CanProjectile : MonoBehaviour
     {
         public GameObject canExplosion;
+        public GameObject bounceFX;
 
         public bool trackInsteadOfPredict = true;
 
         public bool impactedEnemy = false;
         public bool canBeParried = true;
         public bool parried = false;
-        public bool bouncedOffOtherCan = false;
+        public bool impactedOtherCan = false;
         public bool sleeping = false;
-        public bool revived = false;
+        public bool bounced = false;
         public bool dead = false;
         public bool tracking = false;
         public bool superCharge = false;
+        public bool banked = false;
+
+        public float bankVelocityMultiplier = 0.5f;
 
         public float trackTargetReachDistance = 1.0f;
         public float trackSpeed = 60.0f;
@@ -42,17 +46,18 @@ namespace UltraFunGuns
         public float upwardsForceToPlayer = 0.05f;
         public Vector3 oldVelocity;
 
+        private Transform lastEnemyHit;
+
         private void Awake()
         {
             HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanExplosion", out canExplosion);
+            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanProjectile_BounceFX", out bounceFX);
             rb = GetComponent<Rigidbody>();
         }
 
         private void Start()
         {
             killTimer = killTime;
-            canBeParried = true;
-
         }
 
         private void Update()
@@ -64,12 +69,12 @@ namespace UltraFunGuns
             }
         }
         
-
         private void LateUpdate()
         {
             oldVelocity = rb.velocity;
         }
 
+        //idk lol
         public void FlyTowards(Vector3 point, float multiplier = 1.0f, float speed = 1.0f)
         {
             Vector3 direction = point - transform.position;
@@ -83,6 +88,7 @@ namespace UltraFunGuns
             AlterVelocity(direction*multiplier, false);
         }
 
+        //Directly modifies velocity
         public void AlterVelocity(Vector3 direction, bool add = true)
         {
             if(add)
@@ -94,49 +100,35 @@ namespace UltraFunGuns
             }
         }
 
-        private void OnCollisionEnter(Collision col)
+        private Vector3 PathToPlayer()
         {
-            if(tracking)
-            {
-                tracking = false;
-            }
+            Vector3 currentProjectedPosition = CameraController.Instance.transform.TransformPoint(0, 0, 0.25f) + (NewMovement.Instance.rb.velocity * playerPredictTime);
 
-            if(sleeping || dead)
-            {
-                return;
-            }
+            Vector3 newVelocity = (currentProjectedPosition - transform.position).normalized * returnToPlayerForce;
+            newVelocity.y += (upwardsForceToPlayer * newVelocity.magnitude);
+            return newVelocity;
+        }
 
-            if(col.gameObject.tag == "Floor" && !sleeping)
+        public void TrackLastEnemy()
+        {
+            if(lastEnemyHit != null)
             {
-                Debug.Log("Can Sleeping!");
-                sleeping = true;
-                canBeParried = false;
-                return;
+                TrackTarget(lastEnemyHit);
             }
+        }
 
-            if(col.collider.TryGetComponent<CanProjectile>(out CanProjectile anotherCan))
+        private void SendToPlayer()
+        {
+            if (!trackInsteadOfPredict)
             {
-                anotherCan.AlterVelocity(col.GetContact(0).normal * (col.relativeVelocity.magnitude), true);
-                HitOtherCan(anotherCan);
-                return;
+                Vector3 newPath = PathToPlayer();
+                transform.forward = newPath;
+                canBeParried = true;
+                AlterVelocity(newPath, false);
             }
-
-            if(col.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enmy))
+            else
             {
-                if (!enmy.eid.dead)
-                {
-                    HitEnemy(enmy.eid,col.GetContact(0).point);//TODO do damage lol
-                    return;
-                }
-            }
-
-            if(col.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-            {
-                if(!enemy.dead)
-                {
-                    HitEnemy(enemy, col.GetContact(0).point);//TODO do damage lol
-                    return;
-                } 
+                TrackTarget(CameraController.Instance.transform);
             }
         }
 
@@ -170,56 +162,49 @@ namespace UltraFunGuns
             }
 
             impactedEnemy = true;
-            revived = false;
+            banked = true;
 
-            enemy.DeliverDamage(enemy.gameObject, oldVelocity, impactSpot, enemyHitDamage, false);
+            if(damageCD.CanFire())
+            {
+                damageCD.AddCooldown();
+                enemy.DeliverDamage(enemy.gameObject, oldVelocity, impactSpot, enemyHitDamage, false);
+            }
+            lastEnemyHit = enemy.transform;
             SendToPlayer();
-        }
-
-        private Vector3 PathToPlayer()
-        {
-            Vector3 currentProjectedPosition = CameraController.Instance.transform.TransformPoint(0, 0, 0.25f) + (NewMovement.Instance.rb.velocity*playerPredictTime);
-
-            Vector3 newVelocity = (currentProjectedPosition - transform.position).normalized * returnToPlayerForce;
-            newVelocity.y += (upwardsForceToPlayer * newVelocity.magnitude);
-            return newVelocity;
-        }
+        } 
 
         public void HitOtherCan(CanProjectile otherCan)
         {
-            if(dead || sleeping)
+            if(dead || sleeping || impactedEnemy || otherCan.sleeping || otherCan.dead)
             {
                 return;
             }
 
-            canBeParried = true;
-            if(parried)
+            tracking = false;
+            otherCan.tracking = false;
+            otherCan.banked = true;
+            
+            impactedOtherCan = true;
+            otherCan.impactedOtherCan = true;
+            otherCan.TrackLastEnemy();
+
+            if (parried && banked)
             {
-                Explode(-oldVelocity, 1);
-                otherCan.Explode(oldVelocity, 2);
+                Explode(-oldVelocity, 2);
+                if(otherCan.impactedEnemy)
+                {
+                    otherCan.Explode(oldVelocity, 2);
+                }
                 Debug.Log("Parried and hit other can");
-            }else
-            {
-                transform.forward = -oldVelocity;
-                killTimer += killTime;
-                SendToPlayer();
-                
-            }
-
-        }
-
-        private void SendToPlayer()
-        {
-            if (!trackInsteadOfPredict)
-            {
-                Vector3 newPath = PathToPlayer();
-                transform.forward = newPath;
-                canBeParried = true;
-                AlterVelocity(newPath, false);
             }
             else
             {
-                TrackTarget(CameraController.Instance.transform);
+                banked = true;
+                transform.forward = -oldVelocity;
+                killTimer += killTime;
+                otherCan.transform.forward = oldVelocity;
+                otherCan.AlterVelocity(oldVelocity, false);
+                SendToPlayer();    
             }
         }
 
@@ -230,16 +215,48 @@ namespace UltraFunGuns
                 return;
             }
 
-            if (!sleeping && !revived)
-            {
-                revived = true;
-            }
-            revived = true;
+            tracking = false;
+            bounced = true;
             sleeping = false;
 
             killTimer += killTime;
-            canBeParried = true;
+            Instantiate<GameObject>(bounceFX, transform.position, Quaternion.identity);
             AlterVelocity(bounceForce, false);
+        }
+
+        public bool Parry()
+        {
+            if (dead || !canBeParried || sleeping)
+            {
+                return false;
+            }
+
+            tracking = false;
+            //canBeParried = false;
+            killTimer += killTime;
+
+            if (!banked && !bounced)
+            {   
+                AlterVelocity(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized * reviveParryThrowForce, false);
+                rb.AddTorque(200.0f, 0.0f, 0.0f);
+                if (!impactedOtherCan)
+                {
+                    return true;
+                }
+            }
+
+            parried = true;
+
+            if (impactedOtherCan || (!banked && bounced))
+            {
+                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 2);
+            }
+            else
+            {
+                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 1);
+            }
+
+            return true;
         }
 
         public void Explode(Vector3 direction, int strength = 0)
@@ -255,38 +272,58 @@ namespace UltraFunGuns
             newExplosion.gameObject.GetComponent<CanExplosion>().Explode(strength);
         }
 
-        public bool Parry()
+        
+
+        private void OnCollisionEnter(Collision col)
         {
-            if (dead || sleeping || !canBeParried)
+            if (tracking)
             {
-                return false;
+                tracking = false;
             }
 
-            tracking = false;
-
-            canBeParried = false;
-
-            killTimer += killTime;
-
-            if (!revived && !parried && !bouncedOffOtherCan && !impactedEnemy)
+            if (sleeping || dead)
             {
-                parried = true;
-                AlterVelocity(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized*reviveParryThrowForce,false);
-                rb.AddTorque(200.0f, 0.0f, 0.0f);//iDk funny
-                return true;
+                return;
             }
 
-            if(bouncedOffOtherCan || superCharge)
+            if (col.gameObject.tag == "Floor" || col.gameObject.layer == LayerMask.GetMask("Environment"))
             {
-                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 2);
-            }
-            else
-            {
-                Explode(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized, 1);
+                if (!banked)
+                {
+                    banked = true;
+                    Vector3 newDirection = Vector3.Reflect(oldVelocity*bankVelocityMultiplier, col.GetContact(0).normal);
+                    AlterVelocity(newDirection, false);
+                    return;
+                }
+                Debug.Log("Can Sleeping!");
+                sleeping = true;
+                return;
             }
 
-            parried = true;
-            return true;
+            if (col.collider.TryGetComponent<CanProjectile>(out CanProjectile anotherCan))
+            {
+                //anotherCan.AlterVelocity(col.GetContact(0).normal * (col.relativeVelocity.magnitude), true);
+                HitOtherCan(anotherCan);
+                return;
+            }
+
+            if (col.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enmy))
+            {
+                if (!enmy.eid.dead)
+                {
+                    HitEnemy(enmy.eid, col.GetContact(0).point);//TODO do damage lol
+                    return;
+                }
+            }
+
+            if (col.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+            {
+                if (!enemy.dead)
+                {
+                    HitEnemy(enemy, col.GetContact(0).point);//TODO do damage lol
+                    return;
+                }
+            }
         }
 
         //pops soda does tiny aoe damage later

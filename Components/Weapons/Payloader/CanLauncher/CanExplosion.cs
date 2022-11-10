@@ -64,7 +64,7 @@ namespace UltraFunGuns
 
         private void DoBoom()
         {
-            Debug.Log("Did boom!");
+            Debug.Log("Did boom! " + explosionSize);
         }
 
         private void DoRays(CanExplosionProfile profile)
