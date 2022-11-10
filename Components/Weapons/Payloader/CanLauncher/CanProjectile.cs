@@ -173,17 +173,7 @@ namespace UltraFunGuns
             revived = false;
 
             enemy.DeliverDamage(enemy.gameObject, oldVelocity, impactSpot, enemyHitDamage, false);
-            if(!trackInsteadOfPredict)
-            {
-                Vector3 newPath = PathToPlayer();
-                transform.forward = newPath;
-                canBeParried = true;
-                AlterVelocity(newPath, false);
-            }else 
-            {
-                TrackTarget(CameraController.Instance.transform);
-            }
-            
+            SendToPlayer();
         }
 
         private Vector3 PathToPlayer()
@@ -212,9 +202,25 @@ namespace UltraFunGuns
             {
                 transform.forward = -oldVelocity;
                 killTimer += killTime;
-                AlterVelocity(-oldVelocity, false);
+                SendToPlayer();
+                
             }
 
+        }
+
+        private void SendToPlayer()
+        {
+            if (!trackInsteadOfPredict)
+            {
+                Vector3 newPath = PathToPlayer();
+                transform.forward = newPath;
+                canBeParried = true;
+                AlterVelocity(newPath, false);
+            }
+            else
+            {
+                TrackTarget(CameraController.Instance.transform);
+            }
         }
 
         public void Bounce()
@@ -224,11 +230,13 @@ namespace UltraFunGuns
                 return;
             }
 
-            if(sleeping)
+            if (!sleeping && !revived)
             {
                 revived = true;
-                sleeping = false;
             }
+            revived = true;
+            sleeping = false;
+
             killTimer += killTime;
             canBeParried = true;
             AlterVelocity(bounceForce, false);

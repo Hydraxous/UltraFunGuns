@@ -87,11 +87,16 @@ namespace UltraFunGuns
         {
             BindConfigs();
 
+            #region UI Stuff
             //Generic, debug, etc. assets
             new HydraLoader.CustomAssetData("debug_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("debug_glowIcon", typeof(Sprite));
-            
+            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
+            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController(), new HudOpenEffect() });
+            new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
+            #endregion
 
+            #region sonic gun
             //SonicReverberator
             new HydraLoader.CustomAssetPrefab("SonicReverberationExplosion", new Component[] { new SonicReverberatorExplosion() });
             new HydraLoader.CustomAssetPrefab("SonicReverberator", new Component[] { new SonicReverberator(), new WeaponIcon(), new WeaponIdentifier() });
@@ -107,8 +112,9 @@ namespace UltraFunGuns
             //Sonic gun icons
             new HydraLoader.CustomAssetData("SonicReverberator_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("SonicReverberator_weaponIcon", typeof(Sprite));
+            #endregion
 
-
+            #region egg wep
             //Egg :)
             new HydraLoader.CustomAssetPrefab("EggToss", new Component[] { new EggToss(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg(), new DestroyAfterTime() });
@@ -117,7 +123,9 @@ namespace UltraFunGuns
             //Icons
             new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
+            #endregion
 
+            #region Dodgeball
             //Dodgeball
             new HydraLoader.CustomAssetPrefab("Dodgeball", new Component[] { new Dodgeball(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("ThrownDodgeball", new Component[] { new ThrownDodgeball() });
@@ -127,8 +135,10 @@ namespace UltraFunGuns
             //Icons 
             new HydraLoader.CustomAssetData("Dodgeball_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("Dodgeball_glowIcon", typeof(Sprite));
+            #endregion
 
-
+            #region Focalyzer
+            #region Standard
             //Focalyzer
             new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() }); 
@@ -136,7 +146,8 @@ namespace UltraFunGuns
             //Icons
             new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
-
+            #endregion
+            #region Focalyzer_Alternate
             //FocalyzerAlternate
             new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
@@ -144,42 +155,48 @@ namespace UltraFunGuns
             //Icons 
             new HydraLoader.CustomAssetData("FocalyzerAlternate_glowIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("FocalyzerAlternate_weaponIcon", typeof(Sprite));
+            #endregion
+            #endregion
 
-
+            #region TrickSniper
             //Tricksniper
             new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
             new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("BulletPierceTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("TricksniperMuzzleFX", new Component[] { new DestroyAfterTime() });
+            #endregion
 
+            #region bulletstorm
             //Bulletstorm
             new HydraLoader.CustomAssetPrefab("Bulletstorm", new Component[] { new Bulletstorm(), new WeaponIcon(), new WeaponIdentifier() });
+            #endregion
 
+            #region handgun
             //Fingerguns
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
+            //Icon
+            new HydraLoader.CustomAssetData("FingerGun_weaponIcon", typeof(Sprite));
+            new HydraLoader.CustomAssetData("FingerGun_glowIcon", typeof(Sprite));
+            #endregion
 
             #region payloader
-            //Payloader
+            //Grenade variant
+
+
+            //CanLauncher variant
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
 
             //Can Materials
-            for(int i = 0;i<6;i++)
+            for(int i = 0;i<9;i++)
             {
                 new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}",i), typeof(Material));
             }
-
             #endregion
-            //UI
-            new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode()});
-            new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController() , new HudOpenEffect()});
-            new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
-
-
-            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
             
+            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);          
         }
 
         private static void UpdateMajorAssistUsage()
