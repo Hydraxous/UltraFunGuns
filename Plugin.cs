@@ -3,9 +3,11 @@ using BepInEx.Logging;
 using BepInEx.Configuration;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
+using Newtonsoft.Json.Linq;
 using UltraFunGuns.Properties;
 using HarmonyLib;
 
@@ -18,12 +20,17 @@ namespace UltraFunGuns
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
 
+        public static bool usingLatestVersion = true;
         public static bool usedWeapons = true;
-        public static string version = "1.1.8";
+        public static string version = "1.1.8-Experimental";
+        public static string latestVersion = "UNKNOWN";
+        private static string githubURL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
+
         private void Awake()
         {
             if (RegisterAssets() && InventoryDataManager.Initialize())
             {
+                CheckVersion();
                 DoPatching();
                 Logger.LogInfo("UltraFunGuns Loaded.");
             }else
@@ -188,9 +195,9 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
-
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile_BounceFX", new Component[] { new DestroyAfterTime(), new AlwaysLookAtCamera(){ useXAxis=true, useYAxis=true, useZAxis=true} });
             //Can Materials
-            for(int i = 0;i<9;i++)
+            for(int i = 0;i<10;i++)
             {
                 new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}",i), typeof(Material));
             }
@@ -199,6 +206,7 @@ namespace UltraFunGuns
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);          
         }
 
+        //Turns on major assists if weapons are used.
         private static void UpdateMajorAssistUsage()
         {
             if (MonoSingleton<StatsManager>.Instance != null)
@@ -249,6 +257,44 @@ namespace UltraFunGuns
         public void SaveConfig()
         {
             Config.Save();
+        }
+
+        private void CheckVersion()
+        {
+            StartCoroutine(CheckLatestVersion());
+        }
+
+        //matches current mod version with latest release on github
+        private IEnumerator CheckLatestVersion()
+        {
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(githubURL))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (!webRequest.isNetworkError)
+                {
+                    string page = webRequest.downloadHandler.text;
+                    try
+                    {
+                        latestVersion = JArray.Parse(page)[0].Value<string>("name");
+                        usingLatestVersion = (latestVersion == version);
+                        if(usingLatestVersion)
+                        {
+                            Logger.LogInfo(string.Format("You are using the latest version of UFG: {0}", latestVersion));
+                        }
+                        else
+                        {
+                            Logger.LogInfo(string.Format("New version of UFG available: {0}. Please consider updating.", latestVersion));
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        usingLatestVersion = true;
+                        Logger.LogInfo(string.Format("Error getting version info. Current Version: {0}", version));
+                    }
+                    
+                }
+            }
         }
     }
     

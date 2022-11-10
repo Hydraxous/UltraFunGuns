@@ -11,20 +11,19 @@ namespace UltraFunGuns
         public GameObject canPrefab;
         public GameObject muzzleFX;
 
-        public float shootForce = 60.0f;
+        public float shootForce = 80.0f;
         public float targetBeamThickness = 0.5f;
         public float maxBeamDistance = 500.0f;
         public Vector3 shootVector;
 
         public Text debugText;
         private Material[] canMaterials;
-        private int canMaterialCount = 9;
+        private int canMaterialCount = 10;
         private MeshRenderer canPrefabMeshRenderer;
         private MeshRenderer fakeCanMeshRenderer;
 
         public override void OnAwakeFinished()
         {
-            Debug.Log("Starting material grab");
             List<Material> canTextureList = new List<Material>();
             for(int i=0;i<canMaterialCount;i++)
             {
@@ -85,7 +84,7 @@ namespace UltraFunGuns
                     hits = HydraUtils.SortRaycastHitsByDistance(hits);
                     for (int i = 0; i < hits.Length; i++)
                     {
-                        if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker"))
+                        if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !((hits[i].collider.gameObject.name == "OOB THING TODO CHANGE THIS LMAO")))
                         {
                             target = hits[i].point;
                             Debug.Log("we hituhhhhh " + hits[i].collider.gameObject.name);

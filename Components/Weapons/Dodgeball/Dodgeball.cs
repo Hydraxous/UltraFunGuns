@@ -97,10 +97,12 @@ namespace UltraFunGuns
                     catcherCollider.SetActive(false);
                 }
 
+                /*
                 if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
                 {
-                    activeDodgeball.ExciteBall(); //TODO REMOVE this is a debug key.
+                    activeDodgeball.ExciteBall();
                 }
+                */
 
                 if(Input.GetKeyDown(KeyCode.K))
                 {
