@@ -18,7 +18,7 @@ namespace UltraFunGuns
 
         public Text debugText;
         private Material[] canMaterials;
-        private int canMaterialCount = 6;
+        private int canMaterialCount = 9;
         private MeshRenderer canPrefabMeshRenderer;
         private MeshRenderer fakeCanMeshRenderer;
 
@@ -26,7 +26,7 @@ namespace UltraFunGuns
         {
             Debug.Log("Starting material grab");
             List<Material> canTextureList = new List<Material>();
-            for(int i =0;i<canMaterialCount;i++)
+            for(int i=0;i<canMaterialCount;i++)
             {
                 Material newCanMaterial;
                 HydraLoader.dataRegistry.TryGetValue(string.Format("CanLauncher_CanProjectile_Material_{0}", i), out UnityEngine.Object obj);
