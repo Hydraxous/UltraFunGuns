@@ -122,6 +122,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Weapons\Payloader\RemoteBomb\" />
+    <Folder Include="Components\Weapons\Payloader\Thumper\" />
   </ItemGroup>
 </Project>

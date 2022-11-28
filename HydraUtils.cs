@@ -43,6 +43,13 @@ namespace UltraFunGuns
             return aimRay;
         } 
 
+        public static string CollisionInfo(Collision col)
+        {
+            string str = "Name: {0}\n" + "Layer: {1}\n" + "Tag: {2}\n" + "ContactCount: {3}";
+            str = string.Format(str, col.collider.name, col.gameObject.layer, col.collider.tag,col.contactCount);
+            return str;
+        }
+
         public static RaycastHit[] SortRaycastHitsByDistance(RaycastHit[] hits)
         {
             List<RaycastHit> sortedHits = new List<RaycastHit>(hits.Length);
