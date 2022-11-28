@@ -61,7 +61,27 @@ namespace UltraFunGuns
                             hitCan.Bounce();
                             break;
                     }
+                }
 
+                RemoteBombExplosive remoteBombExplosive = currentHit.transform.GetComponentInParent<RemoteBombExplosive>();
+                if (remoteBombExplosive != null)
+                {
+
+                    switch (__instance.beamType)
+                    {
+                        case BeamType.Railgun:
+                            remoteBombExplosive.Detonate(true);
+                            break;
+                        case BeamType.Revolver:
+                            remoteBombExplosive.Detonate(false);
+                            break;
+                        case BeamType.MaliciousFace:
+                            remoteBombExplosive.Detonate(true);
+                            break;
+                        case BeamType.Enemy:
+                            remoteBombExplosive.Detonate(true);
+                            break;
+                    }
                 }
             }
             catch(System.Exception e)

@@ -35,6 +35,20 @@ namespace UltraFunGuns
                 }        
             }
 
+            RemoteBombExplosive remoteBombExplosive;
+            if (target.TryGetComponent<RemoteBombExplosive>(out remoteBombExplosive))
+            {
+                if(!remoteBombExplosive.parried)
+                {      
+                    __instance.anim.Play("Hook", 0, 0.065f);
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    remoteBombExplosive.Parry(MonoSingleton<CameraController>.Instance.cam.transform.forward);
+                    ___hitSomething = true;
+                    __result = true;
+                    return false;
+                }
+            }
+
             return true;
         }
     }

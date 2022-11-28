@@ -13,14 +13,17 @@ namespace UltraFunGuns
         private Rigidbody rb;
         private Renderer indicatorLight;
 
-
         public float armTime = 0.65f;
         public float blinkInterval = 1.0f;
         public float blinkTime = 0.05f;
-        
+        public float parryForce = 50.0f;
+
+        private bool thrown = false;
         private bool armed = false;
         private bool landed = false;
         private bool alive = true;
+
+        public bool parried { get; private set; } = false;
 
         private void Awake()
         {
@@ -35,16 +38,35 @@ namespace UltraFunGuns
             Thrown();
         }
 
+        private void Update()
+        {
+            if(alive && thrown)
+            {
+                if(weapon == null)
+                {
+                    Detonate(true);
+                }
+            }
+        }
+
         public void SetVelocity(Vector3 newVelocity)
         {
-            if(rb)
+            if (rb)
             {
                 rb.velocity = newVelocity;
             }
         }
 
+        public void Parry(Vector3 direction)
+        {
+            parried = true;
+            armed = true;
+            SetVelocity(direction.normalized * parryForce);
+        }
+
         private void Thrown()
         {
+            thrown = true;
             StartCoroutine(ArmExplosive());
             StartCoroutine(DoIndicator());
         }
@@ -52,7 +74,7 @@ namespace UltraFunGuns
         private IEnumerator ArmExplosive()
         {
             float timer = armTime;
-            while(timer > 0.0f)
+            while(timer > 0.0f && !armed)
             {
                 timer -= Time.deltaTime;
                 yield return new WaitForEndOfFrame();
@@ -68,13 +90,14 @@ namespace UltraFunGuns
                 {
                     if (!armed)
                     {
-                        indicatorLight.material.color = Color.green;
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.green);
                         yield return new WaitForEndOfFrame();
                     }
                     else
                     {
                         float timer = blinkInterval;
-                        indicatorLight.material.color = Color.black;
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.black);
+
                         while (timer > 0.0f)
                         {
                             timer -= Time.deltaTime;
@@ -82,7 +105,8 @@ namespace UltraFunGuns
                         }
 
                         timer = blinkTime;
-                        indicatorLight.material.color = Color.red;
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.red);
+
                         while (timer > 0.0f)
                         {
                             timer -= Time.deltaTime;
@@ -103,6 +127,7 @@ namespace UltraFunGuns
             if(force || armed)
             {
                 Debug.Log("Remote Boom!");
+                alive = false;
                 Destroy(gameObject);
                 return true;
             }
@@ -113,21 +138,31 @@ namespace UltraFunGuns
         private void StickToEnemy(Transform newParent, EnemyIdentifier enemy, Vector3 normal)
         {
             stuckTarget = enemy;
-
+            //TODO apply minor damage here
             StickToThing(newParent, normal);
         }
 
         private void StickToThing(Transform newParent, Vector3 normal)
         {
+            landed = true;
+            if(rb)
+            {
+                rb.isKinematic = true;
+            }
             transform.parent = newParent;
             transform.forward = normal;
         }
 
         private void OnCollisionEnter(Collision col)
         {
+            if(landed || !armed)
+            {
+                return;
+            }
+
             if (col.gameObject.tag == "Floor" || col.gameObject.layer == LayerMask.GetMask("Environment"))
             {
-                
+                StickToThing(col.transform, col.GetContact(0).normal);
                 return;
             }
 
