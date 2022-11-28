@@ -17,8 +17,6 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive", out remoteExplosivePrefab);
-            
-
         }
 
         public override void FirePrimary()
@@ -30,23 +28,29 @@ namespace UltraFunGuns
         {
             if(actionCooldowns["secondaryFire"].CanFire())
             {
-                actionCooldowns["secondaryFire"].AddCooldown();
-
-                List<RemoteBombExplosive> bombsToDetonate = new List<RemoteBombExplosive>();
-                foreach(RemoteBombExplosive bomb in thrownExplosives)
+                if(thrownExplosives.Count > 0)
                 {
-                    if(bomb.CanDetonate())
+                    actionCooldowns["secondaryFire"].AddCooldown();
+                    List<RemoteBombExplosive> bombsToDetonate = new List<RemoteBombExplosive>();
+                    foreach (RemoteBombExplosive bomb in thrownExplosives)
                     {
-                        bombsToDetonate.Add(bomb);
+                        if (bomb.CanDetonate())
+                        {
+                            bombsToDetonate.Add(bomb);
+                        }
                     }
-                }
 
-                foreach(RemoteBombExplosive bomb in bombsToDetonate)
+                    foreach (RemoteBombExplosive bomb in bombsToDetonate)
+                    {
+                        thrownExplosives.Remove(bomb);
+                    }
+
+                    StartCoroutine(DetonateExplosives(bombsToDetonate));
+                }else
                 {
-                    thrownExplosives.Remove(bomb);
+                    Debug.Log("No bombs? ,':^)");
                 }
-
-                StartCoroutine(DetonateExplosives(bombsToDetonate));
+                
             }
         }
 
@@ -55,13 +59,15 @@ namespace UltraFunGuns
             throwingExplosive = true;
             //TODO do anim here and program alignment timing
             yield return new WaitForSeconds(0.08f);
-            GameObject newExplosive = Instantiate<GameObject>(remoteExplosivePrefab, firePoint.position, Quaternion.identity);
-
-            RemoteBombExplosive newBomb = newExplosive.GetComponent<RemoteBombExplosive>();
-            newBomb.Initiate(this, player);
             Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.25f, 40.0f);
+            GameObject newExplosive = Instantiate<GameObject>(remoteExplosivePrefab, firePoint.position, Quaternion.identity);
+            RemoteBombExplosive newBomb = newExplosive.GetComponent<RemoteBombExplosive>();
+
+            newBomb.Initiate(this, player);
             newBomb.transform.forward = -aimRay.direction;
             newBomb.SetVelocity(aimRay.direction * throwForce);
+
+            thrownExplosives.Add(newBomb);
 
             throwingExplosive = false;
         }
@@ -94,6 +100,11 @@ namespace UltraFunGuns
             cooldowns.Add("primaryFire", new ActionCooldown(0.85f));
             cooldowns.Add("secondaryFire", new ActionCooldown(0.25f));
             return cooldowns;
+        }
+
+        private void OnDisable()
+        {
+            throwingExplosive = false;
         }
     }
 }
