@@ -38,7 +38,7 @@ namespace UltraFunGuns
             RemoteBombExplosive remoteBombExplosive;
             if (target.TryGetComponent<RemoteBombExplosive>(out remoteBombExplosive))
             {
-                if(!remoteBombExplosive.parried)
+                if(remoteBombExplosive.Parriable())
                 {      
                     __instance.anim.Play("Hook", 0, 0.065f);
                     MonoSingleton<TimeController>.Instance.ParryFlash();

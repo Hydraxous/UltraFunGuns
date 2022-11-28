@@ -7,26 +7,29 @@ namespace UltraFunGuns
 {
     public class RemoteBombExplosive : MonoBehaviour
     {
+        private GameObject explosionPrefab;
+
         private RemoteBomb weapon;
         private NewMovement player;
         private EnemyIdentifier stuckTarget;
         private Rigidbody rb;
         private Renderer indicatorLight;
 
-        public float armTime = 0.65f;
-        public float blinkInterval = 1.0f;
+        public float armTime = 0.15f;
+        public float blinkInterval = 0.75f;
         public float blinkTime = 0.05f;
-        public float parryForce = 50.0f;
+        public float parryForce = 150.0f;
 
         private bool thrown = false;
         private bool armed = false;
         private bool landed = false;
         private bool alive = true;
 
-        public bool parried { get; private set; } = false;
+        private bool colled = false;
 
         private void Awake()
         {
+            HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive_Explosion", out explosionPrefab);
             rb = GetComponent<Rigidbody>();
             indicatorLight = transform.Find("BombMesh/Blinker").GetComponent<Renderer>();
         }
@@ -57,9 +60,13 @@ namespace UltraFunGuns
             }
         }
 
-        public void Parry(Vector3 direction)
+        public bool Parriable()
         {
-            parried = true;
+            return (!landed && !armed);
+        }
+
+        public void Parry(Vector3 direction)
+        { 
             armed = true;
             SetVelocity(direction.normalized * parryForce);
         }
@@ -126,8 +133,10 @@ namespace UltraFunGuns
         {
             if(force || armed)
             {
-                Debug.Log("Remote Boom!");
                 alive = false;
+                GameObject newBoom = Instantiate<GameObject>(explosionPrefab, transform.position, Quaternion.identity);
+                newBoom.transform.up = transform.forward;
+                weapon.BombDetonated(this);
                 Destroy(gameObject);
                 return true;
             }
@@ -153,6 +162,34 @@ namespace UltraFunGuns
             transform.forward = normal;
         }
 
+        private bool CanStickToThing(GameObject thing)
+        {
+            if(thing.tag == "Floor" || thing.tag == "Wall")
+            {
+                return true;
+            }
+
+            switch(thing.layer)
+            {
+                case 2:
+                    return true;
+                case 8:
+                    return true;
+                case 10:
+                    return true;
+                case 11:
+                    return true;
+                case 24:
+                    return true;
+                case 25:
+                    return true;
+                case 26:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private void OnCollisionEnter(Collision col)
         {
             if(landed || !armed)
@@ -160,10 +197,18 @@ namespace UltraFunGuns
                 return;
             }
 
-            if (col.gameObject.tag == "Floor" || col.gameObject.layer == LayerMask.GetMask("Environment"))
+            if(!colled)
+            {
+                colled = true;
+                Debug.Log(HydraUtils.CollisionInfo(col));
+
+            }
+
+            bool stick = CanStickToThing(col.gameObject);
+
+            if(stick)
             {
                 StickToThing(col.transform, col.GetContact(0).normal);
-                return;
             }
 
             if (col.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enmy))

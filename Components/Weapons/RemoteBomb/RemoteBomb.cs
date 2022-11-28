@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Threading.Tasks;
 
 namespace UltraFunGuns
 {
     public class RemoteBomb : UltraFunGunBase
     {
         private GameObject remoteExplosivePrefab;
-        public float bombDetonationDelay = 0.16f;
-        public float throwForce = 15.0f;
+        public float bombDetonationDelay = 0.035f;
+        public float throwForce = 50.0f;
 
         private List<RemoteBombExplosive> thrownExplosives = new List<RemoteBombExplosive>();
         private bool throwingExplosive = false;
@@ -19,11 +20,34 @@ namespace UltraFunGuns
             HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive", out remoteExplosivePrefab);
         }
 
-        public override void FirePrimary()
+        public override void GetInput()
         {
-            base.FirePrimary();
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused)
+            {
+                FirePrimary();
+            }
+
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused)
+            {
+                FireSecondary();
+            }
         }
 
+        //Throwbomb
+        public override void FirePrimary()
+        {
+            Debug.Log("Fire priamry");
+            if(actionCooldowns["primaryFire"].CanFire())
+            {
+                if(!throwingExplosive)
+                {
+                    actionCooldowns["primaryFire"].AddCooldown();
+                    StartCoroutine(ThrowExplosive());
+                }
+            }
+        }
+
+        //Detonate currently active and armed bombs
         public override void FireSecondary()
         {
             if(actionCooldowns["secondaryFire"].CanFire())
@@ -32,11 +56,19 @@ namespace UltraFunGuns
                 {
                     actionCooldowns["secondaryFire"].AddCooldown();
                     List<RemoteBombExplosive> bombsToDetonate = new List<RemoteBombExplosive>();
-                    foreach (RemoteBombExplosive bomb in thrownExplosives)
+                    List<RemoteBombExplosive> currentBombs = new List<RemoteBombExplosive>(thrownExplosives);
+
+                    foreach (RemoteBombExplosive bomb in currentBombs)
                     {
-                        if (bomb.CanDetonate())
+                        if(bomb != null)
                         {
-                            bombsToDetonate.Add(bomb);
+                            if (bomb.CanDetonate())
+                            {
+                                bombsToDetonate.Add(bomb);
+                            }
+                        }else
+                        {
+                            thrownExplosives.Remove(bomb);
                         }
                     }
 
@@ -45,7 +77,7 @@ namespace UltraFunGuns
                         thrownExplosives.Remove(bomb);
                     }
 
-                    StartCoroutine(DetonateExplosives(bombsToDetonate));
+                    DetonateExplosives(bombsToDetonate);
                 }else
                 {
                     Debug.Log("No bombs? ,':^)");
@@ -56,6 +88,8 @@ namespace UltraFunGuns
 
         private IEnumerator ThrowExplosive()
         {
+            Debug.Log("Throwing explosive");
+
             throwingExplosive = true;
             //TODO do anim here and program alignment timing
             yield return new WaitForSeconds(0.08f);
@@ -72,6 +106,28 @@ namespace UltraFunGuns
             throwingExplosive = false;
         }
 
+        private async void DetonateExplosives(List<RemoteBombExplosive> bombs)
+        {
+            while (bombs.Count > 0)
+            {
+                RemoteBombExplosive bomb = bombs[0];
+                bombs.Remove(bomb);
+
+                if (bomb != null)
+                {
+                    bomb.Detonate();
+
+                    float timer = bombDetonationDelay;
+                    while (timer > 0.0f)
+                    {
+                        timer -= Time.deltaTime;
+                        await Task.Yield();
+                    }
+                }
+            }
+        }
+
+        /*
         private IEnumerator DetonateExplosives(List<RemoteBombExplosive> bombs)
         { 
             while(bombs.Count > 0)
@@ -89,15 +145,24 @@ namespace UltraFunGuns
             }
         }
 
+        */
         public override void DoAnimations()
         {
             
         }
 
+        public void BombDetonated(RemoteBombExplosive bomb)
+        {
+            if(thrownExplosives.Contains(bomb))
+            {
+                thrownExplosives.Remove(bomb);
+            }
+        }
+
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(0.85f));
+            cooldowns.Add("primaryFire", new ActionCooldown(0.45f));
             cooldowns.Add("secondaryFire", new ActionCooldown(0.25f));
             return cooldowns;
         }
