@@ -75,43 +75,9 @@ namespace UltraFunGuns
         {
             Vector3 target = Vector3.zero;
 
-            RaycastHit[] hits = Physics.SphereCastAll(direction, targetBeamThickness, maxBeamDistance, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default", "Projectile"));
-            hits = HydraUtils.SortRaycastHitsByDistance(hits);
-            if (hits.Length > 0)
-            {
-                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
-                {
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
-                    for (int i = 0; i < hits.Length; i++)
-                    {
-                        if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !((hits[i].collider.gameObject.name == "OOB THING TODO CHANGE THIS LMAO")))
-                        {
-                            target = hits[i].point;
-                            Debug.Log("we hituhhhhh " + hits[i].collider.gameObject.name);
-                            break;
-                        }
-                    }
-                }
-                else//todo clean this.
-                {
-                    Ray missray = new Ray();
-                    missray.origin = mainCam.position;
-                    missray.direction = mainCam.TransformDirection(0, 0, 1);
+            Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, targetBeamThickness, maxBeamDistance);
 
-                    target = missray.GetPoint(maxBeamDistance);
-                }
-            }
-            else
-            {
-                    Ray missray = new Ray();
-                    missray.origin = mainCam.transform.position;
-                    missray.direction = mainCam.transform.TransformDirection(0, 0, 1);
-
-                    target = missray.GetPoint(maxBeamDistance);
-            }
-
-
-            Vector3 targetVelocity = (target - firePoint.position).normalized * shootForce;
+            Vector3 targetVelocity = aimRay.direction * shootForce;
             CameraController.Instance.CameraShake(0.15f);
             GameObject latestCan = GameObject.Instantiate<GameObject>(canPrefab, firePoint.position, Quaternion.identity);
             //TODO instantiate muzzle fx

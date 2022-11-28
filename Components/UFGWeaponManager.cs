@@ -148,7 +148,6 @@ namespace UltraFunGuns
 
             for (int i = 0; i < customSlots.Count; i++)
             {
-
                 gc.slots.Add(customSlots[i]);
                 foreach (GameObject wep in customSlots[i])
                 {
@@ -157,13 +156,10 @@ namespace UltraFunGuns
                         gc.allWeapons.Add(wep);
                     }
                 }
-
             }
-            
-
         }
 
-
+        //This handles input for the extra slots
         private void Update()
         {
             if (Input.GetKeyDown(Slot7Key) && (customSlots[0].Count > 1 || gc.currentSlot != 7))

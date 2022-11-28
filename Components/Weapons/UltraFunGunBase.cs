@@ -43,13 +43,19 @@ namespace UltraFunGuns
                 }
             }
 
+            if(firePoint == null)
+            {
+                firePoint = mainCam;
+                Debug.Log("FirePoint setup incorrectly for weapon: " + gameObject.name);
+            }
+
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", registryName), out UnityEngine.Object weapon_weaponIcon);
             weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
 
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", registryName), out UnityEngine.Object weapon_glowIcon);
             weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
 
-            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now.
+            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now. UPDATE: why did I write this.
 
             if (weaponIcon.weaponIcon == null)
             {

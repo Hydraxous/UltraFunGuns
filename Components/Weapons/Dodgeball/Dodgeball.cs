@@ -171,25 +171,20 @@ namespace UltraFunGuns
             throwingBall = true;
             chargingBall = false;
             animator.Play("DodgeballThrow");
+
             if(!skipTiming) //Lines up the thrown ball with the animation, looks nice.
             {
                 yield return new WaitForSeconds(0.15f);
             }
+
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
+
             dodgeBallActive = true;
             activeDodgeball = GameObject.Instantiate<GameObject>(thrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
             activeDodgeball.dodgeballWeapon = this;
-            Ray ballDirection = new Ray();
-            activeDodgeball.gameObject.transform.forward = mainCam.transform.forward;
-            if (Physics.Raycast(mainCam.transform.position, mainCam.TransformDirection(0, 0, 1), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default")) && hit.collider.name != "CameraCollisionChecker")
-            {
-                ballDirection.origin = firePoint.position;
-                ballDirection.direction = hit.point - firePoint.position;
-            }else
-            {
-                ballDirection.origin = firePoint.position;
-                ballDirection.direction = firePoint.forward;
-            }
+
+            Ray ballDirection = HydraUtils.GetProjectileAimVector(mainCam, firePoint);
+            activeDodgeball.gameObject.transform.forward = mainCam.forward;
 
             float currentThrowForce = throwForce;
             if (softThrow)
@@ -228,7 +223,7 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work.
+            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work since coroutine cant run on disabled obj
             {
                 StartCoroutine(ThrowDodgeball(false,true));
             }
