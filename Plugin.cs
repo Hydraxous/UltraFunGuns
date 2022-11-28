@@ -195,15 +195,23 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
-            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile_BounceFX", new Component[] { new DestroyAfterTime(), new AlwaysLookAtCamera(){ useXAxis=true, useYAxis=true, useZAxis=true} });
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile_BounceFX", new Component[] { new DestroyAfterTime(), new AlwaysLookAtCamera() { useXAxis=true, useYAxis=true, useZAxis=true} });
+            
             //Can Materials
             for(int i = 0;i<10;i++)
             {
                 new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}",i), typeof(Material));
             }
             #endregion
-            
-            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);          
+
+            #region RemoteBomb
+
+            new HydraLoader.CustomAssetPrefab("RemoteBomb", new Component[] { new RemoteBomb(), new WeaponIcon(), new WeaponIdentifier() });
+            new HydraLoader.CustomAssetPrefab("RemoteBomb_Explosive", new Component[] { new RemoteBombExplosive() });
+
+            #endregion
+
+            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
         }
 
         //Turns on major assists if weapons are used.

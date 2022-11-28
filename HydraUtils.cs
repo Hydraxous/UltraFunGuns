@@ -8,6 +8,41 @@ namespace UltraFunGuns
 {
     public static class HydraUtils
     {
+        public static Ray GetProjectileAimVector(Transform view, Transform projectileOrigin, float thickness = 0.01f, float maxRange = 1000.0f)
+        {
+            Ray aimRay = new Ray();
+
+            aimRay.origin = view.position;
+            aimRay.direction = view.forward;
+
+            Vector3 endPoint = aimRay.GetPoint(maxRange);
+
+            aimRay.origin = projectileOrigin.position;
+            aimRay.direction = endPoint - projectileOrigin.position;
+
+            RaycastHit[] hits = Physics.SphereCastAll(view.position, thickness, view.forward, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
+
+            if(hits.Length > 0)
+            {
+                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
+                {
+                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
+                    for (int i = 0; i < hits.Length; i++)
+                    {
+                        if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !((hits[i].collider.gameObject.name == "OOB THING TODO CHANGE THIS LMAO")))
+                        {
+                            aimRay.origin = projectileOrigin.position;
+                            aimRay.direction = hits[i].point - projectileOrigin.position;
+                            Debug.Log("we hituhhhhh [" + hits[i].collider.gameObject.name + "]");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return aimRay;
+        } 
+
         public static RaycastHit[] SortRaycastHitsByDistance(RaycastHit[] hits)
         {
             List<RaycastHit> sortedHits = new List<RaycastHit>(hits.Length);
