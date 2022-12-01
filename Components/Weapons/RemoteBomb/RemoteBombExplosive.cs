@@ -19,13 +19,20 @@ namespace UltraFunGuns
         public float blinkInterval = 0.75f;
         public float blinkTime = 0.05f;
         public float parryForce = 150.0f;
+        public float playerKnockbackMultiplier = 10.0f;
+        public float explosionRadius = 3.5f;
+        public float explosionDamage = 1.2f;
+        public float explosionChainDelay = 0.5f;
+
+        public float stuckDamageMultiplier = 1.5f;
+        public float stickDamage = 0.05f;
 
         private bool thrown = false;
         private bool armed = false;
         private bool landed = false;
         private bool alive = true;
 
-        private bool colled = false;
+        private bool pushedPlayer = false;
 
         private void Awake()
         {
@@ -126,17 +133,20 @@ namespace UltraFunGuns
 
         public bool CanDetonate()
         {
-            return armed;
+            return armed && alive;
         }
 
         public bool Detonate(bool force = false)
         {
-            if(force || armed)
+            if((force || armed) && alive)
             {
                 alive = false;
                 GameObject newBoom = Instantiate<GameObject>(explosionPrefab, transform.position, Quaternion.identity);
                 newBoom.transform.up = transform.forward;
                 weapon.BombDetonated(this);
+
+                DoExplosion();
+
                 Destroy(gameObject);
                 return true;
             }
@@ -144,10 +154,95 @@ namespace UltraFunGuns
             return false;
         }
 
+        private void DoExplosion()
+        {
+            List<EnemyIdentifier> hitEnemies = new List<EnemyIdentifier>();
+
+            Rigidbody playerRB = null;
+
+            Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Limb", "Projectile", "BigCorpse", "Armor", "Default", "Ignore Raycast"));
+            if (colliders != null)
+            {
+                foreach (Collider col in colliders)
+                {
+                    if(col.tag != "Floor")
+                    {
+                        Vector3 hitPoint = col.ClosestPoint(transform.position);
+                        Vector3 hitDirection = hitPoint - transform.position;
+
+                        float distance = hitDirection.magnitude;
+
+                        if(col.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier eidID))
+                        {
+                            if (!hitEnemies.Contains(eidID.eid))
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                float damageAmount = (eidID.eid == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
+                                eidID.eid.DeliverDamage(eidID.eid.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                                hitEnemies.Add(eidID.eid);
+                            }
+                        }
+
+                        if (col.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+                        {
+                            if (!hitEnemies.Contains(enemy))
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                float damageAmount = (enemy == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff; 
+                                enemy.DeliverDamage(enemy.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                                hitEnemies.Add(enemy);
+                            }
+                        }
+
+                        if (col.TryGetComponent<RemoteBombExplosive>(out RemoteBombExplosive remoteBombExplosive))
+                        { 
+                            float rangeDelay = Mathf.InverseLerp(0.0f, explosionRadius, distance);
+                            remoteBombExplosive.Invoke("Detonate", explosionChainDelay * rangeDelay);
+                        }
+
+                        if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
+                        {
+                            float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+
+                            Vector3 playerPos = player.transform.position;
+                            playerPos.y += 1.25f;
+
+                            Vector3 pushDir = playerPos - transform.position;
+                            playerRB = player.rb;
+
+                            playerRB.velocity += (pushDir.normalized * (explosionDamage * damageFalloff)) * playerKnockbackMultiplier;
+                            pushedPlayer = true;
+                        }
+
+                        if (col.TryGetComponent<Rigidbody>(out Rigidbody hitRb))
+                        {
+                            bool applyForce = true;
+
+                            if(playerRB != null)
+                            {
+                                if(hitRb == playerRB)
+                                {
+                                    applyForce = false;
+                                }
+                            }
+
+                            if (!hitRb.isKinematic && applyForce)
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                hitRb.AddExplosionForce(explosionDamage * 50  * damageFalloff, transform.position, explosionRadius);
+                            }
+
+                        }
+                    }                
+                }
+            }
+        }
+
+
         private void StickToEnemy(Transform newParent, EnemyIdentifier enemy, Vector3 normal)
         {
             stuckTarget = enemy;
-            //TODO apply minor damage here
+            enemy.DeliverDamage(enemy.gameObject, -normal, transform.position, stickDamage, false, 0, weapon.gameObject);
             StickToThing(newParent, normal);
         }
 
@@ -195,13 +290,6 @@ namespace UltraFunGuns
             if(landed || !armed)
             {
                 return;
-            }
-
-            if(!colled)
-            {
-                colled = true;
-                Debug.Log(HydraUtils.CollisionInfo(col));
-
             }
 
             bool stick = CanStickToThing(col.gameObject);
