@@ -208,7 +208,7 @@ namespace UltraFunGuns
 
             new HydraLoader.CustomAssetPrefab("RemoteBomb", new Component[] { new RemoteBomb(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("RemoteBomb_Explosive", new Component[] { new RemoteBombExplosive() });
-            new HydraLoader.CustomAssetPrefab("RemoteBomb_Explosive_Explosion", new Component[] { new DestroyAfterTime() });
+            new HydraLoader.CustomAssetPrefab("RemoteBomb_Explosive_Explosion", new Component[] { new DestroyAfterTime(), new AudioSourceRandomizer() });
 
             #endregion
 
