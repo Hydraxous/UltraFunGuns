@@ -9,7 +9,7 @@ namespace UltraFunGuns
     public abstract class UltraFunGunBase : MonoBehaviour
     {
         public Dictionary<string, ActionCooldown> actionCooldowns;
-        public Dictionary<string, AudioSource> soundEffects;
+        public Dictionary<string, AudioSource> soundEffects = new Dictionary<string, AudioSource>();
 
         public Transform mainCam, firePoint;
         public OptionsManager om;
@@ -113,6 +113,66 @@ namespace UltraFunGuns
         public virtual void FireSecondary()
         {
             Debug.Log("Fired Secondary! (not implemented)");
+        }
+        
+        //Adds sound effect to dict
+        private bool AddSFX(string clipName)
+        { 
+            Transform audioSourceObject = transform.Find(string.Format("Audios/{0}", clipName));
+
+            if(audioSourceObject == null)
+            {
+                Debug.LogError(string.Format("UFG: {0} is missing AudioSource Object: {1}", gameObject.name, clipName));
+                return false;
+            }else
+            {
+                if(!audioSourceObject.TryGetComponent<AudioSource>(out AudioSource newAudioSrc))
+                {
+                    Debug.LogError(string.Format("UFG: {0} is missing AudioSource Component: {1}", gameObject.name, clipName));
+                    return false;
+                }
+
+                if(soundEffects.ContainsKey(name))
+                {
+                    Debug.LogWarning(string.Format("UFG: {0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName));
+                    return false;
+                }
+
+                soundEffects.Add(clipName, newAudioSrc);
+                return true;
+            }
+        }
+
+        protected void AddSFX(params string[] names)
+        {
+            int counter = 0;
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                if(AddSFX(names[i]))
+                {
+                    ++counter;
+                }
+            }
+
+            Debug.Log(string.Format("UFG: {0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
+        }
+
+        protected void PlaySFX(string name, float minPitch = 1.0f, float maxPitch = 1.0f)
+        {
+            if(!soundEffects.ContainsKey(name))
+            {
+                Debug.LogError(string.Format("UFG: {0}: sound effect: {1} not present in dictionary.", gameObject.name, name));
+                return;
+            }
+
+            if(minPitch != 1.0f || maxPitch != 1.0f)
+            {
+                soundEffects[name].pitch = UnityEngine.Random.Range(minPitch, maxPitch);
+            }
+
+            soundEffects[name].Play();
+
         }
 
         public class ActionCooldown

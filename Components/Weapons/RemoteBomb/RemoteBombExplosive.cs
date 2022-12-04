@@ -15,13 +15,14 @@ namespace UltraFunGuns
         private Rigidbody rb;
         private Renderer indicatorLight;
 
-        public float armTime = 0.15f;
+        public float armTime = 0.05f;
         public float blinkInterval = 0.75f;
         public float blinkTime = 0.05f;
         public float parryForce = 150.0f;
-        public float playerKnockbackMultiplier = 10.0f;
-        public float explosionRadius = 3.5f;
-        public float explosionDamage = 1.2f;
+        public float playerKnockbackMultiplier = 70.0f;
+        public float rigidbodyForceMultiplier = 70.0f;
+        public float explosionRadius = 6f;
+        public float explosionDamage = 1.6f;
         public float explosionChainDelay = 0.5f;
 
         public float stuckDamageMultiplier = 1.5f;
@@ -34,11 +35,15 @@ namespace UltraFunGuns
 
         private bool pushedPlayer = false;
 
+        private AudioSource AC_armingBeep, AC_ambientBeep;
+
         private void Awake()
         {
             HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive_Explosion", out explosionPrefab);
             rb = GetComponent<Rigidbody>();
             indicatorLight = transform.Find("BombMesh/Blinker").GetComponent<Renderer>();
+            AC_armingBeep = transform.Find("Audios/Arm_Beep").GetComponent<AudioSource>();
+            AC_ambientBeep = transform.Find("Audios/Beep").GetComponent<AudioSource>();
         }
 
         public void Initiate(RemoteBomb remoteBomb, NewMovement newMovement)
@@ -73,8 +78,8 @@ namespace UltraFunGuns
         }
 
         public void Parry(Vector3 direction)
-        { 
-            armed = true;
+        {
+            Arm();
             SetVelocity(direction.normalized * parryForce);
         }
 
@@ -93,7 +98,7 @@ namespace UltraFunGuns
                 timer -= Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
-            armed = true;
+            Arm();
         }
 
         private IEnumerator DoIndicator()
@@ -120,6 +125,7 @@ namespace UltraFunGuns
 
                         timer = blinkTime;
                         indicatorLight.material.SetColor("_EmissiveColor", Color.red);
+                        AC_ambientBeep.Play();
 
                         while (timer > 0.0f)
                         {
@@ -154,6 +160,12 @@ namespace UltraFunGuns
             return false;
         }
 
+        private void Arm()
+        {
+            armed = true;
+            AC_armingBeep.Play();
+        }
+
         private void DoExplosion()
         {
             List<EnemyIdentifier> hitEnemies = new List<EnemyIdentifier>();
@@ -174,7 +186,7 @@ namespace UltraFunGuns
 
                         if(col.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier eidID))
                         {
-                            if (!hitEnemies.Contains(eidID.eid))
+                            if (!hitEnemies.Contains(eidID.eid) && !eidID.eid.dead)
                             {
                                 float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
                                 float damageAmount = (eidID.eid == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
@@ -185,7 +197,7 @@ namespace UltraFunGuns
 
                         if (col.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
                         {
-                            if (!hitEnemies.Contains(enemy))
+                            if (!hitEnemies.Contains(enemy) && !enemy.dead)
                             {
                                 float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
                                 float damageAmount = (enemy == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff; 
@@ -202,7 +214,7 @@ namespace UltraFunGuns
 
                         if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
                         {
-                            float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                            float damageFalloff = Mathf.InverseLerp(explosionRadius*4, 0.0f, distance);
 
                             Vector3 playerPos = player.transform.position;
                             playerPos.y += 1.25f;
@@ -229,7 +241,7 @@ namespace UltraFunGuns
                             if (!hitRb.isKinematic && applyForce)
                             {
                                 float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
-                                hitRb.AddExplosionForce(explosionDamage * 50  * damageFalloff, transform.position, explosionRadius);
+                                hitRb.AddExplosionForce((explosionDamage * 50  * damageFalloff)*rigidbodyForceMultiplier, transform.position, explosionRadius);
                             }
 
                         }
@@ -252,6 +264,8 @@ namespace UltraFunGuns
             if(rb)
             {
                 rb.isKinematic = true;
+                rb.detectCollisions = false;
+                rb.GetComponent<Collider>().enabled = false;
             }
             transform.parent = newParent;
             transform.forward = normal;
@@ -266,8 +280,6 @@ namespace UltraFunGuns
 
             switch(thing.layer)
             {
-                case 2:
-                    return true;
                 case 8:
                     return true;
                 case 10:
