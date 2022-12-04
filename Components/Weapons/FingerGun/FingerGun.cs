@@ -42,7 +42,6 @@ namespace UltraFunGuns
         public float hitRayWidth = 0.5f;
         private float maxRange = 350.0f;
 
-        private AudioSource bang, readyClick, reload, kabooma;
         private Text ammoCounter;
 
         public override void OnAwakeFinished()
@@ -50,10 +49,7 @@ namespace UltraFunGuns
             weaponIcon.variationColor = 1;
             HydraLoader.prefabRegistry.TryGetValue("BulletPierceTrail", out bulletTrailPrefab);
             HydraLoader.prefabRegistry.TryGetValue("FingerGun_ImpactExplosion", out hitExplodeFX);
-            bang = transform.Find("Audios/BangSound").GetComponent<AudioSource>();
-            readyClick = transform.Find("Audios/GunReady").GetComponent<AudioSource>();
-            reload = transform.Find("Audios/Reload").GetComponent<AudioSource>();
-            kabooma = transform.Find("Audios/Kabooma").GetComponent<AudioSource>();
+            AddSFX("BangSound", "GunReady", "Reload", "Kabooma");
             ammoCounter = transform.GetComponentInChildren<Text>();
 
         }
@@ -81,8 +77,9 @@ namespace UltraFunGuns
         {
             shooting = true;
             animator.Play("Shoot", 0, 0.0f);
-            bang.pitch = UnityEngine.Random.Range(0.85f, 1.0f);
-            bang.Play();
+            //bang.pitch = UnityEngine.Random.Range(0.85f, 1.0f); TODO
+            //bang.Play();
+            PlaySFX("Bang", 0.85f, 1.0f);
             --CurrentAmmo;
 
             Ray direction = new Ray();
@@ -231,7 +228,8 @@ namespace UltraFunGuns
 
             if (hitEnemies.Count > penetrations)
             {
-                kabooma.Play();
+                //kabooma.Play(); TODO
+                PlaySFX("Kabooma");
                 MonoSingleton<TimeController>.Instance.HitStop(0.10f);
                 MonoSingleton<StyleHUD>.Instance.AddPoints(250, "hydraxous.ultrafunguns.fingergunfullpenetrate", this.gameObject, null);
             }
@@ -241,8 +239,9 @@ namespace UltraFunGuns
             }
 
             yield return new WaitForSeconds(0.36f);
-            readyClick.pitch = UnityEngine.Random.Range(0.95f, 1.0f);
-            readyClick.Play();
+            //readyClick.pitch = UnityEngine.Random.Range(0.95f, 1.0f); TODO
+            //readyClick.Play();
+            PlaySFX("GunReady", 0.95f, 1.0f);
             shooting = false;
         }
 
@@ -251,8 +250,9 @@ namespace UltraFunGuns
             reloading = true;
             animator.Play("Reload");
             yield return new WaitForSeconds(0.4f);
-            reload.pitch = UnityEngine.Random.Range(0.85f, 1.0f);
-            reload.Play();
+            //reload.pitch = UnityEngine.Random.Range(0.85f, 1.0f);
+            //reload.Play(); TODO
+            PlaySFX("Reload", 0.85f, 1.0f);
             CurrentAmmo = maxAmmo;
             yield return new WaitForSeconds(0.66f);
             reloading = false;
