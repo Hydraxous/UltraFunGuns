@@ -1,7 +1,4 @@
-﻿using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Text;
@@ -9,14 +6,15 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using Newtonsoft.Json.Linq;
 using UltraFunGuns.Properties;
+using UMM;
 using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8")]
-    public class UltraFunGuns : BaseUnityPlugin
+    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "SET THIS HYDRA", false, false)]
+    public class UltraFunGuns : UKMod
     {
-        
+
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
 
@@ -32,8 +30,9 @@ namespace UltraFunGuns
             {
                 CheckVersion();
                 DoPatching();
-                Logger.LogInfo("UltraFunGuns Loaded.");
-            }else
+                Debug.Log("UltraFunGuns Loaded.");
+            }
+            else
             {
                 this.enabled = false;
             }
@@ -49,7 +48,7 @@ namespace UltraFunGuns
             if (invControllerDeployer == null)
             {
                 CanvasController canvas = MonoSingleton<CanvasController>.Instance;
-                if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
+                if (!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
                 {
                     usedWeapons = false;
                     invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
@@ -57,20 +56,16 @@ namespace UltraFunGuns
 
             }
 
-            if(gunPatch == null)
+            if (gunPatch == null)
             {
                 GunControl gc = MonoSingleton<GunControl>.Instance;
                 if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
                 {
                     usedWeapons = false;
                     gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
-                    gunPatch.Slot7Key = SLOT_7_KEY.Value;
-                    gunPatch.Slot8Key = SLOT_8_KEY.Value;
-                    gunPatch.Slot9Key = SLOT_9_KEY.Value;
-                    gunPatch.Slot10Key = SLOT_10_KEY.Value;
                 }
             }
-            
+
         }
 
         public static bool InLevel()
@@ -148,7 +143,7 @@ namespace UltraFunGuns
             #region Standard
             //Focalyzer
             new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon(), new WeaponIdentifier() });
-            new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() }); 
+            new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() });
             new HydraLoader.CustomAssetPrefab("FocalyzerLaser", new Component[] { new FocalyzerLaserController() });
             //Icons
             new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
@@ -167,7 +162,7 @@ namespace UltraFunGuns
 
             #region TrickSniper
             //Tricksniper
-            new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier()});
+            new HydraLoader.CustomAssetPrefab("Tricksniper", new Component[] { new Tricksniper(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("BulletTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("BulletPierceTrail", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("TricksniperMuzzleFX", new Component[] { new DestroyAfterTime() });
@@ -181,7 +176,7 @@ namespace UltraFunGuns
             #region handgun
             //Fingerguns
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
-            new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun() , new WeaponIcon(), new WeaponIdentifier()});
+            new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun(), new WeaponIcon(), new WeaponIdentifier() });
             //Icon
             new HydraLoader.CustomAssetData("FingerGun_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("FingerGun_glowIcon", typeof(Sprite));
@@ -195,12 +190,12 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("CanLauncher", new Component[] { new CanLauncher(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile", new Component[] { new CanProjectile() });
             new HydraLoader.CustomAssetPrefab("CanLauncher_CanExplosion", new Component[] { new CanExplosion(), new DestroyAfterTime() });
-            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile_BounceFX", new Component[] { new DestroyAfterTime(), new AlwaysLookAtCamera() { useXAxis=true, useYAxis=true, useZAxis=true} });
-            
+            new HydraLoader.CustomAssetPrefab("CanLauncher_CanProjectile_BounceFX", new Component[] { new DestroyAfterTime(), new AlwaysLookAtCamera() { useXAxis = true, useYAxis = true, useZAxis = true } });
+
             //Can Materials
-            for(int i = 0;i<10;i++)
+            for (int i = 0; i < 10; i++)
             {
-                new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}",i), typeof(Material));
+                new HydraLoader.CustomAssetData(string.Format("CanLauncher_CanProjectile_Material_{0}", i), typeof(Material));
             }
             #endregion
 
@@ -231,41 +226,29 @@ namespace UltraFunGuns
         {
             try
             {
-                if(!InLevel())
+                if (!InLevel())
                 {
                     usedWeapons = false;
                 }
                 CheckWeapons();
                 UpdateMajorAssistUsage();
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
 
             }
-            
+
         }
-
-        public static ConfigEntry<bool> USE_BASKETBALL_TEXTURE;
-        public static ConfigEntry<KeyCode> SLOT_7_KEY;
-        public static ConfigEntry<KeyCode> SLOT_8_KEY;
-        public static ConfigEntry<KeyCode> SLOT_9_KEY;
-        public static ConfigEntry<KeyCode> SLOT_10_KEY;
-        public static ConfigEntry<KeyCode> INVENTORY_KEY;
-
 
         private void BindConfigs()
         {
-            USE_BASKETBALL_TEXTURE = Config.Bind("MISC", "USE_BASKETBALL_TEXTURE", false, "Setting to true will replace the dodgeball weapon texture to be a basketball. This was highly requested...");
-            SLOT_7_KEY = Config.Bind("BINDINGS", "SLOT_7_KEY", KeyCode.Alpha7, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
-            SLOT_8_KEY = Config.Bind("BINDINGS", "SLOT_8_KEY", KeyCode.Alpha8, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
-            SLOT_9_KEY = Config.Bind("BINDINGS", "SLOT_9_KEY", KeyCode.Alpha9, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
-            SLOT_10_KEY = Config.Bind("BINDINGS", "SLOT_10_KEY", KeyCode.Alpha0, "Keybind for a weapon slot, do not bind to existing binds in the vanilla game.");
-            INVENTORY_KEY = Config.Bind("BINDINGS", "INVENTORY_KEY", KeyCode.I, "Keybind to open the inventory directly.");
+            if (PersistentModDataExists("USE_BASKETBALL_TEXTURE"))
+                Dodgeball.USE_BASKETBALL_TEXTURE = RetrieveBooleanPersistentModData("USE_BASKETBALL_TEXTURE");
         }
 
         public void SaveConfig()
         {
-            Config.Save();
+            SetPersistentModData("USE_BASKETBALL_TEXTURE", Dodgeball.USE_BASKETBALL_TEXTURE.ToString());
         }
 
         private void CheckVersion()
@@ -287,24 +270,24 @@ namespace UltraFunGuns
                     {
                         latestVersion = JArray.Parse(page)[0].Value<string>("name");
                         usingLatestVersion = (latestVersion == version);
-                        if(usingLatestVersion)
+                        if (usingLatestVersion)
                         {
-                            Logger.LogInfo(string.Format("You are using the latest version of UFG: {0}", latestVersion));
+                            Debug.Log(string.Format("You are using the latest version of UFG: {0}", latestVersion));
                         }
                         else
                         {
-                            Logger.LogInfo(string.Format("New version of UFG available: {0}. Please consider updating.", latestVersion));
+                            Debug.Log(string.Format("New version of UFG available: {0}. Please consider updating.", latestVersion));
                         }
                     }
                     catch (System.Exception e)
                     {
                         usingLatestVersion = true;
-                        Logger.LogInfo(string.Format("Error getting version info. Current Version: {0}", version));
+                        Debug.Log(string.Format("Error getting version info. Current Version: {0}", version));
                     }
-                    
+
                 }
             }
         }
     }
-    
+
 }

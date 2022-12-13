@@ -11,6 +11,7 @@ namespace UltraFunGuns
     //TODO add parry to make the thing home to an enemy.
     public class Dodgeball : UltraFunGunBase
     {
+        public static bool USE_BASKETBALL_TEXTURE;
         ActionCooldown pullCooldown = new ActionCooldown(0.25f);//TODO check this
 
         public ThrownDodgeball activeDodgeball;
@@ -43,7 +44,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            basketBallMode = UltraFunGuns.USE_BASKETBALL_TEXTURE.Value;
+            basketBallMode = USE_BASKETBALL_TEXTURE;
             HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
             basketballSkin = (Material) obj;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
@@ -121,7 +122,7 @@ namespace UltraFunGuns
                 transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
                 thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
             }
-            UltraFunGuns.USE_BASKETBALL_TEXTURE.Value = !standard;
+            USE_BASKETBALL_TEXTURE = !standard;
             GameObject.FindObjectOfType<UltraFunGuns>().SaveConfig();
         }
 
