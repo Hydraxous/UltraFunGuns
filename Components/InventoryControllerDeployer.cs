@@ -20,7 +20,7 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("UFG Inventory Key", KeyCode.I);
+        private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("<color=orange>UFG</color> Inventory", KeyCode.I);
 
         private bool sentVersionMessage = false, displayingHelpMessage = false;
 
@@ -39,7 +39,7 @@ namespace UltraFunGuns
 
             configHelpMessage = invController.transform.Find("ConfigMessage");
             versionHelpMessage = invController.transform.Find("VersionMessage");
-            versionHelpMessage.GetComponentInChildren<Text>().text = string.Format(versionHelpMessage.GetComponentInChildren<Text>().text, UltraFunGuns.latestVersion);
+            versionHelpMessage.GetComponentInChildren<Text>().text = string.Format(versionHelpMessage.GetComponentInChildren<Text>().text, UltraFunGuns.LatestVersion);
 
             configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
             configHelpButton.onClick.AddListener(SendConfigHelpMessage);
@@ -54,7 +54,7 @@ namespace UltraFunGuns
                     if (inventoryManagerOpen)
                     {
                         invController.gameObject.SetActive(true);
-                        if(!UltraFunGuns.usingLatestVersion)
+                        if(!UltraFunGuns.UsingLatestVersion)
                         {
                             SendVersionHelpMessage();
                         }
@@ -73,7 +73,7 @@ namespace UltraFunGuns
                 {
                     if(invController.data.firstTimeModLoaded)
                     {
-                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.ToString()), "", "", 2);
+                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.keyBind.ToString()), "", "", 2);//TODO
                         invController.data.firstTimeModLoaded = false;
                     }
 
@@ -88,6 +88,7 @@ namespace UltraFunGuns
                 
                 if(inventoryKey.WasPerformedThisFrameInScene)
                 {
+                    invController.RefreshSlotKeyDisplays();
                     OpenInventory();
                 }
             }

@@ -66,7 +66,7 @@ namespace UltraFunGuns
                     loadoutData = reader.ReadToEnd();
                 }
                 inventory = JsonConvert.DeserializeObject<InventoryControllerData>(loadoutData);
-                if(inventory.modVersion != UltraFunGuns.version)
+                if(inventory.modVersion != UltraFunGuns.Version)
                 {
                     Console.WriteLine("UFG: Inventory data found is for a different version of UFG, rebuilding.");
                     FirstTimeLoad();
@@ -103,7 +103,7 @@ namespace UltraFunGuns
 
             if (weaponsInUse)
             {
-                UltraFunGuns.usedWeapons = true;
+                UltraFunGuns.UsedWeapons = true;
             }
         }
 
@@ -138,7 +138,7 @@ namespace UltraFunGuns
             slot4.Add(new InventoryNodeData("RemoteBomb", true, 1));
     
             List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
-            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.version, true, true);
+            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.Version, true, true);
             SaveInventoryData(defaultData);
         }
     }

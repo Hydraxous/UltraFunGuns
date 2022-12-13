@@ -94,6 +94,20 @@ namespace UltraFunGuns
                 actionCooldowns["secondaryFire"].AddCooldown();
                 FireSecondary();
             }
+
+            if(UFGWeaponManager.SecretButton.WasPerformedThisFrame)
+            {
+                DoSecret();
+            }
+
+            if(Input.GetKeyDown(KeyCode.Equals))
+            {
+                if(UltraFunGuns.DebugMode)
+                {
+                    DebugAction();
+                }
+            }
+
         }
 
         //Implement the cooldowns here.
@@ -115,6 +129,16 @@ namespace UltraFunGuns
             Debug.Log("Fired Secondary! (not implemented)");
         }
         
+        public virtual void DoSecret()
+        {
+            Debug.Log("Used Secret! (not implemented)");
+        }
+
+        public virtual void DebugAction()
+        {
+            Debug.Log("Used Debug Action! (not implemented)");
+        }
+
         //Adds sound effect to dict
         private bool AddSFX(string clipName)
         { 
