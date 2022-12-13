@@ -58,8 +58,7 @@ namespace UltraFunGuns
 
         //press fire1 to throw, hold it to charge, hold right click to recall ball towards you.
         public override void GetInput()
-        {
-           
+        {   
             if (!om.paused)
             {
                 //primary Charge input
@@ -98,6 +97,12 @@ namespace UltraFunGuns
                     catcherCollider.SetActive(false);
                 }
 
+
+                if(UFGWeaponManager.SecretButton.WasPerformedThisFrame)
+                {
+                    DoSecret();
+                }
+
                 /*
                 if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
                 {
@@ -105,13 +110,13 @@ namespace UltraFunGuns
                 }
                 */
 
-                if(Input.GetKeyDown(KeyCode.K))
-                {
-                    basketBallMode = !basketBallMode;
-                    SetSkin(basketBallMode);
-                }
-
             }
+        }
+
+        public override void DoSecret()
+        {
+            basketBallMode = !basketBallMode;
+            SetSkin(basketBallMode);
         }
 
         private void SetSkin(bool standard)

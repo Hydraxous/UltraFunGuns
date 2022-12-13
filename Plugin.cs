@@ -11,18 +11,19 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "SET THIS HYDRA", false, false)]
+    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "Goofy weapons mod", false, false)]
     public class UltraFunGuns : UKMod
     {
-
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
 
-        public static bool usingLatestVersion = true;
-        public static bool usedWeapons = true;
-        public static string version = "1.1.8-Experimental";
-        public static string latestVersion = "UNKNOWN";
+        public static bool UsingLatestVersion = true;
+        public static bool UsedWeapons = true;
+        public static string Version = "1.1.8-Experimental";
+        public static string LatestVersion = "UNKNOWN";
+        public static bool DebugMode = true;
         private static string githubURL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
+
 
         private void Awake()
         {
@@ -50,7 +51,7 @@ namespace UltraFunGuns
                 CanvasController canvas = MonoSingleton<CanvasController>.Instance;
                 if (!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
                 {
-                    usedWeapons = false;
+                    UsedWeapons = false;
                     invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
                 }
 
@@ -61,7 +62,7 @@ namespace UltraFunGuns
                 GunControl gc = MonoSingleton<GunControl>.Instance;
                 if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
                 {
-                    usedWeapons = false;
+                    UsedWeapons = false;
                     gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
                 }
             }
@@ -210,32 +211,19 @@ namespace UltraFunGuns
             return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
         }
 
-        //Turns on major assists if weapons are used.
-        private static void UpdateMajorAssistUsage()
-        {
-            if (MonoSingleton<StatsManager>.Instance != null)
-            {
-                if (!MonoSingleton<StatsManager>.Instance.majorUsed)
-                {
-                    MonoSingleton<StatsManager>.Instance.majorUsed = usedWeapons;
-                }
-            }
-        }
-
         private void Update()
         {
             try
             {
                 if (!InLevel())
                 {
-                    usedWeapons = false;
+                    UsedWeapons = false;
                 }
                 CheckWeapons();
-                UpdateMajorAssistUsage();
             }
             catch (System.Exception e)
             {
-
+                //Not sure why but there is a huge string of errors when the game is starting. So this is blank for that reason.
             }
 
         }
@@ -268,21 +256,21 @@ namespace UltraFunGuns
                     string page = webRequest.downloadHandler.text;
                     try
                     {
-                        latestVersion = JArray.Parse(page)[0].Value<string>("name");
-                        usingLatestVersion = (latestVersion == version);
-                        if (usingLatestVersion)
+                        LatestVersion = JArray.Parse(page)[0].Value<string>("name");
+                        UsingLatestVersion = (LatestVersion == Version);
+                        if (UsingLatestVersion)
                         {
-                            Debug.Log(string.Format("You are using the latest version of UFG: {0}", latestVersion));
+                            Debug.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion));
                         }
                         else
                         {
-                            Debug.Log(string.Format("New version of UFG available: {0}. Please consider updating.", latestVersion));
+                            Debug.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion));
                         }
                     }
                     catch (System.Exception e)
                     {
-                        usingLatestVersion = true;
-                        Debug.Log(string.Format("Error getting version info. Current Version: {0}", version));
+                        UsingLatestVersion = true;
+                        Debug.Log(string.Format("Error getting version info. Current Version: {0}", Version));
                     }
 
                 }
