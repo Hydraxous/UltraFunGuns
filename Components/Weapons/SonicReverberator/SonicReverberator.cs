@@ -199,42 +199,22 @@ namespace UltraFunGuns
             BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
             BOOM.power = chargeLevel;
             BOOM.powerState = chargeState;
+     
+            VineBoom(); // does the thing
 
-            Vector3 blastOrigin = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset + (chargeLevel * 0.1f))); //Origin of the blast basically next to the camera
-            Vector3 blastEye = mainCam.transform.TransformPoint(new Vector3(0, 0, (chargeState * blastOriginZOffset) + chargeLevel)); //End of the blast zone scales with charge
-            Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset)); //Player Vision vector based on camera
+            float currentAngle = Mathf.Clamp(chargeLevel, minTargetAngle, maxTargetAngle);
 
-            VineBoom(); // :)
-            MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
-            MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
+            List<TargetObject> targets = new List<TargetObject>();
 
-            RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier), visionVector);
-            foreach (RaycastHit hit in hits)
+            GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
+            targets = HydraUtils.GetTargetsFromGameObjects(enemyObjectsActive);
+
+            //MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
+            //MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
+            //TODO restore old code. operate fine
+            for(int i = 0; i < targets.Count; i++)
             {
-                if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
-                {
-                    if (hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
-                    {
-                        dodgeBall.ExciteBall(chargeState);
-                    }
-
-                    if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-                    {
-                        EffectEnemy(enemy, blastOrigin);
-                    }
-                    else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
-                    {
-                        glass.Shatter();
-                    }
-                    else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
-                    {
-                        breakable.Break();
-                    }
-                    else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
-                    {
-                        EffectEnemy(bruh.eid, blastOrigin);
-                    }
-                }
+                EffectTarget(targets[i], currentAngle);
             }
 
             KnockbackPlayer();

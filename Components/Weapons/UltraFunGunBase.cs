@@ -9,7 +9,7 @@ namespace UltraFunGuns
     public abstract class UltraFunGunBase : MonoBehaviour
     {
         public Dictionary<string, ActionCooldown> actionCooldowns;
-        public Dictionary<string, AudioSource> soundEffects;
+        public Dictionary<string, AudioSource> soundEffects = new Dictionary<string, AudioSource>();
 
         public Transform mainCam, firePoint;
         public OptionsManager om;
@@ -43,13 +43,19 @@ namespace UltraFunGuns
                 }
             }
 
+            if(firePoint == null)
+            {
+                firePoint = mainCam;
+                Debug.Log("FirePoint setup incorrectly for weapon: " + gameObject.name);
+            }
+
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", registryName), out UnityEngine.Object weapon_weaponIcon);
             weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
 
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", registryName), out UnityEngine.Object weapon_glowIcon);
             weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
 
-            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now.
+            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now. UPDATE: why did I write this.
 
             if (weaponIcon.weaponIcon == null)
             {
@@ -88,6 +94,20 @@ namespace UltraFunGuns
                 actionCooldowns["secondaryFire"].AddCooldown();
                 FireSecondary();
             }
+
+            if(UFGWeaponManager.SecretButton.WasPerformedThisFrame)
+            {
+                DoSecret();
+            }
+
+            if(Input.GetKeyDown(KeyCode.Equals))
+            {
+                if(UltraFunGuns.DebugMode)
+                {
+                    DebugAction();
+                }
+            }
+
         }
 
         //Implement the cooldowns here.
@@ -107,6 +127,76 @@ namespace UltraFunGuns
         public virtual void FireSecondary()
         {
             Debug.Log("Fired Secondary! (not implemented)");
+        }
+        
+        public virtual void DoSecret()
+        {
+            Debug.Log("Used Secret! (not implemented)");
+        }
+
+        public virtual void DebugAction()
+        {
+            Debug.Log("Used Debug Action! (not implemented)");
+        }
+
+        //Adds sound effect to dict
+        private bool AddSFX(string clipName)
+        { 
+            Transform audioSourceObject = transform.Find(string.Format("Audios/{0}", clipName));
+
+            if(audioSourceObject == null)
+            {
+                Debug.LogError(string.Format("UFG: {0} is missing AudioSource Object: {1}", gameObject.name, clipName));
+                return false;
+            }else
+            {
+                if(!audioSourceObject.TryGetComponent<AudioSource>(out AudioSource newAudioSrc))
+                {
+                    Debug.LogError(string.Format("UFG: {0} is missing AudioSource Component: {1}", gameObject.name, clipName));
+                    return false;
+                }
+
+                if(soundEffects.ContainsKey(name))
+                {
+                    Debug.LogWarning(string.Format("UFG: {0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName));
+                    return false;
+                }
+
+                soundEffects.Add(clipName, newAudioSrc);
+                return true;
+            }
+        }
+
+        protected void AddSFX(params string[] names)
+        {
+            int counter = 0;
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                if(AddSFX(names[i]))
+                {
+                    ++counter;
+                }
+            }
+
+            Debug.Log(string.Format("UFG: {0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
+        }
+
+        protected void PlaySFX(string name, float minPitch = 1.0f, float maxPitch = 1.0f)
+        {
+            if(!soundEffects.ContainsKey(name))
+            {
+                Debug.LogError(string.Format("UFG: {0}: sound effect: {1} not present in dictionary.", gameObject.name, name));
+                return;
+            }
+
+            if(minPitch != 1.0f || maxPitch != 1.0f)
+            {
+                soundEffects[name].pitch = UnityEngine.Random.Range(minPitch, maxPitch);
+            }
+
+            soundEffects[name].Play();
+
         }
 
         public class ActionCooldown

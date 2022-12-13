@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using UMM;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ namespace UltraFunGuns
     {
 
         RectTransform canvas;
-        Transform configHelpMessage;
+        Transform configHelpMessage, versionHelpMessage;
         OptionsManager om;
         InventoryController invController;
         Button invControllerButton, configHelpButton;
@@ -19,14 +20,12 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private KeyCode inventoryKey;
+        private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("<color=orange>UFG</color> Inventory", KeyCode.I);
 
-        private bool sentBindingMessage = false;
+        private bool sentVersionMessage = false, displayingHelpMessage = false;
 
         private void Awake()
         {
-            
-            inventoryKey = UltraFunGuns.INVENTORY_KEY.Value;
             om = MonoSingleton<OptionsManager>.Instance;
             canvas = GetComponent<RectTransform>();
             pauseMenu = transform.Find("PauseMenu").gameObject;
@@ -39,6 +38,8 @@ namespace UltraFunGuns
             invControllerButton.gameObject.SetActive(false);
 
             configHelpMessage = invController.transform.Find("ConfigMessage");
+            versionHelpMessage = invController.transform.Find("VersionMessage");
+            versionHelpMessage.GetComponentInChildren<Text>().text = string.Format(versionHelpMessage.GetComponentInChildren<Text>().text, UltraFunGuns.LatestVersion);
 
             configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
             configHelpButton.onClick.AddListener(SendConfigHelpMessage);
@@ -47,20 +48,24 @@ namespace UltraFunGuns
         private void Update()
         {
             if (UltraFunGuns.InLevel())
-            {
-                
+            { 
                 if (om.paused)
                 {
                     if (inventoryManagerOpen)
                     {
                         invController.gameObject.SetActive(true);
+                        if(!UltraFunGuns.UsingLatestVersion)
+                        {
+                            SendVersionHelpMessage();
+                        }
                     }
                     else
                     {
                         invController.gameObject.SetActive(false);
                         invControllerButton.gameObject.SetActive(true);
                         configHelpMessage.gameObject.SetActive(false);
-                        sentBindingMessage = false;
+                        versionHelpMessage.gameObject.SetActive(false);
+                        displayingHelpMessage = false;
                     }
 
                 }
@@ -68,7 +73,7 @@ namespace UltraFunGuns
                 {
                     if(invController.data.firstTimeModLoaded)
                     {
-                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.ToString()), "", "", 2);
+                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.keyBind.ToString()), "", "", 2);//TODO
                         invController.data.firstTimeModLoaded = false;
                     }
 
@@ -81,8 +86,9 @@ namespace UltraFunGuns
                     invControllerButton.gameObject.SetActive(false);
                 }
                 
-                if(Input.GetKeyDown(inventoryKey) && !om.paused)
+                if(inventoryKey.WasPerformedThisFrameInScene)
                 {
+                    invController.RefreshSlotKeyDisplays();
                     OpenInventory();
                 }
             }
@@ -112,19 +118,33 @@ namespace UltraFunGuns
 
         public void SendConfigHelpMessage()
         {
-            if(!sentBindingMessage && om.paused)
+            if(om.paused && !displayingHelpMessage)
             {
-                StartCoroutine(DisplayMessage());
+                StartCoroutine(DisplayHelpMessage(configHelpMessage));
             }
         }
 
-        IEnumerator DisplayMessage()
+        public void SendVersionHelpMessage()
         {
-            sentBindingMessage = true;
-            configHelpMessage.gameObject.SetActive(true);
-            yield return new WaitForSeconds(4.0f);
-            configHelpMessage.gameObject.SetActive(false);
-            sentBindingMessage = false;
+            if (!sentVersionMessage && om.paused && !displayingHelpMessage)
+            {
+                sentVersionMessage = true;
+                StartCoroutine(DisplayHelpMessage(versionHelpMessage));
+            }
+        }
+
+        private IEnumerator DisplayHelpMessage(Transform message)
+        {
+            float timer = 4.0f;
+            displayingHelpMessage = true;
+            message.gameObject.SetActive(true);
+            while (timer > 0.0f)
+            {
+                timer -= Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+            message.gameObject.SetActive(false);
+            displayingHelpMessage = false;
         }
 
     }

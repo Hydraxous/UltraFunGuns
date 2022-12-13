@@ -13,7 +13,8 @@ namespace UltraFunGuns
         private OptionsManager om;
 
         private static int maxSlots = 4; //Hardcoded for now.
-        List<InventorySlot> slots = new List<InventorySlot>();
+        private List<InventorySlot> slots = new List<InventorySlot>();
+        private List<Text> slotKeyNames = new List<Text>();
         GunControl gc;
         public InventoryControllerData data;
 
@@ -49,13 +50,21 @@ namespace UltraFunGuns
             List<Text> slotNameTexts = new List<Text>();
             for(int i = 0; i < slots.Count; i++)
             {
-                slotNameTexts.Add(transform.Find(String.Format("MenuBorder/SlotNames/Slot{0}Name", i)).GetComponent<Text>());
-                
+                slotKeyNames.Add(transform.Find(String.Format("MenuBorder/SlotNames/Slot{0}Name", i)).GetComponent<Text>());
             }
-            slotNameTexts[0].text = slotNameTexts[0].text.Replace("KEY", UltraFunGuns.SLOT_7_KEY.Value.ToString());
-            slotNameTexts[1].text = slotNameTexts[1].text.Replace("KEY", UltraFunGuns.SLOT_8_KEY.Value.ToString());
-            slotNameTexts[2].text = slotNameTexts[2].text.Replace("KEY", UltraFunGuns.SLOT_9_KEY.Value.ToString());
-            slotNameTexts[3].text = slotNameTexts[3].text.Replace("KEY", UltraFunGuns.SLOT_10_KEY.Value.ToString());
+
+            RefreshSlotKeyDisplays();
+        }
+
+        public void RefreshSlotKeyDisplays()
+        {
+            if(slotKeyNames.Count > 0)
+            {
+                for (int i=0; i<slotKeyNames.Count; i++)
+                {
+                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", UFGWeaponManager.SlotOffset+i, UFGWeaponManager.UFGSlotKeys[i].keyBind.ToString());
+                }
+            }
         }
 
         public void ButtonPressed(InventoryNode node, InventorySlot slot, string buttonPressed)

@@ -1,0 +1,333 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections;
+using UnityEngine;
+
+namespace UltraFunGuns
+{
+    public class RemoteBombExplosive : MonoBehaviour
+    {
+        private GameObject explosionPrefab;
+
+        private RemoteBomb weapon;
+        private NewMovement player;
+        private EnemyIdentifier stuckTarget;
+        private Rigidbody rb;
+        private Renderer indicatorLight;
+
+        public float armTime = 0.05f;
+        public float blinkInterval = 0.75f;
+        public float blinkTime = 0.05f;
+        public float parryForce = 150.0f;
+        public float playerKnockbackMultiplier = 70.0f;
+        public float rigidbodyForceMultiplier = 70.0f;
+        public float explosionRadius = 6f;
+        public float explosionDamage = 1.6f;
+        public float explosionChainDelay = 0.5f;
+
+        public float stuckDamageMultiplier = 1.5f;
+        public float stickDamage = 0.05f;
+
+        private bool thrown = false;
+        private bool armed = false;
+        private bool landed = false;
+        private bool alive = true;
+
+        private bool pushedPlayer = false;
+
+        private AudioSource AC_armingBeep, AC_ambientBeep;
+
+        private void Awake()
+        {
+            HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive_Explosion", out explosionPrefab);
+            rb = GetComponent<Rigidbody>();
+            indicatorLight = transform.Find("BombMesh/Blinker").GetComponent<Renderer>();
+            AC_armingBeep = transform.Find("Audios/Arm_Beep").GetComponent<AudioSource>();
+            AC_ambientBeep = transform.Find("Audios/Beep").GetComponent<AudioSource>();
+        }
+
+        public void Initiate(RemoteBomb remoteBomb, NewMovement newMovement)
+        {
+            this.weapon = remoteBomb;
+            this.player = newMovement;
+            Thrown();
+        }
+
+        private void Update()
+        {
+            if(alive && thrown)
+            {
+                if(weapon == null)
+                {
+                    Detonate(true);
+                }
+            }
+        }
+
+        public void SetVelocity(Vector3 newVelocity)
+        {
+            if (rb)
+            {
+                rb.velocity = newVelocity;
+            }
+        }
+
+        public bool Parriable()
+        {
+            return (!landed && !armed);
+        }
+
+        public void Parry(Vector3 direction)
+        {
+            Arm();
+            SetVelocity(direction.normalized * parryForce);
+        }
+
+        private void Thrown()
+        {
+            thrown = true;
+            StartCoroutine(ArmExplosive());
+            StartCoroutine(DoIndicator());
+        }
+
+        private IEnumerator ArmExplosive()
+        {
+            float timer = armTime;
+            while(timer > 0.0f && !armed)
+            {
+                timer -= Time.deltaTime;
+                yield return new WaitForEndOfFrame();
+            }
+            Arm();
+        }
+
+        private IEnumerator DoIndicator()
+        {
+            if(indicatorLight != null)
+            {
+                while (alive)
+                {
+                    if (!armed)
+                    {
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.green);
+                        yield return new WaitForEndOfFrame();
+                    }
+                    else
+                    {
+                        float timer = blinkInterval;
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.black);
+
+                        while (timer > 0.0f)
+                        {
+                            timer -= Time.deltaTime;
+                            yield return new WaitForEndOfFrame();
+                        }
+
+                        timer = blinkTime;
+                        indicatorLight.material.SetColor("_EmissiveColor", Color.red);
+                        AC_ambientBeep.Play();
+
+                        while (timer > 0.0f)
+                        {
+                            timer -= Time.deltaTime;
+                            yield return new WaitForEndOfFrame();
+                        }
+                    }
+                }
+            }   
+        }
+
+        public bool CanDetonate()
+        {
+            return armed && alive;
+        }
+
+        public bool Detonate(bool force = false)
+        {
+            if((force || armed) && alive)
+            {
+                alive = false;
+                GameObject newBoom = Instantiate<GameObject>(explosionPrefab, transform.position, Quaternion.identity);
+                newBoom.transform.up = transform.forward;
+                weapon.BombDetonated(this);
+
+                DoExplosion();
+
+                Destroy(gameObject);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void Arm()
+        {
+            armed = true;
+            AC_armingBeep.Play();
+        }
+
+        private void DoExplosion()
+        {
+            List<EnemyIdentifier> hitEnemies = new List<EnemyIdentifier>();
+
+            Rigidbody playerRB = null;
+
+            Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Limb", "Projectile", "BigCorpse", "Armor", "Default", "Ignore Raycast"));
+            if (colliders != null)
+            {
+                foreach (Collider col in colliders)
+                {
+                    if(col.tag != "Floor")
+                    {
+                        Vector3 hitPoint = col.ClosestPoint(transform.position);
+                        Vector3 hitDirection = hitPoint - transform.position;
+
+                        float distance = hitDirection.magnitude;
+
+                        if(col.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier eidID))
+                        {
+                            if (!hitEnemies.Contains(eidID.eid) && !eidID.eid.dead)
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                float damageAmount = (eidID.eid == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
+                                eidID.eid.DeliverDamage(eidID.eid.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                                hitEnemies.Add(eidID.eid);
+                            }
+                        }
+
+                        if (col.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+                        {
+                            if (!hitEnemies.Contains(enemy) && !enemy.dead)
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                float damageAmount = (enemy == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff; 
+                                enemy.DeliverDamage(enemy.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                                hitEnemies.Add(enemy);
+                            }
+                        }
+
+                        if (col.TryGetComponent<RemoteBombExplosive>(out RemoteBombExplosive remoteBombExplosive))
+                        { 
+                            float rangeDelay = Mathf.InverseLerp(0.0f, explosionRadius, distance);
+                            remoteBombExplosive.Invoke("Detonate", explosionChainDelay * rangeDelay);
+                        }
+
+                        if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
+                        {
+                            float damageFalloff = Mathf.InverseLerp(explosionRadius*4, 0.0f, distance);
+
+                            Vector3 playerPos = player.transform.position;
+                            playerPos.y += 1.25f;
+
+                            Vector3 pushDir = playerPos - transform.position;
+                            playerRB = player.rb;
+
+                            playerRB.velocity += (pushDir.normalized * (explosionDamage * damageFalloff)) * playerKnockbackMultiplier;
+                            pushedPlayer = true;
+                        }
+
+                        if (col.TryGetComponent<Rigidbody>(out Rigidbody hitRb))
+                        {
+                            bool applyForce = true;
+
+                            if(playerRB != null)
+                            {
+                                if(hitRb == playerRB)
+                                {
+                                    applyForce = false;
+                                }
+                            }
+
+                            if (!hitRb.isKinematic && applyForce)
+                            {
+                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                                hitRb.AddExplosionForce((explosionDamage * 50  * damageFalloff)*rigidbodyForceMultiplier, transform.position, explosionRadius);
+                            }
+
+                        }
+                    }                
+                }
+            }
+        }
+
+
+        private void StickToEnemy(Transform newParent, EnemyIdentifier enemy, Vector3 normal)
+        {
+            stuckTarget = enemy;
+            enemy.DeliverDamage(enemy.gameObject, -normal, transform.position, stickDamage, false, 0, weapon.gameObject);
+            StickToThing(newParent, normal);
+        }
+
+        private void StickToThing(Transform newParent, Vector3 normal)
+        {
+            landed = true;
+            if(rb)
+            {
+                rb.isKinematic = true;
+                rb.detectCollisions = false;
+                rb.GetComponent<Collider>().enabled = false;
+            }
+            transform.parent = newParent;
+            transform.forward = normal;
+        }
+
+        private bool CanStickToThing(GameObject thing)
+        {
+            if(thing.tag == "Floor" || thing.tag == "Wall")
+            {
+                return true;
+            }
+
+            switch(thing.layer)
+            {
+                case 8:
+                    return true;
+                case 10:
+                    return true;
+                case 11:
+                    return true;
+                case 24:
+                    return true;
+                case 25:
+                    return true;
+                case 26:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void OnCollisionEnter(Collision col)
+        {
+            if(landed || !armed)
+            {
+                return;
+            }
+
+            bool stick = CanStickToThing(col.gameObject);
+
+            if(stick)
+            {
+                StickToThing(col.transform, col.GetContact(0).normal);
+            }
+
+            if (col.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enmy))
+            {
+                if (!enmy.eid.dead)
+                {
+                    StickToEnemy(col.collider.transform, enmy.eid, col.GetContact(0).normal);
+                    return;
+                }
+            }
+
+            if (col.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+            {
+                if (!enemy.dead)
+                {
+                    StickToEnemy(col.collider.transform, enemy, col.GetContact(0).normal);
+                    return;
+                }
+            }
+        }
+    }
+}

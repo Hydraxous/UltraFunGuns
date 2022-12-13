@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UMM;
 using UnityEngine;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
@@ -11,7 +12,18 @@ namespace UltraFunGuns
     {
         GunControl gc;
 
+        // Assigned by UMM
+        public static UKKeyBind[] UFGSlotKeys = {
+            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 7", KeyCode.Alpha7),
+            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 8", KeyCode.Alpha8),
+            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 9", KeyCode.Alpha9),
+            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 10", KeyCode.Alpha0)
+        };
+        public static UKKeyBind SecretButton = UKAPI.GetKeyBind("<color=orange>UFG</color> Secret", KeyCode.K);
+
         private List<List<string>> weaponKeySlots = new List<List<string>>();
+
+        public static int SlotOffset = 7;
 
         //Empty slots for the weapons. Don't remove this.
         private List<List<GameObject>> customSlots = new List<List<GameObject>>()
@@ -21,12 +33,6 @@ namespace UltraFunGuns
             new List<GameObject>(),
             new List<GameObject>()
         };
-
-        //Assigned by plugin main class
-        public KeyCode Slot7Key;
-        public KeyCode Slot8Key;
-        public KeyCode Slot9Key;
-        public KeyCode Slot10Key;
 
         //Use for intializing style items
         private void Awake()
@@ -51,6 +57,8 @@ namespace UltraFunGuns
             NewStyleItem("fingergunhit", "BANG'D");
             NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
             NewStyleItem("fingergunprojhit", "DENIAL");
+
+
 
             DeployWeapons();
         }
@@ -146,7 +154,6 @@ namespace UltraFunGuns
 
             for (int i = 0; i < customSlots.Count; i++)
             {
-
                 gc.slots.Add(customSlots[i]);
                 foreach (GameObject wep in customSlots[i])
                 {
@@ -155,40 +162,21 @@ namespace UltraFunGuns
                         gc.allWeapons.Add(wep);
                     }
                 }
-
             }
-            
-
         }
 
-        //TODO fix this, for some reason the input on switching to weapons doesn't work past slot 7. No its not because of the keycodes, that was an attempt to fix it. Inspect the GunControl class closer.
+        //This handles input for the extra slots
         private void Update()
         {
-            if (Input.GetKeyDown(Slot7Key) && (customSlots[0].Count > 1 || gc.currentSlot != 7))
+
+            for(int i=0; i < UFGSlotKeys.Length; i++)
             {
-                if (customSlots[0].Count > 0 && customSlots[0][0] != null)
+                if(UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i+SlotOffset))
                 {
-                    gc.SwitchWeapon(7, customSlots[0], false, false);
-                }
-            }else if (Input.GetKeyDown(Slot8Key) && (customSlots[1].Count > 1 || gc.currentSlot != 8))
-            {
-                if (customSlots[1].Count > 0 && customSlots[1][0] != null)
-                {
-                    gc.SwitchWeapon(8, customSlots[1], false, false);
-                }
-            }
-            else if(Input.GetKeyDown(Slot9Key) && (customSlots[2].Count > 1 || gc.currentSlot != 9))
-            {
-                if (customSlots[2].Count > 0 && customSlots[2][0] != null)
-                {
-                    gc.SwitchWeapon(9, customSlots[2], false, false);
-                }
-            }
-            else if(Input.GetKeyDown(Slot10Key) && (customSlots[3].Count > 1 || gc.currentSlot != 10))
-            {
-                if (customSlots[3].Count > 0 && customSlots[3][0] != null)
-                {
-                    gc.SwitchWeapon(10, customSlots[3], false, false);
+                    if (customSlots[i].Count > 0 && customSlots[i][0] != null)
+                    {
+                        gc.SwitchWeapon(i+SlotOffset, customSlots[i], false, false);
+                    }
                 }
             }
         }
