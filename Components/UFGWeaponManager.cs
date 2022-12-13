@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UMM;
 using UnityEngine;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,12 @@ namespace UltraFunGuns
     {
         GunControl gc;
 
+        // Assigned by UMM
+        public static UKKeyBind Slot7Key = UKAPI.GetKeyBind("Slot7Key", KeyCode.Alpha7);
+        public static UKKeyBind Slot8Key = UKAPI.GetKeyBind("Slot8Key", KeyCode.Alpha8);
+        public static UKKeyBind Slot9Key = UKAPI.GetKeyBind("Slot9Key", KeyCode.Alpha9);
+        public static UKKeyBind Slot10Key = UKAPI.GetKeyBind("Slot10Key", KeyCode.Alpha0);
+
         private List<List<string>> weaponKeySlots = new List<List<string>>();
 
         //Empty slots for the weapons. Don't remove this.
@@ -21,12 +28,6 @@ namespace UltraFunGuns
             new List<GameObject>(),
             new List<GameObject>()
         };
-
-        //Assigned by plugin main class
-        public KeyCode Slot7Key;
-        public KeyCode Slot8Key;
-        public KeyCode Slot9Key;
-        public KeyCode Slot10Key;
 
         //Use for intializing style items
         private void Awake()
@@ -162,27 +163,27 @@ namespace UltraFunGuns
         //This handles input for the extra slots
         private void Update()
         {
-            if (Input.GetKeyDown(Slot7Key) && (customSlots[0].Count > 1 || gc.currentSlot != 7))
+            if (Slot7Key.WasPerformedThisFrame && (customSlots[0].Count > 1 || gc.currentSlot != 7))
             {
                 if (customSlots[0].Count > 0 && customSlots[0][0] != null)
                 {
                     gc.SwitchWeapon(7, customSlots[0], false, false);
                 }
-            }else if (Input.GetKeyDown(Slot8Key) && (customSlots[1].Count > 1 || gc.currentSlot != 8))
+            }else if (Slot8Key.WasPerformedThisFrame && (customSlots[1].Count > 1 || gc.currentSlot != 8))
             {
                 if (customSlots[1].Count > 0 && customSlots[1][0] != null)
                 {
                     gc.SwitchWeapon(8, customSlots[1], false, false);
                 }
             }
-            else if(Input.GetKeyDown(Slot9Key) && (customSlots[2].Count > 1 || gc.currentSlot != 9))
+            else if(Slot9Key.WasPerformedThisFrame && (customSlots[2].Count > 1 || gc.currentSlot != 9))
             {
                 if (customSlots[2].Count > 0 && customSlots[2][0] != null)
                 {
                     gc.SwitchWeapon(9, customSlots[2], false, false);
                 }
             }
-            else if(Input.GetKeyDown(Slot10Key) && (customSlots[3].Count > 1 || gc.currentSlot != 10))
+            else if(Slot10Key.WasPerformedThisFrame && (customSlots[3].Count > 1 || gc.currentSlot != 10))
             {
                 if (customSlots[3].Count > 0 && customSlots[3][0] != null)
                 {
