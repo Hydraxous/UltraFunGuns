@@ -52,10 +52,10 @@ namespace UltraFunGuns
                 slotNameTexts.Add(transform.Find(String.Format("MenuBorder/SlotNames/Slot{0}Name", i)).GetComponent<Text>());
                 
             }
-            slotNameTexts[0].text = slotNameTexts[0].text.Replace("KEY", UltraFunGuns.SLOT_7_KEY.Value.ToString());
-            slotNameTexts[1].text = slotNameTexts[1].text.Replace("KEY", UltraFunGuns.SLOT_8_KEY.Value.ToString());
-            slotNameTexts[2].text = slotNameTexts[2].text.Replace("KEY", UltraFunGuns.SLOT_9_KEY.Value.ToString());
-            slotNameTexts[3].text = slotNameTexts[3].text.Replace("KEY", UltraFunGuns.SLOT_10_KEY.Value.ToString());
+            slotNameTexts[0].text = slotNameTexts[0].text.Replace("KEY", UFGWeaponManager.Slot7Key.keyBind.ToString());
+            slotNameTexts[1].text = slotNameTexts[1].text.Replace("KEY", UFGWeaponManager.Slot8Key.keyBind.ToString());
+            slotNameTexts[2].text = slotNameTexts[2].text.Replace("KEY", UFGWeaponManager.Slot9Key.keyBind.ToString());
+            slotNameTexts[3].text = slotNameTexts[3].text.Replace("KEY", UFGWeaponManager.Slot10Key.keyBind.ToString());
         }
 
         public void ButtonPressed(InventoryNode node, InventorySlot slot, string buttonPressed)

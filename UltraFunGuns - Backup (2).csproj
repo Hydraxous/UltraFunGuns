@@ -38,6 +38,15 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Preloader">
+      <HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.Preloader.dll</HintPath>
+    </Reference>
     <Reference Include="UMM">
       <HintPath>$(ULTRAKILLPath)\BepInEx\plugins\UMM\UMM.dll</HintPath>
     </Reference>
