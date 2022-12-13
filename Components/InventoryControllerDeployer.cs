@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using UMM;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,14 +20,12 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private KeyCode inventoryKey;
+        private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("UFG Inventory Key", KeyCode.I);
 
         private bool sentVersionMessage = false, displayingHelpMessage = false;
 
         private void Awake()
         {
-            
-            inventoryKey = UltraFunGuns.INVENTORY_KEY.Value;
             om = MonoSingleton<OptionsManager>.Instance;
             canvas = GetComponent<RectTransform>();
             pauseMenu = transform.Find("PauseMenu").gameObject;
@@ -87,7 +86,7 @@ namespace UltraFunGuns
                     invControllerButton.gameObject.SetActive(false);
                 }
                 
-                if(Input.GetKeyDown(inventoryKey) && !om.paused)
+                if(inventoryKey.WasPerformedThisFrameInScene)
                 {
                     OpenInventory();
                 }
