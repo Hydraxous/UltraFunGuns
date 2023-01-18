@@ -47,7 +47,7 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            if (UltraFunGuns.InLevel())
+            if (UKAPIP.InLevel())
             { 
                 if (om.paused)
                 {

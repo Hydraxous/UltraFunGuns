@@ -35,6 +35,7 @@ namespace UltraFunGuns
             canMaterials = canTextureList.ToArray();
 
             HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanProjectile", out canPrefab);
+            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_MuzzleFX", out muzzleFX);
 
             canPrefabMeshRenderer = canPrefab.GetComponentInChildren<MeshRenderer>();
 
@@ -80,10 +81,12 @@ namespace UltraFunGuns
             Vector3 targetVelocity = aimRay.direction * shootForce;
             CameraController.Instance.CameraShake(0.15f);
             GameObject latestCan = GameObject.Instantiate<GameObject>(canPrefab, firePoint.position, Quaternion.identity);
-            //TODO instantiate muzzle fx
+            GameObject newMuzzleFX = GameObject.Instantiate<GameObject>(muzzleFX, firePoint.position, Quaternion.identity);
+            newMuzzleFX.transform.forward = firePoint.forward;
             latestCan.transform.forward = targetVelocity.normalized;
+            newMuzzleFX.transform.parent = firePoint.parent;
             latestCan.GetComponent<CanProjectile>().AlterVelocity(targetVelocity, false);
-                
+            animator.Play("CanLauncher_Fire");
         }
 
         private void Shoot()
@@ -96,6 +99,11 @@ namespace UltraFunGuns
 
             Shoot(new Ray(origin, direction));
 
+        }
+
+        private void OnEnable()
+        {
+            animator.Play("CanLauncher_Equip");
         }
 
     }

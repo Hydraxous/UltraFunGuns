@@ -128,7 +128,6 @@ namespace UltraFunGuns
                 thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
             }
             USE_BASKETBALL_TEXTURE = !standard;
-            GameObject.FindObjectOfType<UltraFunGuns>().SaveConfig();
         }
 
         private void FixedUpdate()
