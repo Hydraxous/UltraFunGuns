@@ -109,7 +109,7 @@ namespace UltraFunGuns
             }
             SaveInventoryData();
             Refresh();
-            if(UltraFunGuns.InLevel())
+            if(UKAPIP.InLevel())
             {
                 RedeployWeapons();
             }

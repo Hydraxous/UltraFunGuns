@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
-    //Single instance patch which is applied directly to the GunControl object and inserts the custom weapons into the player's inventory.
+    //Single instance component which is applied directly to the GunControl object and inserts the custom weapons into the player's inventory.
+    //TODO make this object non-destroyable and deploy on scene load and stuff
     public class UFGWeaponManager : MonoBehaviour
     {
         GunControl gc;
@@ -57,8 +58,6 @@ namespace UltraFunGuns
             NewStyleItem("fingergunhit", "BANG'D");
             NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
             NewStyleItem("fingergunprojhit", "DENIAL");
-
-
 
             DeployWeapons();
         }
@@ -133,7 +132,7 @@ namespace UltraFunGuns
                     }
                     catch (System.Exception e)
                     {
-                        Debug.Log("UFG: WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message);
+                        Debug.LogError("UFG: WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message);
                     }
                 }
                 
@@ -168,7 +167,6 @@ namespace UltraFunGuns
         //This handles input for the extra slots
         private void Update()
         {
-
             for(int i=0; i < UFGSlotKeys.Length; i++)
             {
                 if(UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i+SlotOffset))

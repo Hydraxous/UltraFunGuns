@@ -10,6 +10,8 @@ namespace UltraFunGuns
     {
         public GameObject bulletTrailPrefab;
         public GameObject muzzleFX;
+        public GameObject scopeUI;
+        public GameObject viewModelWrapper;
 
         public Text debugText;
 
@@ -28,10 +30,16 @@ namespace UltraFunGuns
         public int turnsCompleted = 0;
         public float lastRecordedRotation = 0.0f;
 
+        public bool scopedIn = false;
+        public float scopeInTime = 0.15f;
+        public float scopeTime = 0.0f;
+
         public override void OnAwakeFinished()
         {
             HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
             HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
+            scopeUI = transform.Find("ScopeUI").gameObject;
+            viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
             debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
         }
 
@@ -48,20 +56,44 @@ namespace UltraFunGuns
 
         }
 
-        public override void DoAnimations()
-        {
-            
-        }
-
         public override void GetInput()
         {
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
             {
                 actionCooldowns["primaryFire"].AddCooldown();
                 Shoot();
             }
+
+            bool rightClickPressed = (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed);
+
+            if (rightClickPressed && !om.paused)
+            {
+                scopeTime = Mathf.Clamp(scopeTime + Time.deltaTime, 0.0f, scopeInTime);
+            }
+            else if (!om.paused)
+            {
+                scopeTime = Mathf.Clamp(scopeTime - Time.deltaTime, 0.0f, scopeInTime);
+            }
+
+            scopedIn = (scopeTime >= scopeInTime);
+
+            if(scopedIn)
+            {
+                viewModelWrapper.SetActive(false);
+                scopeUI.SetActive(true);
+            }else
+            {
+                viewModelWrapper.SetActive(true);
+                scopeUI.SetActive(false);
+            }
+
             CheckRotation();
             debugText.text = String.Format("{0} ROT\n{1} TURN", revolutions, turnsCompleted);
+        }
+
+        public override void DoAnimations()
+        {
+
         }
 
         private void CheckRotation()
@@ -156,33 +188,40 @@ namespace UltraFunGuns
         }
 
         private void Shoot()
-        {
-            Vector3 origin = mainCam.position;
-            Vector3 direction;
-            
-            bool penetration;
+        {    
+            bool penetration = scopedIn;
+            bool enemyFound = false;
+            Ray shootRay = new Ray(mainCam.position, mainCam.forward);
 
-            if (!(revolutions != 0 && GetTarget(out direction)))
+            if (revolutions != 0)
+            {
+                if (GetTarget(out Vector3 targetDir))
+                {
+                    enemyFound = true;
+                    shootRay.direction = targetDir;
+                }
+                penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f) || penetration);
+            }    
+
+            if(!scopedIn && !enemyFound)
             {
                 float randomDirectionX = UnityEngine.Random.Range(-1.0f, 1.0f);
                 float randomDirectionY = UnityEngine.Random.Range(-1.0f, 1.0f);
 
-                direction = mainCam.TransformDirection(randomDirectionX, randomDirectionY, spreadTightness);
+                shootRay.direction = mainCam.TransformDirection(randomDirectionX, randomDirectionY, spreadTightness);
                 penetration = true;
             }
-            else
-            {
-                penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f));
-            }
 
-            DoHit(new Ray(origin, direction), penetration);
-            Instantiate<GameObject>(muzzleFX, firePoint.position, Quaternion.identity).transform.forward = firePoint.transform.forward;
+            DoHit(shootRay, penetration);
 
+            Instantiate<GameObject>(muzzleFX, (scopedIn) ? mainCam.position : firePoint.position, Quaternion.identity).transform.forward = (scopedIn) ? mainCam.forward : firePoint.forward;
+            
         }
 
         private void DoHit(Ray hitRay, bool penetration)
         {
-            
+            float damageAmount = (scopedIn) ? 1.5f : 3.0f;
+
             RaycastHit[] hits = Physics.RaycastAll(hitRay, maxRange, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default"));
             if (hits.Length > 0)
             {
@@ -201,7 +240,7 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, 3.0f, true, 3.0f, this.gameObject);
+                            enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, this.gameObject);
 
                             if (!penetration)
                             {
@@ -210,7 +249,7 @@ namespace UltraFunGuns
                         }
                         else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
                         {
-                            enemyID.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, 3.0f, true, 3.0f, this.gameObject);
+                            enemyID.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, this.gameObject);
 
                             if (!penetration)
                             {
@@ -255,7 +294,7 @@ namespace UltraFunGuns
                             }
                         }
                     }
-                    CreateBulletTrail(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
+                    CreateBulletTrail((scopedIn) ? mainCam.position : firePoint.position, hits[endingHit].point, hits[endingHit].normal);
                     return;
                 }
             }
