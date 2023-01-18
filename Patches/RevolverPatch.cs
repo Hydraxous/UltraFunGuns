@@ -157,9 +157,17 @@ namespace UltraFunGuns
                             bool flag7 = (___hitList[___enemiesPierced].transform.gameObject.layer == 10 || ___hitList[___enemiesPierced].transform.gameObject.layer == 11) && ___hitList[___enemiesPierced].transform.gameObject.tag != "Breakable" && __instance.bodiesPierced < __instance.hitAmount;
                             if (flag7)
                             {
+
+                                IUFGInteractionReceiver ufgObject = ___hitList[___enemiesPierced].transform.gameObject.GetComponentInParent<IUFGInteractionReceiver>();
                                 EnemyIdentifierIdentifier componentInParent = ___hitList[___enemiesPierced].transform.gameObject.GetComponentInParent<EnemyIdentifierIdentifier>();
-                                bool flag8 = !componentInParent;
-                                if (flag8)
+
+                                if (ufgObject != null)
+                                {
+                                    if (__instance.bodiesPierced < __instance.hitAmount)
+                                    {
+                                        __instance.ExecuteHits(___hitList[___enemiesPierced].rrhit);
+                                    }
+                                }else if (!componentInParent)
                                 {
                                     bool flag9 = __instance.attributes.Length != 0;
                                     if (flag9)
@@ -265,7 +273,7 @@ namespace UltraFunGuns
                                         __instance.Invoke("PiercingShotCheck", 0.0f);
 
                                     }
-                                }
+                                }  
                             }
                             else
                             {
@@ -315,8 +323,7 @@ namespace UltraFunGuns
                                         else
                                         {
                                             Debug.Log("executing on lastcheck " + ___hitList[___enemiesPierced].transform.name);
-                                            bool flag26 = __instance.bodiesPierced < __instance.hitAmount;
-                                            if (flag26)
+                                            if (__instance.bodiesPierced < __instance.hitAmount)
                                             {
                                                 __instance.ExecuteHits(___hitList[___enemiesPierced].rrhit);
                                             }
