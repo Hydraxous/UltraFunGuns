@@ -6,7 +6,7 @@ The mod is currently in VERY early development so more weapons will be released 
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD ENABLES MAJOR ASSISTS WHEN THE WEAPONS ARE IN USE**
 
-# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.6-Experimental/UFG-1.1.6-Experimental.zip)
+# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.7-Experimental/UFG-1.1.7-Experimental.zip)
 
 ![Focalyzer2](https://user-images.githubusercontent.com/8602389/194092032-e4119719-a5c8-4230-886e-c8f141061c57.png)
 
@@ -134,7 +134,7 @@ Planned changes:
 ______________________________________________________________________________________________
 # Miscellaneous additions
 ______________________________________________________________________________________________
-Weapon manager available in the pause menu in-game for easy UFG weapon management.
+Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button can be rebound in the config.
 
 ![newWeaponManager](https://user-images.githubusercontent.com/8602389/194091030-5b16e8b8-a0fc-4bf0-ae4a-cd8d3c7305f0.png)
 
@@ -147,7 +147,7 @@ ________________________________________________________________________________
 # Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.6-Experimental/UFG-1.1.6-Experimental.zip), then extract the archive and place the folder titled UFG into **BepinEx/plugins**
+2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.7-Experimental/UFG-1.1.7-Experimental.zip), then extract the archive and place the folder titled UFG into **BepinEx/plugins**
 Your BepInEx plugins folder should look something like this if you have other mods installed too.
 
 ![wdawdawee](https://user-images.githubusercontent.com/8602389/194096157-bffdff6b-f04f-4569-a060-d3e5d770d33e.PNG)
