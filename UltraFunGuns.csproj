@@ -116,7 +116,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Weapons\LightSpear\" />
     <Folder Include="Components\Weapons\Maxwell\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
   </ItemGroup>

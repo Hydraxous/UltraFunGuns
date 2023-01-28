@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class RemoteBombExplosive : MonoBehaviour
+    public class RemoteBombExplosive : MonoBehaviour, IUFGInteractionReceiver
     {
         private GameObject explosionPrefab;
 
@@ -77,10 +77,16 @@ namespace UltraFunGuns
             return (!landed && !armed);
         }
 
-        public void Parry(Vector3 direction)
+        public bool Parried(Vector3 direction)
         {
-            Arm();
-            SetVelocity(direction.normalized * parryForce);
+            if(!landed && !armed)
+            {
+                Arm();
+                SetVelocity(direction.normalized * parryForce);
+                return true;
+            }
+
+            return false;
         }
 
         private void Thrown()
@@ -327,6 +333,25 @@ namespace UltraFunGuns
                     StickToEnemy(col.collider.transform, enemy, col.GetContact(0).normal);
                     return;
                 }
+            }
+        }
+
+        public void Shot(BeamType beamType)
+        {
+            switch (beamType)
+            {
+                case BeamType.Railgun:
+                    Detonate(true);
+                    break;
+                case BeamType.Revolver:
+                    Detonate(false);
+                    break;
+                case BeamType.MaliciousFace:
+                    Detonate(true);
+                    break;
+                case BeamType.Enemy:
+                    Detonate(true);
+                    break;
             }
         }
     }

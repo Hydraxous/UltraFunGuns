@@ -74,7 +74,7 @@ namespace UltraFunGuns
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
             {
-                if (!om.paused && !throwingPylon && pylonsRemaining > 0)
+                if (!om.paused && !throwingPylon && (pylonsRemaining > 0 || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown))
                 {
                     StartCoroutine(ThrowPylon());
                 }
@@ -197,7 +197,7 @@ namespace UltraFunGuns
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
 
             pylonRechargeTimeRemaining = Time.time + pylonRechargeTime;
-            --pylonsRemaining;
+            pylonsRemaining = Mathf.Clamp(pylonsRemaining - 1, 0, maxStoredPylons);
 
             MonoSingleton<CameraController>.Instance.CameraShake(0.2f);
             FocalyzerPylonAlternate pylon = newPylon.GetComponent<FocalyzerPylonAlternate>();

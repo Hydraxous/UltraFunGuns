@@ -12,7 +12,7 @@ namespace UltraFunGuns
      Shatter if punched.
      Move towards player if hit with grapple.
          */
-    public class FocalyzerPylon : MonoBehaviour
+    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver
     {
         public Animator animator;
         public Animator laserAnimator;
@@ -34,6 +34,7 @@ namespace UltraFunGuns
 
         public int refractionCount = 0;
         public float AOERadius = 3.5f;
+        public float parryForce = 200.0f;
 
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
@@ -41,6 +42,8 @@ namespace UltraFunGuns
         public bool disco = false;
 
         private AudioSource discoAudio;
+
+        private Rigidbody rb;
 
         private enum LaserHitType {enemy, nothing, solid, interactable}
 
@@ -55,6 +58,7 @@ namespace UltraFunGuns
             pylonManager.AddPylon(this);
             disco = (UnityEngine.Random.Range(0.0f, 100.0f) <= 5.0f);
             discoAudio.Play();
+            rb = GetComponent<Rigidbody>();
         }
 
         void Update()
@@ -310,6 +314,17 @@ namespace UltraFunGuns
             {
                 pylonManager.RemovePylon(this);
             }
+        }
+
+        public void Shot(BeamType beamType)
+        {
+            Shatter();
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            rb.AddForce(aimVector.normalized * parryForce, ForceMode.Impulse);
+            return true;
         }
     }
 }

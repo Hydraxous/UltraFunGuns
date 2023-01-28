@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class CanProjectile : MonoBehaviour
+    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver
     {
         public GameObject canExplosion;
         public GameObject bounceFX;
@@ -224,7 +224,7 @@ namespace UltraFunGuns
             AlterVelocity(bounceForce, false);
         }
 
-        public bool Parry()
+        public bool Parried(Vector3 aimVector)
         {
             if (dead || !canBeParried || sleeping)
             {
@@ -237,7 +237,7 @@ namespace UltraFunGuns
 
             if (!banked && !bounced)
             {   
-                AlterVelocity(CameraController.Instance.transform.TransformDirection(0, 0, 1).normalized * reviveParryThrowForce, false);
+                AlterVelocity(aimVector.normalized * reviveParryThrowForce, false);
                 rb.AddTorque(200.0f, 0.0f, 0.0f);
                 if (!impactedOtherCan)
                 {
@@ -335,5 +335,23 @@ namespace UltraFunGuns
             Destroy(gameObject, 4.0f);
         }
 
+        public void Shot(BeamType beamType)
+        {
+            switch (beamType)
+            {
+                case BeamType.Railgun:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Revolver:
+                    Bounce();
+                    break;
+                case BeamType.MaliciousFace:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Enemy:
+                    Bounce();
+                    break;
+            }
+        }
     }
 }

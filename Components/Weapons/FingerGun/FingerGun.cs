@@ -61,7 +61,7 @@ namespace UltraFunGuns
                 StartCoroutine(Reload());
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused && !reloading && !shooting && CurrentAmmo > 0)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused && !reloading && !shooting && (CurrentAmmo > 0 || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown))
             {
                 StartCoroutine(Shoot());
             }
@@ -80,7 +80,8 @@ namespace UltraFunGuns
             //bang.pitch = UnityEngine.Random.Range(0.85f, 1.0f); TODO
             //bang.Play();
             PlaySFX("Bang", 0.85f, 1.0f);
-            --CurrentAmmo;
+            if(!ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown)
+                --CurrentAmmo;
 
             Ray direction = new Ray();
             direction.origin = mainCam.transform.position;

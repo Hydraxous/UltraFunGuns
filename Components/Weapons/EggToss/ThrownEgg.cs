@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Egg projectile script created by EggToss and EggSplosion.
-    public class ThrownEgg : MonoBehaviour
+    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver
     {
         public GameObject impactFX;
         public GameObject eggsplosionPrefab;
@@ -207,6 +207,16 @@ namespace UltraFunGuns
             {
                 Collide(col);
             }
+        }
+
+        public void Shot(BeamType beamType)
+        {
+            Explode();
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            return false;
         }
     }
 }
