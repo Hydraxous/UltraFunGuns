@@ -11,38 +11,18 @@ namespace UltraFunGuns
     {
         public static bool Prefix(Punch __instance, Transform target, bool __result, ref bool ___hitSomething)
         {
-            ThrownDodgeball dodgeball;
-            if(target.TryGetComponent<ThrownDodgeball>(out dodgeball))
+
+            if(!target.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
             {
-                __instance.anim.Play("Hook", 0, 0.065f);
-                MonoSingleton<TimeController>.Instance.ParryFlash();
-                dodgeball.ExciteBall(2);
-                ___hitSomething = true;
-                __result = true;
-                return false;
+                ufgObject = target.GetComponentInParent<IUFGInteractionReceiver>();
             }
 
-            CanProjectile canProjectile;
-            if (target.TryGetComponent<CanProjectile>(out canProjectile))
+            if(ufgObject != null)
             {
-                if(canProjectile.Parry())
+                if(ufgObject.Parried(MonoSingleton<CameraController>.Instance.cam.transform.forward))
                 {
                     __instance.anim.Play("Hook", 0, 0.065f);
                     MonoSingleton<TimeController>.Instance.ParryFlash();
-                    ___hitSomething = true;
-                    __result = true;
-                    return false;
-                }        
-            }
-
-            RemoteBombExplosive remoteBombExplosive;
-            if (target.TryGetComponent<RemoteBombExplosive>(out remoteBombExplosive))
-            {
-                if(remoteBombExplosive.Parriable())
-                {      
-                    __instance.anim.Play("Hook", 0, 0.065f);
-                    MonoSingleton<TimeController>.Instance.ParryFlash();
-                    remoteBombExplosive.Parry(MonoSingleton<CameraController>.Instance.cam.transform.forward);
                     ___hitSomething = true;
                     __result = true;
                     return false;

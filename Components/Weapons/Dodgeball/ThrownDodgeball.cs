@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
@@ -418,5 +418,32 @@ namespace UltraFunGuns
             }    
         }
 
+        public void Shot(BeamType beamType)
+        {
+            switch (beamType)
+            {
+                case BeamType.Railgun:
+                    ExciteBall(6);
+                    break;
+
+                case BeamType.Revolver:
+                    ExciteBall();
+                    break;
+
+                case BeamType.MaliciousFace:
+                    ExciteBall(2);
+                    break;
+
+                case BeamType.Enemy:
+                    break;
+            }
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            SetSustainVelocity(aimVector);
+            ExciteBall(2);
+            return true;
+        }
     }
 }

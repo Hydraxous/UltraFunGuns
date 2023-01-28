@@ -13,10 +13,14 @@ namespace UltraFunGuns
         {
             try
             {
-                ThrownEgg hitEgg = currentHit.transform.GetComponentInParent<ThrownEgg>();
-                if (hitEgg != null)
+                if(!currentHit.transform.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
                 {
-                    hitEgg.Explode();
+                    ufgObject = currentHit.transform.GetComponentInParent<IUFGInteractionReceiver>();
+                }
+
+                if (ufgObject != null)
+                {
+                    ufgObject.Shot(__instance.beamType);
                 }
 
                 ThrownDodgeball hitDodgeball = currentHit.transform.GetComponentInParent<ThrownDodgeball>();

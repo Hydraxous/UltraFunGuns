@@ -64,7 +64,7 @@ namespace UltraFunGuns
 
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
             {
-                if (!om.paused && laser.GetPylonCount() < laser.maxPylons && !throwingPylon)
+                if (!om.paused && (laser.GetPylonCount() < laser.maxPylons || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) && !throwingPylon)
                 {
                     StartCoroutine(ThrowPylon());
                 }
@@ -74,7 +74,7 @@ namespace UltraFunGuns
         public override void DoAnimations()
         {
             laser.laserActive = laserActive;
-            tubeController.crystalsUsed = laser.GetPylonCount()-1;
+            tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount()-1,0,laser.maxPylons);
             animator.SetBool("LaserActive", laserActive);
         }
 

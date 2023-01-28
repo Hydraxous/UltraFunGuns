@@ -138,6 +138,11 @@ namespace UltraFunGuns
 
             #endregion
 
+            #region JetSpear
+            new HydraLoader.CustomAssetPrefab("JetSpear", new Component[] { new JetSpear(), new WeaponIcon(), new WeaponIdentifier() });
+
+            #endregion
+
             assetsRegistered = true;
 
             return HydraLoader.RegisterAll(Properties.UltraFunGunsResources.UltraFunGuns);
