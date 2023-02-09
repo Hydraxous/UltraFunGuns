@@ -259,7 +259,7 @@ namespace UltraFunGuns
             reloading = false;
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
 
         }

@@ -83,7 +83,7 @@ namespace UltraFunGuns
             CheckPylonRecharge();
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             laser.laserActive = laserActive;
             tubeController.crystalsRemaining = pylonsRemaining;

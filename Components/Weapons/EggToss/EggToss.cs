@@ -34,7 +34,7 @@ namespace UltraFunGuns
             return cooldowns;
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             bool ableToShoot = (actionCooldowns["primaryFire"].CanFire() || actionCooldowns["secondaryFire"].CanFire());
             animator.SetBool("CanShoot", ableToShoot);

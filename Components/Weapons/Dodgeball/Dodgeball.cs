@@ -11,7 +11,6 @@ namespace UltraFunGuns
     //TODO add parry to make the thing home to an enemy.
     public class Dodgeball : UltraFunGunBase
     {
-        public static bool USE_BASKETBALL_TEXTURE;
         ActionCooldown pullCooldown = new ActionCooldown(0.25f);//TODO check this
 
         public ThrownDodgeball activeDodgeball;
@@ -44,7 +43,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            basketBallMode = USE_BASKETBALL_TEXTURE;
+            basketBallMode = UltraFunData.Config.Data.basketBallMode;
             HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
             basketballSkin = (Material) obj;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
@@ -116,6 +115,8 @@ namespace UltraFunGuns
         public override void DoSecret()
         {
             basketBallMode = !basketBallMode;
+            UltraFunData.Config.Data.basketBallMode = basketBallMode;
+            UltraFunData.Config.Save();
             SetSkin(basketBallMode);
         }
 
@@ -127,7 +128,6 @@ namespace UltraFunGuns
                 transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
                 thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
             }
-            USE_BASKETBALL_TEXTURE = !standard;
         }
 
         private void FixedUpdate()
@@ -219,7 +219,7 @@ namespace UltraFunGuns
             transform.Find("Audios/CatchSound").GetComponent<AudioSource>().Play();
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             animator.SetBool("ChargingBall", chargingBall);
             animator.SetBool("PullingBall", pullingBall);

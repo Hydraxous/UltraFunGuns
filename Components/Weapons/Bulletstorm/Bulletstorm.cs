@@ -62,11 +62,6 @@ namespace UltraFunGuns
             line.SetPositions(linePoints);
         }
 
-        public override void DoAnimations()
-        {
-            
-        }
-
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();

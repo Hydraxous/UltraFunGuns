@@ -26,12 +26,16 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            if (RegisterAssets() && InventoryDataManager.Initialize())
+            HydraLogger.Log($"UltraFunGuns loading started. Version: {Version}");
+
+            UltraFunData.CheckSetup();
+
+            if (AssetManifest.RegisterAssets())
             {
                 CheckVersion();
                 DoPatching();
                 UKAPIP.Init();
-                Debug.Log("UltraFunGuns Loaded.");
+                HydraLogger.Log("UltraFunGuns loaded.", DebugChannel.User);
             }
             else
             {
@@ -85,13 +89,6 @@ namespace UltraFunGuns
             harmony.PatchAll();
         }
 
-        //REGISTRY: Register custom assets for the loader here!
-        private bool RegisterAssets()
-        {
-            BindConfigs();
-            return AssetManifest.RegisterAssets();
-        }
-
         private void Update()
         {
             try
@@ -107,17 +104,6 @@ namespace UltraFunGuns
                 //Not sure why but there is a huge string of errors when the game is starting. So this is blank for that reason.
             }
 
-        }
-
-        private void BindConfigs()
-        {
-            if (PersistentModDataExists("USE_BASKETBALL_TEXTURE"))
-                Dodgeball.USE_BASKETBALL_TEXTURE = RetrieveBooleanPersistentModData("USE_BASKETBALL_TEXTURE");
-        }
-
-        public void SaveConfig()
-        {
-            SetPersistentModData("USE_BASKETBALL_TEXTURE", Dodgeball.USE_BASKETBALL_TEXTURE.ToString());
         }
 
         private void CheckVersion()
@@ -141,21 +127,27 @@ namespace UltraFunGuns
                         UsingLatestVersion = (LatestVersion == Version);
                         if (UsingLatestVersion)
                         {
-                            Debug.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion));
+                            HydraLogger.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion), DebugChannel.User);
                         }
                         else
                         {
-                            Debug.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion));
+                            HydraLogger.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion), DebugChannel.User);
                         }
                     }
                     catch (System.Exception e)
                     {
                         UsingLatestVersion = true;
-                        Debug.Log(string.Format("Error getting version info. Current Version: {0}", Version));
+                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}", Version));
                     }
 
                 }
             }
+        }
+
+        private void OnApplicationQuit()
+        {
+            UltraFunData.SaveAll();
+            HydraLogger.WriteLog();
         }
     }
 

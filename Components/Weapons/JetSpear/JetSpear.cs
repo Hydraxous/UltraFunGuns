@@ -52,12 +52,12 @@ namespace UltraFunGuns
         {
             if(jetEnabled)
             {
-                Debug.Log("Applyin force!");
+                //Debug.Log("Applyin force!");
                 rb.velocity += ((mainCam.forward) * jetForce) * (smoothing/smoothingSpeed);
             }
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
 
         }

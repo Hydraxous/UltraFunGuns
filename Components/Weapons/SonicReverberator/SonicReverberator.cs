@@ -79,7 +79,7 @@ namespace UltraFunGuns
             chargeFinal = transform.Find("viewModelWrapper/Audios/ChargeFinal").GetComponent<AudioSource>();
         }
 
-        //TODO fix when moving to inheritance model
+
         private void Start()
         {
             LoadData();
@@ -139,7 +139,7 @@ namespace UltraFunGuns
 
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             currentGyroRotationSpeed = baseGyroRotationSpeed * (chargeLevel*gyroRotationSpeedModifier);
             animator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
@@ -240,7 +240,7 @@ namespace UltraFunGuns
             {
                 return false;
             }
-            Debug.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
+            HydraLogger.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
             switch (target.targetType)
             {
                 case TargetObject.TargetType.Dodgeball:
@@ -440,7 +440,7 @@ namespace UltraFunGuns
                 body.useGravity = false;
                 body.velocity += forceVector;
                 body.velocity += upVector;
-                Debug.Log(enemy.enemyType.ToString() + "  " + body.velocity);
+                HydraLogger.Log(enemy.enemyType.ToString() + "  " + body.velocity);
                 SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
                 //splatt.invincibilityTimer = splatTimer;
                 //splatt.velocityToSplatThreshold = splatThreshold;

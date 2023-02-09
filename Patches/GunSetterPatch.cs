@@ -17,7 +17,7 @@ namespace UltraFunGuns
             }
             catch (System.Exception e)
             {
-                Debug.Log("UFG: Weapon deployment attempted.");
+                HydraLogger.Log("Weapon deployment attempted.");
             }
             
         }

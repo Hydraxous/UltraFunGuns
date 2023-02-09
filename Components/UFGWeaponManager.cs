@@ -62,7 +62,7 @@ namespace UltraFunGuns
             DeployWeapons();
         }
 
-        public List<List<string>> CreateWeaponKeyset(InventoryControllerData invControllerData)
+        public List<List<string>> CreateWeaponKeyset(UltraFunData.UFG_Loadout invControllerData)
         {
             List<List<string>> newWeaponKeys = new List<List<string>>();
             for (int x = 0; x < invControllerData.slots.Length; x++)
@@ -102,7 +102,7 @@ namespace UltraFunGuns
                     customSlot.Clear();
                 }
 
-                weaponKeySlots = CreateWeaponKeyset(InventoryDataManager.GetInventoryData());
+                weaponKeySlots = CreateWeaponKeyset(UltraFunData.Loadout.Data);
                 if(weaponKeySlots.Count > 0)
                 {
                     try
@@ -114,25 +114,30 @@ namespace UltraFunGuns
                             {
                                 foreach (string weaponKey in weaponKeySlots[i])
                                 {
-                                    HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab);
-                                    weaponPrefab.layer = 13;
-                                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                                    foreach (Transform child in childs)
+                                    if(HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                                     {
-                                        child.gameObject.layer = 13;
+                                        weaponPrefab.layer = 13;
+                                        Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                                        foreach (Transform child in childs)
+                                        {
+                                            child.gameObject.layer = 13;
+                                        }
+                                        weaponPrefab.SetActive(false);
+                                        customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
+                                        weaponsGiven += weaponKey + " ";  
+                                    }else
+                                    {
+                                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
                                     }
-                                    weaponPrefab.SetActive(false);
-                                    customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
-                                    weaponsGiven += weaponKey + " ";
                                 }
                             }
                         }
-                        Debug.Log(weaponsGiven);
+                        HydraLogger.Log(weaponsGiven, DebugChannel.User);
                         AddWeapons();
                     }
                     catch (System.Exception e)
                     {
-                        Debug.LogError("UFG: WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message);
+                        HydraLogger.Log("WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message, DebugChannel.Fatal);
                     }
                 }
                 

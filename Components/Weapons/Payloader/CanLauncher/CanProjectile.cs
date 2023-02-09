@@ -155,7 +155,7 @@ namespace UltraFunGuns
 
         public void HitEnemy(EnemyIdentifier enemy, Vector3 impactSpot)
         {
-            Debug.Log("We hit de enemei");
+            HydraLogger.Log($"({gameObject.name}) can hit enemy ({enemy.name})");
             if(dead || enemy.dead || enemy == null)
             {
                 return;
@@ -195,7 +195,7 @@ namespace UltraFunGuns
                 {
                     otherCan.Explode(oldVelocity, 2);
                 }
-                Debug.Log("Parried and hit other can");
+                HydraLogger.Log("Parried and hit other can");
             }
             else
             {
@@ -295,7 +295,7 @@ namespace UltraFunGuns
                     AlterVelocity(newDirection, false);
                     return;
                 }
-                Debug.Log("Can Sleeping!");
+                HydraLogger.Log($"({gameObject.name}) can is sleeping!");
                 sleeping = true;
                 return;
             }

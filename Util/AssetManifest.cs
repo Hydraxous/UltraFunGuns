@@ -22,6 +22,7 @@ namespace UltraFunGuns
             //Generic, debug, etc. assets
             new HydraLoader.CustomAssetData("debug_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("debug_glowIcon", typeof(Sprite));
+            //new HydraLoader.CustomAssetPrefab("Prototype_Weapon", new Component[] { new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
             new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController(), new HudOpenEffect() });
             new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
@@ -141,6 +142,11 @@ namespace UltraFunGuns
             #region JetSpear
             new HydraLoader.CustomAssetPrefab("JetSpear", new Component[] { new JetSpear(), new WeaponIcon(), new WeaponIdentifier() });
 
+            #endregion
+
+
+            #region MysticFlare
+            
             #endregion
 
             assetsRegistered = true;

@@ -11,15 +11,15 @@ namespace UltraFunGuns
         public Dictionary<string, ActionCooldown> actionCooldowns;
         public Dictionary<string, AudioSource> soundEffects = new Dictionary<string, AudioSource>();
 
-        public Transform mainCam, firePoint;
-        public OptionsManager om;
-        public NewMovement player;
-        public WeaponIcon weaponIcon;
-        public Animator animator;
+        protected Transform mainCam, firePoint;
+        protected OptionsManager om;
+        protected NewMovement player;
+        protected WeaponIcon weaponIcon;
+        protected Animator animator;
 
-        public string registryName;
+        protected string registryName;
 
-        public abstract void DoAnimations();
+        protected virtual void DoAnimations() { }
 
         private void Awake()
         {
@@ -46,7 +46,7 @@ namespace UltraFunGuns
             if(firePoint == null)
             {
                 firePoint = mainCam;
-                Debug.Log("FirePoint setup incorrectly for weapon: " + gameObject.name);
+                HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Error);
             }
 
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", registryName), out UnityEngine.Object weapon_weaponIcon);
@@ -55,7 +55,7 @@ namespace UltraFunGuns
             HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", registryName), out UnityEngine.Object weapon_glowIcon);
             weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
 
-            weaponIcon.variationColor = 0; //TODO find a way to fix this UPDATE: Its aight for now. UPDATE: why did I write this.
+            weaponIcon.variationColor = 0;
 
             if (weaponIcon.weaponIcon == null)
             {
@@ -121,44 +121,44 @@ namespace UltraFunGuns
 
         public virtual void FirePrimary()
         {
-            Debug.Log("Fired Primary! (not implemented)");
+            HydraLogger.Log($"{gameObject.name} Fired Primary! (not implemented)");
         }
 
         public virtual void FireSecondary()
         {
-            Debug.Log("Fired Secondary! (not implemented)");
+            HydraLogger.Log($"{gameObject.name} Fired Secondary! (not implemented)");
         }
         
         public virtual void DoSecret()
         {
-            Debug.Log("Used Secret! (not implemented)");
+            HydraLogger.Log($"{gameObject.name} Used Secret! (not implemented)");
         }
 
         public virtual void DebugAction()
         {
-            Debug.Log("Used Debug Action! (not implemented)");
+            HydraLogger.Log($"{gameObject.name} Used Debug Action! (not implemented)");
         }
 
         //Adds sound effect to dict
         private bool AddSFX(string clipName)
         { 
-            Transform audioSourceObject = transform.Find(string.Format("Audios/{0}", clipName));
+            Transform audioSourceObject = transform.Find($"Audios/{clipName}");
 
             if(audioSourceObject == null)
             {
-                Debug.LogError(string.Format("UFG: {0} is missing AudioSource Object: {1}", gameObject.name, clipName));
+                HydraLogger.Log(string.Format("UFG: {0} is missing AudioSource Object: {1}", gameObject.name, clipName), DebugChannel.Error);
                 return false;
             }else
             {
                 if(!audioSourceObject.TryGetComponent<AudioSource>(out AudioSource newAudioSrc))
                 {
-                    Debug.LogError(string.Format("UFG: {0} is missing AudioSource Component: {1}", gameObject.name, clipName));
+                    HydraLogger.Log(string.Format("UFG: {0} is missing AudioSource Component: {1}", gameObject.name, clipName), DebugChannel.Error);
                     return false;
                 }
 
                 if(soundEffects.ContainsKey(name))
                 {
-                    Debug.LogWarning(string.Format("UFG: {0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName));
+                    HydraLogger.Log(string.Format("UFG: {0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName), DebugChannel.Warning);
                     return false;
                 }
 
@@ -179,14 +179,14 @@ namespace UltraFunGuns
                 }
             }
 
-            Debug.Log(string.Format("UFG: {0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
+            HydraLogger.Log(string.Format("UFG: {0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
         }
 
         protected void PlaySFX(string name, float minPitch = 1.0f, float maxPitch = 1.0f)
         {
             if(!soundEffects.ContainsKey(name))
             {
-                Debug.LogError(string.Format("UFG: {0}: sound effect: {1} not present in dictionary.", gameObject.name, name));
+                HydraLogger.Log(string.Format("UFG: {0}: sound effect: {1} not present in dictionary.", gameObject.name, name), DebugChannel.Error);
                 return;
             }
 
@@ -224,7 +224,8 @@ namespace UltraFunGuns
 
             public bool CanFire()
             {
-                if(timeToFire < Time.time || noCooldown)
+                //TODO check this for massive errors lol
+                if(timeToFire < Time.time || noCooldown || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown)
                 {
                     return true;
                 }

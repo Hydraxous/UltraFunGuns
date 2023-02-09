@@ -28,7 +28,7 @@ namespace UltraFunGuns
             weaponIcon_Disabled = new Color(73f, 73f, 73f, 255f);
             nodeBg_Enabled = new Color(185.0f, 185.0f, 185.0f, 110f);
             nodeBg_Disabled = new Color(49.0f, 49.0f, 49.0f, 110f);
-            Debug.Log(data.weaponKey + " NODE INIT!");
+            HydraLogger.Log(data.weaponKey + " NODE INIT!");
             this.slotIndexPosition = slotIndex;
             this.data = data;
             this.slot = slot;

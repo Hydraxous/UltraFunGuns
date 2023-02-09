@@ -71,7 +71,7 @@ namespace UltraFunGuns
             }
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             laser.laserActive = laserActive;
             tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount()-1,0,laser.maxPylons);

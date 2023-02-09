@@ -71,10 +71,11 @@ namespace UltraFunGuns
                 }
                 else
                 {
-                    if(invController.data.firstTimeModLoaded)
+                    if(UltraFunData.Save.Data.firstTimeModLoaded)
                     {
                         MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.keyBind.ToString()), "", "", 2);//TODO
-                        invController.data.firstTimeModLoaded = false;
+                        UltraFunData.Save.Data.firstTimeModLoaded = false;
+                        UltraFunData.Save.Save();
                     }
 
                     if (inventoryManagerOpen)
@@ -104,10 +105,11 @@ namespace UltraFunGuns
                     om.Pause();
                 }
 
-                if (invController.data.firstTimeUsingInventory)
+                if (UltraFunData.Save.Data.firstTimeUsingInventory)
                 {
                     MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
-                    invController.data.firstTimeUsingInventory = false;
+                    UltraFunData.Save.Data.firstTimeUsingInventory = false;
+                    UltraFunData.Save.Save();
                 }
                 pauseMenu.SetActive(false);
                 invControllerButton.gameObject.SetActive(false);
@@ -126,7 +128,7 @@ namespace UltraFunGuns
 
         public void SendVersionHelpMessage()
         {
-            if (!sentVersionMessage && om.paused && !displayingHelpMessage)
+            if (!sentVersionMessage && om.paused && !displayingHelpMessage && !UltraFunData.Config.Data.disableVersionMessages)
             {
                 sentVersionMessage = true;
                 StartCoroutine(DisplayHelpMessage(versionHelpMessage));
@@ -135,14 +137,11 @@ namespace UltraFunGuns
 
         private IEnumerator DisplayHelpMessage(Transform message)
         {
-            float timer = 4.0f;
             displayingHelpMessage = true;
             message.gameObject.SetActive(true);
-            while (timer > 0.0f)
-            {
-                timer -= Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
-            }
+
+            yield return new WaitForSecondsRealtime(4);
+
             message.gameObject.SetActive(false);
             displayingHelpMessage = false;
         }

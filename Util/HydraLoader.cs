@@ -24,16 +24,16 @@ namespace UltraFunGuns
         {
             try
             {
-                Debug.Log("HydraLoader: loading mod files");
+                HydraLogger.Log("HydraLoader: loading mod files");
                 assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
-                Debug.Log("HydraLoader: loading complete");
+                HydraLogger.Log("HydraLoader: loading complete");
                 return true;
             }
             catch (Exception e)
             {
-                Debug.Log("HydraLoader: loading failed");
+                HydraLogger.Log("HydraLoader: loading failed", DebugChannel.Fatal);
                 return false;
             }
         }
@@ -54,7 +54,7 @@ namespace UltraFunGuns
                     }
                     
                 }
-                Debug.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
+                HydraLogger.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
                 dataRegistered = true;
             }
         }
@@ -72,7 +72,7 @@ namespace UltraFunGuns
                     }
                     prefabRegistry.Add(asset.name, newPrefab);
                 }
-                Debug.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
+                HydraLogger.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
 
                 assetsRegistered = true;
             }
@@ -104,7 +104,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataFile = dataFile;
                 dataToRegister.Add(this);
-                //Debug.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
+                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
             }
 
             public CustomAssetData(string dataName, Type type) //For loading general assets
@@ -112,7 +112,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataType = type;
                 dataToRegister.Add(this);
-                //Debug.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
+                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
             }
         }
     }

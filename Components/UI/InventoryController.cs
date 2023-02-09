@@ -16,13 +16,11 @@ namespace UltraFunGuns
         private List<InventorySlot> slots = new List<InventorySlot>();
         private List<Text> slotKeyNames = new List<Text>();
         GunControl gc;
-        public InventoryControllerData data;
 
         private void Awake()
         {
             om = MonoSingleton<OptionsManager>.Instance;
             gc = MonoSingleton<GunControl>.Instance;
-            data = InventoryDataManager.GetInventoryData();
         }
 
         private void Start()
@@ -31,6 +29,7 @@ namespace UltraFunGuns
             SetSlotKeyDisplays();
         }
 
+        //Adds slot components and initializes them
         private void CreateNewSlots()
         {
             for (int i = 0; i < maxSlots; i++)
@@ -41,10 +40,11 @@ namespace UltraFunGuns
 
             for(int j = 0; j < slots.Count; j++)
             {
-                slots[j].Initialize(data.slots[j], j, this);
+                slots[j].Initialize(UltraFunData.Loadout.Data.slots[j], j, this);
             }
         }
 
+        //Sets the slot keys list
         private void SetSlotKeyDisplays()
         {
             List<Text> slotNameTexts = new List<Text>();
@@ -56,6 +56,8 @@ namespace UltraFunGuns
             RefreshSlotKeyDisplays();
         }
 
+
+        //Refreshes the keybind displays for each slot.
         public void RefreshSlotKeyDisplays()
         {
             if(slotKeyNames.Count > 0)
@@ -67,6 +69,7 @@ namespace UltraFunGuns
             }
         }
 
+        //This is called when a button is pressed on a node.
         public void ButtonPressed(InventoryNode node, InventorySlot slot, string buttonPressed)
         {
             switch(buttonPressed)
@@ -130,20 +133,23 @@ namespace UltraFunGuns
 
         public void SaveInventoryData()
         {
-            data = GetCurrentInventoryData();
-            InventoryDataManager.SaveInventoryData(data);
-            Debug.Log("UFG: Inventory saved.");
+            //data = GetCurrentInventoryData();
+            UltraFunData.Loadout.Data.slots = GetInventoryLoadout();
+            UltraFunData.Loadout.Save();
+            HydraLogger.Log("Inventory saved.");
         }
 
-        public InventoryControllerData GetCurrentInventoryData()
+        public InventorySlotData[] GetInventoryLoadout()
         {
             List<InventorySlotData> newNodeArray = new List<InventorySlotData>();
-            for(int i = 0; i < slots.Count; i++)
+            for (int i = 0; i < slots.Count; i++)
             {
                 newNodeArray.Add(slots[i].GetSlotData());
             }
-            return new InventoryControllerData(newNodeArray.ToArray(), data.modVersion, data.firstTimeUsingInventory, data.firstTimeModLoaded);
+
+            return newNodeArray.ToArray();
         }
+
     }
 
     [System.Serializable]

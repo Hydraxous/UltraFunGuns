@@ -91,10 +91,6 @@ namespace UltraFunGuns
             debugText.text = String.Format("{0} ROT\n{1} TURN", revolutions, turnsCompleted);
         }
 
-        public override void DoAnimations()
-        {
-
-        }
 
         private void CheckRotation()
         {

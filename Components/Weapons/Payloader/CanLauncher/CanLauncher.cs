@@ -56,11 +56,6 @@ namespace UltraFunGuns
 
         }
 
-        public override void DoAnimations()
-        {
-
-        }
-
         public override void GetInput()
         {
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)

@@ -21,6 +21,7 @@ namespace UltraFunGuns
                 if (ufgObject != null)
                 {
                     ufgObject.Shot(__instance.beamType);
+                    
                 }
 
                 ThrownDodgeball hitDodgeball = currentHit.transform.GetComponentInParent<ThrownDodgeball>();
@@ -49,7 +50,7 @@ namespace UltraFunGuns
                 CanProjectile hitCan = currentHit.transform.GetComponentInParent<CanProjectile>();
                 if (hitCan != null)
                 {
-                    Debug.Log("Shot thingy with thingy");
+                    HydraLogger.Log($"{hitCan.name} was shot!");
                     switch (__instance.beamType)
                     {
                         case BeamType.Railgun:
@@ -105,7 +106,6 @@ namespace UltraFunGuns
         {
             if (___enemiesPierced < ___hitList.Count)
             {
-                Debug.Log(___hitList[___enemiesPierced].transform.name);
                 if (___hitList[___enemiesPierced].transform == null)
                 {
                     ___enemiesPierced++;
@@ -170,6 +170,7 @@ namespace UltraFunGuns
                                     if (__instance.bodiesPierced < __instance.hitAmount)
                                     {
                                         __instance.ExecuteHits(___hitList[___enemiesPierced].rrhit);
+                                        ___fadeOut = true; //TODO check this.
                                     }
                                 }else if (!componentInParent)
                                 {
@@ -326,7 +327,6 @@ namespace UltraFunGuns
                                         }
                                         else
                                         {
-                                            Debug.Log("executing on lastcheck " + ___hitList[___enemiesPierced].transform.name);
                                             if (__instance.bodiesPierced < __instance.hitAmount)
                                             {
                                                 __instance.ExecuteHits(___hitList[___enemiesPierced].rrhit);

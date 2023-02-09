@@ -22,10 +22,5 @@ namespace UltraFunGuns
         {
             
         }
-
-        public override void DoAnimations()
-        {
-
-        }
     }
 }
