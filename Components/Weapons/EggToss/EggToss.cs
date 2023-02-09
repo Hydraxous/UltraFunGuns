@@ -6,18 +6,14 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion. TODO add revolver/railgun interaction.
+    //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion.
+    [WeaponInfo("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
     public class EggToss : UltraFunGunBase
     {
         private GameObject thrownEggPrefab;
 
         public float forceMultiplier = 59.0f;
         private bool throwingEgg = false;
-
-        public override void OnAwakeFinished()
-        {
-            weaponIcon.variationColor = 3;
-        }
 
         private void Start()
         {

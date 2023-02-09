@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
+    [WeaponInfo("FingerGun","Hand Gun", 0, true, WeaponIconColor.Blue)]
     public class FingerGun : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;
@@ -46,7 +47,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            weaponIcon.variationColor = 1;
+            weaponIcon.variationColor = (int) weaponInfo.IconColor;
             HydraLoader.prefabRegistry.TryGetValue("BulletPierceTrail", out bulletTrailPrefab);
             HydraLoader.prefabRegistry.TryGetValue("FingerGun_ImpactExplosion", out hitExplodeFX);
             AddSFX("BangSound", "GunReady", "Reload", "Kabooma");
@@ -79,7 +80,7 @@ namespace UltraFunGuns
             animator.Play("Shoot", 0, 0.0f);
             //bang.pitch = UnityEngine.Random.Range(0.85f, 1.0f); TODO
             //bang.Play();
-            PlaySFX("Bang", 0.85f, 1.0f);
+            PlaySFX("BangSound", 0.85f, 1.0f);
             if(!ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown)
                 --CurrentAmmo;
 

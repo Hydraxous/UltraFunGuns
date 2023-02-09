@@ -8,10 +8,10 @@ namespace UltraFunGuns
 {
     //Throwable projectile that bounces off of things, does damage to enemies and multiplies it's velocity every time it hits something. Should be really funny.
     //Also can force push/pull it with right click
-    //TODO add parry to make the thing home to an enemy.
+    [WeaponInfo("Dodgeball", "ULTRABALLER", 1, true, WeaponIconColor.Red)]
     public class Dodgeball : UltraFunGunBase
     {
-        ActionCooldown pullCooldown = new ActionCooldown(0.25f);//TODO check this
+        ActionCooldown pullCooldown = new ActionCooldown(0.25f);
 
         public ThrownDodgeball activeDodgeball;
 
@@ -228,7 +228,7 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work since coroutine cant run on disabled obj
+            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work since coroutine cant run on disabled obj too bad!
             {
                 StartCoroutine(ThrowDodgeball(false,true));
             }

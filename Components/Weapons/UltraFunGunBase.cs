@@ -17,17 +17,13 @@ namespace UltraFunGuns
         protected WeaponIcon weaponIcon;
         protected Animator animator;
 
-        protected string registryName;
+        protected WeaponInfo weaponInfo;
 
         protected virtual void DoAnimations() { }
 
         private void Awake()
         {
-            registryName = gameObject.name;
-            if (registryName.Contains("(Clone)"))
-            {
-                registryName = registryName.Replace("(Clone)", "");
-            }
+            weaponInfo = UltraFunData.GetWeaponInfo(this.GetType());
             actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
@@ -49,14 +45,14 @@ namespace UltraFunGuns
                 HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Error);
             }
 
-            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_weaponIcon", registryName), out UnityEngine.Object weapon_weaponIcon);
+            HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_weaponIcon", out UnityEngine.Object weapon_weaponIcon);
             weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
 
-            HydraLoader.dataRegistry.TryGetValue(String.Format("{0}_glowIcon", registryName), out UnityEngine.Object weapon_glowIcon);
+            HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_glowIcon", out UnityEngine.Object weapon_glowIcon);
             weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
 
-            weaponIcon.variationColor = 0;
-
+            weaponIcon.variationColor = (int) weaponInfo.IconColor;
+             
             if (weaponIcon.weaponIcon == null)
             {
                 HydraLoader.dataRegistry.TryGetValue("debug_weaponIcon", out UnityEngine.Object debug_weaponIcon);
@@ -146,19 +142,19 @@ namespace UltraFunGuns
 
             if(audioSourceObject == null)
             {
-                HydraLogger.Log(string.Format("UFG: {0} is missing AudioSource Object: {1}", gameObject.name, clipName), DebugChannel.Error);
+                HydraLogger.Log(string.Format("{0} is missing AudioSource Object: {1}", gameObject.name, clipName), DebugChannel.Error);
                 return false;
             }else
             {
                 if(!audioSourceObject.TryGetComponent<AudioSource>(out AudioSource newAudioSrc))
                 {
-                    HydraLogger.Log(string.Format("UFG: {0} is missing AudioSource Component: {1}", gameObject.name, clipName), DebugChannel.Error);
+                    HydraLogger.Log(string.Format("{0} is missing AudioSource Component: {1}", gameObject.name, clipName), DebugChannel.Error);
                     return false;
                 }
 
                 if(soundEffects.ContainsKey(name))
                 {
-                    HydraLogger.Log(string.Format("UFG: {0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName), DebugChannel.Warning);
+                    HydraLogger.Log(string.Format("{0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName), DebugChannel.Warning);
                     return false;
                 }
 
@@ -179,14 +175,14 @@ namespace UltraFunGuns
                 }
             }
 
-            HydraLogger.Log(string.Format("UFG: {0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
+            HydraLogger.Log(string.Format("{0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
         }
 
         protected void PlaySFX(string name, float minPitch = 1.0f, float maxPitch = 1.0f)
         {
             if(!soundEffects.ContainsKey(name))
             {
-                HydraLogger.Log(string.Format("UFG: {0}: sound effect: {1} not present in dictionary.", gameObject.name, name), DebugChannel.Error);
+                HydraLogger.Log(string.Format("{0}: sound effect: {1} not present in dictionary.", gameObject.name, name), DebugChannel.Error);
                 return;
             }
 
@@ -224,7 +220,6 @@ namespace UltraFunGuns
 
             public bool CanFire()
             {
-                //TODO check this for massive errors lol
                 if(timeToFire < Time.time || noCooldown || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown)
                 {
                     return true;

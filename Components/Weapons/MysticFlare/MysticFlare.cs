@@ -8,10 +8,7 @@ namespace UltraFunGuns
     public class MysticFlare : UltraFunGunBase
     {
 
-        protected override void DoAnimations()
-        {
-            throw new NotImplementedException();
-        }
+
     }
 
 }

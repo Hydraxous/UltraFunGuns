@@ -20,6 +20,7 @@ namespace UltraFunGuns
      * The nature of being able to charge indefinitely causes many issues.
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
+    [WeaponInfo("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {
         public GameObject bang;
@@ -190,7 +191,7 @@ namespace UltraFunGuns
         //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
         private void Fire()
         {
-            //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron...
+            //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron... UPDATE: You will die in 7 days...
             int chargeState = GetChargeState();
             
             animator.Play("SonicReverberator_Shoot");
@@ -292,6 +293,8 @@ namespace UltraFunGuns
         //TODO FUCKING HELL FIX THIS AWFUL SHIT
         //TODO FIX THIS 
         //TODO STOP WRITING MORE TODO COMMENTS AND FUCKING DO IT TOFUCKINGDAY
+        //I'm gonna keep writing TODO messages you cannot stop me, you are in the past, you have no control of my actions.
+        //TODO fix this
         private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
         {
             try

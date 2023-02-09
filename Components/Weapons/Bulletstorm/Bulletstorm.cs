@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    [WeaponInfo("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green)]
     public class Bulletstorm : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;

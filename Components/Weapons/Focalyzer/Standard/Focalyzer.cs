@@ -8,6 +8,7 @@ namespace UltraFunGuns
 {
 
     //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
+    [WeaponInfo("Focalyzer", "Focalyzer", 2, true, WeaponIconColor.Red)]
     public class Focalyzer : UltraFunGunBase
     {
         public FocalyzerLaserController laser;

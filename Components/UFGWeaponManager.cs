@@ -107,7 +107,7 @@ namespace UltraFunGuns
                 {
                     try
                     {
-                        string weaponsGiven = "UFG: Weapons given: ";
+                        string weaponsGiven = "Weapons given: ";
                         for (int i = 0; i < weaponKeySlots.Count; i++)
                         {
                             if (weaponKeySlots[i].Count > 0)

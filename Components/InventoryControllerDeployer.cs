@@ -22,7 +22,9 @@ namespace UltraFunGuns
 
         private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("<color=orange>UFG</color> Inventory", KeyCode.I);
 
-        private bool sentVersionMessage = false, displayingHelpMessage = false;
+        private static bool sentVersionMessage = false;
+
+        private bool displayingHelpMessage = false;
 
         private void Awake()
         {

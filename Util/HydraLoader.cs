@@ -24,7 +24,7 @@ namespace UltraFunGuns
         {
             try
             {
-                HydraLogger.Log("HydraLoader: loading mod files");
+                HydraLogger.Log("HydraLoader: loading mod assets");
                 assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
@@ -66,6 +66,13 @@ namespace UltraFunGuns
                 foreach (CustomAssetPrefab asset in assetsToRegister)
                 {
                     GameObject newPrefab = assetBundle.LoadAsset<GameObject>(asset.name);
+
+                    if(newPrefab == null)
+                    {
+                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle: {assetBundle.name}");
+                        newPrefab = new GameObject(asset.name);
+                    }
+
                     for (int i = 0; i < asset.modules.Length; i++)
                     {
                         newPrefab.AddComponent(asset.modules[i].GetType());

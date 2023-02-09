@@ -140,7 +140,7 @@ namespace UltraFunGuns
 
         public InventorySlotData()
         {
-
+            this.slotNodes = new InventoryNodeData[0];
         }
     }
 }

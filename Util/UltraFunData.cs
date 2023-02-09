@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -47,17 +48,17 @@ namespace UltraFunGuns
 
         private static void SaveData<T>(T dataObject) where T : UFGData
         {
-            string serializedData = JsonConvert.SerializeObject(dataObject, dataObject.JsonFormat);
-            string dataFilePath = GetDataPath(dataObject.FileName + dataObject.FileExtension);
+            string serializedData = JsonConvert.SerializeObject(dataObject, dataObject.JsonFormat());
+            string dataFilePath = GetDataPath(dataObject.FileName() + dataObject.FileExtension());
             File.WriteAllText(dataFilePath, serializedData);
-            HydraLogger.Log($"{dataObject.FileName} Data saved.");
+            HydraLogger.Log($"{dataObject.FileName()} Data saved.");
         }
 
         private static T LoadData<T>() where T : UFGData, new()
         {
             T dataObject = new T();
 
-            string dataFilePath = GetDataPath(dataObject.FileName + fileExtension);
+            string dataFilePath = GetDataPath(dataObject.FileName() + dataObject.FileExtension());
 
 
             if (File.Exists(dataFilePath))
@@ -75,15 +76,15 @@ namespace UltraFunGuns
             }
 
             dataObject = new T();
-            HydraLogger.Log($"Loaded: {dataObject.FileName}");
+            HydraLogger.Log($"Loaded: {dataObject.FileName()}");
             SaveData(dataObject);
             return dataObject;
         }
 
         public static void CheckSetup()
         {
-            DirectoryInfo info = new DirectoryInfo(GetDataPath());
-            if(!(info.GetFiles().Length > 0))
+            DirectoryInfo dataFolderInfo = new DirectoryInfo(GetDataPath());
+            if(!(dataFolderInfo.GetFiles().Length > 0))
             {
                 FirstTimeSetup();
             }
@@ -101,6 +102,18 @@ namespace UltraFunGuns
         public static OnDataChangedHandler OnDataChanged;
 
 
+        public static WeaponInfo GetWeaponInfo(Type t)
+        {
+            WeaponInfo weaponInfo = (WeaponInfo) Attribute.GetCustomAttribute(t, typeof(WeaponInfo));
+            
+            if(weaponInfo == null)
+            {
+                HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+            }
+
+            return weaponInfo;
+        }
+
         [System.Serializable]
         public class UFG_Loadout : UFGData
         {
@@ -113,26 +126,49 @@ namespace UltraFunGuns
 
             public UFG_Loadout()
             {
-                List<InventoryNodeData> slot1 = new List<InventoryNodeData>();
-                List<InventoryNodeData> slot2 = new List<InventoryNodeData>();
-                List<InventoryNodeData> slot3 = new List<InventoryNodeData>();
-                List<InventoryNodeData> slot4 = new List<InventoryNodeData>();
+                //TODO Clean this shit up.
+                int SLOTS = 4;
 
-                slot1.Add(new InventoryNodeData("SonicReverberator", true, 0));
-                slot2.Add(new InventoryNodeData("Dodgeball", true, 2));
-                slot2.Add(new InventoryNodeData("EggToss", true, 3));
-                slot3.Add(new InventoryNodeData("Focalyzer", true, 2));
-                slot3.Add(new InventoryNodeData("FocalyzerAlternate", true, 0));
-                slot4.Add(new InventoryNodeData("Tricksniper", true, 2));
-                slot4.Add(new InventoryNodeData("Bulletstorm", true, 0));
-                slot4.Add(new InventoryNodeData("CanLauncher", true, 0));
-                slot4.Add(new InventoryNodeData("FingerGun", true, 2));
-                slot4.Add(new InventoryNodeData("RemoteBomb", true, 1));
-                slot4.Add(new InventoryNodeData("JetSpear", true, 1));
-                //slot4.Add(new InventoryNodeData("MysticFlare", true, 2));
+                List<List<InventoryNodeData>> slotData = new List<List<InventoryNodeData>>();
 
-                List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
-                this.slots = newSlotDatas.ToArray();
+                for(int i=0; i < SLOTS; i++)
+                {
+                    slotData.Add(new List<InventoryNodeData>());
+                }
+
+                //This code below will scan every class for the WeaponInfo attribute and will register any weapon classes with the attribute automatically.
+                //TODO maybe alter HydraLoader to automatically try to load the weapons from assetbundle instead of registering them in the asset manifest
+
+                Assembly asm = Assembly.GetExecutingAssembly();
+
+                foreach(Type type in asm.GetTypes())
+                {
+                    var attribute = type.GetCustomAttribute<WeaponInfo>();
+                    if(attribute != null)
+                    {
+                        InventoryNodeData newNodeData = new InventoryNodeData(attribute.WeaponKey, attribute.Equipped, (int)attribute.IconColor);
+                        if(!slotData[attribute.Slot].Contains(newNodeData))
+                        {
+                            slotData[attribute.Slot].Add(newNodeData);
+                            HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
+                        }
+                    }
+                }
+
+                InventorySlotData[] slotInfo = new InventorySlotData[slotData.Count];
+
+                for (int i=0; i < slotData.Count; i++)
+                {      
+                    if (slotData[i].Count > 0)
+                    {
+                        slotInfo[i] = new InventorySlotData(slotData[i].ToArray());
+                    }else
+                    {
+                        slotInfo[i] = new InventorySlotData();
+                    }
+                }
+
+                this.slots = slotInfo;
             }
 
             public override bool IsValid()
@@ -164,7 +200,7 @@ namespace UltraFunGuns
                 return true;
             }
 
-            public override string FileName => "loadout";
+            public override string FileName() { return "loadout"; }
         }
 
         [System.Serializable]
@@ -182,9 +218,9 @@ namespace UltraFunGuns
                 this.basketBallMode = false;
             }
 
-            public override string FileName => "config";
-            public override string FileExtension => ".txt";
-            public override Formatting JsonFormat => Formatting.Indented;
+            public override string FileName() { return "config"; }
+            public override string FileExtension() { return ".txt"; }
+            public override Formatting JsonFormat() { return Formatting.Indented; }
 
             public override bool IsValid()
             {
@@ -207,7 +243,7 @@ namespace UltraFunGuns
                 this.firstTimeUsingInventory = true;
             }
 
-            public override string FileName => "save";
+            public override string FileName() { return "save"; }
 
             public override bool IsValid()
             {
@@ -237,12 +273,12 @@ namespace UltraFunGuns
         public abstract class UFGData
         {
             public abstract bool IsValid();
-            public abstract string FileName { get; }
-            public virtual string FileExtension => fileExtension;
-            public virtual Formatting JsonFormat => Formatting.None;
+            public abstract string FileName();
+            public virtual string FileExtension() { return fileExtension; }
+            public virtual Formatting JsonFormat() { return Formatting.None; }
         }
         
-        //TODO make modified properties serialize correctly.
+        //TODO make modified properties serialize correctly. You must call save after modifying members, very annoying.
 
         public class UFGPersistentData<T> where T : UFGData, new()
         {
@@ -261,7 +297,7 @@ namespace UltraFunGuns
 
                 set
                 {
-                    HydraLogger.Log($"Data was changed somewhat!!!!! {data.FileName}");
+                    HydraLogger.Log($"Data was changed somewhat!!!!! {data.FileName()}");
 
                     if (data != value && value != null)
                     {
@@ -269,7 +305,7 @@ namespace UltraFunGuns
                         {
                             data = value;
                             OnDataChanged?.Invoke();
-                            HydraLogger.Log($"Data was changed differentlyyyy!!!!! {data.FileName}");
+                            HydraLogger.Log($"Data was changed differentlyyyy!!!!! {data.FileName()}");
                             if (AutoSave)
                             {
                                 Save();
