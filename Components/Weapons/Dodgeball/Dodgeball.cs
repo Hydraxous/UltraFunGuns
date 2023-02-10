@@ -43,7 +43,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            basketBallMode = UltraFunData.Config.Data.basketBallMode;
+            basketBallMode = Data.Config.Data.basketBallMode;
             HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
             basketballSkin = (Material) obj;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
@@ -97,7 +97,7 @@ namespace UltraFunGuns
                 }
 
 
-                if(UFGWeaponManager.SecretButton.WasPerformedThisFrame)
+                if(WeaponManager.SecretButton.WasPerformedThisFrame)
                 {
                     DoSecret();
                 }
@@ -115,8 +115,8 @@ namespace UltraFunGuns
         public override void DoSecret()
         {
             basketBallMode = !basketBallMode;
-            UltraFunData.Config.Data.basketBallMode = basketBallMode;
-            UltraFunData.Config.Save();
+            Data.Config.Data.basketBallMode = basketBallMode;
+            Data.Config.Save();
             SetSkin(basketBallMode);
         }
 
@@ -150,6 +150,8 @@ namespace UltraFunGuns
         }
 
         //Secondary fire action when the ball is in play
+        [WeaponAbility("Recall", "Pull the thrown ball back to you by holing <color=orange>Fire 2</color>", 1, RichTextColors.lime)]
+
         private void ForceDodgeball(bool pull)
         {
             if (activeDodgeball != null)
@@ -170,6 +172,9 @@ namespace UltraFunGuns
                 dodgeBallActive = false;
             }
         }
+
+        [WeaponAbility("Ball", "Press <color=orange>Fire 1</color> to throw the ball. Holding the button will throw the ball faster and harder.", 0, RichTextColors.aqua)]
+
 
         IEnumerator ThrowDodgeball(bool softThrow, bool skipTiming = false)
         {

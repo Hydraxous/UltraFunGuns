@@ -1,18 +1,15 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UMM;
 using UnityEngine;
-using HarmonyLib;
 using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
-    //Single instance component which is applied directly to the GunControl object and inserts the custom weapons into the player's inventory.
-    //TODO make this object non-destroyable and deploy on scene load and stuff
-    public class UFGWeaponManager : MonoBehaviour
+    public static class WeaponManager
     {
-        GunControl gc;
-
+        public const int SLOTS = 4, SLOT_OFFSET = 7;
         // Assigned by UMM
         public static UKKeyBind[] UFGSlotKeys = {
             UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 7", KeyCode.Alpha7),
@@ -22,25 +19,47 @@ namespace UltraFunGuns
         };
         public static UKKeyBind SecretButton = UKAPI.GetKeyBind("<color=orange>UFG</color> Secret", KeyCode.K);
 
-        private List<List<string>> weaponKeySlots = new List<List<string>>();
-
-        public static int SlotOffset = 7;
-
-        //Empty slots for the weapons. Don't remove this.
-        private List<List<GameObject>> customSlots = new List<List<GameObject>>()
+        public static void Init()
         {
-            new List<GameObject>(),
-            new List<GameObject>(),
-            new List<GameObject>(),
-            new List<GameObject>()
-        };
+            RegisterWeapons();
+            UKAPIP.OnLevelChanged += (_) => OnLevelChanged();
+            
+        }
 
-        //Use for intializing style items
-        private void Awake()
+        private static WeaponDeployer deployer;
+
+        private static InventoryControllerDeployer inventoryDeployer;
+
+        public static void DeployWeapons(bool firstTime)
         {
-            gc = GetComponent<GunControl>();
+            if(UKAPI.InLevel())
+            {
+                if (deployer == null)
+                {
+                    GunControl gc = MonoSingleton<GunControl>.Instance;
+                    if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
+                    {
+                        deployer = ultraFGPatch;
+                    }else
+                    {
+                        UsingWeapons = false;
+                        deployer = gc.gameObject.AddComponent<WeaponDeployer>();
+                    }
+                }
+
+                deployer.DeployWeapons(firstTime);
+            }
+        }
+
+        private static void OnLevelChanged()
+        {
+            if (!UKAPIP.InLevel())
+            {
+                return;
+            }
+
             NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
-            NewStyleItem("vibecheck","VIBE-CHECKED");
+            NewStyleItem("vibecheck", "VIBE-CHECKED");
             NewStyleItem("v2kill", "<color=#ff33001>OXIDIZED</color>");
             NewStyleItem("gabrielkill", "<color=#ff0051>L-DISTRIBUTED</color>");
             NewStyleItem("wickedkill", "<color=#919191>NOT WICKED ENOUGH</color>");
@@ -59,10 +78,193 @@ namespace UltraFunGuns
             NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
             NewStyleItem("fingergunprojhit", "DENIAL");
 
+            CanvasController canvas = MonoSingleton<CanvasController>.Instance;
+            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
+            {
+                UsingWeapons = false;
+                inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
+            }
+            else
+            {
+                inventoryDeployer = invControllerDeployer;
+            }
+
+            DeployWeapons(false);
+
+        }
+
+        private static Dictionary<string, WeaponInfo> weapons;
+
+        public static Dictionary<string, WeaponInfo> Weapons
+        {
+            get
+            {
+                if(!WeaponsRegistered || weapons == null)
+                {
+                    RegisterWeapons();
+                }
+                return weapons;
+            }
+        }
+
+        public static WeaponInfo[] GetWeapons()
+        {
+            List<WeaponInfo> weaponInfos = new List<WeaponInfo>();
+
+            foreach(KeyValuePair<string,WeaponInfo> info in Weapons)
+            {
+                weaponInfos.Add(info.Value);
+            }
+
+            return weaponInfos.ToArray();
+        }
+
+        public static int WeaponCount
+        {
+            get
+            {
+                return Weapons.Count;
+            }
+        }
+
+        public static bool WeaponsRegistered { get; private set; } = false;
+        public static bool UsingWeapons { get; private set; }
+
+        //Registers any weapons tagged with the WeaponInfo attribute
+        public static void RegisterWeapons()
+        {
+            if(WeaponsRegistered)
+            {
+                return;
+            }
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                var attribute = type.GetCustomAttribute<WeaponInfo>();
+                if (attribute != null)
+                {
+                    if(weapons == null)
+                    {
+                        weapons = new Dictionary<string, WeaponInfo>();
+                    }
+
+                    if (!weapons.ContainsKey(attribute.WeaponKey))
+                    {
+                        List<WeaponAbility> weaponAbilities = new List<WeaponAbility>();
+                        IEnumerable<WeaponAbility> abilities = type.GetCustomAttributes<WeaponAbility>();
+                        foreach (WeaponAbility ability in abilities)
+                        {
+                            if(ability != null)
+                            {
+                                if (!weaponAbilities.Contains(ability))
+                                {
+                                    weaponAbilities.Add(ability);
+                                }
+                            }                   
+                        }
+
+                        attribute.SetAbilities(weaponAbilities.ToArray());
+                        attribute.SetType(type);
+
+                        int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
+
+                        HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
+                        //new HydraLoader.CustomAssetPrefab(attribute.WeaponKey, new Component[] { new WeaponIcon() { variationColor=(int)attribute.IconColor}, new WeaponIdentifier() });
+                        weapons.Add(attribute.WeaponKey, attribute);
+                    }
+                }
+            }
+
+            WeaponsRegistered = true;
+        }
+
+        public static InventorySlotData[] GetDefaultLoadout()
+        {
+
+            List<List<InventoryNodeData>> slotData = new List<List<InventoryNodeData>>();
+
+            for (int i = 0; i < SLOTS; i++)
+            {
+                slotData.Add(new List<InventoryNodeData>());
+            }
+
+            WeaponInfo[] infos = GetWeapons();
+            
+            for(int i=0;i<infos.Length;i++)
+            {
+                int slot = ((infos[i].Slot < 0) ? 0 : (infos[i].Slot > slotData.Count) ? slotData.Count - 1 : infos[i].Slot);
+
+                InventoryNodeData newNodeData = new InventoryNodeData(infos[i].WeaponKey, infos[i].Equipped);
+                if (!slotData[slot].Contains(newNodeData))
+                {
+                    slotData[slot].Add(newNodeData);
+                    HydraLogger.Log($"Found weapon: {infos[i].DisplayName}");
+                }
+            }
+
+
+            
+
+            InventorySlotData[] slotInfo = new InventorySlotData[slotData.Count];
+
+            for (int i = 0; i < slotData.Count; i++)
+            {
+                if (slotData[i].Count > 0)
+                {
+                    slotInfo[i] = new InventorySlotData(slotData[i].ToArray());
+                }
+                else
+                {
+                    slotInfo[i] = new InventorySlotData();
+                }
+            }
+
+            return slotInfo;
+        }
+
+        //simplified way to add new style items for this mod.
+        public static void NewStyleItem(string name, string text)
+        {
+            //This call will return true if the style item is NOT in the dictionary.
+            if (MonoSingleton<StyleHUD>.Instance.GetLocalizedName("hydraxous.ultrafunguns."+ name) == "hydraxous.ultrafunguns." + name)
+            {
+                MonoSingleton<StyleHUD>.Instance.RegisterStyleItem("hydraxous.ultrafunguns." + name, text);
+            }
+        }
+
+        public static Color GetColor(WeaponIconColor colorType)
+        {
+            Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
+            return color;
+        }
+    }
+
+    public class WeaponDeployer : MonoBehaviour
+    {
+
+        GunControl gc;
+
+        private void Awake()
+        {
+            gc = GetComponent<GunControl>();
             DeployWeapons();
         }
 
-        public List<List<string>> CreateWeaponKeyset(UltraFunData.UFG_Loadout invControllerData)
+        private List<List<string>> weaponKeySlots = new List<List<string>>();
+
+
+        //Empty slots for the weapons. Don't remove this.
+        private List<List<GameObject>> customSlots = new List<List<GameObject>>()
+        {
+            new List<GameObject>(),
+            new List<GameObject>(),
+            new List<GameObject>(),
+            new List<GameObject>()
+        };
+
+        public List<List<string>> CreateWeaponKeyset(Data.UFG_Loadout invControllerData)
         {
             List<List<string>> newWeaponKeys = new List<List<string>>();
             for (int x = 0; x < invControllerData.slots.Length; x++)
@@ -70,7 +272,7 @@ namespace UltraFunGuns
                 List<string> newWeaponKeyList = new List<string>();
                 for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
                 {
-                    if(invControllerData.slots[x].slotNodes[y].weaponEnabled)
+                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled)
                     {
                         newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }
@@ -80,30 +282,28 @@ namespace UltraFunGuns
             return newWeaponKeys;
         }
 
-        //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
         public void DeployWeapons(bool firstTime = false)
         {
-            string sceneName = SceneManager.GetActiveScene().name;
             bool deploy = true;
 
-            if(sceneName == "Level 0-1" && firstTime)
+            if (UKAPIP.CurrentSceneName == "Level 0-1" && firstTime)
             {
                 deploy = true;
             }
-            else if(firstTime)
+            else if (firstTime)
             {
                 deploy = false;
             }
 
-            if(deploy)
+            if (deploy)
             {
                 foreach (List<GameObject> customSlot in customSlots)
                 {
                     customSlot.Clear();
                 }
 
-                weaponKeySlots = CreateWeaponKeyset(UltraFunData.Loadout.Data);
-                if(weaponKeySlots.Count > 0)
+                weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
+                if (weaponKeySlots.Count > 0)
                 {
                     try
                     {
@@ -114,21 +314,35 @@ namespace UltraFunGuns
                             {
                                 foreach (string weaponKey in weaponKeySlots[i])
                                 {
-                                    if(HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
+                                    if(WeaponManager.Weapons.TryGetValue(weaponKey, out WeaponInfo weaponInfo))
                                     {
-                                        weaponPrefab.layer = 13;
-                                        Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                                        foreach (Transform child in childs)
+                                        if (HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                                         {
-                                            child.gameObject.layer = 13;
+                                            weaponPrefab.layer = 13;
+                                            Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                                            foreach (Transform child in childs)
+                                            {
+                                                child.gameObject.layer = 13;
+                                            }
+                                            weaponPrefab.SetActive(false);
+                                            GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
+                                            newWeapon.AddComponent(weaponInfo.Type);
+                                            customSlots[i].Add(newWeapon);
+                                            weaponsGiven += weaponKey + " ";
                                         }
-                                        weaponPrefab.SetActive(false);
-                                        customSlots[i].Add(GameObject.Instantiate<GameObject>(weaponPrefab, this.transform));
-                                        weaponsGiven += weaponKey + " ";  
-                                    }else
-                                    {
-                                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
+                                        else
+                                        {
+                                            HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
+                                        }
                                     }
+                                    else
+                                    {
+                                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously fucked up.", DebugChannel.Fatal);
+                                        this.enabled = false;
+                                        return;
+                                    }
+
+                                    
                                 }
                             }
                         }
@@ -140,7 +354,7 @@ namespace UltraFunGuns
                         HydraLogger.Log("WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message, DebugChannel.Fatal);
                     }
                 }
-                
+
             }
 
         }
@@ -172,24 +386,15 @@ namespace UltraFunGuns
         //This handles input for the extra slots
         private void Update()
         {
-            for(int i=0; i < UFGSlotKeys.Length; i++)
+            for (int i = 0; i < WeaponManager.UFGSlotKeys.Length; i++)
             {
-                if(UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i+SlotOffset))
+                if (WeaponManager.UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i + WeaponManager.SLOT_OFFSET))
                 {
                     if (customSlots[i].Count > 0 && customSlots[i][0] != null)
                     {
-                        gc.SwitchWeapon(i+SlotOffset, customSlots[i], false, false);
+                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, customSlots[i], false, false);
                     }
                 }
-            }
-        }
-
-        //simplified way to add new style items for this mod.
-        private void NewStyleItem(string name, string text)
-        {
-            if (MonoSingleton<StyleHUD>.Instance.GetLocalizedName("hydraxous.ultrafunguns."+ name) == "hydraxous.ultrafunguns." + name)
-            {
-                MonoSingleton<StyleHUD>.Instance.RegisterStyleItem("hydraxous.ultrafunguns." + name, text);
             }
         }
     }

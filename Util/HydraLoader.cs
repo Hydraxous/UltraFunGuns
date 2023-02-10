@@ -33,7 +33,7 @@ namespace UltraFunGuns
             }
             catch (Exception e)
             {
-                HydraLogger.Log("HydraLoader: loading failed", DebugChannel.Fatal);
+                HydraLogger.Log($"HydraLoader: asset loading failed\n{e.Message}", DebugChannel.Fatal);
                 return false;
             }
         }
@@ -69,15 +69,20 @@ namespace UltraFunGuns
 
                     if(newPrefab == null)
                     {
-                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle: {assetBundle.name}");
-                        newPrefab = new GameObject(asset.name);
+                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle: {assetBundle.name}", DebugChannel.Error);
+                        newPrefab = assetBundle.LoadAsset<GameObject>("BrokenAsset");
+                        newPrefab.name = asset.name;
+                        newPrefab.AddComponent<HLErrorNotifier>();
                     }
 
                     for (int i = 0; i < asset.modules.Length; i++)
                     {
                         newPrefab.AddComponent(asset.modules[i].GetType());
                     }
-                    prefabRegistry.Add(asset.name, newPrefab);
+                    if(!prefabRegistry.ContainsKey(asset.name))
+                    {
+                        prefabRegistry.Add(asset.name, newPrefab);
+                    }
                 }
                 HydraLogger.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
 
@@ -90,11 +95,19 @@ namespace UltraFunGuns
             public Component[] modules;
             public string name;
 
-            public CustomAssetPrefab(string assetName, Component[] componentsToAdd)
+            public CustomAssetPrefab(string assetName, Component[] componentsToAdd = null)
             {
                 this.name = assetName;
-                this.modules = componentsToAdd;
+                if(componentsToAdd == null)
+                {
+                    this.modules = new Component[] { };
+                }else
+                {
+                    this.modules = componentsToAdd;
+                }
                 assetsToRegister.Add(this);
+                HydraLogger.Log(String.Format("prefab: {0}, registered successfully.", assetName));
+
             }
         }
 

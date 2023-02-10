@@ -23,7 +23,7 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            weaponInfo = UltraFunData.GetWeaponInfo(this.GetType());
+            weaponInfo = Data.GetWeaponInfo(this.GetType());
             actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
@@ -56,7 +56,7 @@ namespace UltraFunGuns
             if (weaponIcon.weaponIcon == null)
             {
                 HydraLoader.dataRegistry.TryGetValue("debug_weaponIcon", out UnityEngine.Object debug_weaponIcon);
-                weaponIcon.weaponIcon = (Sprite)debug_weaponIcon;   
+                weaponIcon.weaponIcon = (Sprite)debug_weaponIcon;
             }
 
             if(weaponIcon.glowIcon == null)
@@ -64,6 +64,8 @@ namespace UltraFunGuns
                 HydraLoader.dataRegistry.TryGetValue("debug_glowIcon", out UnityEngine.Object debug_glowIcon);
                 weaponIcon.glowIcon = (Sprite)debug_glowIcon;
             }
+
+            weaponIcon.UpdateIcon();
 
             OnAwakeFinished();
         }
@@ -91,7 +93,7 @@ namespace UltraFunGuns
                 FireSecondary();
             }
 
-            if(UFGWeaponManager.SecretButton.WasPerformedThisFrame)
+            if(WeaponManager.SecretButton.WasPerformedThisFrame)
             {
                 DoSecret();
             }

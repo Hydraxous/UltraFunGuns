@@ -14,9 +14,6 @@ namespace UltraFunGuns
     [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, false)]
     public class UltraFunGuns : UKMod
     {
-        public UFGWeaponManager gunPatch;
-        public InventoryControllerDeployer invControllerDeployer;
-
         public static bool UsingLatestVersion = true;
         public static bool UsedWeapons = true;
         public static string Version = "1.1.8-Experimental";
@@ -28,82 +25,29 @@ namespace UltraFunGuns
         {
             HydraLogger.Log($"UltraFunGuns loading started. Version: {Version}");
 
-            UltraFunData.CheckSetup();
+            Data.CheckSetup();
+            WeaponManager.Init();
 
             if (AssetManifest.RegisterAssets())
             {
                 CheckVersion();
                 DoPatching();
                 UKAPIP.Init();
+                //UKAPIP.OnLevelChanged += (_) => CheckWeapons();
+                Commands.Register();
                 HydraLogger.Log("UltraFunGuns loaded.", DebugChannel.User);
             }
             else
             {
+                HydraLogger.Log("UltraFunGuns failed to load.", DebugChannel.Fatal);
                 this.enabled = false;
             }
         }
 
-        private void CheckWeapons()
-        {
-            if (gunPatch != null && invControllerDeployer != null)
-            {
-                return;
-            }
-
-            if (invControllerDeployer == null)
-            {
-                CanvasController canvas = MonoSingleton<CanvasController>.Instance;
-                if (!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
-                {
-                    UsedWeapons = false;
-                    invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
-                }
-
-            }
-
-            if (gunPatch == null)
-            {
-                GunControl gc = MonoSingleton<GunControl>.Instance;
-                if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
-                {
-                    UsedWeapons = false;
-                    gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
-                }
-            }
-
-        }
-
-        public static bool InLevel()
-        {
-            string sceneName = SceneManager.GetActiveScene().name;
-            if (sceneName == "Intro" || sceneName == "Main Menu")
-            {
-                return false;
-            }
-            return true;
-        }
-
         private void DoPatching()
         {
-            Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns.Patch");
+            Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
             harmony.PatchAll();
-        }
-
-        private void Update()
-        {
-            try
-            {
-                if (!UKAPIP.InLevel())
-                {
-                    UsedWeapons = false;
-                }
-                CheckWeapons();
-            }
-            catch (System.Exception e)
-            {
-                //Not sure why but there is a huge string of errors when the game is starting. So this is blank for that reason.
-            }
-
         }
 
         private void CheckVersion()
@@ -146,7 +90,7 @@ namespace UltraFunGuns
 
         private void OnApplicationQuit()
         {
-            UltraFunData.SaveAll();
+            Data.SaveAll();
             HydraLogger.WriteLog();
         }
     }

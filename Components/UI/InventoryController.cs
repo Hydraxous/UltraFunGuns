@@ -11,6 +11,7 @@ namespace UltraFunGuns
     public class InventoryController : MonoBehaviour
     {
         private OptionsManager om;
+        private WeaponInfoCard infoCard;
 
         private static int maxSlots = 4; //Hardcoded for now.
         private List<InventorySlot> slots = new List<InventorySlot>();
@@ -21,6 +22,7 @@ namespace UltraFunGuns
         {
             om = MonoSingleton<OptionsManager>.Instance;
             gc = MonoSingleton<GunControl>.Instance;
+            infoCard = transform.Find("InfoCard").gameObject.AddComponent<WeaponInfoCard>();
         }
 
         private void Start()
@@ -40,7 +42,7 @@ namespace UltraFunGuns
 
             for(int j = 0; j < slots.Count; j++)
             {
-                slots[j].Initialize(UltraFunData.Loadout.Data.slots[j], j, this);
+                slots[j].Initialize(Data.Loadout.Data.slots[j], j, this);
             }
         }
 
@@ -64,7 +66,7 @@ namespace UltraFunGuns
             {
                 for (int i=0; i<slotKeyNames.Count; i++)
                 {
-                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", UFGWeaponManager.SlotOffset+i, UFGWeaponManager.UFGSlotKeys[i].keyBind.ToString());
+                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", WeaponManager.SLOT_OFFSET+i, WeaponManager.UFGSlotKeys[i].keyBind.ToString());
                 }
             }
         }
@@ -134,8 +136,8 @@ namespace UltraFunGuns
         public void SaveInventoryData()
         {
             //data = GetCurrentInventoryData();
-            UltraFunData.Loadout.Data.slots = GetInventoryLoadout();
-            UltraFunData.Loadout.Save();
+            Data.Loadout.Data.slots = GetInventoryLoadout();
+            Data.Loadout.Save();
             HydraLogger.Log("Inventory saved.");
         }
 
@@ -148,6 +150,30 @@ namespace UltraFunGuns
             }
 
             return newNodeArray.ToArray();
+        }
+        
+        public void SetCardWeaponInfo(WeaponInfo info)
+        {
+            if (infoCard != null)
+            {
+                HydraLogger.Log("Weapon Card info set");
+                infoCard.SetWeaponInfo(info);
+            }
+        }
+
+        public void SetCardActive(bool enabled)
+        {
+            if(infoCard == null)
+            {
+                return;
+            }
+
+            if(enabled != infoCard.gameObject.activeInHierarchy)
+            {
+                HydraLogger.Log("Weapon Card info state changed " + enabled);
+
+                infoCard.gameObject.SetActive(enabled);
+            }
         }
 
     }

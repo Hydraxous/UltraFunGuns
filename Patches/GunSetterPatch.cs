@@ -13,7 +13,7 @@ namespace UltraFunGuns
         {
             try
             {
-                GameObject.FindObjectOfType<UFGWeaponManager>().DeployWeapons(firstTime);
+                WeaponManager.DeployWeapons(firstTime);
             }
             catch (System.Exception e)
             {

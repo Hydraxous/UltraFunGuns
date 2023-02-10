@@ -94,7 +94,7 @@ namespace UltraFunGuns
 
         public static void WriteLog()
         {
-            string logFilePath = UltraFunData.GetDataPath("log.txt");
+            string logFilePath = Data.GetDataPath("log.txt");
 
             File.WriteAllText(logFilePath, sessionLog);
         }

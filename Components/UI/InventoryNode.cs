@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class InventoryNode : MonoBehaviour
+    public class InventoryNode : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public RectTransform nodeTransform;
         public InventorySlot slot;
         public InventoryNodeData data;
+        private InventoryController controller;
+
+        public WeaponInfoCard card;
+
+        private WeaponInfo nodeInfo;
+
         public int slotIndexPosition;
 
         public Sprite weaponIcon;
@@ -24,6 +32,8 @@ namespace UltraFunGuns
 
         public void Initialize(InventoryNodeData data, InventorySlot slot, int slotIndex)
         {
+            controller = GetComponentInParent<InventoryController>();
+
             weaponIcon_Enabled = new Color(255f, 255f, 255f, 255f);
             weaponIcon_Disabled = new Color(73f, 73f, 73f, 255f);
             nodeBg_Enabled = new Color(185.0f, 185.0f, 185.0f, 110f);
@@ -32,6 +42,10 @@ namespace UltraFunGuns
             this.slotIndexPosition = slotIndex;
             this.data = data;
             this.slot = slot;
+            if(!WeaponManager.Weapons.TryGetValue(data.weaponKey, out nodeInfo))
+            {
+                HydraLogger.Log($"Inventory node could not get weapon info from key {data.weaponKey}");
+            }
             nodeTransform = GetComponent<RectTransform>();
             HydraLoader.dataRegistry.TryGetValue(this.data.weaponKey + "_weaponIcon", out UnityEngine.Object obj);
             weaponIcon = (Sprite)obj;
@@ -52,10 +66,10 @@ namespace UltraFunGuns
             b_down.onClick.AddListener(() => ButtonPressed("Down"));
             b_left = transform.Find("LeftButton").GetComponent<Button>();
             b_left.onClick.AddListener(() => ButtonPressed("Left"));
-
             Refresh();
         }
 
+        //The chad non-layout group function
         public void RefreshPosition()
         {
             float anchorPercentage = 1.0f / ((float) slot.nodes.Count);
@@ -109,7 +123,7 @@ namespace UltraFunGuns
             Color color = Color.white;
             if (icon)
             {
-                color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[data.weaponVariation];
+                color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)nodeInfo.IconColor];
 
                 if (!data.weaponEnabled)
                 {
@@ -119,7 +133,7 @@ namespace UltraFunGuns
             }
             else
             {
-                color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[data.weaponVariation];
+                color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)nodeInfo.IconColor];
                 color *= 0.5f;
                
                 if (!data.weaponEnabled)
@@ -141,6 +155,51 @@ namespace UltraFunGuns
             string check = (data.weaponEnabled) ? "(x)" : "( )";
             return String.Format("{2} [{0}] {1}", slot.ID, data.weaponKey, check);
         }
+
+        private float showCardTime = 1.5f;
+
+        private bool mousedOver = false;
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            HydraLogger.Log($"Pointer entered {gameObject.name}!", DebugChannel.Warning);
+            if(!mousedOver)
+            {
+                mousedOver = true;
+                controller.SetCardWeaponInfo(nodeInfo);
+                StartCoroutine(MouseHeldSequence());
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            mousedOver = false;
+            HydraLogger.Log($"Pointer exit {gameObject.name}!", DebugChannel.Warning);
+        }
+
+        IEnumerator MouseHeldSequence()
+        {
+            yield return new WaitForSecondsRealtime(showCardTime);
+
+            while (mousedOver)
+            {
+                if(controller != null)
+                {
+                    controller.SetCardActive(true);
+                }
+
+                yield return new WaitForEndOfFrame();
+            }
+
+            controller.SetCardActive(false);
+
+        }
+
+        private void OnDisable()
+        {
+            mousedOver = false;
+        }
+
     }
 
     [System.Serializable]
@@ -148,13 +207,11 @@ namespace UltraFunGuns
     {
         public string weaponKey;
         public bool weaponEnabled;
-        public int weaponVariation;
 
-        public InventoryNodeData(string weaponKey, bool enabled = true, int weaponVariation = 0)
+        public InventoryNodeData(string weaponKey, bool enabled = true)
         {
             this.weaponKey = weaponKey;
             this.weaponEnabled = enabled;
-            this.weaponVariation = weaponVariation;
         }
 
         public InventoryNodeData()

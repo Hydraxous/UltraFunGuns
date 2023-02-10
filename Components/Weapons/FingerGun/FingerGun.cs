@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [WeaponInfo("FingerGun","Hand Gun", 0, true, WeaponIconColor.Blue)]
+    [WeaponInfo("FingerGun","Hand Gun", 0, true, WeaponIconColor.Red)]
     public class FingerGun : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;

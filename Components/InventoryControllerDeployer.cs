@@ -73,16 +73,17 @@ namespace UltraFunGuns
                 }
                 else
                 {
-                    if(UltraFunData.Save.Data.firstTimeModLoaded)
+                    if(Data.Save.Data.firstTimeModLoaded)
                     {
                         MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.keyBind.ToString()), "", "", 2);//TODO
-                        UltraFunData.Save.Data.firstTimeModLoaded = false;
-                        UltraFunData.Save.Save();
+                        Data.Save.Data.firstTimeModLoaded = false;
+                        Data.Save.Save();
                     }
 
                     if (inventoryManagerOpen)
                     {
                         inventoryManagerOpen = false;
+                        invController.SetCardActive(false);
                         invController.gameObject.SetActive(false);
 
                     }
@@ -107,11 +108,11 @@ namespace UltraFunGuns
                     om.Pause();
                 }
 
-                if (UltraFunData.Save.Data.firstTimeUsingInventory)
+                if (Data.Save.Data.firstTimeUsingInventory)
                 {
                     MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
-                    UltraFunData.Save.Data.firstTimeUsingInventory = false;
-                    UltraFunData.Save.Save();
+                    Data.Save.Data.firstTimeUsingInventory = false;
+                    Data.Save.Save();
                 }
                 pauseMenu.SetActive(false);
                 invControllerButton.gameObject.SetActive(false);
@@ -130,7 +131,7 @@ namespace UltraFunGuns
 
         public void SendVersionHelpMessage()
         {
-            if (!sentVersionMessage && om.paused && !displayingHelpMessage && !UltraFunData.Config.Data.disableVersionMessages)
+            if (!sentVersionMessage && om.paused && !displayingHelpMessage && !Data.Config.Data.disableVersionMessages)
             {
                 sentVersionMessage = true;
                 StartCoroutine(DisplayHelpMessage(versionHelpMessage));
