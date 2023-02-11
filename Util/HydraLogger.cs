@@ -8,7 +8,7 @@ namespace UltraFunGuns
 {
     public static class HydraLogger
     {
-        const string prefix = "UFG";
+        const string prefix = "UltraFunGuns";
 
         private static string sessionLog;
         private static int logCounter = 0;
@@ -19,7 +19,7 @@ namespace UltraFunGuns
         {
             string sysInfo =
                 "=======================================\n" +
-                $"UFG Version: {UltraFunGuns.Version}\n" +
+                $"UFG Version: {UltraFunGuns.RELEASE_VERSION}\n" +
                 $"Device Name: {SystemInfo.deviceName}\n" +
                 $"Device Model: {SystemInfo.deviceModel}\n" +
                 $"OS: {SystemInfo.operatingSystem} [{SystemInfo.operatingSystemFamily}]\n" +
@@ -41,7 +41,7 @@ namespace UltraFunGuns
 
         private static void Application_logMessageReceived(string condition, string stackTrace, LogType type)
         {
-            if(type != LogType.Exception)
+            if (type != LogType.Exception)
             {
                 return;
             }
@@ -53,12 +53,12 @@ namespace UltraFunGuns
                 "=================================";
 
             LogToFile(exceptionMessage, DebugChannel.Fatal);
-            
+
         }
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)
         {
-            if(!initialized)
+            if (!initialized)
             {
                 Init();
             }
@@ -86,7 +86,7 @@ namespace UltraFunGuns
             string formattedLogMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}]({channel.ToString()}): {message}\n";
             sessionLog += formattedLogMessage;
             ++logCounter;
-            if(logCounter % logSaveThreshold == 0)
+            if (logCounter % logSaveThreshold == 0)
             {
                 WriteLog();
             }
@@ -97,6 +97,22 @@ namespace UltraFunGuns
             string logFilePath = Data.GetDataPath("log.txt");
 
             File.WriteAllText(logFilePath, sessionLog);
+        }
+
+        const string textHeader = @"
+   __  ______             ______            ______                
+  / / / / / /__________ _/ ____/_  ______  / ____/_  ______  _____
+ / / / / / __/ ___/ __ `/ /_  / / / / __ \/ / __/ / / / __ \/ ___/
+/ /_/ / / /_/ /  / /_/ / __/ / /_/ / / / / /_/ / /_/ / / / (__  ) 
+\____/_/\__/_/   \__,_/_/    \__,_/_/ /_/\____/\__,_/_/ /_/____/  
+                                                                  
+";
+
+        public static void StartMessage()
+        {
+            Debug.Log(textHeader);
+            Log($"Loading started. Version: {UltraFunGuns.RELEASE_VERSION}", DebugChannel.User);
+
         }
     }
 

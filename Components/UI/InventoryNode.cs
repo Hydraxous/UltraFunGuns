@@ -17,7 +17,7 @@ namespace UltraFunGuns
 
         public WeaponInfoCard card;
 
-        private WeaponInfo nodeInfo;
+        private FunGun nodeInfo;
 
         public int slotIndexPosition;
 
@@ -162,7 +162,6 @@ namespace UltraFunGuns
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            HydraLogger.Log($"Pointer entered {gameObject.name}!", DebugChannel.Warning);
             if(!mousedOver)
             {
                 mousedOver = true;
@@ -174,12 +173,16 @@ namespace UltraFunGuns
         public void OnPointerExit(PointerEventData eventData)
         {
             mousedOver = false;
-            HydraLogger.Log($"Pointer exit {gameObject.name}!", DebugChannel.Warning);
+            StopAllCoroutines();
+            if (controller != null)
+            {
+                controller.SetCardActive(false);
+            }
         }
 
         IEnumerator MouseHeldSequence()
         {
-            yield return new WaitForSecondsRealtime(showCardTime);
+            yield return new WaitForSecondsRealtime(Data.Config.Data.MouseOverNodeTime);
 
             while (mousedOver)
             {
@@ -189,10 +192,7 @@ namespace UltraFunGuns
                 }
 
                 yield return new WaitForEndOfFrame();
-            }
-
-            controller.SetCardActive(false);
-
+            } 
         }
 
         private void OnDisable()

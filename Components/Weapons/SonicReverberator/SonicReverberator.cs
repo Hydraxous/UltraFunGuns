@@ -20,7 +20,7 @@ namespace UltraFunGuns
      * The nature of being able to charge indefinitely causes many issues.
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
-    [WeaponInfo("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
+    [FunGun("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {
         public GameObject bang;

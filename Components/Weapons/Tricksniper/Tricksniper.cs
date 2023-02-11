@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [WeaponInfo("Tricksniper", "Tricksniper", 3, true, WeaponIconColor.Green)]
+    [FunGun("Tricksniper", "Tricksniper", 3, true, WeaponIconColor.Green)]
     public class Tricksniper : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;

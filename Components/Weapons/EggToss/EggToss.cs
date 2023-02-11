@@ -7,7 +7,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion.
-    [WeaponInfo("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
+    [FunGun("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
     public class EggToss : UltraFunGunBase
     {
         private GameObject thrownEggPrefab;

@@ -11,11 +11,12 @@ namespace UltraFunGuns
         private static bool assetsRegistered = false;
 
         //REGISTRY: Register custom assets for the loader here!
-        public static bool RegisterAssets()
+        //TODO Get rid of ALL of this and make a better implementation.
+        public static void RegisterAssets()
         {
             if(assetsRegistered)
             {
-                return false;
+                return;
             }
 
             #region UI Stuff
@@ -30,7 +31,7 @@ namespace UltraFunGuns
 
             #region Weapon Objects
 
-            WeaponInfo[] weaponInfos = WeaponManager.GetWeapons();
+            FunGun[] weaponInfos = WeaponManager.GetWeapons();
 
             for(int i=0;i < weaponInfos.Length;i++)
             {
@@ -149,19 +150,7 @@ namespace UltraFunGuns
 
             #endregion
 
-            #region JetSpear
-            //new HydraLoader.CustomAssetPrefab("JetSpear", new Component[] { new JetSpear(), new WeaponIcon(), new WeaponIdentifier() });
-
-            #endregion
-
-
-            #region MysticFlare
-            //new HydraLoader.CustomAssetPrefab("MysticFlare", new Component[] { new MysticFlare(), new WeaponIcon(), new WeaponIdentifier() });
-            #endregion
-
             assetsRegistered = true;
-
-            return HydraLoader.RegisterAll(Properties.UltraFunGunsResources.UltraFunGuns);
         }
     }
 }

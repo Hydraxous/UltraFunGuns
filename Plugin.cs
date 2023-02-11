@@ -1,52 +1,63 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Text;
-using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
+﻿using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using UltraFunGuns.Properties;
+using System.Collections;
 using UMM;
-using HarmonyLib;
+using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
-    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, false)]
+    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
     public class UltraFunGuns : UKMod
     {
+        public const string RELEASE_VERSION = "1.1.8-Experimental";
+        const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
+
+        Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
+
         public static bool UsingLatestVersion = true;
-        public static bool UsedWeapons = true;
-        public static string Version = "1.1.8-Experimental";
         public static string LatestVersion = "UNKNOWN";
-        public static bool DebugMode = true;
-        private static string githubURL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
+        public static bool DebugMode => Data.Config.Data.DebugMode;
+
+        public static UltraFunGuns UFG { get; private set; }
 
         private void Awake()
         {
-            HydraLogger.Log($"UltraFunGuns loading started. Version: {Version}");
+            UFG = this;
+        }
 
+        public override void OnModLoaded()
+        {
+            HydraLogger.StartMessage();
             Data.CheckSetup();
             WeaponManager.Init();
 
-            if (AssetManifest.RegisterAssets())
+            HydraLoader.LoadAssets((loaded) =>
             {
-                CheckVersion();
-                DoPatching();
-                UKAPIP.Init();
-                //UKAPIP.OnLevelChanged += (_) => CheckWeapons();
-                Commands.Register();
-                HydraLogger.Log("UltraFunGuns loaded.", DebugChannel.User);
-            }
-            else
-            {
-                HydraLogger.Log("UltraFunGuns failed to load.", DebugChannel.Fatal);
-                this.enabled = false;
-            }
+                if (loaded)
+                {
+                    CheckVersion();
+                    DoPatching();
+                    UKAPIP.Init();
+                    Commands.Register();
+                    HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                }
+                else
+                {
+                    HydraLogger.Log("Loading failed.", DebugChannel.Fatal);
+                    enabled = false;
+                }
+            });
+        }
+
+        public override void OnModUnload()
+        {
+            harmony.UnpatchSelf();
+            Data.SaveAll();
+            HydraLogger.WriteLog();
         }
 
         private void DoPatching()
         {
-            Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
             harmony.PatchAll();
         }
 
@@ -58,7 +69,7 @@ namespace UltraFunGuns
         //matches current mod version with latest release on github
         private IEnumerator CheckLatestVersion()
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(githubURL))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(GITHUB_URL))
             {
                 yield return webRequest.SendWebRequest();
 
@@ -68,7 +79,7 @@ namespace UltraFunGuns
                     try
                     {
                         LatestVersion = JArray.Parse(page)[0].Value<string>("name");
-                        UsingLatestVersion = (LatestVersion == Version);
+                        UsingLatestVersion = (LatestVersion == RELEASE_VERSION);
                         if (UsingLatestVersion)
                         {
                             HydraLogger.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion), DebugChannel.User);
@@ -81,7 +92,7 @@ namespace UltraFunGuns
                     catch (System.Exception e)
                     {
                         UsingLatestVersion = true;
-                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}", Version));
+                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}", RELEASE_VERSION));
                     }
 
                 }

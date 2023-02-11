@@ -7,7 +7,9 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [WeaponInfo("FingerGun","Hand Gun", 0, true, WeaponIconColor.Red)]
+    [WeaponAbility("Finger Blast", "Press <color=orange>Fire 1</color> to shoot an explosive bolt from your finger that can penetrate enemies.",0,RichTextColors.aqua)]
+    [WeaponAbility("Air-Denial", "Weapon can destroy projectiles.",1,RichTextColors.yellow)]
+    [FunGun("FingerGun","Hand Gun", 0, true, WeaponIconColor.Red)]
     public class FingerGun : UltraFunGunBase
     {
         public GameObject bulletTrailPrefab;

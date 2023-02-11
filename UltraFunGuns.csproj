@@ -119,7 +119,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Weapons\Maxwell\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
   </ItemGroup>
 
@@ -128,5 +127,8 @@
   </Target>
   <Target Name="CopyModDlls" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(ULTRAKILLPath)\BepInEx\UMM Mods\UFG\" />
+  </Target>
+  <Target Name="CopyModDlls2" AfterTargets="AfterBuild">
+    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(UnityKitPath)" />
   </Target>
 </Project>

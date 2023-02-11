@@ -131,7 +131,7 @@ namespace UltraFunGuns
 
         public void SendVersionHelpMessage()
         {
-            if (!sentVersionMessage && om.paused && !displayingHelpMessage && !Data.Config.Data.disableVersionMessages)
+            if (!sentVersionMessage && om.paused && !displayingHelpMessage && !Data.Config.Data.DisableVersionMessages)
             {
                 sentVersionMessage = true;
                 StartCoroutine(DisplayHelpMessage(versionHelpMessage));

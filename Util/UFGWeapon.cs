@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace UltraFunGuns
 {
-    public class WeaponInfo : Attribute
+    public class FunGun : Attribute
     {
         public Type Type { get; private set; }
         public string WeaponKey { get; }
@@ -15,14 +15,46 @@ namespace UltraFunGuns
         public int Slot { get; }
         public WeaponIconColor IconColor { get; }
         public WeaponAbility[] Abilities { get; private set; }
+        public bool IsFinished { get; }
 
-        public WeaponInfo(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor)
+        private Sprite weaponIcon;
+        public Sprite WeaponIcon
+        {
+
+            get
+            {
+                if (weaponIcon == null)
+                {
+                    return weaponIcon;
+                }
+                return weaponIcon;
+            }
+
+        }
+
+        private Sprite glowIcon;
+        public Sprite GlowIcon
+        {
+            get
+            {
+                if (glowIcon == null)
+                {
+                    //Get icon from loader.
+
+                    return glowIcon;
+                }
+                return glowIcon;
+            }
+        }
+
+        public FunGun(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool IsFinished = false)
         {
             this.WeaponKey = WeaponKey;
             this.DisplayName = DisplayName;
             this.Equipped = Equipped;
             this.Slot = Slot;
             this.IconColor = IconColor;
+            this.IsFinished = IsFinished;
         }
 
         public void SetAbilities(WeaponAbility[] abilities)
@@ -47,7 +79,7 @@ namespace UltraFunGuns
 
             if (!(Abilities.Length > 0) || Abilities == null)
             {
-                return $"<size=6>[<color=grey>{randomPlaceholders[UnityEngine.Random.Range(0,randomPlaceholders.Length)]}</color>]</size>";
+                return $"<size=4>[<color=grey>{randomPlaceholders[UnityEngine.Random.Range(0,randomPlaceholders.Length)]}</color>]</size>";
             }     
 
             string codexString = "";
@@ -80,6 +112,7 @@ namespace UltraFunGuns
 
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class WeaponAbility : Attribute, IComparable
     {
         public RichTextColors NameColor;
@@ -97,13 +130,26 @@ namespace UltraFunGuns
 
         public string GetLine()
         {
-            string fullString = String.Format("<size=6><color={2}>{0}</color></size>\n<size=3>{1}</size>", Name, Description, NameColor.ToString());
+            string fullString = String.Format("<size=4><color={2}>{0}</color></size>\n<size=3>{1}</size>", Name, Description, NameColor.ToString());
             return fullString;
         }
 
         public int CompareTo(object obj)
         {
-            return Priority.CompareTo(obj);
+            if(obj == null)
+            {
+                return 1;
+            }
+
+            WeaponAbility ability = obj as WeaponAbility;
+
+            if(ability != null)
+            {
+                return this.Priority.CompareTo(ability.Priority);
+            }else
+            {
+                throw new ArgumentException("Compared object is not a weaponability.");
+            }
         }
     }
 

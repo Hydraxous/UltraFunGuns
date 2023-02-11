@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [WeaponInfo("CanLauncher", "CANnon", 3, true, WeaponIconColor.Blue)]
+    [FunGun("CanLauncher", "CANnon", 3, true, WeaponIconColor.Blue)]
     public class CanLauncher : UltraFunGunBase
     {
         public GameObject canPrefab;

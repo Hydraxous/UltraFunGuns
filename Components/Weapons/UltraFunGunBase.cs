@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -17,7 +15,7 @@ namespace UltraFunGuns
         protected WeaponIcon weaponIcon;
         protected Animator animator;
 
-        protected WeaponInfo weaponInfo;
+        protected FunGun weaponInfo;
 
         protected virtual void DoAnimations() { }
 

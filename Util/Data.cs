@@ -86,13 +86,14 @@ namespace UltraFunGuns
             DirectoryInfo dataFolderInfo = new DirectoryInfo(GetDataPath());
             if(!(dataFolderInfo.GetFiles().Length > 0))
             {
+                HydraLogger.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. -Hydra", DebugChannel.User);
                 FirstTimeSetup();
             }
         }
 
         public static void FirstTimeSetup()
         {
-            HydraLogger.Log("Creating new data!", DebugChannel.User);
+            HydraLogger.Log("Creating new persistent data.");
             Loadout.New();
             Config.New();
             Save.New();
@@ -102,9 +103,9 @@ namespace UltraFunGuns
         public static OnDataChangedHandler OnDataChanged;
 
 
-        public static WeaponInfo GetWeaponInfo(Type t)
+        public static FunGun GetWeaponInfo(Type t)
         {
-            WeaponInfo weaponInfo = (WeaponInfo) Attribute.GetCustomAttribute(t, typeof(WeaponInfo));
+            FunGun weaponInfo = (FunGun) Attribute.GetCustomAttribute(t, typeof(FunGun));
             
             if(weaponInfo == null)
             {
@@ -171,15 +172,23 @@ namespace UltraFunGuns
         public class UFG_Configuration : UFGData
         {
             //Generic
-            public bool disableVersionMessages;
+            public bool DebugMode;
+            public bool DisableVersionMessages;
 
             //Weapon values
-            public bool basketBallMode;
+            public bool BasketBallMode;
+
+            //UI
+            public float InventoryInfoCardScale;
+            public float MouseOverNodeTime;
 
             public UFG_Configuration()
             {
-                this.disableVersionMessages = false;
-                this.basketBallMode = false;
+                this.DisableVersionMessages = false;
+                this.BasketBallMode = false;
+                this.InventoryInfoCardScale = 1.0f;
+                this.MouseOverNodeTime = 1.0f;
+                this.DebugMode = false;
             }
 
             public override string FileName() { return "config"; }
@@ -202,7 +211,7 @@ namespace UltraFunGuns
 
             public UFG_SaveData()
             {
-                this.modVersion = UltraFunGuns.Version;
+                this.modVersion = UltraFunGuns.RELEASE_VERSION;
                 this.firstTimeModLoaded = true;
                 this.firstTimeUsingInventory = true;
             }
@@ -222,7 +231,7 @@ namespace UltraFunGuns
                 }
 
                 //If the version is mismatched with the save files, regenerate all files.
-                if(modVersion != UltraFunGuns.Version)
+                if(modVersion != UltraFunGuns.RELEASE_VERSION)
                 {
                     Loadout.New();
                     Config.New();

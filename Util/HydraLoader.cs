@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Reflection;
 
 namespace UltraFunGuns
 {
@@ -15,17 +14,89 @@ namespace UltraFunGuns
 
         public static Dictionary<string, GameObject> prefabRegistry = new Dictionary<string, GameObject>();
 
-        private static AssetBundle assetBundle;
+        private static AssetBundleCreateRequest bundleRequest;
+
+        public static void LoadAssets(Action<bool> onLoaderComplete)
+        {
+            HydraLogger.Log("Loader: Loading Assetbundle.");
+
+            bundleRequest = AssetBundle.LoadFromMemoryAsync(Properties.UltraFunGunsResources.UltraFunGuns);
+
+            bundleRequest.completed += (async) =>
+            {
+                AssetManifest.RegisterAssets();
+                AssetBundle = bundleRequest.assetBundle;
+                HydraLogger.Log("Loader: Assetbundle Loaded.");
+                bool loadSuccess = RegisterAll();
+                BundleLoaded = loadSuccess;
+                onLoaderComplete?.Invoke(loadSuccess);
+            };
+        }
+
+        public static void UnloadAssets()
+        {
+            if(!BundleLoaded)
+            {
+                return;
+            }
+
+            dataToRegister.Clear();
+            assetsToRegister.Clear();
+
+            prefabRegistry.Clear();
+            dataRegistry.Clear();
+
+            assetsRegistered = false;
+            dataRegistered = false;
+
+            if(AssetBundle != null)
+            {
+                AssetBundle.Unload(true);
+                AssetBundle = null;
+            }
+        }
+
+        public static bool BundleLoaded { get; private set; }
+
+        public static AssetBundle AssetBundle { get; private set; }
 
         public static bool dataRegistered = false;
         public static bool assetsRegistered = false;
+
+        public static T LoadAssetOfType<T>(string name) where T : UnityEngine.Object
+        {
+            if(!BundleLoaded)
+            {
+                return null;
+            }
+
+            return AssetBundle.LoadAsset<T>(name);
+        }
+
+        public static bool RegisterAll()
+        {
+            try
+            {
+                HydraLogger.Log("Loader: Registering all assets.");
+                RegisterDataFiles();
+                RegisterCustomAssets();
+                HydraLogger.Log("Loader: Asset registration complete.");
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                HydraLogger.Log("Loader: Asset loading failed!", DebugChannel.Fatal);
+                HydraLogger.Log($"Loader: {e.Message}", DebugChannel.Fatal);
+                return false;
+            }
+        }
 
         public static bool RegisterAll(byte[] assetBundleObject)
         {
             try
             {
                 HydraLogger.Log("HydraLoader: loading mod assets");
-                assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
+                //assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
                 HydraLogger.Log("HydraLoader: loading complete");
@@ -50,7 +121,7 @@ namespace UltraFunGuns
                     }
                     else
                     {
-                        dataRegistry.Add(assetData.name, assetBundle.LoadAsset(assetData.name, assetData.dataType));
+                        dataRegistry.Add(assetData.name, AssetBundle.LoadAsset(assetData.name, assetData.dataType));
                     }
                     
                 }
@@ -65,14 +136,13 @@ namespace UltraFunGuns
             {
                 foreach (CustomAssetPrefab asset in assetsToRegister)
                 {
-                    GameObject newPrefab = assetBundle.LoadAsset<GameObject>(asset.name);
+                    GameObject newPrefab = AssetBundle.LoadAsset<GameObject>(asset.name);
 
                     if(newPrefab == null)
                     {
-                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle: {assetBundle.name}", DebugChannel.Error);
-                        newPrefab = assetBundle.LoadAsset<GameObject>("BrokenAsset");
+                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle", DebugChannel.Error);
+                        newPrefab = AssetBundle.LoadAsset<GameObject>("BrokenAsset");
                         newPrefab.name = asset.name;
-                        newPrefab.AddComponent<HLErrorNotifier>();
                     }
 
                     for (int i = 0; i < asset.modules.Length; i++)
@@ -139,4 +209,24 @@ namespace UltraFunGuns
 
     public class DataFile : UnityEngine.Object {}
 
+    /*
+    public class HydraLoaderObject : MonoBehaviour
+    {
+        private void Awake()
+        {
+            if(HydraLoader.BundleLoaded)
+            {
+                return;
+            }
+
+            StartCoroutine(LoadBundle());
+        }
+
+        private IEnumerator LoadBundle()
+        {
+
+        }
+
+    }
+    */
 }

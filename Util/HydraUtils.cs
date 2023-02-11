@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-
+using System.Reflection;
 
 namespace UltraFunGuns
 {
@@ -22,7 +22,7 @@ namespace UltraFunGuns
 
             RaycastHit[] hits = Physics.SphereCastAll(view.position, thickness, view.forward, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
 
-            if(hits.Length > 0)
+            if (hits.Length > 0)
             {
                 if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
                 {
@@ -41,12 +41,12 @@ namespace UltraFunGuns
             }
 
             return aimRay;
-        } 
+        }
 
         public static string CollisionInfo(Collision col)
         {
             string str = "Name: {0}\n" + "Layer: {1}\n" + "Tag: {2}\n" + "ContactCount: {3}";
-            str = string.Format(str, col.collider.name, col.gameObject.layer, col.collider.tag,col.contactCount);
+            str = string.Format(str, col.collider.name, col.gameObject.layer, col.collider.tag, col.contactCount);
             return str;
         }
 
@@ -182,10 +182,10 @@ namespace UltraFunGuns
         public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
         {
             List<TargetObject> newTargets = new List<TargetObject>();
-            for(int i = 0; i < targetGameObjects.Length; i++)
+            for (int i = 0; i < targetGameObjects.Length; i++)
             {
                 TargetObject newTarget = new TargetObject(targetGameObjects[i]);
-                if(newTarget.validTarget)
+                if (newTarget.validTarget)
                 {
                     newTargets.Add(new TargetObject(targetGameObjects[i]));
                 }
@@ -196,6 +196,33 @@ namespace UltraFunGuns
         public static bool ConeCheck(Vector3 direction1, Vector3 direction2, float maximumAngle = 90.0f)
         {
             return Vector3.Angle(direction1, direction2) <= maximumAngle;
+        }
+
+        public static T[] GetAllAttributesOfType<T>() where T : Attribute
+        {
+            List<T> attributeList = new List<T>();
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                var attributes = type.GetCustomAttributes<T>();
+                if (attributes != null)
+                {
+                    foreach (T attribute in attributes)
+                    {
+                        if (attribute != null)
+                        {
+                            if(!attributeList.Contains(attribute))
+                            {
+                                attributeList.Add(attribute);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return attributeList.ToArray();
         }
     }
 

@@ -23,7 +23,14 @@ namespace UltraFunGuns
         {
             RegisterWeapons();
             UKAPIP.OnLevelChanged += (_) => OnLevelChanged();
-            
+            UltraFunGuns.UFG.OnModUnloaded.AddListener(() => { DeInit(); });
+        }
+
+        private static void DeInit()
+        {
+            UKAPIP.OnLevelChanged -= (_) => OnLevelChanged();
+            weapons.Clear();
+            WeaponsRegistered = false;
         }
 
         private static WeaponDeployer deployer;
@@ -93,9 +100,9 @@ namespace UltraFunGuns
 
         }
 
-        private static Dictionary<string, WeaponInfo> weapons;
+        private static Dictionary<string, FunGun> weapons;
 
-        public static Dictionary<string, WeaponInfo> Weapons
+        public static Dictionary<string, FunGun> Weapons
         {
             get
             {
@@ -107,11 +114,11 @@ namespace UltraFunGuns
             }
         }
 
-        public static WeaponInfo[] GetWeapons()
+        public static FunGun[] GetWeapons()
         {
-            List<WeaponInfo> weaponInfos = new List<WeaponInfo>();
+            List<FunGun> weaponInfos = new List<FunGun>();
 
-            foreach(KeyValuePair<string,WeaponInfo> info in Weapons)
+            foreach(KeyValuePair<string,FunGun> info in Weapons)
             {
                 weaponInfos.Add(info.Value);
             }
@@ -142,12 +149,12 @@ namespace UltraFunGuns
 
             foreach (Type type in assembly.GetTypes())
             {
-                var attribute = type.GetCustomAttribute<WeaponInfo>();
+                var attribute = type.GetCustomAttribute<FunGun>();
                 if (attribute != null)
                 {
                     if(weapons == null)
                     {
-                        weapons = new Dictionary<string, WeaponInfo>();
+                        weapons = new Dictionary<string, FunGun>();
                     }
 
                     if (!weapons.ContainsKey(attribute.WeaponKey))
@@ -171,7 +178,6 @@ namespace UltraFunGuns
                         int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
 
                         HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
-                        //new HydraLoader.CustomAssetPrefab(attribute.WeaponKey, new Component[] { new WeaponIcon() { variationColor=(int)attribute.IconColor}, new WeaponIdentifier() });
                         weapons.Add(attribute.WeaponKey, attribute);
                     }
                 }
@@ -190,7 +196,7 @@ namespace UltraFunGuns
                 slotData.Add(new List<InventoryNodeData>());
             }
 
-            WeaponInfo[] infos = GetWeapons();
+            FunGun[] infos = GetWeapons();
             
             for(int i=0;i<infos.Length;i++)
             {
@@ -203,9 +209,6 @@ namespace UltraFunGuns
                     HydraLogger.Log($"Found weapon: {infos[i].DisplayName}");
                 }
             }
-
-
-            
 
             InventorySlotData[] slotInfo = new InventorySlotData[slotData.Count];
 
@@ -314,7 +317,7 @@ namespace UltraFunGuns
                             {
                                 foreach (string weaponKey in weaponKeySlots[i])
                                 {
-                                    if(WeaponManager.Weapons.TryGetValue(weaponKey, out WeaponInfo weaponInfo))
+                                    if(WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
                                     {
                                         if (HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                                         {

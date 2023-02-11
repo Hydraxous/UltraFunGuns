@@ -9,7 +9,10 @@ namespace UltraFunGuns
     {
         public static void Register()
         {
-            MonoSingleton<GameConsole.Console>.Instance.RegisterCommand(new UFGCommand());
+            if(!MonoSingleton<GameConsole.Console>.Instance.recognizedCommands.ContainsKey(new UFGCommand().Name.ToLower()))
+            {
+                MonoSingleton<GameConsole.Console>.Instance.RegisterCommand(new UFGCommand());
+            }
         }
 
         public class UFGCommand : ICommand
