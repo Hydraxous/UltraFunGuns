@@ -8,7 +8,17 @@ namespace UltraFunGuns
     [FunGun("DoomFist", "Hydraulic Gauntlet", 3, true, WeaponIconColor.Red)]
     public class DoomFist : UltraFunGunBase
     {
-        public string fart = "three";
+        public float chargeTime = 0.0f;
+        public float maxChargeTime = 0.0f;
+
+        public float maxTravelDistance = 24.0f;
+
+
+
+        public void OnAwakeFinished()
+        {
+
+        }
 
     }
 }

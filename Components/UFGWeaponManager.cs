@@ -22,13 +22,13 @@ namespace UltraFunGuns
         public static void Init()
         {
             RegisterWeapons();
-            UKAPIP.OnLevelChanged += (_) => OnLevelChanged();
+            UKAPIP.OnLevelChanged += OnLevelChanged;
             UltraFunGuns.UFG.OnModUnloaded.AddListener(() => { DeInit(); });
         }
 
         private static void DeInit()
         {
-            UKAPIP.OnLevelChanged -= (_) => OnLevelChanged();
+            UKAPIP.OnLevelChanged -= OnLevelChanged;
             weapons.Clear();
             WeaponsRegistered = false;
         }
@@ -37,28 +37,30 @@ namespace UltraFunGuns
 
         private static InventoryControllerDeployer inventoryDeployer;
 
-        public static void DeployWeapons(bool firstTime)
+        public static void DeployWeapons(bool firstTime = false)
         {
-            if(UKAPI.InLevel())
+            if(!UKAPI.InLevel())
             {
-                if (deployer == null)
-                {
-                    GunControl gc = MonoSingleton<GunControl>.Instance;
-                    if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
-                    {
-                        deployer = ultraFGPatch;
-                    }else
-                    {
-                        UsingWeapons = false;
-                        deployer = gc.gameObject.AddComponent<WeaponDeployer>();
-                    }
-                }
-
-                deployer.DeployWeapons(firstTime);
+                return;
             }
+  
+            if (deployer == null)
+            {
+                GunControl gc = MonoSingleton<GunControl>.Instance;
+                if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
+                {
+                    deployer = ultraFGPatch;
+                }
+                else
+                {
+                    deployer = gc.gameObject.AddComponent<WeaponDeployer>();
+                }
+            }
+
+            deployer.DeployWeapons(firstTime);
         }
 
-        private static void OnLevelChanged()
+        private static void OnLevelChanged(UKAPIP.UKLevelType levType)
         {
             if (!UKAPIP.InLevel())
             {
@@ -96,8 +98,7 @@ namespace UltraFunGuns
                 inventoryDeployer = invControllerDeployer;
             }
 
-            DeployWeapons(false);
-
+            DeployWeapons();
         }
 
         private static Dictionary<string, FunGun> weapons;
@@ -252,7 +253,6 @@ namespace UltraFunGuns
         private void Awake()
         {
             gc = GetComponent<GunControl>();
-            DeployWeapons();
         }
 
         private List<List<string>> weaponKeySlots = new List<List<string>>();
@@ -289,77 +289,83 @@ namespace UltraFunGuns
         {
             bool deploy = true;
 
-            if (UKAPIP.CurrentSceneName == "Level 0-1" && firstTime)
+            if (firstTime)
             {
-                deploy = true;
-            }
-            else if (firstTime)
-            {
-                deploy = false;
+                deploy = (UKAPIP.CurrentSceneName == "Level 0-1");
             }
 
-            if (deploy)
+            if (!deploy)
             {
-                foreach (List<GameObject> customSlot in customSlots)
-                {
-                    customSlot.Clear();
-                }
+                return;
+            }
 
-                weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
-                if (weaponKeySlots.Count > 0)
+            foreach (List<GameObject> customSlot in customSlots)
+            {
+                customSlot.Clear();
+            }
+
+            weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
+
+            if (!(weaponKeySlots.Count > 0))
+            {
+                return;
+            }
+
+            try
+            {
+                string weaponsGiven = "";
+                for (int i = 0; i < weaponKeySlots.Count; i++)
                 {
-                    try
+                    if (weaponKeySlots[i].Count > 0)
                     {
-                        string weaponsGiven = "Weapons given: ";
-                        for (int i = 0; i < weaponKeySlots.Count; i++)
+                        foreach (string weaponKey in weaponKeySlots[i])
                         {
-                            if (weaponKeySlots[i].Count > 0)
+                            if (WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
                             {
-                                foreach (string weaponKey in weaponKeySlots[i])
+                                if (HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                                 {
-                                    if(WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
+                                    weaponPrefab.layer = 13;
+                                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                                    foreach (Transform child in childs)
                                     {
-                                        if (HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
-                                        {
-                                            weaponPrefab.layer = 13;
-                                            Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                                            foreach (Transform child in childs)
-                                            {
-                                                child.gameObject.layer = 13;
-                                            }
-                                            weaponPrefab.SetActive(false);
-                                            GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
-                                            newWeapon.AddComponent(weaponInfo.Type);
-                                            customSlots[i].Add(newWeapon);
-                                            weaponsGiven += weaponKey + " ";
-                                        }
-                                        else
-                                        {
-                                            HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
-                                        }
+                                        child.gameObject.layer = 13;
                                     }
-                                    else
-                                    {
-                                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously fucked up.", DebugChannel.Fatal);
-                                        this.enabled = false;
-                                        return;
-                                    }
-
-                                    
+                                    weaponPrefab.SetActive(false);
+                                    GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
+                                    newWeapon.AddComponent(weaponInfo.Type);
+                                    customSlots[i].Add(newWeapon);
+                                    weaponsGiven += weaponKey + " ";
+                                }
+                                else
+                                {
+                                    HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
                                 }
                             }
+                            else
+                            {
+                                HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously fucked up.", DebugChannel.Fatal);
+                                this.enabled = false;
+                                return;
+                            }
+
+
                         }
-                        HydraLogger.Log(weaponsGiven, DebugChannel.User);
-                        AddWeapons();
-                    }
-                    catch (System.Exception e)
-                    {
-                        HydraLogger.Log("WeaponManager component couldn't deploy weapons.\nUFG: " + e.Message, DebugChannel.Fatal);
                     }
                 }
 
-            }
+                if(weaponsGiven.Length > 0)
+                {
+                    weaponsGiven = "Weapons given: " + weaponsGiven;
+                    HydraLogger.Log(weaponsGiven, DebugChannel.User);
+                }
 
+                AddWeapons();
+
+            }
+            catch (System.Exception e)
+            {
+                HydraLogger.Log("WeaponManager component couldn't deploy weapons.\nERROR: " + e.Message, DebugChannel.Fatal);
+            }
         }
 
         //adds weapons to the gun controller

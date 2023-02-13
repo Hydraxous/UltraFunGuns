@@ -27,6 +27,8 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
             new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController(), new HudOpenEffect() });
             new HydraLoader.CustomAssetPrefab("UFGInventoryButton");
+            new HydraLoader.CustomAssetPrefab("DebugLine");
+            new HydraLoader.CustomAssetPrefab("DebugSphere");
             #endregion
 
             #region Weapon Objects

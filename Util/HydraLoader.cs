@@ -20,8 +20,10 @@ namespace UltraFunGuns
         {
             HydraLogger.Log("Loader: Loading Assetbundle.");
 
+            //Check error here.
             bundleRequest = AssetBundle.LoadFromMemoryAsync(Properties.UltraFunGunsResources.UltraFunGuns);
 
+            //onLoader Callback NEEDS To be called if the mod fails to load.
             bundleRequest.completed += (async) =>
             {
                 AssetManifest.RegisterAssets();

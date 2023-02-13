@@ -100,6 +100,7 @@ namespace UltraFunGuns
             {
                 charging = true;
                 chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
+                CameraController.Instance.CameraShake((chargeLevel > chargeMilestones[0])? (chargeLevel > chargeMilestones[chargeMilestones.Count-1])? 0: chargeLevel*0.01f:0);
             }
             else
             {

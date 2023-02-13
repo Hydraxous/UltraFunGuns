@@ -47,14 +47,16 @@ namespace UltraFunGuns
             }
 
             string exceptionMessage =
-                "=================================" +
+                "=================================\n" +
                 $"{condition}\n" +
-                $"{stackTrace}" +
+                $"{stackTrace}\n" +
                 "=================================";
 
             LogToFile(exceptionMessage, DebugChannel.Fatal);
 
         }
+
+        
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)
         {
@@ -74,10 +76,38 @@ namespace UltraFunGuns
                 case DebugChannel.Warning:
                     Debug.LogWarning($"{prefix}: {message}");
                     break;
+                case DebugChannel.Spam:
+                    SpamLog(message);                    
+                    break;
                 default:
                     if (UltraFunGuns.DebugMode || channel == DebugChannel.User)
                         Debug.Log($"{prefix}: {message}");
                     break;
+            }
+        }
+
+        private static string lastSpamLog = "";
+        private static int spamCount = 0;
+
+        private static void SpamLog(string message)
+        {
+            if (!UltraFunGuns.DebugMode)
+            {
+                return;
+            }
+
+            if (lastSpamLog != message)
+            {
+                spamCount = 0;
+                lastSpamLog = message;
+            }else
+            {
+                ++spamCount;
+            }
+
+            if(spamCount % 20 == 0)
+            {
+                Debug.Log($"{prefix}: {message}");
             }
         }
 
@@ -104,17 +134,16 @@ namespace UltraFunGuns
   / / / / / /__________ _/ ____/_  ______  / ____/_  ______  _____
  / / / / / __/ ___/ __ `/ /_  / / / / __ \/ / __/ / / / __ \/ ___/
 / /_/ / / /_/ /  / /_/ / __/ / /_/ / / / / /_/ / /_/ / / / (__  ) 
-\____/_/\__/_/   \__,_/_/    \__,_/_/ /_/\____/\__,_/_/ /_/____/  
-                                                                  
-";
+\____/_/\__/_/   \__,_/_/    \__,_/_/ /_/\____/\__,_/_/ /_/____/
+
+Created By Hydraxous";
 
         public static void StartMessage()
         {
             Debug.Log(textHeader);
             Log($"Loading started. Version: {UltraFunGuns.RELEASE_VERSION}", DebugChannel.User);
-
         }
     }
 
-    public enum DebugChannel { User, Message, Warning, Error, Fatal }
+    public enum DebugChannel { User, Message, Warning, Spam, Error, Fatal }
 }

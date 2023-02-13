@@ -7,9 +7,17 @@ namespace UltraFunGuns
 {
     public class DestroyAfterTime : MonoBehaviour
     {
-        void Start()
+        public float TimeLeft = 8.0f;
+        private float timeAtStart;
+
+        private void Update()
         {
-            Destroy(gameObject, 8.0f);
+            TimeLeft -= Time.deltaTime;
+
+            if(TimeLeft <= 0.0f)
+            {
+                Destroy(gameObject);
+            }
         }
 
         void OnDisable()

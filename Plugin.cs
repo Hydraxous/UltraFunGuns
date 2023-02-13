@@ -37,6 +37,7 @@ namespace UltraFunGuns
                 {
                     CheckVersion();
                     DoPatching();
+                    Visualizer.Init();
                     UKAPIP.Init();
                     Commands.Register();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
