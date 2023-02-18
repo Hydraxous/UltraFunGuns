@@ -15,6 +15,8 @@ namespace UltraFunGuns
      * Giant machine gun that shoots comically large bullets that explode, fragment, ricochet, bounce, impact,
      * 
      */
+
+    [FunGun("Chumgus", "C.H.U.M.G.U.S.", 2, true, WeaponIconColor.Green)]
     public class CHUMGUS : UltraFunGunBase
     {
 

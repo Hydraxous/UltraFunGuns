@@ -224,6 +224,7 @@ namespace UltraFunGuns
 
             return attributeList.ToArray();
         }
+
     }
 
     //TODO Placeholder

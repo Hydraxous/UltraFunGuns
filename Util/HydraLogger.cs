@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
@@ -41,22 +42,32 @@ namespace UltraFunGuns
 
         private static void Application_logMessageReceived(string condition, string stackTrace, LogType type)
         {
-            if (type != LogType.Exception)
+            if (type != LogType.Exception && type != LogType.Error)
             {
                 return;
             }
 
             string exceptionMessage =
-                "=================================\n" +
+                "\n=================================\n" +
                 $"{condition}\n" +
                 $"{stackTrace}\n" +
+                "=================================\n" +
+                "CONTEXT\n" +
+                "=================================\n" +
+                $"{GetSituationContext()}\n" +
                 "=================================";
 
             LogToFile(exceptionMessage, DebugChannel.Fatal);
 
         }
 
-        
+        private static string GetSituationContext()
+        {
+            string currentScene = $"SCENE: {SceneManager.GetActiveScene().name}";
+            string weaponsDeployed = $"Weapons Deployed: {WeaponManager.DeployedWeapons}";
+
+            return $"{currentScene}\n{weaponsDeployed}";
+        }
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)
         {
@@ -111,8 +122,18 @@ namespace UltraFunGuns
             }
         }
 
+        private static string lastLogToFileMessage;
+
         private static void LogToFile(string message, DebugChannel channel)
         {
+            //Do not log the same message to the file
+            if(message == lastLogToFileMessage)
+            {
+                return;
+            }
+
+            lastLogToFileMessage = message;
+
             string formattedLogMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}]({channel.ToString()}): {message}\n";
             sessionLog += formattedLogMessage;
             ++logCounter;
@@ -122,6 +143,7 @@ namespace UltraFunGuns
             }
         }
 
+        [Commands.UFGDebugMethod("Write Log","Forces HydraLogger to write to file.")]
         public static void WriteLog()
         {
             string logFilePath = Data.GetDataPath("log.txt");

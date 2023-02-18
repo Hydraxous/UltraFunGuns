@@ -6,10 +6,11 @@ using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
-    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
+    //Change enable unloading when you fix the assetbundle bug
+    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, false)]
     public class UltraFunGuns : UKMod
     {
-        public const string RELEASE_VERSION = "1.1.8-Experimental";
+        public const string RELEASE_VERSION = "1.1.9-Experimental";
         const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
 
         Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
@@ -93,7 +94,7 @@ namespace UltraFunGuns
                     catch (System.Exception e)
                     {
                         UsingLatestVersion = true;
-                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}", RELEASE_VERSION));
+                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}\n{1}\n{2}", RELEASE_VERSION, e.Message, e.StackTrace), DebugChannel.Error);
                     }
 
                 }

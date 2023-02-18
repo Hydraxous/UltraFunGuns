@@ -46,6 +46,34 @@ namespace UltraFunGuns
             Config.Save();
         }
 
+        [Commands.UFGDebugMethod("Reload Config","Reloads the config file.")]
+        public static void ReloadConfig()
+        {
+            Config.Load();
+        }
+
+        [Commands.UFGDebugMethod("Reset Loadout", "Resets UFG loadout to default.")]
+        public static void ResetLoadout()
+        {
+            Loadout.New();
+            if(UKAPIP.InLevel())
+            {
+                WeaponManager.DeployWeapons();
+            }
+        }
+
+        [Commands.UFGDebugMethod("Reset Save Data", "Resets UFG save data to default.")]
+        public static void ResetSaveData()
+        {
+            Save.New();
+        }
+
+        [Commands.UFGDebugMethod("Reset Config", "Resets UFG config to default.")]
+        public static void ResetConfig()
+        {
+            Config.New();
+        }
+
         private static void SaveData<T>(T dataObject) where T : UFGData
         {
             string serializedData = JsonConvert.SerializeObject(dataObject, dataObject.JsonFormat());
@@ -70,9 +98,15 @@ namespace UltraFunGuns
                 }
 
                 dataObject = JsonConvert.DeserializeObject<T>(jsonData);
-
-                if(dataObject.IsValid())
-                    return dataObject;
+                try
+                {
+                    if (dataObject.IsValid())
+                        return dataObject;
+                }catch (Exception ex)
+                {
+                    HydraLogger.Log($"Data object invalid!\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
+                }
+                
             }
 
             dataObject = new T();
@@ -91,6 +125,7 @@ namespace UltraFunGuns
             }
         }
 
+        [Commands.UFGDebugMethod("Reset All Data", "Resets UFG Mod data.")]
         public static void FirstTimeSetup()
         {
             HydraLogger.Log("Creating new persistent data.");
