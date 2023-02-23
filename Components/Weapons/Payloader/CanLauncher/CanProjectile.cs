@@ -353,5 +353,20 @@ namespace UltraFunGuns
                     break;
             }
         }
+
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            switch(interaction.invokeType.ToString())
+            {
+                case "FingerGun":
+                    Explode(interaction.direction);
+                    break;
+            }
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
     }
 }

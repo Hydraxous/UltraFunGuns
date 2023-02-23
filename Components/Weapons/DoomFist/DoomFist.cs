@@ -15,7 +15,7 @@ namespace UltraFunGuns
 
 
 
-        public void OnAwakeFinished()
+        public override void OnAwakeFinished()
         {
 
         }

@@ -141,7 +141,7 @@ namespace UltraFunGuns
                         if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                         {
 
-                            egg.Explode(10.0f);
+                            egg.Explode();
                             break;
                         }
 

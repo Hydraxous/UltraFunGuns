@@ -13,7 +13,7 @@ namespace UltraFunGuns
         {
             try
             {
-                if(!currentHit.transform.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
+                if (!currentHit.transform.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
                 {
                     ufgObject = currentHit.transform.GetComponentInParent<IUFGInteractionReceiver>();
                 }
@@ -21,7 +21,7 @@ namespace UltraFunGuns
                 if (ufgObject != null)
                 {
                     ufgObject.Shot(__instance.beamType);
-                    
+
                 }
 
                 ThrownDodgeball hitDodgeball = currentHit.transform.GetComponentInParent<ThrownDodgeball>();
@@ -54,7 +54,7 @@ namespace UltraFunGuns
                     switch (__instance.beamType)
                     {
                         case BeamType.Railgun:
-                            hitCan.Explode(Vector3.up,3);
+                            hitCan.Explode(Vector3.up, 3);
                             break;
                         case BeamType.Revolver:
                             hitCan.Bounce();
@@ -89,11 +89,11 @@ namespace UltraFunGuns
                     }
                 }
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
 
             }
-            
+
         }
 
     }
@@ -102,7 +102,7 @@ namespace UltraFunGuns
     [HarmonyPatch(typeof(RevolverBeam), "PiercingShotCheck")]
     public static class PierceCheckPatch
     {
-        public static bool Prefix(RevolverBeam __instance, ref int ___enemiesPierced, ref int ___currentHits , ref List<RevolverBeam.RaycastResult> ___hitList, ref LineRenderer ___lr, ref bool ___fadeOut, ref List<EnemyIdentifier> ___hitEids)
+        public static bool Prefix(RevolverBeam __instance, ref int ___enemiesPierced, ref int ___currentHits, ref List<RevolverBeam.RaycastResult> ___hitList, ref LineRenderer ___lr, ref bool ___fadeOut, ref List<EnemyIdentifier> ___hitEids)
         {
             if (___enemiesPierced < ___hitList.Count)
             {
@@ -172,7 +172,8 @@ namespace UltraFunGuns
                                         __instance.ExecuteHits(___hitList[___enemiesPierced].rrhit);
                                         ___fadeOut = true; //TODO check this.
                                     }
-                                }else if (!componentInParent)
+                                }
+                                else if (!componentInParent)
                                 {
                                     bool flag9 = __instance.attributes.Length != 0;
                                     if (flag9)
@@ -278,7 +279,7 @@ namespace UltraFunGuns
                                         __instance.Invoke("PiercingShotCheck", 0.0f);
 
                                     }
-                                }  
+                                }
                             }
                             else
                             {

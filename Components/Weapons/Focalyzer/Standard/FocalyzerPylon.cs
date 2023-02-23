@@ -131,7 +131,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode(8.0f);
+                egg.Explode();
                 hitType = LaserHitType.interactable;
             }
 
@@ -168,7 +168,7 @@ namespace UltraFunGuns
                 {
                     if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
-                        egg.Explode(1.0f); //TODO CHANGE
+                        egg.Explode(); //TODO CHANGE
                     }
 
                     if (sphereHit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
@@ -321,10 +321,24 @@ namespace UltraFunGuns
             Shatter();
         }
 
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            string invoker = interaction.invokeType.Name;
+            if(invoker != "Focalyzer" && invoker != "FocalyzerAlternate")
+            {
+                Shatter();
+            }
+        }
+
         public bool Parried(Vector3 aimVector)
         {
             rb.AddForce(aimVector.normalized * parryForce, ForceMode.Impulse);
             return true;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
         }
     }
 }

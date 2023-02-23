@@ -4,6 +4,8 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using UnityEngine.SceneManagement;
+using BepInEx;
+using BepInEx.Bootstrap;
 
 namespace UltraFunGuns
 {
@@ -32,6 +34,9 @@ namespace UltraFunGuns
                 $"GPU Vendor: {SystemInfo.graphicsDeviceVendor}\n" +
                 $"GPU Type: {SystemInfo.graphicsDeviceType}\n" +
                 $"GPU Vram: {SystemInfo.graphicsMemorySize}\n" +
+                "========================================\n" +
+                "Disclaimer: The contents of this text file will never leave your system unless you share it.\n" +
+                "Neither Hydraxous or UltraFunGuns collects any data and this log file is used for technical support and debugging purposes only.\n" +
                 "========================================\n";
 
             sessionLog += sysInfo;
@@ -48,25 +53,66 @@ namespace UltraFunGuns
             }
 
             string exceptionMessage =
-                "\n=================================\n" +
+                "\n\n=================================\n" +
                 $"{condition}\n" +
                 $"{stackTrace}\n" +
                 "=================================\n" +
                 "CONTEXT\n" +
                 "=================================\n" +
                 $"{GetSituationContext()}\n" +
-                "=================================";
+                "=================================\n";
 
             LogToFile(exceptionMessage, DebugChannel.Fatal);
 
         }
 
+        //This will return a string of context when an error occurs for streamlining mod issue support.
         private static string GetSituationContext()
         {
             string currentScene = $"SCENE: {SceneManager.GetActiveScene().name}";
             string weaponsDeployed = $"Weapons Deployed: {WeaponManager.DeployedWeapons}";
+            string modsLoaded = $"Mods Loaded: {GetLoadedMods()}";
 
-            return $"{currentScene}\n{weaponsDeployed}";
+            return $"{currentScene}\n{weaponsDeployed}\n{modsLoaded}";
+        }
+
+        //Returns a formatted list of loaded mods.
+        private static string GetLoadedMods()
+        {
+            string modlist = "";
+            int counter = 0;
+            
+            foreach(var plugin in Chainloader.PluginInfos)
+            {
+                if(plugin.Value.Metadata.GUID != UltraFunGuns.UFG.metaData.GUID)
+                {
+                    modlist += $"\n-{counter}-\n" +
+                    $"LOADER: BepInEx\n" +
+                    $"GUID: {plugin.Value.Metadata.GUID}\n" +
+                    $"NAME: {plugin.Value.Metadata.Name}\n" +
+                    $"VERSION: {plugin.Value.Metadata.Version}\n";
+                    counter++;
+                }
+            }
+
+            foreach(var plugin in UMM.Loader.UltraModManager.allLoadedMods)
+            {
+                if (plugin.Value.GUID != UltraFunGuns.UFG.metaData.GUID)
+                {
+                    modlist += $"\n-{counter}-\n" +
+                    $"LOADER: UMM\n" +
+                    $"GUID: {plugin.Value.GUID}\n" +
+                    $"NAME: {plugin.Value.modName}\n" +
+                    $"DESCRIPTION: {plugin.Value.modDescription}\n" +
+                    $"VERSION: {plugin.Value.modVersion}\n";
+                    counter++;
+                }
+            }
+
+            //+1 because we dont count ufg in the list
+            modlist = $"{counter+1}\n" + modlist;
+
+            return modlist;
         }
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)

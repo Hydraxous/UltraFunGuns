@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 namespace UltraFunGuns
 {
     //Change enable unloading when you fix the assetbundle bug
-    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, false)]
+    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
     public class UltraFunGuns : UKMod
     {
         public const string RELEASE_VERSION = "1.1.9-Experimental";
@@ -55,7 +55,6 @@ namespace UltraFunGuns
         {
             harmony.UnpatchSelf();
             Data.SaveAll();
-            HydraLogger.WriteLog();
         }
 
         private void DoPatching()
@@ -104,6 +103,11 @@ namespace UltraFunGuns
         private void OnApplicationQuit()
         {
             Data.SaveAll();
+            HydraLogger.WriteLog();
+        }
+
+        private void OnDisable()
+        {
             HydraLogger.WriteLog();
         }
     }

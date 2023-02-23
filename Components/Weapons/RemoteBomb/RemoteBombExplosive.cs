@@ -354,5 +354,19 @@ namespace UltraFunGuns
                     break;
             }
         }
+
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            
+            if(interaction.data.Contains("shot") || interaction.data.Contains("explode"))
+            {
+                Detonate(true);
+            }
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
     }
 }

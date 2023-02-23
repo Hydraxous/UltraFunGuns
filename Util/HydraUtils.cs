@@ -43,6 +43,79 @@ namespace UltraFunGuns
             return aimRay;
         }
 
+
+        public static bool TryGetHomingTarget(Vector3 sampleLocation, out Transform homingTarget, out EnemyIdentifier enemyComponent)
+        {
+            homingTarget = null;
+            enemyComponent = null;
+
+            List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
+            List<Transform> targetPoints = new List<Transform>();
+            GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (GameObject enemyObject in enemyObjectsActive)
+            {
+                if (enemyObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
+                {
+                    if (!enemyFound.dead && !possibleTargets.Contains(enemyFound))
+                    {
+                        possibleTargets.Add(enemyFound);
+                        Transform enemyTargetPoint;
+                        if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
+                        {
+                            enemyTargetPoint = enemyFound.weakPoint.transform;
+                        }
+                        else
+                        {
+                            EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
+                            if (enemyFoundIdentifier)
+                            {
+                                enemyTargetPoint = enemyFoundIdentifier.transform;
+                            }
+                            else
+                            {
+                                enemyTargetPoint = enemyFound.transform;
+                            }
+                        }
+
+                        //LOS CHECK
+                        Vector3 directionToEnemy = enemyTargetPoint.position - sampleLocation;
+                        if (Physics.Raycast(sampleLocation, directionToEnemy, out RaycastHit rayHit, directionToEnemy.magnitude, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default")))
+                        {
+                            if (rayHit.collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier losEnemyID) || rayHit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier losEnemyIDID))
+                            {
+                                targetPoints.Add(enemyTargetPoint);
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            int closestIndex = -1;
+            float closestDistance = Mathf.Infinity;
+            for (int i = 0; i < targetPoints.Count; i++)
+            {
+                Vector3 distance = targetPoints[i].position - sampleLocation;
+                if (distance.sqrMagnitude < closestDistance)
+                {
+                    closestIndex = i;
+                    closestDistance = distance.sqrMagnitude;
+                }
+            }
+
+            if (closestIndex > -1)
+            {
+                homingTarget = targetPoints[closestIndex];
+                enemyComponent = homingTarget.GetComponent<EnemyIdentifier>();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
         public static string CollisionInfo(Collision col)
         {
             string str = "Name: {0}\n" + "Layer: {1}\n" + "Tag: {2}\n" + "ContactCount: {3}";
@@ -139,7 +212,7 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg) && explodeEgg)
                         {
-                            egg.Explode(10.0f);
+                            egg.Explode();
                             if (!penetration)
                             {
                                 break;

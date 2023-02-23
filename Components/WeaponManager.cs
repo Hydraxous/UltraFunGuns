@@ -23,7 +23,7 @@ namespace UltraFunGuns
         {
             RegisterWeapons();
             UKAPIP.OnLevelChanged += OnLevelChanged;
-            UltraFunGuns.UFG.OnModUnloaded.AddListener(() => { DeInit(); });
+            UltraFunGuns.UFG.OnModUnloaded.AddListener(DeInit);
         }
 
         private static void DeInit()
@@ -97,8 +97,6 @@ namespace UltraFunGuns
             {
                 inventoryDeployer = invControllerDeployer;
             }
-
-            DeployWeapons();
         }
 
         private static Dictionary<string, FunGun> weapons;
@@ -309,7 +307,7 @@ namespace UltraFunGuns
 
             if (!deploy)
             {
-                return;
+                //return;
             }
 
             foreach (List<GameObject> customSlot in customSlots)
@@ -359,7 +357,7 @@ namespace UltraFunGuns
                             }
                             else
                             {
-                                HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously fucked up.", DebugChannel.Fatal);
+                                HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
                                 this.enabled = false;
                                 return;
                             }
@@ -372,11 +370,9 @@ namespace UltraFunGuns
                 if(weaponsGiven.Length > 0)
                 {
                     weaponsGiven = "Weapons given: " + weaponsGiven;
+                    AddWeapons();
                     HydraLogger.Log(weaponsGiven, DebugChannel.User);
                 }
-
-                AddWeapons();
-
             }
             catch (System.Exception e)
             {

@@ -156,8 +156,6 @@ namespace UltraFunGuns
             return String.Format("{2} [{0}] {1}", slot.ID, data.weaponKey, check);
         }
 
-        private float showCardTime = 1.5f;
-
         private bool mousedOver = false;
 
         public void OnPointerEnter(PointerEventData eventData)

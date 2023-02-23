@@ -445,5 +445,28 @@ namespace UltraFunGuns
             ExciteBall(2);
             return true;
         }
+
+
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}", DebugChannel.Warning);
+
+            switch(interaction.invokeType.Name)
+            {
+                case "Focalyzer": case "FocalyzerAlternate":
+                    //Slow down
+                    break;
+
+                case "FingerGun":
+                    //Fucking explode
+                    Pop();
+                    break;
+            }
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
     }
 }

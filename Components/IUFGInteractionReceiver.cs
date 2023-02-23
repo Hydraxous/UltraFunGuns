@@ -9,5 +9,17 @@ namespace UltraFunGuns
     {
         void Shot(BeamType beamType);
         bool Parried(Vector3 aimVector);
+        void Interact(UFGInteractionEventData interaction);
+        Vector3 GetPosition();
+    }
+
+    public struct UFGInteractionEventData
+    {
+        public Vector3 interactorPosition;
+        public Vector3 direction;
+
+        public float power;
+        public string data;
+        public Type invokeType;
     }
 }

@@ -69,7 +69,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode(8.0f);
+                egg.Explode();
                 hitType = LaserHitType.interactable;
             }
 

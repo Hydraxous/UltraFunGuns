@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using System.Runtime.CompilerServices;
 
 namespace UltraFunGuns
 {
@@ -126,17 +127,45 @@ namespace UltraFunGuns
                             break;
                         }
 
+                        if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteraction))
+                        {
+                            ufgInteraction.Interact(new UFGInteractionEventData() 
+                            {
+                                invokeType = GetType(),
+                                direction = laserVector,
+                                interactorPosition = mainCam.transform.position,
+                                power = 1.0f,
+                                data = "shot,laser"
+                            });
+                        }
+
                         if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
                         {
                             breakable.Break();
                             break;
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+                        //Add refraction to glass >:3
+                        if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
                         {
+                            HydraLogger.Log("FOUND COIN WITH LASER", DebugChannel.User);
+                            if(HydraUtils.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+                            {
 
-                            egg.Explode(10.0f);
-                            break;
+                                if(eid != null)
+                                {
+                                    if(!eid.dead)
+                                    {
+                                        if (actionCooldowns["damageTick"].CanFire())
+                                        {
+                                            actionCooldowns["damageTick"].AddCooldown();
+                                            Vector3 newDirection = eid.transform.position - coin.transform.position;
+                                            eid.DeliverDamage(eid.gameObject, newDirection, eid.transform.position, 1.5f, false);
+                                        }
+                                    }
+                                }
+                                
+                            }
                         }
 
                         if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))

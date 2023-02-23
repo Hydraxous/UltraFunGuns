@@ -53,14 +53,13 @@ namespace UltraFunGuns
         }
 
         //TODO call when egg is shot eggsplosion hehe
-        public void Explode(float explosionSize = 10.0f)
+        public void Explode()
         {
             if(!isEggsplosionEgg && !impacted)
             {
                 MonoSingleton<StyleHUD>.Instance.AddPoints(50, "hydraxous.ultrafunguns.eggsplosion");
                 MonoSingleton<TimeController>.Instance.ParryFlash();
                 EggSplosion newEggSplosion = Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
-                //newEggSplosion.explosionSize = explosionSize;
                 Destroy(gameObject);
             }  
         }
@@ -217,6 +216,19 @@ namespace UltraFunGuns
         public bool Parried(Vector3 aimVector)
         {
             return false;
+        }
+
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            if (interaction.data.Contains("shot"))
+            {
+                Explode();
+            }
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
         }
     }
 }

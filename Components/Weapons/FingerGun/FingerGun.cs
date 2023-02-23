@@ -156,13 +156,16 @@ namespace UltraFunGuns
                             }
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+                        if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteractable))
                         {
-                            egg.Explode(10.0f);
-                            if (!penetration)
+                            ufgInteractable.Interact(new UFGInteractionEventData()
                             {
-                                break;
-                            }
+                                data = "explode,shot,heavy",
+                                direction = hitRay.direction,
+                                interactorPosition = hitRay.origin,
+                                power = 2.0f,
+                                invokeType = GetType()
+                            });
                         }
 
                         if (hits[i].collider.gameObject.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
@@ -326,8 +329,20 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                         {
-                            egg.Explode(1.0f);
+                            egg.Explode();
 
+                        }
+
+                        if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteractable))
+                        {
+                            ufgInteractable.Interact(new UFGInteractionEventData()
+                            {
+                                data = "explode",
+                                direction = ufgInteractable.GetPosition() - position,
+                                interactorPosition = position,
+                                power = 2.0f,
+                                invokeType = GetType()
+                            });
                         }
 
                         if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
