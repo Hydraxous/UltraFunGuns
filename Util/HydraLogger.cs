@@ -35,6 +35,8 @@ namespace UltraFunGuns
                 $"GPU Type: {SystemInfo.graphicsDeviceType}\n" +
                 $"GPU Vram: {SystemInfo.graphicsMemorySize}\n" +
                 "========================================\n" +
+                $"{GetLoadedMods()}\n" +
+                "========================================\n" +
                 "Disclaimer: The contents of this text file will never leave your system unless you share it.\n" +
                 "Neither Hydraxous or UltraFunGuns collects any data and this log file is used for technical support and debugging purposes only.\n" +
                 "========================================\n";
@@ -66,13 +68,21 @@ namespace UltraFunGuns
 
         }
 
+        private static string lastModsLoaded = "";
+
         //This will return a string of context when an error occurs for streamlining mod issue support.
         private static string GetSituationContext()
         {
             string currentScene = $"SCENE: {SceneManager.GetActiveScene().name}";
             string weaponsDeployed = $"Weapons Deployed: {WeaponManager.DeployedWeapons}";
-            string modsLoaded = $"Mods Loaded: {GetLoadedMods()}";
-
+            string modsLoaded = GetLoadedMods();
+            if(modsLoaded != lastModsLoaded)
+            {
+                modsLoaded = $"Mods Loaded: {modsLoaded}";
+            }else
+            {
+                modsLoaded = "";
+            }
             return $"{currentScene}\n{weaponsDeployed}\n{modsLoaded}";
         }
 
@@ -209,6 +219,7 @@ Created By Hydraxous";
         public static void StartMessage()
         {
             Debug.Log(textHeader);
+            lastModsLoaded = GetLoadedMods();
             Log($"Loading started. Version: {UltraFunGuns.RELEASE_VERSION}", DebugChannel.User);
         }
     }

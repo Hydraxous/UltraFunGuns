@@ -152,6 +152,8 @@ namespace UltraFunGuns
 
             #endregion
 
+
+            new HydraLoader.CustomAssetPrefab("ThrownBrick");
             assetsRegistered = true;
         }
     }

@@ -160,40 +160,109 @@ namespace UltraFunGuns
             foreach (Type type in assembly.GetTypes())
             {
                 var attribute = type.GetCustomAttribute<FunGun>();
-                if (attribute != null)
+
+                if (attribute == null)
                 {
-                    if(weapons == null)
-                    {
-                        weapons = new Dictionary<string, FunGun>();
-                    }
-
-                    if (!weapons.ContainsKey(attribute.WeaponKey))
-                    {
-                        List<WeaponAbility> weaponAbilities = new List<WeaponAbility>();
-                        IEnumerable<WeaponAbility> abilities = type.GetCustomAttributes<WeaponAbility>();
-                        foreach (WeaponAbility ability in abilities)
-                        {
-                            if(ability != null)
-                            {
-                                if (!weaponAbilities.Contains(ability))
-                                {
-                                    weaponAbilities.Add(ability);
-                                }
-                            }                   
-                        }
-
-                        attribute.SetAbilities(weaponAbilities.ToArray());
-                        attribute.SetType(type);
-
-                        int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
-
-                        HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
-                        weapons.Add(attribute.WeaponKey, attribute);
-                    }
+                    continue;
                 }
+
+                if (attribute.WeaponKey == "NULL")
+                {
+                    continue;
+                }
+
+                if (weapons == null)
+                {
+                    weapons = new Dictionary<string, FunGun>();
+                }
+
+                if (weapons.ContainsKey(attribute.WeaponKey))
+                {
+                    continue;
+                }
+
+
+                List<WeaponAbility> weaponAbilities = new List<WeaponAbility>();
+                IEnumerable<WeaponAbility> abilities = type.GetCustomAttributes<WeaponAbility>();
+                foreach (WeaponAbility ability in abilities)
+                {
+                    if (ability == null)
+                    {
+                        continue;
+                    }
+
+                    if (!weaponAbilities.Contains(ability))
+                    {
+                        weaponAbilities.Add(ability);
+                    }
+
+                }
+
+                attribute.SetAbilities(weaponAbilities.ToArray());
+                attribute.SetType(type);
+
+                int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
+
+                HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
+                weapons.Add(attribute.WeaponKey, attribute);
             }
 
             WeaponsRegistered = true;
+        }
+
+        //Credit to Agent of Nyarlathotep for this
+        private static Dictionary<GameObject, float> FreshnessList
+        {
+            get
+            {               
+                var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                Dictionary<GameObject, float> freshnessList = field.GetValue(MonoSingleton<StyleHUD>.Instance) as Dictionary<GameObject, float>;          
+                return freshnessList;
+            }
+
+            set
+            {
+                if(value != null)
+                {
+                    var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                    field.SetValue(MonoSingleton<StyleHUD>.Instance, value);
+                }     
+            }
+        }
+
+        /// <summary>
+        /// Adds weapon to style hud freshness
+        /// </summary>
+        /// <param name="go">gameObject to add</param>
+        /// <returns></returns>
+        public static bool AddWeaponToFreshnessDict(GameObject go)
+        {
+
+            if(go == null)
+            {
+                HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
+                return false;
+            }
+
+            try
+            {
+                Dictionary<GameObject, float> freshnessDict = FreshnessList;
+                if (!freshnessDict.ContainsKey(go))
+                {
+                    freshnessDict.Add(go, 10f);
+                    FreshnessList = freshnessDict;
+                    return true;
+                }
+
+                HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
+                return false;
+
+            } catch (Exception ex)
+            {
+                HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
+            }
+
+            return false;
         }
 
         public static InventorySlotData[] GetDefaultLoadout()
@@ -261,13 +330,7 @@ namespace UltraFunGuns
 
         GunControl gc;
 
-        private void Awake()
-        {
-            gc = GetComponent<GunControl>();
-        }
-
         private List<List<string>> weaponKeySlots = new List<List<string>>();
-
 
         //Empty slots for the weapons. Don't remove this.
         private List<List<GameObject>> customSlots = new List<List<GameObject>>()
@@ -277,6 +340,11 @@ namespace UltraFunGuns
             new List<GameObject>(),
             new List<GameObject>()
         };
+
+        private void Awake()
+        {
+            gc = GetComponent<GunControl>();
+        }
 
         public List<List<string>> CreateWeaponKeyset(Data.UFG_Loadout invControllerData)
         {
@@ -298,8 +366,9 @@ namespace UltraFunGuns
 
         public void DeployWeapons(bool firstTime = false)
         {
+            /*
             bool deploy = true;
-
+            
             if (firstTime)
             {
                 deploy = (UKAPIP.CurrentSceneName == "Level 0-1");
@@ -309,7 +378,7 @@ namespace UltraFunGuns
             {
                 //return;
             }
-
+            */
             foreach (List<GameObject> customSlot in customSlots)
             {
                 customSlot.Clear();
@@ -324,59 +393,57 @@ namespace UltraFunGuns
 
             WeaponsDeployed = 0;
 
-            try
+
+            string weaponsGiven = "";
+            for (int i = 0; i < weaponKeySlots.Count; i++)
             {
-                string weaponsGiven = "";
-                for (int i = 0; i < weaponKeySlots.Count; i++)
+                if (weaponKeySlots[i].Count <= 0)
                 {
-                    if (weaponKeySlots[i].Count > 0)
-                    {
-                        foreach (string weaponKey in weaponKeySlots[i])
-                        {
-                            if (WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
-                            {
-                                if (HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
-                                {
-                                    weaponPrefab.layer = 13;
-                                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                                    foreach (Transform child in childs)
-                                    {
-                                        child.gameObject.layer = 13;
-                                    }
-                                    weaponPrefab.SetActive(false);
-                                    GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
-                                    newWeapon.AddComponent(weaponInfo.Type);
-                                    customSlots[i].Add(newWeapon);
-                                    weaponsGiven += weaponKey + " ";
-                                    WeaponsDeployed++;
-                                }
-                                else
-                                {
-                                    HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry.", DebugChannel.Error);
-                                }
-                            }
-                            else
-                            {
-                                HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
-                                this.enabled = false;
-                                return;
-                            }
-
-
-                        }
-                    }
+                    continue;
                 }
 
-                if(weaponsGiven.Length > 0)
+                foreach (string weaponKey in weaponKeySlots[i])
                 {
-                    weaponsGiven = "Weapons given: " + weaponsGiven;
-                    AddWeapons();
-                    HydraLogger.Log(weaponsGiven, DebugChannel.User);
+
+                    if (!WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
+                    {
+                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
+                        this.enabled = false;
+                        return;
+                    }
+
+                    if (!HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
+                    {
+                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...", DebugChannel.Error);
+                        continue;
+                    }
+
+                    //Set layers correctly
+                    weaponPrefab.layer = 13;
+                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
+                    foreach (Transform child in childs)
+                    {
+                        child.gameObject.layer = 13;
+                    }
+
+                    //weaponPrefab.SetActive(false);
+
+                    //Instantiate weapon and add it's component
+                    GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
+                    newWeapon.AddComponent(weaponInfo.Type);
+                    newWeapon.SetActive(false);
+                    customSlots[i].Add(newWeapon);
+                    weaponsGiven += weaponKey + " ";
+                    WeaponManager.AddWeaponToFreshnessDict(newWeapon);
+                    WeaponsDeployed++;
                 }
             }
-            catch (System.Exception e)
+
+            if (weaponsGiven.Length > 0)
             {
-                HydraLogger.Log("WeaponManager component couldn't deploy weapons.\nERROR: " + e.Message, DebugChannel.Fatal);
+                weaponsGiven = "Weapons given: " + weaponsGiven;
+                AddWeapons();
+                HydraLogger.Log(weaponsGiven, DebugChannel.User);
             }
         }
 

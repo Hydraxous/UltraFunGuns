@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace UltraFunGuns
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public class FunGun : Attribute
     {
         public Type Type { get; private set; }
@@ -47,6 +48,15 @@ namespace UltraFunGuns
             }
         }
 
+        /// <summary>
+        /// Fun Gun attribute will register the weapon when the mod loads and is used for metadata.
+        /// </summary>
+        /// <param name="WeaponKey">Used for finding the weapon, or loading weapon data MUST BE UNIQUE.</param>
+        /// <param name="DisplayName">Name shown in game</param>
+        /// <param name="Slot">Default slot</param>
+        /// <param name="Equipped">Default Equipped</param>
+        /// <param name="IconColor">Color of the Weapon Icon</param>
+        /// <param name="IsFinished">Should this be loaded in a non-debug build?</param>
         public FunGun(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool IsFinished = false)
         {
             this.WeaponKey = WeaponKey;
@@ -68,7 +78,7 @@ namespace UltraFunGuns
             Type = type;
         }
 
-        private static string[] randomPlaceholders = { "REDACTED", "DATA EXPUNGED", "INFORMATION DELETED", "DATA DELETED", "DATA MISSING", "UNKNOWN ORIGIN"};
+        private static string[] randomPlaceholders = { "REDACTED", "DATA EXPUNGED", "INFORMATION DELETED", "DATA DELETED", "DATA MISSING", "UNKNOWN ORIGIN", "404-ERROR", "MISSING", "CLASSIFIED", "UNKNOWN", "??????"};
 
         public string GetCodexText()
         {
@@ -104,7 +114,7 @@ namespace UltraFunGuns
             MemberInfo[] members = Type.GetMembers();
             for(int i=0;i<members.Length;i++)
             {
-                debugMessage += $"{members[i].Name}: {members[i].ToString()}\n";
+                debugMessage += $"{members[i].Name}: {members[i]}\n";
             }
 
             return debugMessage;
@@ -128,6 +138,7 @@ namespace UltraFunGuns
             this.Priority = Priority;
         }
 
+        //Formats the weapon ability line
         public string GetLine()
         {
             string fullString = String.Format("<size=4><color={2}>{0}</color></size>\n<size=3>{1}</size>", Name, Description, NameColor.ToString());

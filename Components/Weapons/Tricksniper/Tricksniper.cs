@@ -42,12 +42,13 @@ namespace UltraFunGuns
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
             debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
+            scopeUI.SetActive(false);
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire",new ActionCooldown(0.65f));
+            cooldowns.Add("primaryFire",new ActionCooldown(0.65f, true));
             cooldowns.Add("turnExpiry", new ActionCooldown(0.2f));
             return cooldowns;
         }

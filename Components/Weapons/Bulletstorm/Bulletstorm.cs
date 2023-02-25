@@ -66,7 +66,7 @@ namespace UltraFunGuns
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryCooldown", new ActionCooldown(0.75f));
+            cooldowns.Add("primaryCooldown", new ActionCooldown(0.75f, true));
             cooldowns.Add("fireRate", new ActionCooldown(0.02f));
             return cooldowns;
         }

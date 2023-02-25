@@ -14,7 +14,7 @@ namespace UltraFunGuns
     [WeaponAbility("Full-Ball", "Press <color=orange>Fire 1</color> to throw the ball. Holding the button will throw the ball faster and harder.", 0, RichTextColors.aqua)]
     public class Dodgeball : UltraFunGunBase
     {
-        ActionCooldown pullCooldown = new ActionCooldown(0.25f);
+        ActionCooldown pullCooldown = new ActionCooldown(0.25f, true);
 
         public ThrownDodgeball activeDodgeball;
 
@@ -217,7 +217,7 @@ namespace UltraFunGuns
         {
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
             pullingBall = false;
-            pullCooldown.timeToFire = 0;
+            pullCooldown.TimeToFire = 0;
             pullTimer = 0.0f;
             animator.Play("DodgeballCatchball");
             transform.Find("Audios/CatchSound").GetComponent<AudioSource>().Play();

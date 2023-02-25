@@ -78,7 +78,10 @@ namespace UltraFunGuns
 
         protected override void DoAnimations()
         {
-            laser.laserActive = laserActive;
+            if(laser != null)
+            {
+                laser.laserActive = laserActive;
+            }
             tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount()-1,0,laser.maxPylons);
             animator.SetBool("LaserActive", laserActive);
         }
@@ -227,9 +230,9 @@ namespace UltraFunGuns
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fireLaser", new ActionCooldown(0.16f));
+            cooldowns.Add("fireLaser", new ActionCooldown(0.16f, true));
             cooldowns.Add("damageTick", new ActionCooldown(0.25f));
-            cooldowns.Add("throwPylon", new ActionCooldown(1.0f));
+            cooldowns.Add("throwPylon", new ActionCooldown(1.0f, true));
             return cooldowns;
         }
 

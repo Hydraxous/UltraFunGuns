@@ -90,6 +90,9 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+	<Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>

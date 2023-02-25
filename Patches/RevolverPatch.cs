@@ -91,7 +91,7 @@ namespace UltraFunGuns
             }
             catch (System.Exception e)
             {
-
+                HydraLogger.Log($"Revolver Hit Error: {e.Message}\n{e.StackTrace}", DebugChannel.Error);
             }
 
         }

@@ -32,6 +32,7 @@ namespace UltraFunGuns
                 bool loadSuccess = RegisterAll();
                 BundleLoaded = loadSuccess;
                 onLoaderComplete?.Invoke(loadSuccess);
+
             };
         }
 

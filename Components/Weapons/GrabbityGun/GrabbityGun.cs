@@ -20,7 +20,7 @@ namespace UltraFunGuns
         public float minAngle = 0.60f; //45o angle
 
 
-        private ActionCooldown primaryFireDelay = new ActionCooldown(0.4f), secondaryDelay = new ActionCooldown(0.2f);
+        private ActionCooldown primaryFireDelay = new ActionCooldown(0.4f, true), secondaryDelay = new ActionCooldown(0.2f, true);
 
         private bool grabbiting = false;
 

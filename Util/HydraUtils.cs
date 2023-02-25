@@ -22,25 +22,42 @@ namespace UltraFunGuns
 
             RaycastHit[] hits = Physics.SphereCastAll(view.position, thickness, view.forward, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
 
-            if (hits.Length > 0)
+            if(SphereCastMacro(view.position, thickness, view.forward, maxRange, out RaycastHit hit))
             {
-                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
-                {
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
-                    for (int i = 0; i < hits.Length; i++)
-                    {
-                        if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !(hits[i].collider.isTrigger))
-                        {
-                            aimRay.origin = projectileOrigin.position;
-                            aimRay.direction = hits[i].point - projectileOrigin.position;
-                            HydraLogger.Log($"Raycast hit [{hits[i].collider.gameObject.name}]");
-                            break;
-                        }
-                    }
-                }
+                aimRay.origin = projectileOrigin.position;
+                aimRay.direction = hit.point - projectileOrigin.position;
+                HydraLogger.Log($"Raycast hit [{hit.collider.gameObject.name}]");
             }
 
             return aimRay;
+        }
+
+        //I hate you CameraCollisionChecker.
+        public static bool SphereCastMacro(Vector3 position, float thickness, Vector3 direction, float maxRange, out RaycastHit hit)
+        {
+            hit = new RaycastHit();
+
+            RaycastHit[] hits = Physics.SphereCastAll(position, thickness, direction, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
+
+            if (hits.Length <= 0)
+                return false;
+
+            if ((hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
+                return false;
+   
+
+            hits = SortRaycastHitsByDistance(hits);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !(hits[i].collider.isTrigger))
+                {
+                    hit = hits[i];
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 
@@ -296,6 +313,30 @@ namespace UltraFunGuns
             }
 
             return attributeList.ToArray();
+        }
+
+        public static void PlayAudioClip(AudioClip clip, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
+        {
+            PlayAudioClip(clip, Vector3.zero, pitch, volume, spatialBlend);
+        }
+
+        public static void PlayAudioClip(AudioClip clip, Vector3 position, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            GameObject newAudioObject = new GameObject($"AudioSource({clip.name})");
+            newAudioObject.transform.position = position;
+            AudioSource newAudioSource = newAudioObject.AddComponent<AudioSource>();
+            DestroyAfterTime destroyOverTime = newAudioObject.AddComponent<DestroyAfterTime>();
+            newAudioSource.playOnAwake = false;
+            newAudioSource.spatialBlend = spatialBlend;
+            newAudioSource.volume = volume;
+            newAudioSource.pitch = pitch;
+            newAudioSource.clip = clip;
+            newAudioSource.Play();
         }
 
     }

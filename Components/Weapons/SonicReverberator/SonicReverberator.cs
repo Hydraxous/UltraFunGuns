@@ -5,6 +5,9 @@ using UnityEngine.AI;
 
 namespace UltraFunGuns
 {
+
+    //at this point, literally just copy the code from grabby gun
+
     /*Gun that fires a "Sonic Wave" in a cone in front of it. Can be charged indefinitely.
      * Charging scales with size of sonic wave, knockback velocity, and player knockback velocity.
      * 
@@ -90,7 +93,7 @@ namespace UltraFunGuns
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fire", new ActionCooldown(0.75f));
+            cooldowns.Add("fire", new ActionCooldown(0.75f, true));
             return cooldowns;
         }
 
@@ -192,7 +195,6 @@ namespace UltraFunGuns
         //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
         private void Fire()
         {
-            //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron... UPDATE: You will die in 7 days...
             int chargeState = GetChargeState();
             
             animator.Play("SonicReverberator_Shoot");
@@ -285,9 +287,9 @@ namespace UltraFunGuns
         //TODO FIX THIS IT FORCES COOLDOWN VERY DUMB!!
         private void OnEnable()
         {
-            if ((actionCooldowns["fire"].timeToFire - Time.time) > 0.0f)
+            if ((actionCooldowns["fire"].TimeToFire - Time.time) > 0.0f)
             {
-                actionCooldowns["fire"].timeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
+                actionCooldowns["fire"].TimeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
             }
         }
 

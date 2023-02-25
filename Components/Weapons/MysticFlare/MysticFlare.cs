@@ -11,14 +11,45 @@ namespace UltraFunGuns
     [WeaponAbility("Secondary", "Shits and farts usiong <color=orange>Fire 2</color>.", 2, RichTextColors.lime)]
     public class MysticFlare : UltraFunGunBase
     {
-        public override void FirePrimary()
+        public GameObject flareProjectilePrefab;
+        public float maxRange = 13.0f;
+
+        private bool flareDeployed = false;
+
+        private MysticFlareProjectile deployedFlare;
+
+        public override void GetInput()
         {
-            base.FirePrimary();
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !flareDeployed)
+            {
+                DeployFlare();
+            }else if(flareDeployed)
+            {
+                ExplodeFlare();
+            }
         }
 
-        public override void FireSecondary()
+        //Throw flare
+        private void DeployFlare()
         {
-            base.FireSecondary();
+            flareDeployed = true;
+            //Deploy flare lol
+        }
+
+        private void ExplodeFlare()
+        {
+            if(deployedFlare == null)
+            {
+                return;
+            }
+
+            //Explode flare
+        }
+
+        //
+        public void Pull()
+        {
+
         }
 
     }

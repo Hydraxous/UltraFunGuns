@@ -68,6 +68,8 @@ namespace UltraFunGuns
             OnAwakeFinished();
         }
         
+
+
         public virtual void OnAwakeFinished() {}
 
         private void Update()
@@ -110,8 +112,8 @@ namespace UltraFunGuns
         public virtual Dictionary<string, ActionCooldown> SetActionCooldowns()
         {
             Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(1.0f));
-            cooldowns.Add("secondaryFire", new ActionCooldown(1.0f));
+            cooldowns.Add("primaryFire", new ActionCooldown(1.0f, true));
+            cooldowns.Add("secondaryFire", new ActionCooldown(1.0f, true));
             return cooldowns;
         }
 
@@ -197,30 +199,32 @@ namespace UltraFunGuns
 
         public class ActionCooldown
         {
-            public float timeToFire;
-            public float fireDelay;
-            public bool noCooldown;
+            public float TimeToFire;
+            public float FireDelay;
+            public bool NoCooldown;
+            public bool AffectedByNoCooldownCheat;
 
-            public ActionCooldown(float delay = 1f)
+            public ActionCooldown(float delay = 1f, bool affectedByNoCooldownCheat = false)
             {
-                timeToFire = 0.0f;
-                this.noCooldown = (delay <= 0.0f);
-                this.fireDelay = delay;
+                TimeToFire = 0.0f;
+                this.NoCooldown = (delay <= 0.0f);
+                this.FireDelay = delay;
+                this.AffectedByNoCooldownCheat = affectedByNoCooldownCheat;
             }            
 
             public void AddCooldown()
             {
-                timeToFire = fireDelay + Time.time;
+                TimeToFire = FireDelay + Time.time;
             }
 
             public void AddCooldown(float delayInSeconds)
             {
-                timeToFire = delayInSeconds + Time.time;
+                TimeToFire = delayInSeconds + Time.time;
             }
 
             public bool CanFire()
             {
-                if(timeToFire < Time.time || noCooldown || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown)
+                if(TimeToFire < Time.time || NoCooldown || (ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown && AffectedByNoCooldownCheat))
                 {
                     return true;
                 }

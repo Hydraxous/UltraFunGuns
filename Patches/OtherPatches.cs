@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    /*
     [HarmonyPatch(typeof(StyleHUD))]
     [HarmonyPatch(nameof(StyleHUD.GetFreshnessState))]
     public static class StyleHUD_Annoyance_Patch
@@ -18,13 +19,17 @@ namespace UltraFunGuns
         {
             var codes = new List<CodeInstruction>(instructions);
             int startIndex = -1;
-
+            
+            //Loop through every instruction
             for (int i = 0; i < codes.Count; i++)
             {
+                //Find unique opcode of load string
                 if (codes[i].opcode == System.Reflection.Emit.OpCodes.Ldstr)
                 {
+
                     HydraLogger.Log(">!!!", DebugChannel.Fatal);
                     var strOperand = codes[i].operand as string;
+                    //Check if string is the one we want
                     if (strOperand == "Current weapon not in StyleHUD weaponFreshness dict!!!")
                     {
                         HydraLogger.Log("FOUND IT.", DebugChannel.Fatal);
@@ -38,6 +43,7 @@ namespace UltraFunGuns
                 }
             }
 
+            //Remove instructions from the code
             if (startIndex > -1)
             {
                 codes.RemoveRange(startIndex, 2);
@@ -48,4 +54,5 @@ namespace UltraFunGuns
             return codes.AsEnumerable();
         }
     }
+    */
 }

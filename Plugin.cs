@@ -36,6 +36,7 @@ namespace UltraFunGuns
             {
                 if (loaded)
                 {
+                    UltraLoader.LoadAll();
                     CheckVersion();
                     DoPatching();
                     Visualizer.Init();
