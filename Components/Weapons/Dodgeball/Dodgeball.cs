@@ -12,6 +12,7 @@ namespace UltraFunGuns
     [WeaponAbility("Recall", "Pull the thrown ball back to you by holing <color=orange>Fire 2</color>", 2, RichTextColors.lime)]
     [WeaponAbility("Soft-Ball", "Press <color=orange>Fire 2</color> while holding the ball to throw the ball softly.",1, RichTextColors.aqua)]
     [WeaponAbility("Full-Ball", "Press <color=orange>Fire 1</color> to throw the ball. Holding the button will throw the ball faster and harder.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Excite", "Firing upon or punching the ball will send it into a fit of excitement.", 3, RichTextColors.red)]
     public class Dodgeball : UltraFunGunBase
     {
         ActionCooldown pullCooldown = new ActionCooldown(0.25f, true);

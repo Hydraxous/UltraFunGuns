@@ -8,7 +8,6 @@ namespace UltraFunGuns
     [FunGun("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green)]
     public class Bulletstorm : UltraFunGunBase
     {
-        public GameObject bulletTrailPrefab;
 
         public float spreadTightness = 1.5f;
         public float fireRateSpeed = 0.02f;
@@ -16,7 +15,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
+            //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
         }
 
         private void Start()
@@ -38,11 +37,10 @@ namespace UltraFunGuns
             {
                 Ray shot = new Ray();
 
-                float spreadX = UnityEngine.Random.Range(-1f,1f);
-                float spreadY = UnityEngine.Random.Range(-1f,1f);
+                Vector2 spread = UnityEngine.Random.insideUnitCircle;
 
                 shot.origin = mainCam.transform.position;
-                shot.direction = mainCam.TransformDirection(spreadX, spreadY, spreadTightness);
+                shot.direction = mainCam.TransformDirection(spread.x, spread.y, spreadTightness);
 
                 Vector3[] bulletTrailInfo = HydraUtils.DoRayHit(shot, maxRange, false, 0.05f, false, 0.0f, this.gameObject, true, true);
                 if(bulletTrailInfo.Length != 2)
@@ -56,7 +54,12 @@ namespace UltraFunGuns
 
         private void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)
         {
-            GameObject newBulletTrail = Instantiate<GameObject>(bulletTrailPrefab, endPosition, Quaternion.identity);
+            if(Prefabs.BulletTrail == null)
+            {
+                return;
+            }
+
+            GameObject newBulletTrail = Instantiate<GameObject>(Prefabs.BulletTrail, endPosition, Quaternion.identity);
             newBulletTrail.transform.up = normal;
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };

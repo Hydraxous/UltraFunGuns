@@ -40,6 +40,8 @@ namespace UltraFunGuns
             laserAnimator = refractedLaser.GetComponent<Animator>();
             laserOriginPoint = transform.Find("FocalyzerPylonRemake/RefractorVisual");
             laserOriginPoint.gameObject.AddComponent<AlwaysLookAtCamera>().speed = 0.0f;
+
+            Events.OnPlayerRespawn += Shatter;
         }
 
         void Update()
@@ -148,6 +150,7 @@ namespace UltraFunGuns
         //TODO break animation
         void Shatter()
         {
+            Events.OnPlayerRespawn -= Shatter;
             Destroy(gameObject);
         }
 

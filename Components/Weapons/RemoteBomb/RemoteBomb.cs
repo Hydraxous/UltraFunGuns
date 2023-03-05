@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 namespace UltraFunGuns
 {
     [FunGun("RemoteBomb","Radio Explosive", 3, true, WeaponIconColor.Red)]
+    [WeaponAbility("Throw", "Press <color=orange>Fire 1</color> to throw an explosive.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Detonate", "Press <color=orange>Fire 2</color> detonate armed explosives.", 1, RichTextColors.lime)]
+    [WeaponAbility("Mortar", "Parry a thrown bomb to boost your throw.", 2, RichTextColors.yellow)]
     public class RemoteBomb : UltraFunGunBase
     {
         private GameObject remoteExplosivePrefab;

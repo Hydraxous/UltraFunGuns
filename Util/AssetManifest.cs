@@ -38,6 +38,8 @@ namespace UltraFunGuns
             for(int i=0;i < weaponInfos.Length;i++)
             {
                 new HydraLoader.CustomAssetPrefab(weaponInfos[i].WeaponKey, new Component[] { new WeaponIcon() { variationColor=(int) weaponInfos[i].IconColor }, new WeaponIdentifier() });
+                new HydraLoader.CustomAssetData($"{weaponInfos[i].WeaponKey}_glowIcon", typeof(Sprite));
+                new HydraLoader.CustomAssetData($"{weaponInfos[i].WeaponKey}_weaponIcon", typeof(Sprite));
             }
 
             #endregion
@@ -54,9 +56,6 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetData("vB_loud", typeof(AudioClip));
             new HydraLoader.CustomAssetData("vB_loudest", typeof(AudioClip));
             new HydraLoader.CustomAssetData("vB_standard", typeof(AudioClip));
-            //Sonic gun icons
-            new HydraLoader.CustomAssetData("SonicReverberator_glowIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("SonicReverberator_weaponIcon", typeof(Sprite));
             #endregion
 
             #region egg wep
@@ -65,9 +64,6 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("ThrownEgg", new Component[] { new ThrownEgg(), new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("EggImpactFX", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("EggSplosion", new Component[] { new EggSplosion(), new DestroyAfterTime() });
-            //Icons
-            new HydraLoader.CustomAssetData("EggToss_weaponIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("EggToss_glowIcon", typeof(Sprite));
             #endregion
 
             #region Dodgeball
@@ -77,9 +73,6 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("DodgeballImpactSound", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetPrefab("DodgeballPopFX", new Component[] { new DestroyAfterTime() });
             new HydraLoader.CustomAssetData("BasketballMaterial", typeof(Material));
-            //Icons 
-            new HydraLoader.CustomAssetData("Dodgeball_weaponIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("Dodgeball_glowIcon", typeof(Sprite));
             #endregion
 
             #region Focalyzer
@@ -88,9 +81,6 @@ namespace UltraFunGuns
             //new HydraLoader.CustomAssetPrefab("Focalyzer", new Component[] { new Focalyzer(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylon", new Component[] { new FocalyzerPylon() });
             new HydraLoader.CustomAssetPrefab("FocalyzerLaser", new Component[] { new FocalyzerLaserController() });
-            //Icons
-            new HydraLoader.CustomAssetData("Focalyzer_glowIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("Focalyzer_weaponIcon", typeof(Sprite));
             #endregion
 
             #region Focalyzer_Alternate
@@ -98,9 +88,6 @@ namespace UltraFunGuns
             //new HydraLoader.CustomAssetPrefab("FocalyzerAlternate", new Component[] { new FocalyzerAlternate(), new WeaponIcon(), new WeaponIdentifier() });
             new HydraLoader.CustomAssetPrefab("FocalyzerPylonAlternate", new Component[] { new FocalyzerPylonAlternate() });
             new HydraLoader.CustomAssetPrefab("FocalyzerLaserAlternate", new Component[] { new FocalyzerLaserControllerAlternate() });
-            //Icons 
-            new HydraLoader.CustomAssetData("FocalyzerAlternate_glowIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("FocalyzerAlternate_weaponIcon", typeof(Sprite));
             #endregion
             #endregion
 
@@ -120,10 +107,7 @@ namespace UltraFunGuns
             #region handgun
             //Fingerguns
             new HydraLoader.CustomAssetPrefab("FingerGun_ImpactExplosion", new Component[] { new DestroyAfterTime() });
-           // new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun(), new WeaponIcon(), new WeaponIdentifier() });
-            //Icon
-            new HydraLoader.CustomAssetData("FingerGun_weaponIcon", typeof(Sprite));
-            new HydraLoader.CustomAssetData("FingerGun_glowIcon", typeof(Sprite));
+            // new HydraLoader.CustomAssetPrefab("FingerGun", new Component[] { new FingerGun(), new WeaponIcon(), new WeaponIdentifier() });
             #endregion
 
             #region payloader
@@ -152,8 +136,6 @@ namespace UltraFunGuns
 
             #endregion
 
-
-            new HydraLoader.CustomAssetPrefab("ThrownBrick");
             assetsRegistered = true;
         }
     }

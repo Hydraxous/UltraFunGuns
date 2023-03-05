@@ -7,9 +7,14 @@ using UnityEngine.UI;
 namespace UltraFunGuns
 {
     [FunGun("Tricksniper", "Tricksniper", 3, true, WeaponIconColor.Green)]
+    [WeaponAbility("Fire", "Press <color=orange>Fire 1</color> to fire.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Optical Zoom", "Hold <color=orange>Fire 2</color> to engage zoom.", 1, RichTextColors.lime)]
+    [WeaponAbility("Noscope!!", "Spinning before shooting directly increases damage and accuracy while not using <color=lime>Optical Zoom</color>.", 2, RichTextColors.yellow)]
+
+
     public class Tricksniper : UltraFunGunBase
     {
-        public GameObject bulletTrailPrefab;
+        //public GameObject bulletTrailPrefab;
         public GameObject muzzleFX;
         public GameObject scopeUI;
         public GameObject viewModelWrapper;
@@ -37,7 +42,7 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
+            //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
             HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
@@ -300,7 +305,12 @@ namespace UltraFunGuns
 
         private void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)
         {
-            GameObject newBulletTrail = Instantiate<GameObject>(bulletTrailPrefab, endPosition, Quaternion.identity);
+            if(Prefabs.BulletTrail == null)
+            {
+                return;
+            }
+
+            GameObject newBulletTrail = Instantiate<GameObject>(Prefabs.BulletTrail, endPosition, Quaternion.identity);
             newBulletTrail.transform.up = normal;
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };

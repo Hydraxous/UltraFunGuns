@@ -8,6 +8,10 @@ namespace UltraFunGuns
 {
     //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion.
     [FunGun("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
+    [WeaponAbility("Egg", "Press <color=orange>Fire 1</color> to throw an egg.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Egg Drop", "Press <color=orange>Fire 2</color> to drop an egg.", 1, RichTextColors.aqua)]
+    [WeaponAbility("EGGSPLOSION", "Shoot an egg to release an <color=red>EGGSLPOSION</color>.", 2, RichTextColors.red)]
+
     public class EggToss : UltraFunGunBase
     {
         private GameObject thrownEggPrefab;

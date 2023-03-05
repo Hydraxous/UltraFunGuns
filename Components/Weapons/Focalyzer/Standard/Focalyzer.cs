@@ -10,14 +10,17 @@ namespace UltraFunGuns
 
     //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
     [WeaponAbility("Focus", "Hold <color=orange>Fire 1</color> to fire a continuous beam of light.", 0, RichTextColors.aqua)]
-    [WeaponAbility("Pylon", "Press <color=orange>Fire 2</color> deploy a pylon which can refract the <color=aqua>Focus</color> beam.", 1, RichTextColors.lime)]
-    [WeaponAbility("Refract", "Fire a <color=aqua>Focus</color> beam into a <color=lime>Pylon</color> to refract it.", 2, RichTextColors.lime)]
+    [WeaponAbility("Deploy Pylon", "Press <color=orange>Fire 2</color> deploy a pylon which can refract the <color=aqua>Focus</color> beam.", 1, RichTextColors.lime)]
+    [WeaponAbility("Refract", "Fire a <color=aqua>Focus</color> beam into a <color=lime>Pylon</color> to refract it.", 2, RichTextColors.yellow)]
     [FunGun("Focalyzer", "Focalyzer", 2, true, WeaponIconColor.Red)]
     public class Focalyzer : UltraFunGunBase
     {
         public FocalyzerLaserController laser;
         public FocalyzerTubeController tubeController;
         public GameObject pylonPrefab;
+
+        [UFGAsset("CanLauncher_MuzzleFX")]
+        private static GameObject throwPylonFX;
 
         private bool throwingPylon = false;
         public bool laserActive = false;
@@ -82,7 +85,12 @@ namespace UltraFunGuns
             {
                 laser.laserActive = laserActive;
             }
-            tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount()-1,0,laser.maxPylons);
+
+            if(tubeController != null)
+            {
+                tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount() - 1, 0, laser.maxPylons);
+            }
+
             animator.SetBool("LaserActive", laserActive);
         }
 
@@ -214,9 +222,13 @@ namespace UltraFunGuns
         {
             throwingPylon = true;
             actionCooldowns["throwPylon"].AddCooldown();
-            animator.Play("Focalyzer_ThrowPylon");
+            animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+            GameObject pylonFX = GameObject.Instantiate<GameObject>(throwPylonFX, firePoint);
+            pylonFX.transform.position = firePoint.position;
+            pylonFX.transform.forward = firePoint.forward;
+            pylonFX.AddComponent<DestroyOnDisable>();
             MonoSingleton<CameraController>.Instance.CameraShake(0.2f);
             FocalyzerPylon pylon = newPylon.GetComponent<FocalyzerPylon>();
             pylon.laserHitMask = laserHitMask;

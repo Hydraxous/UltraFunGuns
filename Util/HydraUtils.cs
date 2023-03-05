@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.Reflection;
+using UnityEngine.InputSystem.HID;
+using MonoMod.RuntimeDetour.HookGen;
 
 namespace UltraFunGuns
 {
@@ -20,8 +22,6 @@ namespace UltraFunGuns
             aimRay.origin = projectileOrigin.position;
             aimRay.direction = endPoint - projectileOrigin.position;
 
-            RaycastHit[] hits = Physics.SphereCastAll(view.position, thickness, view.forward, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
-
             if(SphereCastMacro(view.position, thickness, view.forward, maxRange, out RaycastHit hit))
             {
                 aimRay.origin = projectileOrigin.position;
@@ -33,33 +33,44 @@ namespace UltraFunGuns
         }
 
         //I hate you CameraCollisionChecker.
-        public static bool SphereCastMacro(Vector3 position, float thickness, Vector3 direction, float maxRange, out RaycastHit hit)
+        public static bool SphereCastMacro(Vector3 position, float thickness, Vector3 direction, float maxRange, out RaycastHit hit, bool hitTriggers = false)
         {
             hit = new RaycastHit();
 
-            RaycastHit[] hits = Physics.SphereCastAll(position, thickness, direction, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
-
-            if (hits.Length <= 0)
-                return false;
-
-            if ((hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
-                return false;
-   
-
-            hits = SortRaycastHitsByDistance(hits);
-
-            for (int i = 0; i < hits.Length; i++)
+            if (SphereCastAllMacro(position, thickness, direction, maxRange, out RaycastHit[] hits, hitTriggers))
             {
-                if (!(hits[i].collider.gameObject.name == "CameraCollisionChecker") && !(hits[i].collider.isTrigger))
-                {
-                    hit = hits[i];
-                    return true;
-                }
+                hit = hits[0];
+                return true;
             }
 
             return false;
         }
 
+        public static bool SphereCastAllMacro(Vector3 position, float thickness, Vector3 direction, float maxRange,  out RaycastHit[] hits, bool hitTriggers = false)
+        {
+            hits = Physics.SphereCastAll(position, thickness, direction, maxRange, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default"));
+
+            if (hits.Length <= 0)
+                return false;
+
+            List<RaycastHit> newHits = new List<RaycastHit>(SortRaycastHitsByDistance(hits));
+
+            int counter = 0;
+            while(counter < newHits.Count)
+            {
+                if (newHits[counter].collider.gameObject.name == "CameraCollisionChecker" || (newHits[counter].collider.isTrigger && !hitTriggers))
+                {
+                    newHits.RemoveAt(counter);
+                }else
+                {
+                    counter++;
+                }
+            }
+
+            hits = newHits.ToArray();
+
+            return newHits.Count > 0;
+        }
 
         public static bool TryGetHomingTarget(Vector3 sampleLocation, out Transform homingTarget, out EnemyIdentifier enemyComponent)
         {
@@ -161,6 +172,64 @@ namespace UltraFunGuns
             return sortedHits.ToArray();
         }
 
+        /// <summary>
+        /// Get a velocity vector for a projectile parabola with a specified flight time.
+        /// </summary>
+        /// <param name="start">Start position</param>
+        /// <param name="end">End Position</param>
+        /// <param name="airTime">Total flight time</param>
+        /// <returns></returns>
+        public static Vector3 GetVelocityTrajectory(Vector3 start, Vector3 end, float airTime)
+        {
+            Vector3 gravity = Physics.gravity;
+
+            airTime = (airTime == 0) ? airTime + 0.0001f : airTime;
+
+            Vector3 parabolaMiddleHeight = Vector3.LerpUnclamped(start, end, 0.5f / airTime);
+            parabolaMiddleHeight -= gravity * airTime;
+
+            Vector3 shootDirection = parabolaMiddleHeight - start;
+
+            return shootDirection;
+        }
+
+        public static Vector3 CalculateProjectileArcPosition(Vector3 start, Vector3 end, float airTime, float normalizedTime)
+        {
+            Vector3 initialDirection = GetVelocityTrajectory(start, end, airTime);
+
+            Vector3[] trajectoryPoints = GetTrajectoryPoints(start, Physics.gravity, initialDirection, 0.0f, airTime);
+
+            int index = Mathf.FloorToInt(trajectoryPoints.Length-1 * normalizedTime);
+
+            return trajectoryPoints[index];
+        }
+
+        //TODO optimize this. This does not do what it was ported for. Purpose is for getting a point along a trajectory at a given time. This function is for drawing said trajectory, not querying it.
+        private static Vector3[] GetTrajectoryPoints(Vector3 start, Vector3 gravity, Vector3 direction, float drag, float flightTime)
+        {
+
+            Vector3 currentVelocity = direction;
+
+            float positionStep = flightTime / 100;
+
+            Vector3 lastPosition = start;
+
+            List<Vector3> points = new List<Vector3>();
+
+            for (int i = 0; i < 100 * 2; i++)
+            {
+                currentVelocity = currentVelocity * (1 - positionStep * drag);
+
+                currentVelocity += gravity * positionStep;
+
+                points.Add(lastPosition);
+
+                lastPosition += currentVelocity * positionStep;
+            }
+
+            return points.ToArray();
+        }
+
         //LOS check only counts the level, environment, etc. as obstruction of view.
         public static bool LineOfSightCheck(Vector3 source, Vector3 target)
         {
@@ -179,6 +248,58 @@ namespace UltraFunGuns
                 }
             }
             return true;
+        }
+
+        public static bool IsColliderEnemy(Collider collider, out EnemyIdentifier enemy, bool filterDead = true)
+        {
+            enemy = null;
+            if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
+            {
+                if(enemyIDID.eid != null)
+                {
+                    enemy = enemyIDID.eid;
+                    if(!enemy.dead || !filterDead)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+            {
+                enemy = enemyID;
+                if (!enemy.dead || !filterDead)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsCollisionEnemy(Collision collider, out EnemyIdentifier enemy, bool filterDead = true)
+        {
+            enemy = null;
+            if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
+            {
+                if (enemyIDID.eid != null)
+                {
+                    enemy = enemyIDID.eid;
+                    if (!enemy.dead || !filterDead)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+            {
+                enemy = enemyID;
+                if (!enemy.dead || !filterDead)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static Vector3[] DoRayHit(Ray hitRay, float range, bool penetration = false, float enemyDamage = 1.0f, bool explodeEnemyLimb = false, float critDamageMultiplier = 0.0f, GameObject sourceObject = null, bool explodeGrenade = false, bool explodeEgg = false, bool breakGlass = false, bool breakBreakable = false, bool exciteDodgeball = false)
@@ -498,6 +619,80 @@ namespace UltraFunGuns
                 this.validTarget = false;
                 return;
             }
+        }
+    }
+
+    public class Trajectory
+    {
+        public Vector3 Origin;
+        public Vector3 End;
+        public float AirTime;
+        public Vector3 Gravity;
+
+        public Trajectory(Vector3 origin, Vector3 end, float airTime, Vector3 gravity)
+        {
+            Origin = origin;
+            End = end;
+            AirTime = airTime;
+            Gravity = gravity;
+        }
+
+        public Trajectory(Vector3 origin, Vector3 end, float airTime)
+        {
+            Origin = origin;
+            End = end;
+            AirTime = airTime;
+            Gravity = Physics.gravity;
+        }
+
+        public Vector3 GetRequiredVelocity()
+        {
+            float flightTime = (AirTime == 0) ? AirTime + 0.0001f : AirTime;
+
+            Vector3 parabolaMiddleHeight = Vector3.LerpUnclamped(Origin, End, 0.5f / flightTime);
+            parabolaMiddleHeight -= Gravity * flightTime;
+
+            Vector3 shootDirection = parabolaMiddleHeight - Origin;
+
+            return shootDirection;
+        }
+
+        public Vector3[] GetPoints(int quality = 100, float drag = 0.0f)
+        {
+            if (quality == 0)
+            {
+                return new Vector3[] { Origin, End };
+            }
+
+            Vector3 currentVelocity = GetRequiredVelocity();
+
+            float positionStep = AirTime / (quality/2);
+
+            Vector3 lastPosition = Origin;
+
+            List<Vector3> points = new List<Vector3>();
+
+            //TODO I think this causes the speed up
+            for (int i = 0; i < quality; i++)
+            {
+                currentVelocity = currentVelocity * (1 - positionStep * drag);
+
+                currentVelocity += Gravity * positionStep;
+
+                points.Add(lastPosition);
+
+                lastPosition += currentVelocity * positionStep;
+
+            }
+
+            return points.ToArray();
+        }
+
+        public Vector3 GetPoint(float time, int quality = 100, float drag = 0.0f)
+        {
+            Vector3[] points = GetPoints(quality, drag);
+            time = Mathf.Clamp01(time);
+            return points[Mathf.FloorToInt((points.Length - 1) * time)];
         }
     }
 }

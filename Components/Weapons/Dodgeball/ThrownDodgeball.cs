@@ -77,6 +77,7 @@ namespace UltraFunGuns
             player = MonoSingleton<NewMovement>.Instance;
             homingSound.Play();
             homingSound.Pause();
+            Events.OnPlayerRespawn += Pop;
         }
 
         private void Update()
@@ -241,6 +242,7 @@ namespace UltraFunGuns
 
         public void Pop()
         {
+            Events.OnPlayerRespawn -= Pop;
             GameObject.Instantiate<GameObject>(dodgeballPopFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }

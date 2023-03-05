@@ -1,13 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Timers;
 using UltraFunGuns;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 
 namespace UltraFunGuns
 {
     [WeaponAbility("Brick", "Throw brick with <color=orange>Fire 1</color>.", 0, RichTextColors.aqua)]
-    [WeaponAbility("Brick Storm", "Hold <color=orange>Fire 2</color> to assimilate the brick mind.", 1, RichTextColors.red)]
+    [WeaponAbility("Mind Conduit", "Hold <color=orange>Fire 2</color> to assimilate the brick mind.", 1, RichTextColors.lime)]
+    [WeaponAbility("Mortar", "Parry the brick to toss it properly.", 2, RichTextColors.red)]
     [FunGun("Brick", "Brick", 0, true, WeaponIconColor.Red)]
     public class Brick : UltraFunGunBase
     {
@@ -18,20 +21,23 @@ namespace UltraFunGuns
         private static AudioClip whoosh;
 
         public Vector2 BrickstormSpeed { get; private set; } = new Vector2(5.0f, 5.0f);
+
         public float BrickstormOffset { get; private set; } = 3.5f;
         public float BrickstormPullSpeed { get; private set; } = 15.0f;
-        public float BrickstormFlockSpeed { get; private set; } = 50.0f;
+        public float BrickstormFlockSpeed { get; private set; } = 8.0f;
+        public float Brickshake { get; private set; } = 0.075f;
+        public float BrickParryFlightTime { get; private set; } = 0.85f;
 
-        //TODO make bricks glow
         //TODO make bricks fragment
-        //TODO make bricks more angry
         //TODO more sounds
         //TODO Icon
 
         public float force = 75.0f;
-        public float spawnOffset = 0.25f;
-        public float flockMaxRange = 150.0f;
+        public float flockMaxRange = 10.0f;
+        public float targetPointSurfaceOffset = 0.3f;
         private bool ready = false;
+
+        private bool throwingBrick = false;
 
         private List<Rigidbody> thrownBricks = new List<Rigidbody>();
 
@@ -42,43 +48,82 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-
             ready = thrownBrickPrefab != null;
-
         }
 
         public Vector3 PlayerVelocity { get; private set; }
 
         public override void GetInput()
         {
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && throwCooldown.CanFire())
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && throwCooldown.CanFire() && !om.paused && !throwingBrick)
             {
                 throwCooldown.AddCooldown();
-                ThrowBrick();
+                throwingBrick = true;
+                StartCoroutine(BrickThrower());
             }
 
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && stormCooldown.CanFire())
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed && stormCooldown.CanFire() && !om.paused && !throwingBrick)
             {
                 StormActive = true;
                 PlayerVelocity = player.rb.velocity;
                 Ray aimRay = new Ray(mainCam.position, mainCam.forward);
 
-                if(HydraUtils.SphereCastMacro(aimRay.origin, 0.1f, aimRay.direction, flockMaxRange, out RaycastHit hit))
+                flockPosition = aimRay.GetPoint(flockMaxRange);
+
+                if (HydraUtils.SphereCastAllMacro(aimRay.origin, 0.18f, aimRay.direction, Mathf.Infinity, out RaycastHit[] hits))
                 {
-                    flockPosition = hit.point;
+                    if(FilterHitpoint(hits, out Vector3 hitPos))
+                        flockPosition = hitPos;
                 }
-                else
-                {
-                    flockPosition = aimRay.GetPoint(flockMaxRange);
-                }
+
             }
             else if (StormActive)
             {
                 StormActive = false;
                 stormCooldown.AddCooldown();
             }
+        }
 
-            
+        protected override void DoAnimations()
+        {
+            animator.SetBool("Storm", StormActive);
+        }
+
+        private bool FilterHitpoint(RaycastHit[] hits, out Vector3 hitPoint)
+        {
+            hitPoint = Vector3.zero;
+
+            if(hits.Length <= 0)
+            {
+                return false;
+            }
+
+            foreach(RaycastHit hit in hits)
+            {
+                if(hit.collider.gameObject.TryGetComponent<ThrownBrick>(out ThrownBrick brick))
+                {
+                    continue;
+                }
+
+                if(HydraUtils.IsColliderEnemy(hit.collider, out EnemyIdentifier eid))
+                {
+                    if(eid.weakPoint != null)
+                    {
+                        hitPoint = eid.weakPoint.transform.position;
+                    }else
+                    {
+                        hitPoint = hit.point;
+                    }
+                    break;
+                }
+                else if(hit.distance < flockMaxRange)
+                {
+                    hitPoint = hit.point + (hit.normal * targetPointSurfaceOffset);
+                    break;
+                }
+            }
+
+            return hitPoint != Vector3.zero;
         }
 
         private void ThrowBrick()
@@ -87,7 +132,7 @@ namespace UltraFunGuns
             {
                 Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.2f);
 
-                GameObject newBrick = GameObject.Instantiate(thrownBrickPrefab, firePoint.position, Quaternion.identity);
+                GameObject newBrick = GameObject.Instantiate(thrownBrickPrefab, firePoint.position, UnityEngine.Random.rotation);
                 newBrick.transform.forward = aimRay.direction;
                 if(newBrick.TryGetComponent<Rigidbody>(out Rigidbody rb))
                 {
@@ -105,6 +150,20 @@ namespace UltraFunGuns
                     brick.SetBrickGun(this);
                 }
             }
+            
+            throwingBrick = false;
+        }
+
+        private IEnumerator BrickThrower()
+        {
+            animator.Play("Throw", 0, 0);
+            float timer = 0.116666667f;
+            while(timer > 0.0f)
+            {
+                yield return new WaitForEndOfFrame();
+                timer -= Time.deltaTime;
+            }
+            ThrowBrick();
         }
 
         private Vector3 flockPosition = new Vector3();
@@ -114,9 +173,10 @@ namespace UltraFunGuns
             return flockPosition;
         }
 
-
         private void OnEnable()
         {
+            animator.Play("Equip", 0, 0);
+
             ThrownBrick[] bricksOut = GameObject.FindObjectsOfType<ThrownBrick>();
             for(int i =0; i< bricksOut.Length; i++)
             {

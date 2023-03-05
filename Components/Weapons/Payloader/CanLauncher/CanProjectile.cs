@@ -58,6 +58,7 @@ namespace UltraFunGuns
         private void Start()
         {
             killTimer = killTime;
+            Events.OnPlayerRespawn += Die;
         }
 
         private void Update()
@@ -329,6 +330,8 @@ namespace UltraFunGuns
         //pops soda does tiny aoe damage later
         private void Die()
         {
+            Events.OnPlayerRespawn -= Die;
+
             //instantiate tiny explosion pop fx that does tiny aoe damage.
             dead = true;
             gameObject.SetActive(false);

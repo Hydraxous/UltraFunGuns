@@ -1,32 +1,95 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Timers;
+﻿using System.Collections;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {
-    public class ThrownBrick : MonoBehaviour
+    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver
     {
+        [UFGAsset("BrickBreakFX")] private static GameObject brickBreakFX;
+        [UFGAsset("SmackFX")] private static GameObject smackFX;
+        [UFGAsset("TennisHit")] private static AudioClip tennisHit;
+
+        private Animator thrownBrickAnimator;
+        private Transform brickMesh;
         private Brick brickShooter;
         private Rigidbody rb;
 
         private UltraFunGunBase.ActionCooldown soundCooldown = new UltraFunGunBase.ActionCooldown(0.05f);
+        private UltraFunGunBase.ActionCooldown damageCooldown = new UltraFunGunBase.ActionCooldown(0.25f);
+        private UltraFunGunBase.ActionCooldown hitLossCooldown = new UltraFunGunBase.ActionCooldown(0.5f);
+        private UltraFunGunBase.ActionCooldown guidedCooldown = new UltraFunGunBase.ActionCooldown(0.2f);
+
+        private bool sleeping = false;
+        private bool guided = false;
+
+        private int hitsRemaining = 25;
+        private int enemyParries = 0;
+        private bool parried;
+
+        private static int HitsRemaining = 25;
+
+        [Commands.UFGDebugMethod("Remaining Set", "Set htings")]
+        public static void RemainingsSet()
+        {
+            HitsRemaining = 50000;
+        }
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            thrownBrickAnimator = GetComponent<Animator>();
+            brickMesh = GetComponentInChildren<MeshRenderer>()?.transform;
+        }
+
+        private void Start()
+        {
+            Events.OnPlayerRespawn += Break;
+            hitsRemaining = HitsRemaining;
         }
 
         public void SetBrickGun(Brick brickGun)
         {
             brickShooter = brickGun;
+            if(thrownBrickAnimator != null)
+            {
+                thrownBrickAnimator.Play("StormPulse", 0, 0);
+            }
         }
 
         public void Update()
         {
+            if(hitsRemaining <= 0)
+            {
+                Break();
+            }
+
             CheckFlock();
+        }
+
+        private void LateUpdate()
+        {
+            if(brickShooter == null || thrownBrickAnimator == null)
+            {
+                return;
+            }
+
+            thrownBrickAnimator.SetBool("Storm", brickShooter.StormActive);
+
+            if(brickMesh == null)
+            {
+                return;
+            }
+
+            if(brickShooter.StormActive)
+            {
+                Vector3 newLocalPos = UnityEngine.Random.insideUnitSphere;
+                newLocalPos *= brickShooter.Brickshake;
+
+                brickMesh.localPosition = newLocalPos;
+            }else
+            {
+                brickMesh.localPosition = Vector3.MoveTowards(brickMesh.localPosition, Vector3.zero, 0.015f);
+            }
         }
 
         private void CheckFlock()
@@ -36,10 +99,14 @@ namespace UltraFunGuns
                 return;
             }
 
-            if (!brickShooter.StormActive)
+            if (!brickShooter.StormActive || (enemyParries > 0 && parried == false))
             {
                 return;
             }
+
+            sleeping = false;
+            guided = false;
+            enemyParries = 0;
 
             Vector3 flockTarget = brickShooter.GetPointPosition();
 
@@ -92,47 +159,307 @@ namespace UltraFunGuns
         }
 
         [UFGAsset("BrickImpactRock")] static AudioClip collisionSound;
+        [UFGAsset("BrickImpactFlesh")] static AudioClip fleshHitSound;
 
         private void OnCollisionEnter(Collision col)
         {
-            CheckHit(col);
+            if (sleeping)
+            {
+                return;
+            }
+
+            if (guided && guidedCooldown.CanFire())
+            {
+                guided = false;
+            }
+
+            float force = col.relativeVelocity.magnitude;
+
+            if (force <= 3.0f)
+            {
+                //return;
+            }
+
+            //enemy hit check
+            if (CheckEnemyHit(col))
+            {
+                return;
+            }
+
+            if (enemyParries > 0 && !parried)
+            {
+                if (CheckPlayerHit(col))
+                {
+                    NewMovement.Instance.GetHurt(30*enemyParries, false, 1.0f, true, true);
+                    HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, 1.0f + Mathf.Clamp(0.15f*enemyParries,0.5f,3.0f), 1.0f, 0.0f);
+                    Break();
+                    return;
+                }
+            }
 
             if (collisionSound != null && soundCooldown.CanFire())
             {
                 soundCooldown.AddCooldown();
+                HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, Random.Range(0.75f, 1.25f), 1.0f, 1.0f);
+            }
 
-                Vector3 forceDir = col.relativeVelocity;
-                float force = forceDir.magnitude;
+            //Regular collisions should decrease hit counter.
+            if (hitLossCooldown.CanFire())
+            {
+                --hitsRemaining;
+                hitLossCooldown.AddCooldown();
+            }
 
-                if(force > 4.0f)
+            if(!brickShooter.StormActive)
+            {
+                if (col.gameObject.tag == "Floor" || col.gameObject.layer == LayerMask.GetMask("Environment"))
                 {
-                    HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f, 1.0f);
+                    Sleep();
                 }
             }
         }
 
-        private void CheckHit(Collision col)
+        //After its parried by v2 or training bot it will damage the player
+        private bool CheckPlayerHit(Collision col)
         {
-            EnemyIdentifier enemy = null;
-
-            if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
+            HydraLogger.Log(HydraUtils.CollisionInfo(col), DebugChannel.Warning);
+            if(col.gameObject.tag == "Player")
             {
-                enemy = enemyPart.eid;
+                return true;
+            }
+            return false;
+        }
+
+        private bool CheckEnemyHit(Collision col)
+        {
+            if(!damageCooldown.CanFire())
+            {
+                return false;
+            }
+
+            if(HydraUtils.IsCollisionEnemy(col, out EnemyIdentifier eid))
+            {
+                if (eid.bigEnemy && !brickShooter.StormActive)
+                {
+                    //If the enemy is V2 or training bot, the brick should fly back at the player lol.
+                    if (Random.value > Mathf.Clamp(0.75f/(enemyParries-2),0f,0.75f))
+                    {
+                        EnemyParry();
+                        damageCooldown.AddCooldown();
+                        return false;
+                    }
+                }
+
+                float damage = rb.velocity.magnitude + 1.0f;
+                eid.DeliverDamage(eid.gameObject, rb.velocity, col.GetContact(0).point, damage, true, 1.0f, brickShooter.gameObject);
+                hitsRemaining -= 5;
+                damageCooldown.AddCooldown();
+                HydraUtils.PlayAudioClip(fleshHitSound, Random.Range(0.8f, 1.1f), 1.0f);
+
+                //If brick kills enemy lob at another enemy or return it to the player
+                if (eid.health <= 0.0f && hitsRemaining > 0 && parried)
+                {
+                    if(HydraUtils.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid2))
+                    {
+                        if(eid2 != eid)
+                        {
+                            GuidedLob(homingTarget,Vector3.up*0.25f);
+                            //LobAtTarget(homingTarget.position);
+                        }
+                    }else
+                    {
+                        parried = false;
+                        enemyParries = 0;
+                        LobAtPlayer();
+                    }
+                }
+
+                return true;
+            }
+
+            if (brickShooter == null)
+            {
+                return false;
+            }
+
+            if(brickShooter.StormActive)
+            {
+                if(col.gameObject.TryGetComponent<ThrownBrick>(out ThrownBrick thrownBrick))
+                {
+                    Physics.IgnoreCollision(col.GetContact(0).thisCollider, col.GetContact(0).otherCollider);
+                }
+            }
+
+            return false;
+        }
+
+        public void Break()
+        {
+            Events.OnPlayerRespawn -= Break;
+            if(brickBreakFX != null)
+            {
+                GameObject.Instantiate<GameObject>(brickBreakFX, transform.position, Quaternion.identity);
+            }
+            Destroy(gameObject);
+        }
+
+        //TODO this is broken.
+        public void Shot(BeamType beamType)
+        {
+            Break();
+        }
+
+        private void LobAtTarget(Vector3 target)
+        {
+            //Vector3 newVelocity = HydraUtils.GetVelocityTrajectory(transform.position, target, brickShooter.BrickParryFlightTime);
+            Trajectory brickTrajectory = new Trajectory(transform.position, target, brickShooter.BrickParryFlightTime/(enemyParries+1));
+            Vector3 newVelocity = brickTrajectory.GetRequiredVelocity();
+            rb.velocity = newVelocity;
+
+            RandomRoll();
+            Visualizer.DrawRay(transform.position, newVelocity, brickShooter.BrickParryFlightTime);
+        }
+
+        private void LobAtPlayer(bool damage = false)
+        {
+            NewMovement player = NewMovement.Instance;
+            if(player == null)
+            {
+                return;
+            }
+            parried = false;
+            GuidedLob(player.cc.transform);
+            return;
+
+            Vector3 playerPos = player.cc.transform.position;
+            Vector3 velocity = player.rb.velocity * (brickShooter.BrickParryFlightTime*2);
+            LobAtTarget(playerPos + velocity);
+        }
+
+        private void GuidedLob(Transform target)
+        {
+            GuidedLob(target, Vector3.zero);
+        }
+
+        private void GuidedLob(Transform target, Vector3 relativeOffset)
+        {
+            if(!guided && target != null)
+            {
+                RandomRoll();
+                guided = true;
+                guidedCooldown.AddCooldown();
+                float flightTime = Mathf.Max(brickShooter.BrickParryFlightTime / ((enemyParries / 2.0f) + 1.0f),0.1f);
+                StartCoroutine(FlightComputer(new Trajectory(transform.position, target.position, flightTime), target, relativeOffset));
+            }
+        }
+
+        private IEnumerator FlightComputer(Trajectory trajectory, Transform guidedTarget, Vector3 relativeOffset)
+        {
+            float timer = trajectory.AirTime;
+            trajectory.Origin += Vector3.up * 0.5f;
+            transform.position = trajectory.GetPoint(Mathf.InverseLerp(trajectory.AirTime, 0.0f, timer));
+
+            bool inRange = false;
+
+            while (timer > 0.0f && guided && guidedTarget != null && !inRange)
+            {
+                trajectory.End = guidedTarget.position + relativeOffset;
+                rb.position = trajectory.GetPoint(Mathf.InverseLerp(trajectory.AirTime, 0.0f, timer));
+                inRange = (1.5f > Vector3.Distance(rb.position, trajectory.End));
+                yield return new WaitForEndOfFrame();
+                timer -= Time.deltaTime;
+            }
+
+            if((timer <= 0.0f || inRange) && guidedTarget != null)
+            {
+                rb.velocity = ((guidedTarget.position+relativeOffset) - rb.position).normalized * (enemyParries+2);
+            }
+        }
+
+        private void RandomRoll()
+        {
+            Vector3 randomTorque = Random.insideUnitSphere * 90.0f;
+            rb.AddTorque(randomTorque, ForceMode.Impulse);
+        }
+
+        private void Parry(Vector3 inDirection)
+        {
+            parried = true;
+
+            if(guided)
+            {
+                guided = false;
+            }
+
+            if (smackFX != null)
+                Instantiate<GameObject>(smackFX, transform.position, Quaternion.identity);
+
+            if (HydraUtils.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+            {
+                GuidedLob(homingTarget);
+                //LobAtTarget(homingTarget.position);
+
             }
             else
             {
-                col.gameObject.TryGetComponent<EnemyIdentifier>(out enemy);
+                //Just toss it forward, there are no enemies found.
+                Vector3 biasBasis = CameraController.Instance.transform.rotation * Vector3.up;
+                Vector3 fireDirection = inDirection.normalized + (biasBasis * 0.25f);
+                Vector3 newVelocity = fireDirection * brickShooter.BrickstormFlockSpeed * 25.0f;
+                rb.velocity = newVelocity;
+                RandomRoll();
             }
+        }
 
-            if (enemy != null)
+        public void EnemyParry()
+        {
+            hitsRemaining += hitsRemaining;
+            
+            if (smackFX != null)
+                Instantiate<GameObject>(smackFX, transform.position, Quaternion.identity);
+
+            TimeController.Instance.ParryFlash();
+            ++enemyParries;
+
+            float soundPitch = Mathf.Clamp(0.85f + (0.15f * enemyParries),1.0f,3.0f);
+            
+            if(tennisHit != null)
+                HydraUtils.PlayAudioClip(tennisHit, soundPitch, 1.0f, 0.0f);
+
+            LobAtPlayer();
+        }
+
+        private void Sleep()
+        {
+            sleeping = true;
+            parried = false;
+            enemyParries = 0;
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            if (rb == null || brickShooter == null || parried)
             {
-                if (!enemy.dead)
-                {
-                    enemy.DeliverDamage(enemy.gameObject, rb.velocity, col.GetContact(0).point, 1.0f, true, 1.0f, brickShooter.gameObject);
-                    HydraUtils.PlayAudioClip(collisionSound, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f);
-
-                }
+                return false;
             }
+            
+            if(sleeping)
+            {
+                return false;
+            }
+
+            Parry(aimVector);
+            return true;
+        }
+
+        public void Interact(UFGInteractionEventData interaction)
+        {
+            return;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
         }
     }
 }

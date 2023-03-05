@@ -4,11 +4,15 @@ using System.Text;
 
 namespace UltraFunGuns
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class UFGAsset : Attribute
     {
         public string Key { get; }
-        public UFGAsset(string Key)
+        /// <summary>
+        /// Asset metadata
+        /// </summary>
+        /// <param name="Key">Name of the asset, this willbe the member name if left blank.</param>
+        public UFGAsset(string Key = "")
         {
             this.Key = Key;
         }

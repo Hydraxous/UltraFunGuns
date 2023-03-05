@@ -10,7 +10,6 @@ namespace UltraFunGuns
 {
     public class InventoryControllerDeployer : MonoBehaviour
     {
-
         RectTransform canvas;
         Transform configHelpMessage, versionHelpMessage;
         OptionsManager om;

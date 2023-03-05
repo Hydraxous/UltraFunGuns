@@ -46,6 +46,11 @@ namespace UltraFunGuns
             AC_ambientBeep = transform.Find("Audios/Beep").GetComponent<AudioSource>();
         }
 
+        private void Start()
+        {
+            Events.OnPlayerDeath += () => Detonate(true);
+        }
+
         public void Initiate(RemoteBomb remoteBomb, NewMovement newMovement)
         {
             this.weapon = remoteBomb;
@@ -150,8 +155,11 @@ namespace UltraFunGuns
 
         public bool Detonate(bool force = false)
         {
-            if((force || armed) && alive)
+
+            if ((force || armed) && alive)
             {
+                Events.OnPlayerDeath -= () => Detonate(true);
+
                 alive = false;
                 GameObject newBoom = Instantiate<GameObject>(explosionPrefab, transform.position, Quaternion.identity);
                 newBoom.transform.up = transform.forward;

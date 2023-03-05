@@ -59,6 +59,8 @@ namespace UltraFunGuns
             disco = (UnityEngine.Random.Range(0.0f, 100.0f) <= 5.0f);
             discoAudio.Play();
             rb = GetComponent<Rigidbody>();
+
+            Events.OnPlayerRespawn += Shatter;
         }
 
         void Update()
@@ -296,6 +298,7 @@ namespace UltraFunGuns
         //TODO break animation
         void Shatter()
         {
+            Events.OnPlayerRespawn -= Shatter;
             Destroy(gameObject);
         }
 

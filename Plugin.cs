@@ -101,6 +101,15 @@ namespace UltraFunGuns
             }
         }
 
+        [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
+        public static void ToggleDebugMode()
+        {
+            bool debugMode = !Data.Config.Data.DebugMode;
+            Data.Config.Data.DebugMode = debugMode;
+            Data.Config.Save();
+            HydraLogger.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}", DebugChannel.User);
+        }
+
         private void OnApplicationQuit()
         {
             Data.SaveAll();

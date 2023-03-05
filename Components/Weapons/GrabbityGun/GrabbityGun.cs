@@ -53,7 +53,6 @@ namespace UltraFunGuns
             {
                 if (fire2Pressed)
                 {
-                    HydraLogger.Log("SUCKING", DebugChannel.Spam);
                     grabbiting = true;
                     SuckInStuff();
                 }

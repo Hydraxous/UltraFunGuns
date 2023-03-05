@@ -9,12 +9,18 @@ namespace UltraFunGuns
 
     //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
     [FunGun("FocalyzerAlternate", "Focalyzer V2", 2, true, WeaponIconColor.Blue)]
+    [WeaponAbility("Cutter", "Hold <color=orange>Fire 1</color> to fire <color=aqua>Cutter</color> beam.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Deploy Pylon", "Press <color=orange>Fire 2</color> to deploy a laser pylon.", 1, RichTextColors.aqua)]
+    [WeaponAbility("Command", "Pylons will fire at your command.", 2, RichTextColors.yellow)]
     public class FocalyzerAlternate : UltraFunGunBase
     {
         public FocalyzerLaserControllerAlternate laser;
         public FocalyzerTubeControllerAlternate tubeController;
         public GameObject pylonPrefab;
         public Transform aimSpot;
+
+        [UFGAsset("CanLauncher_MuzzleFX")]
+        private static GameObject throwPylonFX;
 
         private StyleHUD style;
 
@@ -90,7 +96,12 @@ namespace UltraFunGuns
             {
                 laser.laserActive = laserActive;
             }
-            tubeController.crystalsRemaining = pylonsRemaining;
+
+            if (tubeController != null)
+            {
+                tubeController.crystalsRemaining = pylonsRemaining;
+            }
+            
             animator.SetBool("LaserActive", laserActive);
         }
 
@@ -196,9 +207,13 @@ namespace UltraFunGuns
         {
             throwingPylon = true;
             actionCooldowns["throwPylon"].AddCooldown();
-            animator.Play("Focalyzer_ThrowPylon");
+            animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+            GameObject pylonFX = GameObject.Instantiate<GameObject>(throwPylonFX, firePoint);
+            pylonFX.transform.position = firePoint.position;
+            pylonFX.transform.forward = firePoint.forward;
+            pylonFX.AddComponent<DestroyOnDisable>();
 
             pylonRechargeTimeRemaining = Time.time + pylonRechargeTime;
             pylonsRemaining = Mathf.Clamp(pylonsRemaining - 1, 0, maxStoredPylons);
