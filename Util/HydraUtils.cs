@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Reflection;
 using UnityEngine.InputSystem.HID;
 using MonoMod.RuntimeDetour.HookGen;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace UltraFunGuns
 {
@@ -250,7 +252,7 @@ namespace UltraFunGuns
             return true;
         }
 
-        public static bool IsColliderEnemy(Collider collider, out EnemyIdentifier enemy, bool filterDead = true)
+        public static bool IsColliderEnemy(this Collider collider, out EnemyIdentifier enemy, bool filterDead = true)
         {
             enemy = null;
             if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
@@ -276,7 +278,7 @@ namespace UltraFunGuns
             return false;
         }
 
-        public static bool IsCollisionEnemy(Collision collider, out EnemyIdentifier enemy, bool filterDead = true)
+        public static bool IsCollisionEnemy(this Collision collider, out EnemyIdentifier enemy, bool filterDead = true)
         {
             enemy = null;
             if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
@@ -384,26 +386,6 @@ namespace UltraFunGuns
 
         }
 
-        public static TargetObject GetTargetFromGameObject(GameObject targetGameObject)
-        {
-            TargetObject newTargetObject = new TargetObject(targetGameObject);
-            return newTargetObject;
-        }
-
-        public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
-        {
-            List<TargetObject> newTargets = new List<TargetObject>();
-            for (int i = 0; i < targetGameObjects.Length; i++)
-            {
-                TargetObject newTarget = new TargetObject(targetGameObjects[i]);
-                if (newTarget.validTarget)
-                {
-                    newTargets.Add(new TargetObject(targetGameObjects[i]));
-                }
-            }
-            return newTargets;
-        }
-
         public static bool ConeCheck(Vector3 direction1, Vector3 direction2, float maximumAngle = 90.0f)
         {
             return Vector3.Angle(direction1, direction2) <= maximumAngle;
@@ -436,12 +418,12 @@ namespace UltraFunGuns
             return attributeList.ToArray();
         }
 
-        public static void PlayAudioClip(AudioClip clip, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
+        public static void PlayAudioClip(this AudioClip clip, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
         {
             PlayAudioClip(clip, Vector3.zero, pitch, volume, spatialBlend);
         }
 
-        public static void PlayAudioClip(AudioClip clip, Vector3 position, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
+        public static void PlayAudioClip(this AudioClip clip, Vector3 position, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
         {
             if (clip == null)
             {
@@ -460,6 +442,242 @@ namespace UltraFunGuns
             newAudioSource.Play();
         }
 
+
+        public static Ray ToRay(this Transform transform)
+        {
+            return new Ray(transform.position, transform.forward);
+        }
+
+        public static TargetObject GetTargetFromGameObject(GameObject targetGameObject)
+        {
+            TargetObject newTargetObject = new TargetObject(targetGameObject);
+            return newTargetObject;
+        }
+
+        public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
+        {
+            List<TargetObject> newTargets = new List<TargetObject>();
+            for (int i = 0; i < targetGameObjects.Length; i++)
+            {
+                TargetObject newTarget = new TargetObject(targetGameObjects[i]);
+                if (newTarget.validTarget)
+                {
+                    newTargets.Add(new TargetObject(targetGameObjects[i]));
+                }
+            }
+            return newTargets;
+        }
+
+        public static bool CanBeDamaged (this EnemyIdentifier eid)
+        {
+            if(eid == null)
+            {
+                return false;
+            }
+
+            if(eid.dead)
+            {
+                return false;
+            }
+
+            if(eid.health <= 0.0f)
+            {
+                return false;
+            }
+
+            if(!eid.enabled)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        //TODO optimize this.
+        public static bool TryGetTarget(out Vector3 targetDirection) //Return true if enemy target found.
+        {
+            List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
+            List<Transform> targetPoints = new List<Transform>();
+            GameObject[] enemyObjectsActive = EnemyTracker.Instance.GetCurrentEnemies().Select(e => e.gameObject).ToArray();
+            Transform camera = CameraController.Instance.transform;
+
+            foreach (GameObject enemyObject in enemyObjectsActive)
+            {
+                if (enemyObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
+                {
+                    if (!enemyFound.dead && !possibleTargets.Contains(enemyFound))
+                    {
+                        possibleTargets.Add(enemyFound);
+                        Transform enemyTargetPoint;
+                        if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
+                        {
+                            enemyTargetPoint = enemyFound.weakPoint.transform;
+                        }
+                        else
+                        {
+                            EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
+                            if (enemyFoundIdentifier)
+                            {
+                                enemyTargetPoint = enemyFoundIdentifier.transform;
+                            }
+                            else
+                            {
+                                enemyTargetPoint = enemyFound.transform;
+                            }
+                        }
+
+                       
+
+                        //Cone check
+                        Vector3 directionToEnemy = (enemyTargetPoint.position - camera.position).normalized;
+                        Vector3 lookDirection = camera.forward;
+                        if (SphereCastMacro(camera.position,0.05f,directionToEnemy,Mathf.Infinity, out RaycastHit hit))
+                        {
+                            switch (hit.collider.gameObject.layer)
+                            {
+                                case 10:
+                                case 11:
+                                    targetPoints.Add(enemyTargetPoint);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Get closest target
+            int closestIndex = -1;
+            float closestDistance = Mathf.Infinity;
+            for (int i = 0; i < targetPoints.Count; i++)
+            {
+                Vector3 distance = targetPoints[i].position - camera.position;
+                if (distance.sqrMagnitude < closestDistance)
+                {
+                    closestIndex = i;
+                    closestDistance = distance.sqrMagnitude;
+                }
+            }
+
+            if (closestIndex > -1)
+            {
+                targetDirection = targetPoints[closestIndex].position - camera.position;
+                return true;
+            }
+            else //No targets found.
+            {
+                targetDirection = Vector3.zero;
+                return false;
+            }
+        }
+
+
+        public static Quaternion WorldToLocalRotation(this Transform transform, Quaternion worldRotation)
+        {
+            return Quaternion.Inverse(transform.rotation) * worldRotation;
+        }
+
+        public static void SetPlayerRotation(Quaternion newRotation)
+        {
+            Quaternion oldRot = CameraController.Instance.transform.rotation;
+            CameraController.Instance.transform.rotation = newRotation;
+            CameraController.Instance.rotationX = CameraController.Instance.transform.localEulerAngles.x;
+            CameraController.Instance.rotationY = CameraController.Instance.transform.rotation.y;
+            CameraController.Instance.transform.rotation = oldRot;
+        }
+    }
+
+    public class TargetObject
+    {
+        public enum TargetType { Zombie, Spider, Machine, Statue, Wicked, Drone, Idol, Dodgeball, GenericRigidbody, Egg, Pylon }
+        public TargetType targetType;
+        public GameObject gameObject;
+        public Transform weakPoint;
+        public Transform targetPoint;
+        public Rigidbody rigidbody;
+        public bool validTarget = true;
+
+        public TargetObject(GameObject gameObject)
+        {
+            this.gameObject = gameObject;
+
+            if (!this.gameObject.activeInHierarchy)
+            {
+                this.validTarget = false;
+                return;
+            }
+
+            //Generic rigibody check
+            if (this.gameObject.TryGetComponent<Rigidbody>(out Rigidbody genericRigidbody))
+            {
+                this.targetPoint = genericRigidbody.transform;
+                this.targetType = TargetType.GenericRigidbody;
+            }
+
+
+            if (this.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
+            {
+                if (!enemyFound.dead)
+                {
+                    if (enemyFound.zombie != null)
+                    {
+                        targetType = TargetType.Zombie;
+                    }
+                    else if (enemyFound.spider != null)
+                    {
+                        targetType = TargetType.Spider;
+                    }
+                    else if (enemyFound.machine != null)
+                    {
+                        targetType = TargetType.Machine;
+                    }
+                    else if (enemyFound.statue != null)
+                    {
+                        targetType = TargetType.Statue;
+                    }
+                    else if (enemyFound.wicked != null)
+                    {
+                        targetType = TargetType.Wicked;
+                    }
+                    else if (enemyFound.drone != null)
+                    {
+                        targetType = TargetType.Drone;
+                    }
+                    else if (enemyFound.idol != null)
+                    {
+                        targetType = TargetType.Idol;
+                    }
+
+                    if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
+                    {
+                        this.weakPoint = enemyFound.weakPoint.transform;
+                    }
+
+                    EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
+                    if (enemyFoundIdentifier)
+                    {
+                        this.targetPoint = enemyFoundIdentifier.transform;
+                    }
+                    else
+                    {
+                        this.targetPoint = enemyFound.transform;
+                    }
+                    return;
+                }
+            }
+
+
+
+
+            //Ending validity check
+            if (this.targetType != TargetType.GenericRigidbody)
+            {
+                this.validTarget = false;
+                return;
+            }
+        }
     }
 
     //TODO Placeholder
@@ -526,97 +744,6 @@ namespace UltraFunGuns
             {
                 this.targetPoint = this.gameObject.GetComponentInParent<FocalyzerPylonAlternate>().transform;
                 this.targetType = TargetType.Pylon;
-                return;
-            }
-        }
-    }
-
-    public class TargetObject
-    {
-        public enum TargetType { Zombie, Spider, Machine, Statue, Wicked, Drone, Idol, Dodgeball, GenericRigidbody, Egg, Pylon }
-        public TargetType targetType;
-        public GameObject gameObject;
-        public Transform weakPoint;
-        public Transform targetPoint;
-        public Rigidbody rigidbody;
-        public bool validTarget = true;
-
-        public TargetObject(GameObject gameObject)
-        {
-            this.gameObject = gameObject;
-
-            if(!this.gameObject.activeInHierarchy)
-            {
-                this.validTarget = false;
-                return;
-            }
-
-            //Generic rigibody check
-            if (this.gameObject.TryGetComponent<Rigidbody>(out Rigidbody genericRigidbody))
-            {
-                this.targetPoint = genericRigidbody.transform;
-                this.targetType = TargetType.GenericRigidbody;
-            }
-
-
-            if (this.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
-            {
-                if (!enemyFound.dead)
-                {
-                    if (enemyFound.zombie != null)
-                    {
-                        targetType = TargetType.Zombie;
-                    }
-                    else if (enemyFound.spider != null)
-                    {
-                        targetType = TargetType.Spider;
-                    }
-                    else if (enemyFound.machine != null)
-                    {
-                        targetType = TargetType.Machine;
-                    }
-                    else if (enemyFound.statue != null)
-                    {
-                        targetType = TargetType.Statue;
-                    }
-                    else if (enemyFound.wicked != null)
-                    {
-                        targetType = TargetType.Wicked;
-                    }
-                    else if (enemyFound.drone != null)
-                    {
-                        targetType = TargetType.Drone;
-                    }
-                    else if (enemyFound.idol != null)
-                    {
-                        targetType = TargetType.Idol;
-                    }
-
-                    if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
-                    {
-                        this.weakPoint = enemyFound.weakPoint.transform;
-                    }
-
-                    EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
-                    if (enemyFoundIdentifier)
-                    {
-                        this.targetPoint = enemyFoundIdentifier.transform;
-                    }
-                    else
-                    {
-                        this.targetPoint = enemyFound.transform;
-                    }
-                    return;
-                }
-            }
-
-
-            
-
-            //Ending validity check
-            if(this.targetType != TargetType.GenericRigidbody)
-            {
-                this.validTarget = false;
                 return;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UltraFunGuns
 {
@@ -20,12 +21,12 @@ namespace UltraFunGuns
 
         public static void DrawSphere(Vector3 position, float radius, float time = 1.0f)
         {
-            if(!UltraFunGuns.DebugMode)
+            if (!UltraFunGuns.DebugMode)
             {
                 return;
             }
 
-            if(debugSphere == null)
+            if (debugSphere == null)
             {
                 return;
             }
@@ -41,13 +42,13 @@ namespace UltraFunGuns
             {
                 return;
             }
-            
+
             if (debugLine == null)
             {
                 return;
             }
 
-            if(points.Length < 2)
+            if (points.Length < 2)
             {
                 HydraLogger.Log("Not enough points provided for Visualizer.DrawLine", DebugChannel.Error);
                 return;
@@ -67,6 +68,40 @@ namespace UltraFunGuns
             }
 
             DrawLine(time, position, position + direction);
+        }
+
+        [UFGAsset("DebugTextPopup")] private static GameObject debugTextPopup;
+
+        private static List<Vector3> currentPositions = new List<Vector3>();
+
+        private static Dictionary<DebugTextPopup, Vector3> cachedTexts = new Dictionary<DebugTextPopup, Vector3>();
+
+        public static void DisplayTextAtPosition(string text, Vector3 position, Color color, float killTime = 3.0f)
+        {
+            if(debugTextPopup != null)
+            {
+                while(currentPositions.Contains(position))
+                {
+                    position += UnityEngine.Random.onUnitSphere*2f;
+                }
+
+                currentPositions.Add(position);
+
+                GameObject newText = GameObject.Instantiate<GameObject>(debugTextPopup, position, Quaternion.identity);
+                DebugTextPopup textPopup = newText.GetComponent<DebugTextPopup>();
+                cachedTexts.Add(textPopup, position);
+                textPopup.SetText(text, color);
+                textPopup.SetKillTime(killTime);
+            }
+        }
+
+        public static void ClearDebugText(DebugTextPopup textPopup)
+        {
+            if(cachedTexts.ContainsKey(textPopup))
+            {
+                currentPositions.Remove(cachedTexts[textPopup]);
+                cachedTexts.Remove(textPopup);
+            }
         }
     }
 }

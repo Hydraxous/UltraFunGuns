@@ -376,7 +376,7 @@ namespace UltraFunGuns
             }
         }
 
-        private void RandomRoll()
+        public void RandomRoll()
         {
             Vector3 randomTorque = Random.insideUnitSphere * 90.0f;
             rb.AddTorque(randomTorque, ForceMode.Impulse);

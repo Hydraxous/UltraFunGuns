@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
-using Mono.Cecil;
 using UnityEngine;
-using System.Net.Http.Headers;
-using MonoMod.Utils;
 
 namespace UltraFunGuns
 {
+
+    //HydraLoader 2.0 This will automatically load tagged fields/properties with assets from either the game's assetbundle or a specified one. TODO implement variable bundles
     public static class UltraLoader
     {
         public static bool AssetsLoaded { get; private set; }
@@ -77,15 +74,36 @@ namespace UltraFunGuns
 
             Type fieldType = field.FieldType;
 
-            if (TryLoadAsset(assetKey, fieldType, out UnityEngine.Object loadedAsset))
-            {
-                HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
+            //AssetBundle bundle = (ufgAsset.UKPrefab) ? UKPrefabs.GameAssets : HydraLoader.AssetBundle;
 
-                field.SetValue(null, loadedAsset);
-            }else
+            if(ufgAsset.UKPrefab)
             {
-                HydraLogger.Log($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+
+                if(loadedAsset != null)
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
+
+                    field.SetValue(null, loadedAsset);
+                }else
+                {
+                    HydraLogger.Log($"Failed to find asset: {assetKey}");
+
+                }
             }
+            else
+            {
+                if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, fieldType, out UnityEngine.Object loadedAsset))
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
+
+                    field.SetValue(null, loadedAsset);
+                }
+                else
+                {
+                    HydraLogger.Log($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                }
+            }   
         }
 
         private static void ProcessMember(PropertyInfo property)
@@ -125,7 +143,9 @@ namespace UltraFunGuns
 
             Type propertyType = property.PropertyType;
 
-            if(TryLoadAsset(assetKey, propertyType, out UnityEngine.Object loadedAsset))
+            AssetBundle bundle = (ufgAsset.UKPrefab) ? UKPrefabs.GameAssets : HydraLoader.AssetBundle;
+
+            if(TryLoadAsset(assetKey, bundle, propertyType, out UnityEngine.Object loadedAsset))
             {
                 HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
                 property.SetValue(null, loadedAsset);
@@ -142,9 +162,9 @@ namespace UltraFunGuns
         /// <param name="type">Type of the asset</param>
         /// <param name="obj">Returned asset</param>
         /// <returns></returns>
-        private static bool TryLoadAsset(string key, Type type,out UnityEngine.Object obj)
+        private static bool TryLoadAsset(string key, AssetBundle bundle, Type type,out UnityEngine.Object obj)
         {
-            obj = HydraLoader.AssetBundle.LoadAsset(key, type);
+            obj = bundle.LoadAsset(key, type);
 
             if (obj == null)
             {

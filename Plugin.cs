@@ -28,6 +28,7 @@ namespace UltraFunGuns
 
         public override void OnModLoaded()
         {
+            UKPrefabs.LoadAll();
             HydraLogger.StartMessage();
             Data.CheckSetup();
             WeaponManager.Init();

@@ -15,9 +15,13 @@ namespace UltraFunGuns
     public class Tricksniper : UltraFunGunBase
     {
         //public GameObject bulletTrailPrefab;
+        //TODO fix this
         public GameObject muzzleFX;
         public GameObject scopeUI;
         public GameObject viewModelWrapper;
+
+        [UFGAsset("ExplosionMaliciousRail.prefab", true)]
+        private static GameObject explosion;
 
         public Text debugText;
 
@@ -238,6 +242,11 @@ namespace UltraFunGuns
 
                         if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
                         {
+                            if(explosion != null)
+                            {
+                                GameObject.Instantiate(explosion, hits[i].point, Quaternion.identity);
+                            }
+
                             break;
                         }
 

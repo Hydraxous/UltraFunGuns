@@ -9,5 +9,7 @@ namespace UltraFunGuns
 
         [UFGAsset]
         public static GameObject BulletTrail { get; private set; }
+
+        [UFGAsset] public static GameObject BulletImpactFX { get; private set; }
     }
 }

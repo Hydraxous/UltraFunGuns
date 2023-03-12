@@ -24,6 +24,8 @@ namespace UltraFunGuns
 
         private bool grabbiting = false;
 
+        private List<EnemyOverride> enemyOverrides = new List<EnemyOverride>();
+
         public override void GetInput()
         {
             if(primaryFireDelay.CanFire() && InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame)
@@ -58,6 +60,7 @@ namespace UltraFunGuns
                 }
                 else if (grabbiting)
                 {
+                    ResetEnemies();
                     secondaryDelay.AddCooldown();
                 }
             }
@@ -79,6 +82,31 @@ namespace UltraFunGuns
             {
                 Pull(hitColliders[i], startPosition);
             }
+        }
+
+        private void ResetEnemies()
+        {
+            if(enemyOverrides.Count <= 0)
+            {
+                return;
+            }
+
+            foreach(EnemyOverride enemyOverride in enemyOverrides)
+            {
+                if(enemyOverride.Enemy == null || enemyOverride == null)
+                {
+                    continue;
+                }
+
+                if(enemyOverride.Enemy.dead)
+                {
+                    continue;
+                }
+
+                enemyOverride.SetRagdoll(false);
+            }
+
+            enemyOverrides.Clear();
         }
 
         public override void FirePrimary()
@@ -112,6 +140,50 @@ namespace UltraFunGuns
 
             Vector3 camPos = mainCam.position;
             Vector3 pullDirection = Vector3.zero;
+
+            if(collider.IsColliderEnemy(out EnemyIdentifier eid))
+            {
+                EnemyOverride enemyOverride = eid.Override();
+                if(!enemyOverrides.Contains(enemyOverride))
+                {
+                    enemyOverrides.Add(enemyOverride);
+                    enemyOverride.SetRagdoll(true);
+                    enemyOverride.AddCollisionEvent((col) => 
+                    { 
+
+                        if(!enemyOverrides.Contains(enemyOverride))
+                        {
+                            return;
+                        }
+
+                        switch(col.gameObject.layer)
+                        {
+                            case 0: case 8:
+                                TryDamage();
+                                break;
+                            default:
+                                break; 
+                        }
+
+                        void TryDamage()
+                        {
+                            if(!eid.CanBeDamaged())
+                            {
+                                return;
+                            }
+
+                            float impactForce = col.relativeVelocity.magnitude;
+
+                            if (impactForce < 5.0f)
+                            {
+                                return;
+                            }
+
+                            eid.DeliverDamage(eid.gameObject, col.relativeVelocity, col.GetContact(0).point, impactForce, false, 0.0f, gameObject);
+                        }
+                    });
+                }
+            }
 
             if(vacuumMode)
             {

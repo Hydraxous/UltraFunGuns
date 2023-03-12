@@ -148,6 +148,7 @@ namespace UltraFunGuns
                 if(newBrick.TryGetComponent<ThrownBrick>(out ThrownBrick brick))
                 {
                     brick.SetBrickGun(this);
+                    brick.RandomRoll();
                 }
             }
             

@@ -48,54 +48,60 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            if (UKAPIP.InLevel())
-            { 
-                if (om.paused)
-                {
-                    if (inventoryManagerOpen)
-                    {
-                        invController.gameObject.SetActive(true);
-                        if(!UltraFunGuns.UsingLatestVersion)
-                        {
-                            SendVersionHelpMessage();
-                        }
-                    }
-                    else
-                    {
-                        invController.gameObject.SetActive(false);
-                        invControllerButton.gameObject.SetActive(true);
-                        configHelpMessage.gameObject.SetActive(false);
-                        versionHelpMessage.gameObject.SetActive(false);
-                        displayingHelpMessage = false;
-                    }
+            CheckInventoryStatus();
+        }
 
+        private void CheckInventoryStatus()
+        {
+            if (!UKAPIP.InLevel())
+            {
+                return;
+            }
+
+            if (om.paused)
+            {
+                if (inventoryManagerOpen)
+                {
+                    invController.gameObject.SetActive(true);
+                    if (!UltraFunGuns.UsingLatestVersion)
+                    {
+                        SendVersionHelpMessage();
+                    }
                 }
                 else
                 {
-                    if(Data.Save.Data.firstTimeModLoaded)
-                    {
-                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.keyBind.ToString()), "", "", 2);//TODO
-                        Data.Save.Data.firstTimeModLoaded = false;
-                        Data.Save.Save();
-                    }
-
-                    if (inventoryManagerOpen)
-                    {
-                        inventoryManagerOpen = false;
-                        invController.SetCardActive(false);
-                        invController.gameObject.SetActive(false);
-
-                    }
-                    invControllerButton.gameObject.SetActive(false);
+                    invController.gameObject.SetActive(false);
+                    invControllerButton.gameObject.SetActive(true);
+                    configHelpMessage.gameObject.SetActive(false);
+                    versionHelpMessage.gameObject.SetActive(false);
+                    displayingHelpMessage = false;
                 }
-                
-                if(inventoryKey.WasPerformedThisFrameInScene)
+
+            }
+            else
+            {
+                if (Data.Save.Data.firstTimeModLoaded)
                 {
-                    invController.RefreshSlotKeyDisplays();
-                    OpenInventory();
+                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.keyBind.ToString()), "", "", 2);//TODO
+                    Data.Save.Data.firstTimeModLoaded = false;
+                    Data.Save.Save();
                 }
+
+                if (inventoryManagerOpen)
+                {
+                    inventoryManagerOpen = false;
+                    invController.SetCardActive(false);
+                    invController.gameObject.SetActive(false);
+
+                }
+                invControllerButton.gameObject.SetActive(false);
             }
 
+            if (inventoryKey.WasPerformedThisFrameInScene)
+            {
+                invController.RefreshSlotKeyDisplays();
+                OpenInventory();
+            }
         }
 
         public void OpenInventory()

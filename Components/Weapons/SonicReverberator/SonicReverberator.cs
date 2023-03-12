@@ -293,9 +293,8 @@ namespace UltraFunGuns
             }
         }
 
-        //TODO FUCKING HELL FIX THIS AWFUL SHIT
+        //TODO TODAY IS THE DAY.
         //TODO FIX THIS 
-        //TODO STOP WRITING MORE TODO COMMENTS AND FUCKING DO IT TOFUCKINGDAY
         //I'm gonna keep writing TODO messages you cannot stop me, you are in the past, you have no control of my actions.
         //TODO fix this
         private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
@@ -423,7 +422,7 @@ namespace UltraFunGuns
                 }
             }catch(System.Exception e)
             {
-                //TODO Remove this try catch and fix this properly you degenerate.
+                //TODO Remove this try catch and fix this properly you silly lol.
             }
         }
 
