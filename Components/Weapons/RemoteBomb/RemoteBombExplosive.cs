@@ -7,7 +7,7 @@ namespace UltraFunGuns
 {
     public class RemoteBombExplosive : MonoBehaviour, IUFGInteractionReceiver
     {
-        private GameObject explosionPrefab;
+        [UFGAsset("RemoteBomb_Explosive_Explosion")] public static GameObject ExplosionPrefab { get; private set; }
 
         private RemoteBomb weapon;
         private NewMovement player;
@@ -39,7 +39,6 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive_Explosion", out explosionPrefab);
             rb = GetComponent<Rigidbody>();
             indicatorLight = transform.Find("BombMesh/Blinker").GetComponent<Renderer>();
             AC_armingBeep = transform.Find("Audios/Arm_Beep").GetComponent<AudioSource>();
@@ -161,7 +160,7 @@ namespace UltraFunGuns
                 Events.OnPlayerDeath -= () => Detonate(true);
 
                 alive = false;
-                GameObject newBoom = Instantiate<GameObject>(explosionPrefab, transform.position, Quaternion.identity);
+                GameObject newBoom = Instantiate<GameObject>(ExplosionPrefab, transform.position, Quaternion.identity);
                 newBoom.transform.up = transform.forward;
                 weapon.BombDetonated(this);
 

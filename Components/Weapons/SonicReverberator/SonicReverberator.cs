@@ -23,12 +23,14 @@ namespace UltraFunGuns
      * The nature of being able to charge indefinitely causes many issues.
      * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
      */
-    [FunGun("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
+    [UFGWeapon("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {
-        public GameObject bang;
+        [UFGAsset("SonicReverberationExplosion")] public static GameObject ReverbProjectile { get; private set; }
 
-        public AudioClip vB_standard, vB_loud, vB_loudest;
+        [UFGAsset("vB_standard")] public static AudioClip vineBoom_Standard { get; private set; }
+        [UFGAsset("vB_loud")] public static AudioClip vineBoom_Loud { get; private set; }
+        [UFGAsset("vB_loud")] public static AudioClip vineBoom_Loudest { get; private set; }
 
         private AudioSource chargeIncrease, chargeDecrease, chargeFinal;
 
@@ -86,7 +88,6 @@ namespace UltraFunGuns
 
         private void Start()
         {
-            LoadData();
             HelpChildren();
         }
 
@@ -127,22 +128,6 @@ namespace UltraFunGuns
             moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
         }
 
-
-        private void LoadData()
-        {
-
-            HydraLoader.dataRegistry.TryGetValue("vB_standard", out UnityEngine.Object vB_standard_obj);
-            vB_standard = (AudioClip)vB_standard_obj;
-
-            HydraLoader.dataRegistry.TryGetValue("vB_loud", out UnityEngine.Object vB_loud_obj);
-            vB_loud = (AudioClip)vB_loud_obj;
-
-            HydraLoader.dataRegistry.TryGetValue("vB_loudest", out UnityEngine.Object vB_loudest_obj);
-            vB_loudest = (AudioClip)vB_loudest_obj;
-
-            HydraLoader.prefabRegistry.TryGetValue("SonicReverberationExplosion", out bang);
-
-        }
 
         protected override void DoAnimations()
         {
@@ -199,7 +184,7 @@ namespace UltraFunGuns
             
             animator.Play("SonicReverberator_Shoot");
             pistons.DisplayCount = chargeState;
-            SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(bang, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
+            SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(ReverbProjectile, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
             BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
             BOOM.power = chargeLevel;
             BOOM.powerState = chargeState;
@@ -493,31 +478,31 @@ namespace UltraFunGuns
             switch (GetChargeState())
             {
                 case 1:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 0.75f;
                     break;
                 case 2:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 1.0f;
                     break;
                 case 3:
-                    vineBoomAudioSource.clip = vB_loud;
+                    vineBoomAudioSource.clip = vineBoom_Loud;
                     vineBoomAudioSource.volume = 0.8f;
                     break;
                 case 4:
-                    vineBoomAudioSource.clip = vB_loud;
+                    vineBoomAudioSource.clip = vineBoom_Loud;
                     vineBoomAudioSource.volume = 1.0f;
                     break;
                 case 5:
-                    vineBoomAudioSource.clip = vB_loudest;
+                    vineBoomAudioSource.clip = vineBoom_Loudest;
                     vineBoomAudioSource.volume = 1.2f;
                     break;
                 case 6:
-                    vineBoomAudioSource.clip = vB_loudest;
+                    vineBoomAudioSource.clip = vineBoom_Loudest;
                     vineBoomAudioSource.volume = 2.0f;
                     break;
                 default:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 0.75f;
                     break;
             }

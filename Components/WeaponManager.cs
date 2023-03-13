@@ -99,9 +99,9 @@ namespace UltraFunGuns
             }
         }
 
-        private static Dictionary<string, FunGun> weapons;
+        private static Dictionary<string, UFGWeapon> weapons;
 
-        public static Dictionary<string, FunGun> Weapons
+        public static Dictionary<string, UFGWeapon> Weapons
         {
             get
             {
@@ -113,11 +113,11 @@ namespace UltraFunGuns
             }
         }
 
-        public static FunGun[] GetWeapons()
+        public static UFGWeapon[] GetWeapons()
         {
-            List<FunGun> weaponInfos = new List<FunGun>();
+            List<UFGWeapon> weaponInfos = new List<UFGWeapon>();
 
-            foreach(KeyValuePair<string,FunGun> info in Weapons)
+            foreach(KeyValuePair<string,UFGWeapon> info in Weapons)
             {
                 weaponInfos.Add(info.Value);
             }
@@ -159,7 +159,7 @@ namespace UltraFunGuns
 
             foreach (Type type in assembly.GetTypes())
             {
-                var attribute = type.GetCustomAttribute<FunGun>();
+                var attribute = type.GetCustomAttribute<UFGWeapon>();
 
                 if (attribute == null)
                 {
@@ -173,7 +173,7 @@ namespace UltraFunGuns
 
                 if (weapons == null)
                 {
-                    weapons = new Dictionary<string, FunGun>();
+                    weapons = new Dictionary<string, UFGWeapon>();
                 }
 
                 if (weapons.ContainsKey(attribute.WeaponKey))
@@ -275,7 +275,7 @@ namespace UltraFunGuns
                 slotData.Add(new List<InventoryNodeData>());
             }
 
-            FunGun[] infos = GetWeapons();
+            UFGWeapon[] infos = GetWeapons();
             
             for(int i=0;i<infos.Length;i++)
             {
@@ -405,7 +405,7 @@ namespace UltraFunGuns
                 foreach (string weaponKey in weaponKeySlots[i])
                 {
 
-                    if (!WeaponManager.Weapons.TryGetValue(weaponKey, out FunGun weaponInfo))
+                    if (!WeaponManager.Weapons.TryGetValue(weaponKey, out UFGWeapon weaponInfo))
                     {
                         HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
                         this.enabled = false;

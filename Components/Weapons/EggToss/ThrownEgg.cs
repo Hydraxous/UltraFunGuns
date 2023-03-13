@@ -8,8 +8,8 @@ namespace UltraFunGuns
     //Egg projectile script created by EggToss and EggSplosion.
     public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver
     {
-        public GameObject impactFX;
-        public GameObject eggsplosionPrefab;
+        [UFGAsset("EggImpactFX")] private static GameObject impactFX;
+        [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
 
         private Rigidbody rb;
         private CapsuleCollider eggCollider;
@@ -59,7 +59,7 @@ namespace UltraFunGuns
             {
                 MonoSingleton<StyleHUD>.Instance.AddPoints(50, "hydraxous.ultrafunguns.eggsplosion");
                 MonoSingleton<TimeController>.Instance.ParryFlash();
-                EggSplosion newEggSplosion = Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
+                Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
                 Destroy(gameObject);
             }  
         }

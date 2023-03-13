@@ -138,9 +138,9 @@ namespace UltraFunGuns
         public static OnDataChangedHandler OnDataChanged;
 
 
-        public static FunGun GetWeaponInfo(Type t)
+        public static UFGWeapon GetWeaponInfo(Type t)
         {
-            FunGun weaponInfo = (FunGun) Attribute.GetCustomAttribute(t, typeof(FunGun));
+            UFGWeapon weaponInfo = (UFGWeapon) Attribute.GetCustomAttribute(t, typeof(UFGWeapon));
             
             if(weaponInfo == null)
             {
@@ -209,6 +209,7 @@ namespace UltraFunGuns
             //Generic
             public bool DebugMode;
             public bool DisableVersionMessages;
+            public bool EnableVisualizer;
 
             //Weapon values
             public bool BasketBallMode;
@@ -224,6 +225,7 @@ namespace UltraFunGuns
                 this.InventoryInfoCardScale = 1.0f;
                 this.MouseOverNodeTime = 1.0f;
                 this.DebugMode = false;
+                this.EnableVisualizer = false;
             }
 
             public override string FileName() { return "config"; }

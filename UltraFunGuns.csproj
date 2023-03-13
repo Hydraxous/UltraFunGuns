@@ -120,6 +120,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
+    <Folder Include="Components\Weapons\SmartRocket\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
   </ItemGroup>
 

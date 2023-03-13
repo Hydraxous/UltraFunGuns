@@ -9,11 +9,11 @@ namespace UltraFunGuns
 {
     [WeaponAbility("Finger Blast", "Press <color=orange>Fire 1</color> to shoot an explosive bolt from your finger that can penetrate enemies.",0,RichTextColors.aqua)]
     [WeaponAbility("Air-Denial", "Weapon can destroy projectiles.",1,RichTextColors.yellow)]
-    [FunGun("FingerGun","Hand Gun", 0, true, WeaponIconColor.Red)]
+    [UFGWeapon("FingerGun","Hand Gun", 0, true, WeaponIconColor.Red)]
     public class FingerGun : UltraFunGunBase
     {
-        public GameObject bulletTrailPrefab;
-        public GameObject hitExplodeFX;
+        [UFGAsset("BulletPierceTrail")] private static GameObject bulletTrailPrefab;
+        [UFGAsset("FingerGun_ImpactExplosion")] private static GameObject hitExplodeFX;
 
         private int currentAmmo = 8;
         public int CurrentAmmo
@@ -50,8 +50,6 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             weaponIcon.variationColor = (int) weaponInfo.IconColor;
-            HydraLoader.prefabRegistry.TryGetValue("BulletPierceTrail", out bulletTrailPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("FingerGun_ImpactExplosion", out hitExplodeFX);
             AddSFX("BangSound", "GunReady", "Reload", "Kabooma");
             ammoCounter = transform.GetComponentInChildren<Text>();
 

@@ -19,7 +19,7 @@ namespace UltraFunGuns
 
         private Image background;
         private Shadow headerShadow;
-        private FunGun info;
+        private UFGWeapon info;
 
         public void Awake()
         {
@@ -36,7 +36,7 @@ namespace UltraFunGuns
             gameObject.SetActive(false);
         }
 
-        public void SetWeaponInfo(FunGun info)
+        public void SetWeaponInfo(UFGWeapon info)
         {
             this.info = info;
             Refresh();

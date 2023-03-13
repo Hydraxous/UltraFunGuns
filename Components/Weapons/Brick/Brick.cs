@@ -11,7 +11,7 @@ namespace UltraFunGuns
     [WeaponAbility("Brick", "Throw brick with <color=orange>Fire 1</color>.", 0, RichTextColors.aqua)]
     [WeaponAbility("Mind Conduit", "Hold <color=orange>Fire 2</color> to assimilate the brick mind.", 1, RichTextColors.lime)]
     [WeaponAbility("Mortar", "Parry the brick to toss it properly.", 2, RichTextColors.red)]
-    [FunGun("Brick", "Brick", 0, true, WeaponIconColor.Red)]
+    [UFGWeapon("Brick", "Brick", 0, true, WeaponIconColor.Red)]
     public class Brick : UltraFunGunBase
     {
         [UFGAsset("ThrownBrick")]

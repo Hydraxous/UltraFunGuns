@@ -10,18 +10,11 @@ namespace UltraFunGuns
      */
     public class EggSplosion : MonoBehaviour
     {
-        public GameObject thrownEggPrefab;
         public float explosionSize = 50.0f;
         public float eggSpeedModifier = 50.0f;
         public float sourceOffset = 1.45f;
 
         private List<EnemyIdentifier> targetedEnemies = new List<EnemyIdentifier>();
-
-        private void Awake()
-        {
-            HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
-        }
-
 
         //Eggsplosion casts a sphere to try and find enemies nearby. It then spawns an egg and shoots it at the found enemy.
         private void Start()
@@ -72,7 +65,7 @@ namespace UltraFunGuns
 
                 foreach (Ray eggTrajectory in eggTrajectories)
                 {
-                    ThrownEgg newEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, eggTrajectory.origin, Quaternion.identity).GetComponent<ThrownEgg>();
+                    ThrownEgg newEgg = GameObject.Instantiate<GameObject>(EggToss.ThrownEggPrefab, eggTrajectory.origin, Quaternion.identity).GetComponent<ThrownEgg>();
                     newEgg.transform.forward = eggTrajectory.direction;
                     newEgg.gameObject.GetComponent<Rigidbody>().velocity = eggTrajectory.direction * eggSpeedModifier;
                     newEgg.oldVelocity = eggTrajectory.direction * eggSpeedModifier;

@@ -107,7 +107,6 @@ namespace UltraFunGuns
                             }
                         }
 
-                        //LOS CHECK
                         Vector3 directionToEnemy = enemyTargetPoint.position - sampleLocation;
                         if (Physics.Raycast(sampleLocation, directionToEnemy, out RaycastHit rayHit, directionToEnemy.magnitude, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default")))
                         {
@@ -494,7 +493,7 @@ namespace UltraFunGuns
         }
 
 
-        //TODO optimize this.
+        //TODO optimize this. this camera only
         public static bool TryGetTarget(out Vector3 targetDirection) //Return true if enemy target found.
         {
             List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
@@ -573,19 +572,74 @@ namespace UltraFunGuns
             }
         }
 
-
+        /// <summary>
+        /// Returns local quaternion rotation based off of world space quaternion
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="worldRotation"></param>
+        /// <returns></returns>
         public static Quaternion WorldToLocalRotation(this Transform transform, Quaternion worldRotation)
         {
             return Quaternion.Inverse(transform.rotation) * worldRotation;
         }
 
+        /// <summary>
+        /// Sets the player rotation properly using a quaternion. Note: euler Z axis is ignored.
+        /// Converts world space quaternion into player space rotations
+        /// </summary>
+        /// <param name="newRotation"></param>
         public static void SetPlayerRotation(Quaternion newRotation)
         {
+            //Cnv
             Quaternion oldRot = CameraController.Instance.transform.rotation;
             CameraController.Instance.transform.rotation = newRotation;
-            CameraController.Instance.rotationX = CameraController.Instance.transform.localEulerAngles.x;
-            CameraController.Instance.rotationY = CameraController.Instance.transform.rotation.y;
-            CameraController.Instance.transform.rotation = oldRot;
+            float sampleX = CameraController.Instance.transform.localEulerAngles.x;
+            float newX = sampleX;
+
+            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            if (sampleX <= 90.0f && sampleX >=0)
+            {
+                newX = -sampleX;
+            }else if(sampleX >= 270.0f && sampleX <= 360.0f)
+            {
+                newX = Mathf.Lerp(0.0f, 90.0f, Mathf.InverseLerp(360.0f,270.0f, sampleX));
+            }
+
+            float newY = CameraController.Instance.transform.rotation.eulerAngles.y;
+
+            CameraController.Instance.rotationX = newX;
+            CameraController.Instance.rotationY = newY;
+        }
+
+        /// <summary>
+        /// Returns the component if it is found on the gameobject. If it isn't found, it will add the component.
+        /// </summary>
+        /// <returns>Always returns component</returns>
+        public static T EnsureComponent<T>(this GameObject gameObject)
+        {
+            if(gameObject.TryGetComponent<T>(out T component))
+            {
+                return component;
+            }else
+            {
+                return (T)(object)gameObject.AddComponent(typeof(T));
+            }
+        }
+
+        /// <summary>
+        /// Returns the component if it is found on the transform. If it isn't found, it will add the component.
+        /// </summary>
+        /// <returns>Always returns component</returns>
+        public static T EnsureComponent<T>(this Transform transform)
+        {
+            if (transform.TryGetComponent<T>(out T component))
+            {
+                return component;
+            }
+            else
+            {
+                return (T)(object)transform.gameObject.AddComponent(typeof(T));
+            }
         }
     }
 

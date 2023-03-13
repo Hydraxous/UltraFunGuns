@@ -15,7 +15,7 @@ namespace UltraFunGuns
         protected WeaponIcon weaponIcon;
         protected Animator animator;
 
-        protected FunGun weaponInfo;
+        protected UFGWeapon weaponInfo;
 
         protected virtual void DoAnimations() { }
 

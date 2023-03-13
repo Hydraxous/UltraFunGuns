@@ -7,7 +7,7 @@ using System.Reflection;
 namespace UltraFunGuns
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class FunGun : Attribute
+    public class UFGWeapon : Attribute
     {
         public Type Type { get; private set; }
         public string WeaponKey { get; }
@@ -17,20 +17,20 @@ namespace UltraFunGuns
         public WeaponIconColor IconColor { get; }
         public WeaponAbility[] Abilities { get; private set; }
         public bool IsFinished { get; }
+        public GameObject Prefab { get; private set; }
 
         private Sprite weaponIcon;
         public Sprite WeaponIcon
         {
-
             get
             {
                 if (weaponIcon == null)
                 {
+                    //TODO fix this.
                     return weaponIcon;
                 }
                 return weaponIcon;
             }
-
         }
 
         private Sprite glowIcon;
@@ -57,7 +57,7 @@ namespace UltraFunGuns
         /// <param name="Equipped">Default Equipped</param>
         /// <param name="IconColor">Color of the Weapon Icon</param>
         /// <param name="IsFinished">Should this be loaded in a non-debug build?</param>
-        public FunGun(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool IsFinished = false)
+        public UFGWeapon(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool IsFinished = false)
         {
             this.WeaponKey = WeaponKey;
             this.DisplayName = DisplayName;
@@ -75,7 +75,18 @@ namespace UltraFunGuns
 
         public void SetType(Type type)
         {
-            Type = type;
+            if(Type == null)
+            {
+                Type = type;
+            }
+        }
+
+        public void SetPrefab(GameObject prefab)
+        {
+            if(Prefab == null)
+            {
+                Prefab = prefab;
+            }
         }
 
         private static string[] randomPlaceholders = { "REDACTED", "DATA EXPUNGED", "INFORMATION DELETED", "DATA DELETED", "DATA MISSING", "UNKNOWN ORIGIN", "404-ERROR", "MISSING", "CLASSIFIED", "UNKNOWN", "??????"};

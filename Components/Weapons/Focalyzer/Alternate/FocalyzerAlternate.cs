@@ -8,7 +8,7 @@ namespace UltraFunGuns
 {
 
     //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
-    [FunGun("FocalyzerAlternate", "Focalyzer V2", 2, true, WeaponIconColor.Blue)]
+    [UFGWeapon("FocalyzerAlternate", "Focalyzer V2", 2, true, WeaponIconColor.Blue)]
     [WeaponAbility("Cutter", "Hold <color=orange>Fire 1</color> to fire <color=aqua>Cutter</color> beam.", 0, RichTextColors.aqua)]
     [WeaponAbility("Deploy Pylon", "Press <color=orange>Fire 2</color> to deploy a laser pylon.", 1, RichTextColors.aqua)]
     [WeaponAbility("Command", "Pylons will fire at your command.", 2, RichTextColors.yellow)]
@@ -16,11 +16,10 @@ namespace UltraFunGuns
     {
         public FocalyzerLaserControllerAlternate laser;
         public FocalyzerTubeControllerAlternate tubeController;
-        public GameObject pylonPrefab;
-        public Transform aimSpot;
+        [UFGAsset("FocalyzerPylonAlternate")] public static GameObject pylonPrefab { get; private set; }
+        [UFGAsset("FocalyzerLaserAlternate")] public static GameObject laserPrefab { get; private set; }
 
-        [UFGAsset("CanLauncher_MuzzleFX")]
-        private static GameObject throwPylonFX;
+        public Transform aimSpot;
 
         private StyleHUD style;
 
@@ -50,8 +49,6 @@ namespace UltraFunGuns
         private void Start()
         {
             laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default");
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerPylonAlternate", out pylonPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerLaserAlternate", out GameObject laserPrefab);
             laser = GameObject.Instantiate<GameObject>(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<FocalyzerLaserControllerAlternate>();
             laser.focalyzer = this;
         }
@@ -210,7 +207,7 @@ namespace UltraFunGuns
             animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
-            GameObject pylonFX = GameObject.Instantiate<GameObject>(throwPylonFX, firePoint);
+            GameObject pylonFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint);
             pylonFX.transform.position = firePoint.position;
             pylonFX.transform.forward = firePoint.forward;
             pylonFX.AddComponent<DestroyOnDisable>();
@@ -247,7 +244,7 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator.Play("Focalyzer_Equip");
-            //TODO fix this algorithm it does not work.
+            //TODO URGENT fix this algorithm it does not work.
             return;
             while (pylonRechargeTimeRemaining + (pylonRechargeTime - style.rankIndex) < Time.time && pylonsRemaining < maxStoredPylons)
             {

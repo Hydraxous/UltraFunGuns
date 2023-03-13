@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [FunGun("GrabbityGun", "Grabbity Gun", 3, true, WeaponIconColor.Yellow)]
+    [UFGWeapon("GrabbityGun", "Grabbity Gun", 3, true, WeaponIconColor.Yellow)]
     public class GrabbityGun : UltraFunGunBase
     {
         public float forceOnRb = 150.0f;

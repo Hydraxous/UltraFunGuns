@@ -7,7 +7,7 @@ namespace UltraFunGuns;
 
 [WeaponAbility("Physic Manipulate", "Manipulate a physics object", 0, RichTextColors.aqua)]
 [WeaponAbility("Physic Lock", "Lock a physics object in place", 1, RichTextColors.aqua)]
-[FunGun("FizzyGun", "PHYSICS GUN", 3, true, WeaponIconColor.Blue)]
+[UFGWeapon("FizzyGun", "PHYSICS GUN", 3, true, WeaponIconColor.Blue)]
 public class FizzyGun : UltraFunGunBase
 {
     public float forceOnRb = 150.0f;

@@ -11,11 +11,10 @@ namespace UltraFunGuns
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
         private UltraFunGunBase.ActionCooldown maxRangeReflectCooldown = new UltraFunGunBase.ActionCooldown(0.5f);
 
-        public GameObject dodgeballPopFXPrefab;
-        public GameObject impactSound;
+        [UFGAsset("DodgeballPopFX")] private static GameObject dodgeballPopFXPrefab;
+        [UFGAsset("DodgeballImpactSound")] private static GameObject impactSound;
 
         public Transform ballMesh;
-
         public Transform homingTarget;
         public EnemyIdentifier homingTargetEID;
 
@@ -60,8 +59,6 @@ namespace UltraFunGuns
            
             animator = GetComponent<Animator>();
             ballMesh = transform.Find("DodgeballMesh");
-            HydraLoader.prefabRegistry.TryGetValue("DodgeballPopFX", out dodgeballPopFXPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("DodgeballImpactSound", out impactSound);
             bigHitSound = transform.Find("Audios/BigHit").GetComponent<AudioSource>();
             homingSound = transform.Find("Audios/HomingSound").GetComponent<AudioSource>();
             exciteSound = transform.Find("Audios/ExciteSound").GetComponent<AudioSource>();
@@ -460,7 +457,6 @@ namespace UltraFunGuns
                     break;
 
                 case "FingerGun":
-                    //Fucking explode
                     Pop();
                     break;
             }

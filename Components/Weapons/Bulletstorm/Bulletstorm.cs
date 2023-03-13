@@ -5,9 +5,11 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [FunGun("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green)]
+    [UFGWeapon("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green)]
     public class Bulletstorm : UltraFunGunBase
     {
+
+        private GameObject[] projectiles = new GameObject[] { Prefabs.ThrownBrick, EggToss.ThrownEggPrefab, Dodgeball.ThrownDodgeballPrefab, RemoteBomb.RemoteExplosivePrefab, CanLauncher.CanProjectile, SonicReverberator.ReverbProjectile};
 
         public float spreadTightness = 1.5f;
         public float fireRateSpeed = 0.02f;
@@ -41,6 +43,35 @@ namespace UltraFunGuns
 
                 shot.origin = mainCam.transform.position;
                 shot.direction = mainCam.TransformDirection(spread.x, spread.y, spreadTightness);
+
+                GameObject randProjectile = null;
+                int count = 0;
+
+                while (randProjectile == null && (count < projectiles.Length))
+                {
+                    int randIndex = UnityEngine.Random.Range(0, projectiles.Length);         
+                    randProjectile = projectiles[randIndex];
+                    ++count;
+                }    
+
+                if(randProjectile == null)
+                {
+                    return;
+                }
+
+                GameObject newProjectile = GameObject.Instantiate<GameObject>(randProjectile, firePoint.position + (shot.direction * 2.2f), Quaternion.identity);
+                
+                if(newProjectile.TryGetComponent<Rigidbody>(out Rigidbody rb))
+                {
+                    rb.velocity = shot.direction * 70.0f;
+                }
+
+                if(newProjectile.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgRec))
+                {
+                    ufgRec.Parried(shot.direction);
+                }
+
+                return;
 
                 Vector3[] bulletTrailInfo = HydraUtils.DoRayHit(shot, maxRange, false, 0.05f, false, 0.0f, this.gameObject, true, true);
                 if(bulletTrailInfo.Length != 2)

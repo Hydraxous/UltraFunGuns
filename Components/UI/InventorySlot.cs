@@ -10,7 +10,6 @@ namespace UltraFunGuns
     {
         InventoryController inventoryController;
         public int ID;
-        public GameObject nodePrefab;
         public List<InventoryNode> nodes = new List<InventoryNode>();
 
         public RectTransform r_transform;
@@ -18,9 +17,7 @@ namespace UltraFunGuns
         public void Initialize(InventorySlotData slotData, int ID, InventoryController inventoryController)
         {
             this.inventoryController = inventoryController;
-
             r_transform = transform.Find("Slot").GetComponent<RectTransform>();
-            HydraLoader.prefabRegistry.TryGetValue("WMUINode", out nodePrefab);
             this.ID = ID;
 
             SetupNodes(slotData.slotNodes);
@@ -69,9 +66,9 @@ namespace UltraFunGuns
             Refresh();
         }
 
-        private void CreateNewNode(InventoryNodeData nodeData, int slotIndex, int totalNodes)
+        private void CreateNewNode(InventoryNodeData nodeData, int slotIndex)
         {
-            InventoryNode newNode = GameObject.Instantiate<GameObject>(nodePrefab, r_transform).GetComponent<InventoryNode>();    
+            InventoryNode newNode = GameObject.Instantiate<GameObject>(InventoryControllerDeployer.UFGInventoryNode, r_transform).GetComponent<InventoryNode>();    
             nodes.Add(newNode);
             newNode.Initialize(nodeData, this, slotIndex);
         }
@@ -95,7 +92,7 @@ namespace UltraFunGuns
 
             for (int i = 0; i < nodeDatas.Length; i++)
             {
-                CreateNewNode(nodeDatas[i], i, nodeDatas.Length);
+                CreateNewNode(nodeDatas[i], i);
             }
 
             Refresh();

@@ -6,7 +6,6 @@ namespace UltraFunGuns
     public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver
     {
         [UFGAsset("BrickBreakFX")] private static GameObject brickBreakFX;
-        [UFGAsset("SmackFX")] private static GameObject smackFX;
         [UFGAsset("TennisHit")] private static AudioClip tennisHit;
 
         private Animator thrownBrickAnimator;
@@ -391,8 +390,11 @@ namespace UltraFunGuns
                 guided = false;
             }
 
-            if (smackFX != null)
-                Instantiate<GameObject>(smackFX, transform.position, Quaternion.identity);
+            if (Prefabs.SmackFX != null)
+            {
+                Transform newFx = Instantiate<GameObject>(Prefabs.SmackFX, transform.position, Quaternion.identity).transform;
+                newFx.localScale *= 3.0f;
+            }
 
             if (HydraUtils.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid))
             {
@@ -415,8 +417,11 @@ namespace UltraFunGuns
         {
             hitsRemaining += hitsRemaining;
             
-            if (smackFX != null)
-                Instantiate<GameObject>(smackFX, transform.position, Quaternion.identity);
+            if (Prefabs.SmackFX != null)
+            {
+                Transform newFx = Instantiate<GameObject>(Prefabs.SmackFX, transform.position, Quaternion.identity).transform;
+                newFx.localScale *= 3.0f;
+            }
 
             TimeController.Instance.ParryFlash();
             ++enemyParries;

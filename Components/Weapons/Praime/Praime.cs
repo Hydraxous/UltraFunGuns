@@ -15,7 +15,7 @@ namespace UltraFunGuns
 
     [WeaponAbility("Fire","Fire the current configuration.", 0, RichTextColors.red)]
     [WeaponAbility("Reformat","Swith the current configuration.", 1, RichTextColors.lime)]
-    [FunGun("ArmCannon", "Praime", 2, true, WeaponIconColor.Red)]
+    [UFGWeapon("ArmCannon", "Praime", 2, true, WeaponIconColor.Red)]
     public class Praime : UltraFunGunBase
     {
         

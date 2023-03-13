@@ -143,16 +143,35 @@ namespace UltraFunGuns
 
             Type propertyType = property.PropertyType;
 
-            AssetBundle bundle = (ufgAsset.UKPrefab) ? UKPrefabs.GameAssets : HydraLoader.AssetBundle;
+            //AssetBundle bundle = (ufgAsset.UKPrefab) ? UKPrefabs.GameAssets : HydraLoader.AssetBundle;
 
-            if(TryLoadAsset(assetKey, bundle, propertyType, out UnityEngine.Object loadedAsset))
+            if (ufgAsset.UKPrefab)
             {
-                HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
-                property.SetValue(null, loadedAsset);
-            }else
-            {
-                HydraLogger.Log($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+
+                if (loadedAsset != null)
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {propertyType.DeclaringType}.{property.Name}");
+
+                    property.SetValue(null, loadedAsset);
+                }
+                else
+                {
+                    HydraLogger.Log($"Failed to find asset: {assetKey}");
+                }
             }
+            else
+            {
+                if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, propertyType, out UnityEngine.Object loadedAsset))
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
+                    property.SetValue(null, loadedAsset);
+                }
+                else
+                {
+                    HydraLogger.Log($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                }
+            }     
         }
 
         /// <summary>

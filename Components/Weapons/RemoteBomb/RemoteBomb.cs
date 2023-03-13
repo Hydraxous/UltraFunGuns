@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace UltraFunGuns
 {
-    [FunGun("RemoteBomb","Radio Explosive", 3, true, WeaponIconColor.Red)]
+    [UFGWeapon("RemoteBomb","Radio Explosive", 3, true, WeaponIconColor.Red)]
     [WeaponAbility("Throw", "Press <color=orange>Fire 1</color> to throw an explosive.", 0, RichTextColors.aqua)]
     [WeaponAbility("Detonate", "Press <color=orange>Fire 2</color> detonate armed explosives.", 1, RichTextColors.lime)]
     [WeaponAbility("Mortar", "Parry a thrown bomb to boost your throw.", 2, RichTextColors.yellow)]
     public class RemoteBomb : UltraFunGunBase
     {
-        private GameObject remoteExplosivePrefab;
+        [UFGAsset("RemoteBomb_Explosive")] public static GameObject RemoteExplosivePrefab { get; private set; }
         public float bombDetonationDelay = 0.035f;
         public float throwForce = 50.0f;
 
@@ -22,7 +22,6 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             AddSFX("Throw", "Detonate");
-            HydraLoader.prefabRegistry.TryGetValue("RemoteBomb_Explosive", out remoteExplosivePrefab);
         }
 
         public override void GetInput()
@@ -101,7 +100,7 @@ namespace UltraFunGuns
             yield return new WaitForSeconds(0.1666f);
             PlaySFX("Throw", 0.95f, 1.15f);
             Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.25f, 40.0f);
-            GameObject newExplosive = Instantiate<GameObject>(remoteExplosivePrefab, firePoint.position, Quaternion.identity);
+            GameObject newExplosive = Instantiate<GameObject>(RemoteExplosivePrefab, firePoint.position, Quaternion.identity);
             RemoteBombExplosive newBomb = newExplosive.GetComponent<RemoteBombExplosive>();
 
             newBomb.Initiate(this, player);

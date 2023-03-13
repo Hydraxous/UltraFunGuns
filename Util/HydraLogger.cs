@@ -120,7 +120,7 @@ namespace UltraFunGuns
             }
 
             //+1 because we dont count ufg in the list
-            modlist = $"{counter+1}\n" + modlist;
+            modlist = $"Mods Loaded: {counter+1}\n" + modlist;
 
             return modlist;
         }

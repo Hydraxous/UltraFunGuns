@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [FunGun("CanLauncher", "CANnon", 3, true, WeaponIconColor.Blue)]
+    [UFGWeapon("CanLauncher", "CANnon", 3, true, WeaponIconColor.Blue)]
     [WeaponAbility("Can Cannon", "Press <color=orange>Fire 1</color> to fire a can.", 0, RichTextColors.aqua)]
     [WeaponAbility("Boosted Output", "Parry a can after firing to accelerate it's velocity.", 0, RichTextColors.yellow)]
     [WeaponAbility("Kick It", "Shoot a can with a low power weapon to <color=orange>Kick it</color>.", 1, RichTextColors.yellow)]
@@ -14,8 +14,7 @@ namespace UltraFunGuns
     [WeaponAbility("Super Fragment", "Shoot a can with a high power weapon to <color=orange>fragment</color> it.", 3, RichTextColors.red)]
     public class CanLauncher : UltraFunGunBase
     {
-        public GameObject canPrefab;
-        public GameObject muzzleFX;
+        [UFGAsset("CanLauncher_CanProjectile")] public static GameObject CanProjectile { get; private set; }
 
         public float shootForce = 80.0f;
         public float targetBeamThickness = 0.5f;
@@ -39,10 +38,7 @@ namespace UltraFunGuns
             }
             canMaterials = canTextureList.ToArray();
 
-            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanProjectile", out canPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_MuzzleFX", out muzzleFX);
-
-            canPrefabMeshRenderer = canPrefab.GetComponentInChildren<MeshRenderer>();
+            canPrefabMeshRenderer = CanProjectile.GetComponentInChildren<MeshRenderer>();
 
             //TODO FX HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
             //debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
@@ -80,8 +76,8 @@ namespace UltraFunGuns
 
             Vector3 targetVelocity = aimRay.direction * shootForce;
             CameraController.Instance.CameraShake(0.15f);
-            GameObject latestCan = GameObject.Instantiate<GameObject>(canPrefab, firePoint.position, Quaternion.identity);
-            GameObject newMuzzleFX = GameObject.Instantiate<GameObject>(muzzleFX, firePoint.position, Quaternion.identity);
+            GameObject latestCan = GameObject.Instantiate<GameObject>(CanProjectile, firePoint.position, Quaternion.identity);
+            GameObject newMuzzleFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint.position, Quaternion.identity);
             newMuzzleFX.AddComponent<DestroyOnDisable>();
             newMuzzleFX.transform.forward = firePoint.forward;
             latestCan.transform.forward = targetVelocity.normalized;

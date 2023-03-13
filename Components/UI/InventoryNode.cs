@@ -17,7 +17,7 @@ namespace UltraFunGuns
 
         public WeaponInfoCard card;
 
-        private FunGun nodeInfo;
+        private UFGWeapon nodeInfo;
 
         public int slotIndexPosition;
 

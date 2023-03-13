@@ -8,7 +8,7 @@ namespace UltraFunGuns
 {
     //Throwable projectile that bounces off of things, does damage to enemies and multiplies it's velocity every time it hits something. Should be really funny.
     //Also can force push/pull it with right click
-    [FunGun("Dodgeball", "ULTRABALLER", 1, true, WeaponIconColor.Red)]
+    [UFGWeapon("Dodgeball", "ULTRABALLER", 1, true, WeaponIconColor.Red)]
     [WeaponAbility("Recall", "Pull the thrown ball back to you by holing <color=orange>Fire 2</color>", 2, RichTextColors.lime)]
     [WeaponAbility("Soft-Ball", "Press <color=orange>Fire 2</color> while holding the ball to throw the ball softly.",1, RichTextColors.aqua)]
     [WeaponAbility("Full-Ball", "Press <color=orange>Fire 1</color> to throw the ball. Holding the button will throw the ball faster and harder.", 0, RichTextColors.aqua)]
@@ -19,7 +19,7 @@ namespace UltraFunGuns
 
         public ThrownDodgeball activeDodgeball;
 
-        public GameObject thrownDodgeballPrefab;
+        [UFGAsset("ThrownDodgeball")] public static GameObject ThrownDodgeballPrefab { get; private set; }
 
         private GameObject catcherCollider;
 
@@ -43,15 +43,13 @@ namespace UltraFunGuns
 
         public bool basketBallMode = false;
         private Material standardSkin;
-        private Material basketballSkin;
+        [UFGAsset("BasketballMaterial")] private static Material basketballSkin;
 
+        //TODO optiminzation
         public override void OnAwakeFinished()
         {
             basketBallMode = Data.Config.Data.BasketBallMode;
-            HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
-            basketballSkin = (Material) obj;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
-            HydraLoader.prefabRegistry.TryGetValue("ThrownDodgeball", out thrownDodgeballPrefab);
             SetSkin(!basketBallMode);
             weaponIcon.variationColor = 2;
             catcherCollider = transform.Find("firePoint/DodgeballCatcher").gameObject;
@@ -130,7 +128,7 @@ namespace UltraFunGuns
             if (newSkin != null)
             {
                 transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
-                thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
+                ThrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
             }
         }
 
@@ -190,7 +188,7 @@ namespace UltraFunGuns
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
 
             dodgeBallActive = true;
-            activeDodgeball = GameObject.Instantiate<GameObject>(thrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
+            activeDodgeball = GameObject.Instantiate<GameObject>(ThrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
             activeDodgeball.dodgeballWeapon = this;
 
             Ray ballDirection = HydraUtils.GetProjectileAimVector(mainCam, firePoint);

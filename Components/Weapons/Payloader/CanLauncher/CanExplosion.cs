@@ -9,7 +9,6 @@ namespace UltraFunGuns
     {
         public int explosionType;
 
-        public GameObject bulletTrail;
         public Transform[] explosionFX;
 
         public int penetrations = 2;
@@ -40,8 +39,6 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrail);
-
             List<Transform> newFXs = new List<Transform>();
             for(int i =0;i<4;i++)
             {
@@ -89,6 +86,7 @@ namespace UltraFunGuns
             }
         }
 
+        //TODO optimization
         private void Shoot(Ray direction)
         {
             bool penetration = true;
@@ -198,7 +196,7 @@ namespace UltraFunGuns
                     }
                     CreateBulletTrail(transform.position, hits[endingHit].point, hits[endingHit].normal, hits[endingHit].collider.transform);
                 }
-                else//todo clean this.
+                else//TODO optimization
                 {
                     Ray missray = new Ray();
                     missray.origin = transform.position;
@@ -239,9 +237,11 @@ namespace UltraFunGuns
             }
         }
 
+        //TODO optimization
+
         private void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)
         {
-            GameObject newBulletTrail = Instantiate<GameObject>(bulletTrail, endPosition, Quaternion.identity);
+            GameObject newBulletTrail = Instantiate<GameObject>(Prefabs.BulletTrail, endPosition, Quaternion.identity);
             newBulletTrail.transform.up = normal;
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
@@ -250,7 +250,7 @@ namespace UltraFunGuns
 
         private void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal, Transform parent)
         {
-            GameObject newBulletTrail = Instantiate<GameObject>(bulletTrail, endPosition, Quaternion.identity);
+            GameObject newBulletTrail = Instantiate<GameObject>(Prefabs.BulletTrail, endPosition, Quaternion.identity);
             newBulletTrail.transform.up = normal;
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };

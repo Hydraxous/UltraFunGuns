@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [FunGun("JetSpear", "Jet Spear", 3, true, WeaponIconColor.Yellow)]
+    [UFGWeapon("JetSpear", "Jet Spear", 3, true, WeaponIconColor.Yellow)]
     public class JetSpear : UltraFunGunBase
     {
 

@@ -8,20 +8,25 @@ namespace UltraFunGuns
 {
     public static class Visualizer
     {
-        private static GameObject debugSphere;
-        private static GameObject debugCube;
-        private static GameObject debugLine;
+        [UFGAsset("DebugSphere")] private static GameObject debugSphere;
+        [UFGAsset("DebugCube")] private static GameObject debugCube;
+        [UFGAsset("DebugLine")]private static GameObject debugLine;
 
-        public static void Init()
+        private static bool visualizerEnabled => (UltraFunGuns.DebugMode && Data.Config.Data.EnableVisualizer);
+
+        [Commands.UFGDebugMethod("ToggleVisualizer", "Toggles Visual Debugging")]
+        public static void ToggleVisualizer()
         {
-            HydraLoader.prefabRegistry.TryGetValue("DebugSphere", out debugSphere);
-            HydraLoader.prefabRegistry.TryGetValue("DebugLine", out debugLine);
-            HydraLoader.prefabRegistry.TryGetValue("DebugCube", out debugCube);
+            bool nowEnabled = !Data.Config.Data.EnableVisualizer;
+            Data.Config.Data.EnableVisualizer = nowEnabled;
+            Data.Config.Save();
+
+            HydraLogger.Log($"Visual Debugging: {nowEnabled}", DebugChannel.User);
         }
 
         public static void DrawSphere(Vector3 position, float radius, float time = 1.0f)
         {
-            if (!UltraFunGuns.DebugMode)
+            if(!visualizerEnabled)
             {
                 return;
             }
@@ -38,7 +43,7 @@ namespace UltraFunGuns
 
         public static void DrawLine(float time, params Vector3[] points)
         {
-            if (!UltraFunGuns.DebugMode)
+            if (!visualizerEnabled)
             {
                 return;
             }
@@ -62,7 +67,7 @@ namespace UltraFunGuns
 
         public static void DrawRay(Vector3 position, Vector3 direction, float time = 0.4f)
         {
-            if (!UltraFunGuns.DebugMode)
+            if (!UltraFunGuns.DebugMode || !Data.Config.Data.EnableVisualizer)
             {
                 return;
             }
@@ -78,7 +83,12 @@ namespace UltraFunGuns
 
         public static void DisplayTextAtPosition(string text, Vector3 position, Color color, float killTime = 3.0f)
         {
-            if(debugTextPopup != null)
+            if (!visualizerEnabled)
+            {
+                return;
+            }
+
+            if (debugTextPopup != null)
             {
                 while(currentPositions.Contains(position))
                 {

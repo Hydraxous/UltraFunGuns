@@ -6,22 +6,19 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    [FunGun("Tricksniper", "Tricksniper", 3, true, WeaponIconColor.Green)]
+    [UFGWeapon("Tricksniper", "Tricksniper", 3, true, WeaponIconColor.Green)]
     [WeaponAbility("Fire", "Press <color=orange>Fire 1</color> to fire.", 0, RichTextColors.aqua)]
     [WeaponAbility("Optical Zoom", "Hold <color=orange>Fire 2</color> to engage zoom.", 1, RichTextColors.lime)]
     [WeaponAbility("Noscope!!", "Spinning before shooting directly increases damage and accuracy while not using <color=lime>Optical Zoom</color>.", 2, RichTextColors.yellow)]
 
-
+    //TODO optimization
     public class Tricksniper : UltraFunGunBase
     {
         //public GameObject bulletTrailPrefab;
         //TODO fix this
-        public GameObject muzzleFX;
+        [UFGAsset("TricksniperMuzzleFX")] public static GameObject muzzleFX { get; private set; }
         public GameObject scopeUI;
         public GameObject viewModelWrapper;
-
-        [UFGAsset("ExplosionMaliciousRail.prefab", true)]
-        private static GameObject explosion;
 
         public Text debugText;
 
@@ -46,8 +43,6 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
             debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
@@ -242,11 +237,6 @@ namespace UltraFunGuns
 
                         if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
                         {
-                            if(explosion != null)
-                            {
-                                GameObject.Instantiate(explosion, hits[i].point, Quaternion.identity);
-                            }
-
                             break;
                         }
 

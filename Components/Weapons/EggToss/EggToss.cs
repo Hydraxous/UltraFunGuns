@@ -7,23 +7,23 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Throwable and droppable egg which deals damage. Can be shot in mid air for a funny explosion.
-    [FunGun("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
+    [UFGWeapon("EggToss", "Egg", 1, true, WeaponIconColor.Yellow)]
     [WeaponAbility("Egg", "Press <color=orange>Fire 1</color> to throw an egg.", 0, RichTextColors.aqua)]
     [WeaponAbility("Egg Drop", "Press <color=orange>Fire 2</color> to drop an egg.", 1, RichTextColors.aqua)]
     [WeaponAbility("EGGSPLOSION", "Shoot an egg to release an <color=red>EGGSLPOSION</color>.", 2, RichTextColors.red)]
 
     public class EggToss : UltraFunGunBase
     {
-        private GameObject thrownEggPrefab;
+        [UFGAsset("ThrownEgg")] public static GameObject ThrownEggPrefab { get; private set; }
 
         public float forceMultiplier = 59.0f;
         private bool throwingEgg = false;
 
         private void Start()
         {
-            HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out thrownEggPrefab.GetComponent<ThrownEgg>().impactFX);
-            HydraLoader.prefabRegistry.TryGetValue("EggSplosion", out thrownEggPrefab.GetComponent<ThrownEgg>().eggsplosionPrefab);
+            //HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
+            //HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out thrownEggPrefab.GetComponent<ThrownEgg>().impactFX);
+            //HydraLoader.prefabRegistry.TryGetValue("EggSplosion", out thrownEggPrefab.GetComponent<ThrownEgg>().eggsplosionPrefab);
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
@@ -46,7 +46,7 @@ namespace UltraFunGuns
             throwingEgg = true;
             animator.Play("EggTossDrop");
             yield return new WaitForSeconds(0.15f);
-            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, player.transform.TransformPoint(0,-1.5f,0), Quaternion.identity);
+            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(ThrownEggPrefab, player.transform.TransformPoint(0,-1.5f,0), Quaternion.identity);
             newThrownEgg.transform.forward = mainCam.forward;
             newThrownEgg.GetComponent<ThrownEgg>().dropped = true;
             newThrownEgg.GetComponent<Rigidbody>().velocity = Vector3.down;
@@ -59,7 +59,7 @@ namespace UltraFunGuns
             throwingEgg = true;
             animator.Play("EggTossThrow");
             yield return new WaitForSeconds(0.16f);
-            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, firePoint.position, Quaternion.identity);
+            GameObject newThrownEgg = GameObject.Instantiate<GameObject>(ThrownEggPrefab, firePoint.position, Quaternion.identity);
             newThrownEgg.transform.forward = mainCam.forward;
             Vector3 newVelocity = mainCam.TransformDirection(0, 0, 1 * forceMultiplier);
             newVelocity += player.rb.velocity;

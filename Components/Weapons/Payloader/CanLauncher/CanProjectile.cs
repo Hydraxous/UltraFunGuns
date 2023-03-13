@@ -8,8 +8,8 @@ namespace UltraFunGuns
 {
     public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver
     {
-        public GameObject canExplosion;
-        public GameObject bounceFX;
+        [UFGAsset("CanLauncher_CanExplosion")] private static GameObject canExplosion;
+        [UFGAsset("CanLauncher_CanProjectile_BounceFX")] private static GameObject bounceFX;
 
         public bool trackInsteadOfPredict = true;
 
@@ -50,8 +50,6 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanExplosion", out canExplosion);
-            HydraLoader.prefabRegistry.TryGetValue("CanLauncher_CanProjectile_BounceFX", out bounceFX);
             rb = GetComponent<Rigidbody>();
         }
 

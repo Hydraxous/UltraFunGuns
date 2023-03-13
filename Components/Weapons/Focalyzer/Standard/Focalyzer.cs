@@ -12,15 +12,13 @@ namespace UltraFunGuns
     [WeaponAbility("Focus", "Hold <color=orange>Fire 1</color> to fire a continuous beam of light.", 0, RichTextColors.aqua)]
     [WeaponAbility("Deploy Pylon", "Press <color=orange>Fire 2</color> deploy a pylon which can refract the <color=aqua>Focus</color> beam.", 1, RichTextColors.lime)]
     [WeaponAbility("Refract", "Fire a <color=aqua>Focus</color> beam into a <color=lime>Pylon</color> to refract it.", 2, RichTextColors.yellow)]
-    [FunGun("Focalyzer", "Focalyzer", 2, true, WeaponIconColor.Red)]
+    [UFGWeapon("Focalyzer", "Focalyzer", 2, true, WeaponIconColor.Red)]
     public class Focalyzer : UltraFunGunBase
     {
         public FocalyzerLaserController laser;
         public FocalyzerTubeController tubeController;
-        public GameObject pylonPrefab;
-
-        [UFGAsset("CanLauncher_MuzzleFX")]
-        private static GameObject throwPylonFX;
+        [UFGAsset("FocalyzerPylon")] public static GameObject pylonPrefab { get; private set; }
+        [UFGAsset("FocalyzerLaser")] public static GameObject laserPrefab { get; private set; }
 
         private bool throwingPylon = false;
         public bool laserActive = false;
@@ -40,8 +38,6 @@ namespace UltraFunGuns
         private void Start()
         {
             laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default");
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerPylon", out pylonPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerLaser", out GameObject laserPrefab);
             laser = GameObject.Instantiate<GameObject>(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<FocalyzerLaserController>();
             laser.focalyzer = this;
         }
@@ -86,7 +82,7 @@ namespace UltraFunGuns
                 laser.laserActive = laserActive;
             }
 
-            if(tubeController != null)
+            if(tubeController != null && laser != null)
             {
                 tubeController.crystalsUsed = Mathf.Clamp(laser.GetPylonCount() - 1, 0, laser.maxPylons);
             }
@@ -225,7 +221,7 @@ namespace UltraFunGuns
             animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
-            GameObject pylonFX = GameObject.Instantiate<GameObject>(throwPylonFX, firePoint);
+            GameObject pylonFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint);
             pylonFX.transform.position = firePoint.position;
             pylonFX.transform.forward = firePoint.forward;
             pylonFX.AddComponent<DestroyOnDisable>();

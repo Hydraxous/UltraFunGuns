@@ -152,7 +152,7 @@ namespace UltraFunGuns
             return newNodeArray.ToArray();
         }
         
-        public void SetCardWeaponInfo(FunGun info)
+        public void SetCardWeaponInfo(UFGWeapon info)
         {
             if (infoCard != null)
             {
