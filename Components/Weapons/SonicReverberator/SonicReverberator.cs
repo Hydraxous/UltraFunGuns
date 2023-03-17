@@ -161,6 +161,56 @@ namespace UltraFunGuns
             moyaiAnimator.SetFloat("ChargeLevel", chargeLevel + 0.5f);
         }
 
+
+
+        private void FireRemade()
+        {
+            float thickness = 0.0f;
+            float maxRange = 0.0f;
+
+
+            if(HydraUtils.SphereCastAllMacro(mainCam.position, thickness, mainCam.forward, maxRange, out RaycastHit[] hits))
+            {
+                foreach (RaycastHit hit in hits)
+                {
+                    ProcessHit(hit);
+                }
+            }
+
+        }
+
+        private void ProcessHit(RaycastHit hit)
+        {
+            if (hit.collider.IsColliderEnvironment())
+            {
+                return;
+            }
+
+            if (!HydraUtils.LineOfSightCheck(mainCam.position, hit.point))
+            {
+                return;
+            }
+
+            Vector3 direction = hit.point - mainCam.position;
+
+            if (!HydraUtils.ConeCheck(mainCam.forward, direction, maxTargetAngle))
+            {
+                return;
+            }
+
+            ProcessHit(hit);
+
+            if (hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
+            {
+
+            }else if(hit.rigidbody != null)
+            {
+
+            }
+        }
+
+
+
         //RULES FOR HITREG
         /*
          * 1. Enemy must be within range.
@@ -200,7 +250,7 @@ namespace UltraFunGuns
 
             //MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
             //MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
-            //TODO restore old code. operate fine
+            //TODO restore old code. operate fine ??? its bokren
             for(int i = 0; i < targets.Count; i++)
             {
                 EffectTarget(targets[i], currentAngle);
@@ -437,7 +487,7 @@ namespace UltraFunGuns
             }
         }
 
-        private void KnockbackPlayer() //TODO IGBalancing PLEASE.... Update: no its fine. :^)
+        private void KnockbackPlayer()
         {
             if (enablePlayerKnockback) 
             {

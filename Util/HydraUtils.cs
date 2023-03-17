@@ -303,6 +303,17 @@ namespace UltraFunGuns
             return false;
         }
 
+        public static bool IsColliderEnvironment(this Collider col)
+        {
+            switch(col.gameObject.layer)
+            {
+                case 24: case 25: case 8:
+                    return true;
+            }
+
+            return false;
+        }
+
         public static Vector3[] DoRayHit(Ray hitRay, float range, bool penetration = false, float enemyDamage = 1.0f, bool explodeEnemyLimb = false, float critDamageMultiplier = 0.0f, GameObject sourceObject = null, bool explodeGrenade = false, bool explodeEgg = false, bool breakGlass = false, bool breakBreakable = false, bool exciteDodgeball = false)
         {
             RaycastHit[] hits = Physics.RaycastAll(hitRay, range, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default"));
