@@ -66,7 +66,7 @@ namespace UltraFunGuns
             {
                 for (int i=0; i<slotKeyNames.Count; i++)
                 {
-                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", WeaponManager.SLOT_OFFSET+i, WeaponManager.UFGSlotKeys[i].keyBind.ToString());
+                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", WeaponManager.SLOT_OFFSET+i, WeaponManager.UFGSlotKeys[i].KeyCode.ToString());
                 }
             }
         }

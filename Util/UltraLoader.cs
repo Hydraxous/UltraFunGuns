@@ -78,9 +78,11 @@ namespace UltraFunGuns
 
             if(ufgAsset.UKPrefab)
             {
-                object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+                //object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+                //object loadedAsset = AssetHelper.LoadPrefab(assetKey);
+                object loadedAsset = null;
 
-                if(loadedAsset != null)
+                if (loadedAsset != null)
                 {
                     HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
 
@@ -147,7 +149,9 @@ namespace UltraFunGuns
 
             if (ufgAsset.UKPrefab)
             {
-                object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+                //object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
+                //object loadedAsset = AssetHelper.LoadPrefab(assetKey);
+                object loadedAsset = null;
 
                 if (loadedAsset != null)
                 {

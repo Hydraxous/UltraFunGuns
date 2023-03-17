@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text;
-using UMM.Loader;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -45,6 +44,7 @@ namespace UltraFunGuns
 
         public static void LoadAll()
         {
+            return;
             assetLoaderObject = new GameObject("UFG Game Asset Loader");
             GameObject.DontDestroyOnLoad(assetLoaderObject);
             assetLoaderObject.AddComponent<AnimatedPart>().StartCoroutine(LoadAssets());

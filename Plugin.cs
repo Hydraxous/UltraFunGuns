@@ -1,14 +1,15 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using System.Collections;
-using UMM;
 using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
     //Change enable unloading when you fix the assetbundle bug
-    [UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
-    public class UltraFunGuns : UKMod
+    //[UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9")]
+    public class UltraFunGuns : BaseUnityPlugin
     {
         public const string RELEASE_VERSION = "1.1.9-Experimental";
         const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
@@ -24,8 +25,31 @@ namespace UltraFunGuns
         private void Awake()
         {
             UFG = this;
+            UKPrefabs.LoadAll();
+            HydraLogger.StartMessage();
+            Data.CheckSetup();
+            WeaponManager.Init();
+            HydraLoader.LoadAssets((loaded) =>
+            {
+                if (loaded)
+                {
+                    UltraLoader.LoadAll();
+                    CheckVersion();
+                    DoPatching();
+                    UKAPIP.Init();
+                    Commands.Register();
+                    HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                }
+                else
+                {
+                    HydraLogger.Log("Loading failed.", DebugChannel.Fatal);
+                    enabled = false;
+                }
+            });
         }
 
+
+        /*
         public override void OnModLoaded()
         {
             UKPrefabs.LoadAll();
@@ -57,6 +81,7 @@ namespace UltraFunGuns
             harmony.UnpatchSelf();
             Data.SaveAll();
         }
+        */
 
         private void DoPatching()
         {

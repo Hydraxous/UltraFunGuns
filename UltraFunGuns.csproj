@@ -36,9 +36,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="UMM">
-      <HintPath>$(ULTRAKILLPath)\BepInEx\plugins\UMM\UMM.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.InputSystem.dll</HintPath>
     </Reference>
@@ -102,6 +99,9 @@
 	<Reference Include="BepInEx">
 		<HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
 	</Reference>
+	<Reference Include="NewBlood">
+		<HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\NewBlood.LegacyInput.dll</HintPath>
+	</Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -130,7 +130,7 @@
     <Error Condition="!Exists($(ULTRAKILLPath))" Text="ULTRAKILLPath not set, create a .csproj.user file that sets this property to compile" />
   </Target>
   <Target Name="CopyModDlls" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(ULTRAKILLPath)\BepInEx\UMM Mods\UFG\" />
+    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(ULTRAKILLPath)\BepInEx\Plugins\UFG\" />
   </Target>
   <Target Name="CopyModDlls2" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(UnityKitPath)" />

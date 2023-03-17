@@ -15,11 +15,6 @@ namespace UltraFunGuns
             {
                 initialized = true;
                 SceneManager.sceneLoaded += OnSceneLoad;
-                UltraFunGuns.UFG.OnModUnloaded.AddListener(() => 
-                {
-                    SceneManager.sceneLoaded -= OnSceneLoad;
-                    initialized = false;
-                });
             }
         }
 

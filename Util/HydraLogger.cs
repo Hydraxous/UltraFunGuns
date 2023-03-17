@@ -6,6 +6,8 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using BepInEx;
 using BepInEx.Bootstrap;
+using System.Reflection;
+using System.Linq;
 
 namespace UltraFunGuns
 {
@@ -94,7 +96,7 @@ namespace UltraFunGuns
             
             foreach(var plugin in Chainloader.PluginInfos)
             {
-                if(plugin.Value.Metadata.GUID != UltraFunGuns.UFG.metaData.GUID)
+                if(plugin.Value.Metadata.GUID != UltraFunGuns.UFG.Info.Metadata.GUID)
                 {
                     modlist += $"\n-{counter}-\n" +
                     $"LOADER: BepInEx\n" +
@@ -105,9 +107,10 @@ namespace UltraFunGuns
                 }
             }
 
+            /*
             foreach(var plugin in UMM.Loader.UltraModManager.allLoadedMods)
             {
-                if (plugin.Value.GUID != UltraFunGuns.UFG.metaData.GUID)
+                if (plugin.Value.GUID != UltraFunGuns.UFG.Info.Metadata.GUID)
                 {
                     modlist += $"\n-{counter}-\n" +
                     $"LOADER: UMM\n" +
@@ -118,11 +121,29 @@ namespace UltraFunGuns
                     counter++;
                 }
             }
-
+            */
             //+1 because we dont count ufg in the list
             modlist = $"Mods Loaded: {counter+1}\n" + modlist;
 
-            return modlist;
+            return modlist + GetLoadedAsm();
+        }
+
+
+        private static string GetLoadedAsm()
+        {
+            Assembly ufgAsm = Assembly.GetExecutingAssembly();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            string asmFormat = "\n===============\nASM:{0}\n===============\n";
+
+            string loadedassemblies = string.Empty;
+
+            foreach(Assembly asm in assemblies)
+            {
+                loadedassemblies += $"\n===============\nASM:{asm.GetName()}\n===============\nFN:{asm.FullName}\n\n";
+            }
+
+            return loadedassemblies;
         }
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)

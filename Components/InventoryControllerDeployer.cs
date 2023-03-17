@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
-using UMM;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +18,8 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private static UKKeyBind inventoryKey = UKAPI.GetKeyBind("<color=orange>UFG</color> Inventory", KeyCode.I);
+        //private static UFGBind inventoryKey = UKAPI.GetKeyBind("<color=orange>UFG</color> Inventory", KeyCode.I);
+        private static UFGBind inventoryKey = new UFGBind("<color=orange>UFG</color> Inventory", KeyCode.I);
 
         private static bool sentVersionMessage = false;
 
@@ -86,7 +86,7 @@ namespace UltraFunGuns
             {
                 if (Data.Save.Data.firstTimeModLoaded)
                 {
-                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.keyBind.ToString()), "", "", 2);
+                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.KeyCode.ToString()), "", "", 2);
                     Data.Save.Data.firstTimeModLoaded = false;
                     Data.Save.Save();
                 }
@@ -98,7 +98,7 @@ namespace UltraFunGuns
                 invControllerButton.gameObject.SetActive(false);
             }
 
-            if (inventoryKey.WasPerformedThisFrameInScene)
+            if (inventoryKey.WasPerformedThisFrame)
             {
                 invController.RefreshSlotKeyDisplays();
                 OpenInventory();
