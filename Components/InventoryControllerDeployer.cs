@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 
 namespace UltraFunGuns
 {
@@ -25,89 +26,122 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            
             inventoryKey = UltraFunGuns.INVENTORY_KEY.Value;
-            om = MonoSingleton<OptionsManager>.Instance;
-            canvas = GetComponent<RectTransform>();
-            pauseMenu = transform.Find("PauseMenu").gameObject;
-            HydraLoader.prefabRegistry.TryGetValue("UFGInventoryUI", out GameObject controllerObject);
-            HydraLoader.prefabRegistry.TryGetValue("UFGInventoryButton", out GameObject pauseMenuInvButton);
-            invControllerButton = GameObject.Instantiate<GameObject>(pauseMenuInvButton, canvas).GetComponent<Button>();
-            invControllerButton.onClick.AddListener(OpenInventory);
-            invController = GameObject.Instantiate<GameObject>(controllerObject, canvas).GetComponent<InventoryController>();
-            invController.gameObject.SetActive(false);
-            invControllerButton.gameObject.SetActive(false);
-
-            configHelpMessage = invController.transform.Find("ConfigMessage");
-
-            configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
-            configHelpButton.onClick.AddListener(SendConfigHelpMessage);
         }
 
         private void Update()
         {
-            if (UltraFunGuns.InLevel())
+            CheckThings();
+            NewCheckStatus();
+        }
+
+        private void CheckThings()
+        {
+            if(om == null)
             {
-                
-                if (om.paused)
-                {
-                    if (inventoryManagerOpen)
-                    {
-                        invController.gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        invController.gameObject.SetActive(false);
-                        invControllerButton.gameObject.SetActive(true);
-                        configHelpMessage.gameObject.SetActive(false);
-                        sentBindingMessage = false;
-                    }
+                om = MonoSingleton<OptionsManager>.Instance;
+            }
 
-                }
-                else
-                {
-                    if(invController.data.firstTimeModLoaded)
-                    {
-                        MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.",inventoryKey.ToString()), "", "", 2);
-                        invController.data.firstTimeModLoaded = false;
-                    }
+            if(canvas == null)
+            {
+                canvas = GetComponent<RectTransform>();
+            }
 
-                    if (inventoryManagerOpen)
-                    {
-                        inventoryManagerOpen = false;
-                        invController.gameObject.SetActive(false);
+            if(pauseMenu == null)
+            {
+                pauseMenu = transform.Find("PauseMenu").gameObject;
+            }
 
-                    }
-                    invControllerButton.gameObject.SetActive(false);
-                }
-                
-                if(Input.GetKeyDown(inventoryKey) && !om.paused)
+            if (invController == null)
+            {
+                HydraLoader.prefabRegistry.TryGetValue("UFGInventoryUI", out GameObject controllerObject);
+                invController = GameObject.Instantiate<GameObject>(controllerObject, canvas).GetComponent<InventoryController>();
+                invController.gameObject.SetActive(false);
+                configHelpMessage = invController.transform.Find("ConfigMessage");
+                configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
+                configHelpButton.onClick.AddListener(SendConfigHelpMessage);
+            }
+
+            if (invControllerButton == null)
+            {
+                HydraLoader.prefabRegistry.TryGetValue("UFGInventoryButton", out GameObject pauseMenuInvButton);
+                invControllerButton = GameObject.Instantiate<GameObject>(pauseMenuInvButton, canvas).GetComponent<Button>();
+                invControllerButton.onClick.AddListener(OpenInventory);
+                invControllerButton.gameObject.SetActive(false);
+            }
+        }
+
+
+        private void NewCheckStatus()
+        {
+            if (!UltraFunGuns.InLevel())
+            {
+                return;
+            }
+
+            if (inventoryManagerOpen)
+            {
+
+                if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    OpenInventory();
+                    CloseInventory();
                 }
             }
 
+            invControllerButton.gameObject.SetActive(om.paused && !inventoryManagerOpen);
+
+            if (Input.GetKeyDown(UltraFunGuns.INVENTORY_KEY.Value) && !om.paused)
+            {
+                OpenInventory();
+            }
         }
 
         public void OpenInventory()
         {
-            if(!inventoryManagerOpen)
+            Debug.Log("Try open inv");
+            if (invController.gameObject.activeInHierarchy)
             {
-                if (!om.paused)
-                {
-                    om.Pause();
-                }
+                return;
+            }
 
-                if (invController.data.firstTimeUsingInventory)
-                {
-                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
-                    invController.data.firstTimeUsingInventory = false;
-                }
-                pauseMenu.SetActive(false);
-                invControllerButton.gameObject.SetActive(false);
-                invController.gameObject.SetActive(true);
-                inventoryManagerOpen = true;
-            }         
+            if (om.paused)
+            {
+                om.UnPause();
+            }
+
+            om.paused = true;
+
+            invController.RefreshSlotKeyDisplays();
+
+            GameState ufgInvState = new GameState("ufg_inv", invController.gameObject);
+            ufgInvState.cursorLock = LockMode.Unlock;
+            ufgInvState.playerInputLock = LockMode.Lock;
+            ufgInvState.cameraInputLock = LockMode.Lock;
+            ufgInvState.priority = 2;
+            GameStateManager.Instance.RegisterState(ufgInvState);
+
+            invControllerButton.gameObject.SetActive(false);
+            invController.gameObject.SetActive(true);
+            inventoryManagerOpen = true;
+        }
+
+        public void CloseInventory()
+        {
+            inventoryManagerOpen = false;
+            om.paused = false;
+            configHelpMessage.gameObject.SetActive(false);
+            invController.gameObject.SetActive(false);
+            if (invController.data.firstTimeModLoaded)
+            {
+                MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.ToString()), "", "", 2);
+                invController.data.firstTimeModLoaded = false;
+
+            }
+            else if (!invController.data.lecturedAboutVersion && !UltraFunGuns.UsingLatestVersion)
+            {
+                MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage($"UFG: You are using an outdated version of UltraFunGuns. Consider updating to <color=orange>{UltraFunGuns.RELEASE_VERSION}</color>.", "", "", 2);
+                invController.data.lecturedAboutVersion = true;
+            }
         }
 
         public void SendConfigHelpMessage()

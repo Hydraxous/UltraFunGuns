@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
+using System.Reflection;
+using System;
+using System.Linq;
 
 namespace UltraFunGuns
 {
@@ -10,6 +13,8 @@ namespace UltraFunGuns
     public class UFGWeaponManager : MonoBehaviour
     {
         GunControl gc;
+
+        public static bool WeaponsInUse { get; private set; }
 
         private List<List<string>> weaponKeySlots = new List<List<string>>();
 
@@ -57,6 +62,8 @@ namespace UltraFunGuns
 
         public List<List<string>> CreateWeaponKeyset(InventoryControllerData invControllerData)
         {
+            int wepCount = 0;
+
             List<List<string>> newWeaponKeys = new List<List<string>>();
             for (int x = 0; x < invControllerData.slots.Length; x++)
             {
@@ -65,11 +72,19 @@ namespace UltraFunGuns
                 {
                     if(invControllerData.slots[x].slotNodes[y].weaponEnabled)
                     {
+                        ++wepCount;
                         newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }
                 }
                 newWeaponKeys.Add(newWeaponKeyList);
             }
+
+            //Do not disable weaponsinuse if weapons are changed while in cybergrind.
+            if(LevelCheck.CurrentLevelType != LevelCheck.UKLevelType.Endless || WeaponsInUse == false)
+            {
+                WeaponsInUse = (wepCount > 0);
+            }
+
             return newWeaponKeys;
         }
 
@@ -153,6 +168,7 @@ namespace UltraFunGuns
                     if (!gc.allWeapons.Contains(wep))
                     {
                         gc.allWeapons.Add(wep);
+                        AddWeaponToFreshnessDict(wep);
                     }
                 }
 
@@ -200,6 +216,62 @@ namespace UltraFunGuns
             {
                 MonoSingleton<StyleHUD>.Instance.RegisterStyleItem("hydraxous.ultrafunguns." + name, text);
             }
+        }
+
+        //Credit to Agent of Nyarlathotep for this, thanks fren <3
+        private static Dictionary<GameObject, float> FreshnessList
+        {
+            get
+            {
+                var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                Dictionary<GameObject, float> freshnessList = field.GetValue(MonoSingleton<StyleHUD>.Instance) as Dictionary<GameObject, float>;
+                return freshnessList;
+            }
+
+            set
+            {
+                if (value != null)
+                {
+                    var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                    field.SetValue(MonoSingleton<StyleHUD>.Instance, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds weapon to style hud freshness
+        /// </summary>
+        /// <param name="go">gameObject to add</param>
+        /// <returns></returns>
+        public static bool AddWeaponToFreshnessDict(GameObject go)
+        {
+
+            if (go == null)
+            {
+                //HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
+                return false;
+            }
+
+            try
+            {
+                Dictionary<GameObject, float> freshnessDict = FreshnessList;
+                if (!freshnessDict.ContainsKey(go))
+                {
+                    freshnessDict.Add(go, 10f);
+                    FreshnessList = freshnessDict;
+                    return true;
+                }
+
+                //HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                //HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
+            }
+
+            return false;
         }
     }
 }
