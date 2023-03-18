@@ -509,7 +509,7 @@ namespace UltraFunGuns
         {
             List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
             List<Transform> targetPoints = new List<Transform>();
-            GameObject[] enemyObjectsActive = EnemyTracker.Instance.GetCurrentEnemies().Select(e => e.gameObject).ToArray();
+            GameObject[] enemyObjectsActive = EnemyTracker.Instance.GetCurrentEnemies().Where(x=> !x.blessed && !x.dead).Select(e => e.gameObject).ToArray();
             Transform camera = CameraController.Instance.transform;
 
             foreach (GameObject enemyObject in enemyObjectsActive)

@@ -52,7 +52,7 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            CheckInventoryStatus();
+            NewCheckStatus();
         }
 
         //TODO optimization
@@ -105,24 +105,77 @@ namespace UltraFunGuns
             }
         }
 
+        private void NewCheckStatus()
+        {
+            if (!UKAPIP.InLevel())
+            {
+                return;
+            }
+
+            if(inventoryManagerOpen)
+            {
+                if (!UltraFunGuns.UsingLatestVersion)
+                {
+                    SendVersionHelpMessage();
+                }
+
+                if(Input.GetKeyDown(KeyCode.Escape))
+                {
+                    CloseInventory();
+                }
+
+            }else
+            {
+                displayingHelpMessage = false;
+                if (Data.Save.Data.firstTimeModLoaded)
+                {
+                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.KeyCode.ToString()), "", "", 2);
+                    Data.Save.Data.firstTimeModLoaded = false;
+                    Data.Save.Save();
+                }
+            }
+            
+            invControllerButton.gameObject.SetActive(om.paused && !inventoryManagerOpen);
+
+            if (inventoryKey.WasPerformedThisFrame)
+            {
+                OpenInventory();
+            }
+        }
+
         public void CloseInventory()
         {
             inventoryManagerOpen = false;
+            om.paused = false;
             invController.SetCardActive(false);
+            configHelpMessage.gameObject.SetActive(false);
+            versionHelpMessage.gameObject.SetActive(false);
+            displayingHelpMessage = false;
             invController.gameObject.SetActive(false);
         }
 
         public void OpenInventory()
         {
-            if(inventoryManagerOpen)
+            if (invController.gameObject.activeInHierarchy)
             {
                 return;
             }
 
-            if (!om.paused)
+            if(om.paused)
             {
-                om.Pause();
+                om.UnPause();
             }
+
+            om.paused = true;
+
+            invController.RefreshSlotKeyDisplays();
+
+            GameState ufgInvState = new GameState("ufg_inv", invController.gameObject);
+            ufgInvState.cursorLock = LockMode.Unlock;
+            ufgInvState.playerInputLock = LockMode.Lock;
+            ufgInvState.cameraInputLock = LockMode.Lock;
+            ufgInvState.priority = 2;
+            GameStateManager.Instance.RegisterState(ufgInvState);
 
             if (Data.Save.Data.firstTimeUsingInventory)
             {
@@ -130,10 +183,9 @@ namespace UltraFunGuns
                 Data.Save.Data.firstTimeUsingInventory = false;
                 Data.Save.Save();
             }
-            pauseMenu.SetActive(false);
             invControllerButton.gameObject.SetActive(false);
             invController.gameObject.SetActive(true);
-            inventoryManagerOpen = true;    
+            inventoryManagerOpen = true;
         }
 
         public void SendConfigHelpMessage()

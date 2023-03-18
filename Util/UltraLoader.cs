@@ -10,6 +10,8 @@ namespace UltraFunGuns
     {
         public static bool AssetsLoaded { get; private set; }
 
+        private static bool LoadUKPrefabs = false;
+
         public static bool LoadAll()
         {
             if (AssetsLoaded)
@@ -80,7 +82,13 @@ namespace UltraFunGuns
             {
                 //object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
                 //object loadedAsset = AssetHelper.LoadPrefab(assetKey);
-                object loadedAsset = null;
+                if(!LoadUKPrefabs)
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
+                    return;
+                }
+
+                object loadedAsset = AssetHelper.LoadPrefab($"Assets/Prefabs/{assetKey}");
 
                 if (loadedAsset != null)
                 {
@@ -149,9 +157,15 @@ namespace UltraFunGuns
 
             if (ufgAsset.UKPrefab)
             {
+                if (!LoadUKPrefabs)
+                {
+                    HydraLogger.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
+                    return;
+                }
+
                 //object loadedAsset = UMM.UKAPI.LoadCommonAsset(assetKey);
                 //object loadedAsset = AssetHelper.LoadPrefab(assetKey);
-                object loadedAsset = null;
+                object loadedAsset = AssetHelper.LoadPrefab($"Assets/Prefabs/{assetKey}");
 
                 if (loadedAsset != null)
                 {
