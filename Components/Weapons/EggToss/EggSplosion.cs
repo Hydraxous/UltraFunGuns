@@ -26,7 +26,8 @@ namespace UltraFunGuns
         //Eggsplosion casts a sphere to try and find enemies nearby. It then spawns an egg and shoots it at the found enemy.
         private void Start()
         {
-            Debug.Log("Eggsplosion!");
+            
+            
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, explosionSize, transform.position, Mathf.Infinity);
             if (hits.Length > 0)
             {

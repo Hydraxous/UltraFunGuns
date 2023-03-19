@@ -8,22 +8,31 @@ using System.Text;
 using UnityEngine.SceneManagement;
 using UltraFunGuns.Properties;
 using HarmonyLib;
+using Newtonsoft.Json.Linq;
+using System.Collections;
+using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.7")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.8")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
 
-        public static bool usedWeapons = true;
-        public static string version = "1.1.7";
+        public const string RELEASE_VERSION = "1.1.8-Experimental";
+        const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
+
+        public static bool UsingLatestVersion = true;
+        public static string LatestVersion = "UNKNOWN";
+
         private void Awake()
         {
             if (RegisterAssets() && InventoryDataManager.Initialize())
             {
+                LevelCheck.Init();
+                CheckVersion();
                 DoPatching();
                 Logger.LogInfo("UltraFunGuns Loaded.");
             }else
@@ -44,7 +53,6 @@ namespace UltraFunGuns
                 CanvasController canvas = MonoSingleton<CanvasController>.Instance;
                 if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
                 {
-                    usedWeapons = false;
                     invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
                 }
 
@@ -55,7 +63,6 @@ namespace UltraFunGuns
                 GunControl gc = MonoSingleton<GunControl>.Instance;
                 if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
                 {
-                    usedWeapons = false;
                     gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
                     gunPatch.Slot7Key = SLOT_7_KEY.Value;
                     gunPatch.Slot8Key = SLOT_8_KEY.Value;
@@ -68,12 +75,8 @@ namespace UltraFunGuns
 
         public static bool InLevel()
         {
-            string sceneName = SceneManager.GetActiveScene().name;
-            if (sceneName == "Intro" || sceneName == "Main Menu")
-            {
-                return false;
-            }
-            return true;
+            //Yeah yeah cry about it.
+            return LevelCheck.InLevel();
         }
 
         private void DoPatching()
@@ -159,31 +162,16 @@ namespace UltraFunGuns
             new HydraLoader.CustomAssetPrefab("UFGInventoryButton", new Component[] { });
 
 
-            return HydraLoader.RegisterAll(UltraFunGunsResources.UltraFunGuns);
+            return HydraLoader.RegisterAll(Properties.Resources.UltraFunGuns);
             
         }
 
-        private static void UpdateMajorAssistUsage()
-        {
-            if (MonoSingleton<StatsManager>.Instance != null)
-            {
-                if (!MonoSingleton<StatsManager>.Instance.majorUsed)
-                {
-                    MonoSingleton<StatsManager>.Instance.majorUsed = usedWeapons;
-                }
-            }
-        }
 
         private void Update()
         {
             try
             {
-                if(!InLevel())
-                {
-                    usedWeapons = false;
-                }
                 CheckWeapons();
-                UpdateMajorAssistUsage();
             }
             catch(System.Exception e)
             {
@@ -213,6 +201,44 @@ namespace UltraFunGuns
         public void SaveConfig()
         {
             Config.Save();
+        }
+
+        private void CheckVersion()
+        {
+            StartCoroutine(CheckLatestVersion());
+        }
+
+        //matches current mod version with latest release on github
+        private IEnumerator CheckLatestVersion()
+        {
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(GITHUB_URL))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (!webRequest.isNetworkError)
+                {
+                    string page = webRequest.downloadHandler.text;
+                    try
+                    {
+                        LatestVersion = JArray.Parse(page)[0].Value<string>("name");
+                        UsingLatestVersion = (LatestVersion == RELEASE_VERSION);
+                        if (UsingLatestVersion)
+                        {
+                            Debug.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion));
+                        }
+                        else
+                        {
+                            Debug.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion));
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        UsingLatestVersion = true;
+                        Logger.Log(LogLevel.Info, string.Format("Error getting version info. Current Version: {0}\n{1}\n{2}", RELEASE_VERSION, e.Message, e.StackTrace));
+                    }
+
+                }
+            }
         }
     }
     

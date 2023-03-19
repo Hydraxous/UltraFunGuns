@@ -66,12 +66,11 @@ namespace UltraFunGuns
                     loadoutData = reader.ReadToEnd();
                 }
                 inventory = JsonConvert.DeserializeObject<InventoryControllerData>(loadoutData);
-                if(inventory.modVersion != UltraFunGuns.version)
+                if(inventory.modVersion != UltraFunGuns.RELEASE_VERSION)
                 {
                     Console.WriteLine("UFG: Inventory data found is for a different version of UFG, rebuilding.");
                     FirstTimeLoad();
-                }
-                UpdateWeaponUsage(inventory);
+                };
                 Console.WriteLine("UFG: Inventory data loaded.");
                 return true;
             }catch (System.Exception e)
@@ -81,38 +80,11 @@ namespace UltraFunGuns
             }
         }
 
-        private static void UpdateWeaponUsage(InventoryControllerData data)
-        {
-            bool weaponsInUse = false;
-            for (int x = 0; x < data.slots.Length; x++)
-            {
-                for (int y = 0; y < data.slots[x].slotNodes.Length; y++)
-                {
-                    if (weaponsInUse)
-                    {
-                        break;
-                    }
-
-                    if (data.slots[x].slotNodes[y].weaponEnabled)
-                    {
-                        weaponsInUse = true;
-                        break;
-                    }
-                }
-            }
-
-            if (weaponsInUse)
-            {
-                UltraFunGuns.usedWeapons = true;
-            }
-        }
-
         public static void SaveInventoryData(InventoryControllerData data)
         {   
             inventory = data;
             string loadoutData = JsonConvert.SerializeObject(inventory);
             File.WriteAllText(loadoutDataPath, loadoutData);
-            UpdateWeaponUsage(data);
             Console.WriteLine("UFG: Inventory data saved.");
         }
 
@@ -134,7 +106,7 @@ namespace UltraFunGuns
             slot4.Add(new InventoryNodeData("FingerGun", true, 1));
     
             List<InventorySlotData> newSlotDatas = new List<InventorySlotData> { new InventorySlotData(slot1.ToArray()), new InventorySlotData(slot2.ToArray()), new InventorySlotData(slot3.ToArray()), new InventorySlotData(slot4.ToArray()) };
-            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.version, true, true);
+            InventoryControllerData defaultData = new InventoryControllerData(newSlotDatas.ToArray(), UltraFunGuns.RELEASE_VERSION, true, true);
             SaveInventoryData(defaultData);
         }
     }

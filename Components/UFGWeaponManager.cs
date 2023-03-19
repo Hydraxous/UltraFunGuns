@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
+using System.Reflection;
+using System;
+using System.Linq;
 
 namespace UltraFunGuns
 {
@@ -10,6 +13,8 @@ namespace UltraFunGuns
     public class UFGWeaponManager : MonoBehaviour
     {
         GunControl gc;
+
+        public static bool WeaponsInUse { get; private set; }
 
         private List<List<string>> weaponKeySlots = new List<List<string>>();
 
@@ -57,6 +62,8 @@ namespace UltraFunGuns
 
         public List<List<string>> CreateWeaponKeyset(InventoryControllerData invControllerData)
         {
+            int wepCount = 0;
+
             List<List<string>> newWeaponKeys = new List<List<string>>();
             for (int x = 0; x < invControllerData.slots.Length; x++)
             {
@@ -65,17 +72,28 @@ namespace UltraFunGuns
                 {
                     if(invControllerData.slots[x].slotNodes[y].weaponEnabled)
                     {
+                        ++wepCount;
                         newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }
                 }
                 newWeaponKeys.Add(newWeaponKeyList);
             }
+
+            
+
             return newWeaponKeys;
         }
 
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
         public void DeployWeapons(bool firstTime = false)
         {
+
+            if(!LevelCheck.InLevel())
+            {
+                WeaponsInUse = false;
+                return;
+            }
+
             string sceneName = SceneManager.GetActiveScene().name;
             bool deploy = true;
 
@@ -136,6 +154,8 @@ namespace UltraFunGuns
         //adds weapons to the gun controller
         private void AddWeapons()
         {
+            bool weaponsUsed = false;
+
             for (int j = 0; j < customSlots.Count; j++)
             {
                 if (gc.slots.Contains(customSlots[j]))
@@ -152,13 +172,30 @@ namespace UltraFunGuns
                 {
                     if (!gc.allWeapons.Contains(wep))
                     {
+                        weaponsUsed = true;
                         gc.allWeapons.Add(wep);
+                        AddWeaponToFreshnessDict(wep);
                     }
                 }
 
             }
-            
 
+            if (LevelCheck.CurrentLevelType == LevelCheck.UKLevelType.Endless)
+            {   
+                if (WeaponsInUse)
+                {
+                    if (!EndlessGrid.Instance.GetComponent<Collider>().enabled)
+                    {
+                        HudMessageReceiver.Instance.SendHudMessage("You must restart the level after disabling UFG weapons for your score to count.");
+                        weaponsUsed = true;
+                    }      
+                }else if(weaponsUsed)
+                {
+                    HudMessageReceiver.Instance.SendHudMessage("Warning: having any UFG weapons enabled will prevent your CyberGrind score from being submitted.");
+                }
+            }
+
+            WeaponsInUse = weaponsUsed;
         }
 
         //TODO fix this, for some reason the input on switching to weapons doesn't work past slot 7. No its not because of the keycodes, that was an attempt to fix it. Inspect the GunControl class closer.
@@ -200,6 +237,67 @@ namespace UltraFunGuns
             {
                 MonoSingleton<StyleHUD>.Instance.RegisterStyleItem("hydraxous.ultrafunguns." + name, text);
             }
+        }
+
+        //Credit to Agent of Nyarlathotep for this, thanks fren <3
+        private static Dictionary<GameObject, float> FreshnessList
+        {
+            get
+            {
+                var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                Dictionary<GameObject, float> freshnessList = field.GetValue(MonoSingleton<StyleHUD>.Instance) as Dictionary<GameObject, float>;
+                return freshnessList;
+            }
+
+            set
+            {
+                if (value != null)
+                {
+                    var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
+                    field.SetValue(MonoSingleton<StyleHUD>.Instance, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds weapon to style hud freshness
+        /// </summary>
+        /// <param name="go">gameObject to add</param>
+        /// <returns></returns>
+        public static bool AddWeaponToFreshnessDict(GameObject go)
+        {
+
+            if (go == null)
+            {
+                //HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
+                return false;
+            }
+
+            try
+            {
+                Dictionary<GameObject, float> freshnessDict = FreshnessList;
+                if (!freshnessDict.ContainsKey(go))
+                {
+                    freshnessDict.Add(go, 10f);
+                    FreshnessList = freshnessDict;
+                    return true;
+                }
+
+                //HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                //HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
+            }
+
+            return false;
+        }
+
+        private void OnDestroy()
+        {
+            WeaponsInUse = false;
         }
     }
 }
