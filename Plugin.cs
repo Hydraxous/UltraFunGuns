@@ -2,16 +2,16 @@
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using System.Collections;
+using UltraFunGuns.Datas;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
-    //Change enable unloading when you fix the assetbundle bug
-    //[UKPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9", "A mod that adds several goofy, wacky, and interesting weapons to ULTRAKILL", false, true)]
-    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.1.9")]
+    [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.2.0")]
     public class UltraFunGuns : BaseUnityPlugin
     {
-        public const string RELEASE_VERSION = "1.1.9-Experimental";
+        public const string RELEASE_VERSION = "1.2.0-Experimental";
         const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
 
         Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
@@ -25,10 +25,20 @@ namespace UltraFunGuns
         private void Awake()
         {
             UFG = this;
-            UKPrefabs.LoadAll();
+            StartCoroutine(Startup());
+        }
+
+
+        private IEnumerator Startup()
+        {
             HydraLogger.StartMessage();
+            MagentaAssist.CheckBundles();
             Data.CheckSetup();
             WeaponManager.Init();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
             HydraLoader.LoadAssets((loaded) =>
             {
                 if (loaded)
@@ -37,8 +47,10 @@ namespace UltraFunGuns
                     CheckVersion();
                     DoPatching();
                     UKAPIP.Init();
+                    Patches.CheatsPatch.CyberGrindPreventer.Init();
                     Commands.Register();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                    gameObject.AddComponent<DebuggingDummy>();
                 }
                 else
                 {
@@ -47,7 +59,6 @@ namespace UltraFunGuns
                 }
             });
         }
-
 
         /*
         public override void OnModLoaded()

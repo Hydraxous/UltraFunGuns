@@ -238,7 +238,7 @@ namespace UltraFunGuns
 
             if(HydraUtils.IsCollisionEnemy(col, out EnemyIdentifier eid))
             {
-                if (eid.bigEnemy && !brickShooter.StormActive)
+                if (eid.bigEnemy && !brickShooter.StormActive && parried)
                 {
                     //If the enemy is V2 or training bot, the brick should fly back at the player lol.
                     if (Random.value > Mathf.Clamp(0.75f/(enemyParries-2),0f,0.75f))
@@ -359,20 +359,19 @@ namespace UltraFunGuns
             transform.position = trajectory.GetPoint(Mathf.InverseLerp(trajectory.AirTime, 0.0f, timer));
 
             bool inRange = false;
+            Vector3 lastTargetPos = guidedTarget.position;
 
             while (timer > 0.0f && guided && guidedTarget != null && !inRange)
             {
-                trajectory.End = guidedTarget.position + relativeOffset;
+                lastTargetPos = guidedTarget.position + relativeOffset;
+                trajectory.End = lastTargetPos;
                 rb.position = trajectory.GetPoint(Mathf.InverseLerp(trajectory.AirTime, 0.0f, timer));
                 inRange = (1.5f > Vector3.Distance(rb.position, trajectory.End));
                 yield return new WaitForEndOfFrame();
                 timer -= Time.deltaTime;
             }
 
-            if((timer <= 0.0f || inRange) && guidedTarget != null)
-            {
-                rb.velocity = ((guidedTarget.position+relativeOffset) - rb.position).normalized * (enemyParries+2);
-            }
+            rb.velocity = ((lastTargetPos + relativeOffset) - rb.position).normalized * (enemyParries + 1)*40.0f;
         }
 
         public void RandomRoll()

@@ -69,5 +69,24 @@ namespace UltraFunGuns.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;unhardened-bundle-0&quot;: [
+        ///    &quot;Assets/Prefabs/Enemies/SisyphusPrime.prefab&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Mass.asset&quot;,
+        ///    &quot;Assets/Models/SisyphusPrime/T_SisyphusBody_Pattern5.tga&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Malicious Face.asset&quot;,
+        ///    &quot;Assets/Textures/Bloodsplatter_Atlas.tga&quot;,
+        ///    &quot;Assets/Models/SisyphusPrime/SisyHeart.mat&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Mindflayer.asset&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Super Projectile Husk.asset&quot;,
+        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantes [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string UnhardendedBundlesJson {
+            get {
+                return ResourceManager.GetString("UnhardendedBundlesJson", resourceCulture);
+            }
+        }
     }
 }

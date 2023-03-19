@@ -156,7 +156,7 @@ namespace UltraFunGuns
         {
             if (infoCard != null)
             {
-                HydraLogger.Log("Weapon Card info set");
+                //HydraLogger.Log("Weapon Card info set");
                 infoCard.SetWeaponInfo(info);
             }
         }
@@ -170,8 +170,7 @@ namespace UltraFunGuns
 
             if(enabled != infoCard.gameObject.activeInHierarchy)
             {
-                HydraLogger.Log("Weapon Card info state changed " + enabled);
-
+                //HydraLogger.Log("Weapon Card info state changed " + enabled);
                 infoCard.gameObject.SetActive(enabled);
             }
         }

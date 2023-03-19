@@ -13,6 +13,7 @@
     </RestoreAdditionalProjectSources>
     <RootNamespace>UltraFunGuns</RootNamespace>
     <Authors>Hydraxous</Authors>
+    <Title>UltraFunGuns</Title>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

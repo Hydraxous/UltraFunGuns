@@ -32,6 +32,9 @@ namespace UltraFunGuns
 
         public static UFGBind SecretButton = new UFGBind("Secret Button", KeyCode.K);
 
+        public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
+        public static OnWeaponsDeployedHandler OnWeaponsDeployed;
+
         public static void Init()
         {
             RegisterWeapons();
@@ -379,19 +382,6 @@ namespace UltraFunGuns
 
         public void DeployWeapons(bool firstTime = false)
         {
-            /*
-            bool deploy = true;
-            
-            if (firstTime)
-            {
-                deploy = (UKAPIP.CurrentSceneName == "Level 0-1");
-            }
-
-            if (!deploy)
-            {
-                //return;
-            }
-            */
             foreach (List<GameObject> customSlot in customSlots)
             {
                 customSlot.Clear();
@@ -406,6 +396,8 @@ namespace UltraFunGuns
 
             WeaponsDeployed = 0;
 
+
+            List<UFGWeapon> weaponsDeployed = new List<UFGWeapon>();
 
             string weaponsGiven = "";
             for (int i = 0; i < weaponKeySlots.Count; i++)
@@ -448,6 +440,7 @@ namespace UltraFunGuns
                     customSlots[i].Add(newWeapon);
                     weaponsGiven += weaponKey + " ";
                     WeaponManager.AddWeaponToFreshnessDict(newWeapon);
+                    weaponsDeployed.Add(weaponInfo);
                     WeaponsDeployed++;
                 }
             }
@@ -456,6 +449,7 @@ namespace UltraFunGuns
             {
                 weaponsGiven = "Weapons given: " + weaponsGiven;
                 AddWeapons();
+                WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
                 HydraLogger.Log(weaponsGiven, DebugChannel.User);
             }
         }

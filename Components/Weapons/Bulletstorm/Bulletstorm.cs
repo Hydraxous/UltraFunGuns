@@ -9,7 +9,29 @@ namespace UltraFunGuns
     public class Bulletstorm : UltraFunGunBase
     {
 
-        private GameObject[] projectiles = new GameObject[] { Prefabs.ThrownBrick, EggToss.ThrownEggPrefab, Dodgeball.ThrownDodgeballPrefab, RemoteBomb.RemoteExplosivePrefab, CanLauncher.CanProjectile, SonicReverberator.ReverbProjectile};
+        private GameObject[] projectiles = new GameObject[] 
+        { 
+            Prefabs.HakitaPlush.Asset, 
+            Prefabs.MakoPlush.Asset, 
+            Prefabs.GianniPlush.Asset, 
+            Prefabs.DaliaPlush.Asset, 
+            Prefabs.PITRPlush.Asset, 
+            Prefabs.BigRockPlush.Asset, 
+            Prefabs.CameronPlush.Asset, 
+            Prefabs.VvizardPlush.Asset, 
+            Prefabs.DawgPlush.Asset, 
+            Prefabs.FrancisPlush.Asset, 
+            Prefabs.SaladPlush.Asset, 
+            Prefabs.HeckPlush.Asset,
+            Prefabs.KGCPlush.Asset,
+            Prefabs.MegaNekoPlush.Asset,
+            Prefabs.LucasPlush.Asset,
+            Prefabs.JoyPlush.Asset,
+            Prefabs.JerichoPlush.Asset,
+            Prefabs.MandyPlush.Asset,
+            Prefabs.V1Plush.Asset,
+            Prefabs.ScottPlush.Asset
+        };
 
         public float spreadTightness = 1.5f;
         public float fireRateSpeed = 0.02f;
@@ -18,6 +40,7 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
+
         }
 
         private void Start()

@@ -101,6 +101,9 @@ namespace UltraFunGuns
         /// <returns></returns>
         public static UKLevelType GetUKLevelType(string sceneName)
         {
+
+            HydraLogger.Log($"Scene Loaded: [{sceneName}]");
+
             sceneName = (sceneName.Contains("P-")) ? "Sanctum" : sceneName;
             sceneName = (sceneName.Contains("-S")) ? "Secret" : sceneName;
             sceneName = (sceneName.Contains("Level")) ? "Level" : sceneName;
@@ -126,7 +129,7 @@ namespace UltraFunGuns
                     return UKLevelType.Secret;
                 case "Sanctum":
                     return UKLevelType.PrimeSanctum;
-                case "Credits":
+                case "CreditsMuseum2":
                     return UKLevelType.Credits;
                 default:
                     return UKLevelType.Unknown;

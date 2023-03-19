@@ -16,6 +16,7 @@ namespace UltraFunGuns
         [UFGAsset] public static AudioClip AdminGun_FireSound { get; private set; }
         [UFGAsset("Wicked.prefab", true)] private static GameObject somethingWicked;
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
+
         public int hitscans = 16;
         public float spread = 0.06f;
 
@@ -162,7 +163,7 @@ namespace UltraFunGuns
             Ray ray = mainCam.ToRay();
             if (HydraUtils.SphereCastMacro(ray.origin, 0.15f, ray.direction, Mathf.Infinity, out RaycastHit hit))
             {
-                GameObject.Instantiate(Prefabs.UK_Explosion, hit.point, Quaternion.identity);
+                GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
             }
             AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.6f, 1.0f), 1.0f, 0.0f);
         }
