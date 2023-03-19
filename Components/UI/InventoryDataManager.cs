@@ -70,8 +70,7 @@ namespace UltraFunGuns
                 {
                     Console.WriteLine("UFG: Inventory data found is for a different version of UFG, rebuilding.");
                     FirstTimeLoad();
-                }
-                UpdateWeaponUsage(inventory);
+                };
                 Console.WriteLine("UFG: Inventory data loaded.");
                 return true;
             }catch (System.Exception e)
@@ -81,35 +80,11 @@ namespace UltraFunGuns
             }
         }
 
-        private static void UpdateWeaponUsage(InventoryControllerData data)
-        {
-            bool weaponsInUse = false;
-            for (int x = 0; x < data.slots.Length; x++)
-            {
-                for (int y = 0; y < data.slots[x].slotNodes.Length; y++)
-                {
-                    if (weaponsInUse)
-                    {
-                        break;
-                    }
-
-                    if (data.slots[x].slotNodes[y].weaponEnabled)
-                    {
-                        weaponsInUse = true;
-                        break;
-                    }
-                }
-            }
-
-            UltraFunGuns.usedWeapons = weaponsInUse;
-        }
-
         public static void SaveInventoryData(InventoryControllerData data)
         {   
             inventory = data;
             string loadoutData = JsonConvert.SerializeObject(inventory);
             File.WriteAllText(loadoutDataPath, loadoutData);
-            UpdateWeaponUsage(data);
             Console.WriteLine("UFG: Inventory data saved.");
         }
 

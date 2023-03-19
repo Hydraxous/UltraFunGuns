@@ -79,11 +79,7 @@ namespace UltraFunGuns
                 newWeaponKeys.Add(newWeaponKeyList);
             }
 
-            //Do not disable weaponsinuse if weapons are changed while in cybergrind.
-            if(LevelCheck.CurrentLevelType != LevelCheck.UKLevelType.Endless || WeaponsInUse == false)
-            {
-                WeaponsInUse = (wepCount > 0);
-            }
+            
 
             return newWeaponKeys;
         }
@@ -91,6 +87,13 @@ namespace UltraFunGuns
         //Gets weapon prefabs from the Data loader and instantiates them into the world and adds them to the gun controllers lists.
         public void DeployWeapons(bool firstTime = false)
         {
+
+            if(!LevelCheck.InLevel())
+            {
+                WeaponsInUse = false;
+                return;
+            }
+
             string sceneName = SceneManager.GetActiveScene().name;
             bool deploy = true;
 
@@ -151,6 +154,8 @@ namespace UltraFunGuns
         //adds weapons to the gun controller
         private void AddWeapons()
         {
+            bool weaponsUsed = false;
+
             for (int j = 0; j < customSlots.Count; j++)
             {
                 if (gc.slots.Contains(customSlots[j]))
@@ -167,14 +172,30 @@ namespace UltraFunGuns
                 {
                     if (!gc.allWeapons.Contains(wep))
                     {
+                        weaponsUsed = true;
                         gc.allWeapons.Add(wep);
                         AddWeaponToFreshnessDict(wep);
                     }
                 }
 
             }
-            
 
+            if (LevelCheck.CurrentLevelType == LevelCheck.UKLevelType.Endless)
+            {   
+                if (WeaponsInUse)
+                {
+                    if (!EndlessGrid.Instance.GetComponent<Collider>().enabled)
+                    {
+                        HudMessageReceiver.Instance.SendHudMessage("You must restart the level after disabling UFG weapons for your score to count.");
+                        weaponsUsed = true;
+                    }      
+                }else if(weaponsUsed)
+                {
+                    HudMessageReceiver.Instance.SendHudMessage("Warning: having any UFG weapons enabled will prevent your CyberGrind score from being submitted.");
+                }
+            }
+
+            WeaponsInUse = weaponsUsed;
         }
 
         //TODO fix this, for some reason the input on switching to weapons doesn't work past slot 7. No its not because of the keycodes, that was an attempt to fix it. Inspect the GunControl class closer.
@@ -272,6 +293,11 @@ namespace UltraFunGuns
             }
 
             return false;
+        }
+
+        private void OnDestroy()
+        {
+            WeaponsInUse = false;
         }
     }
 }

@@ -98,7 +98,6 @@ namespace UltraFunGuns
 
         public void OpenInventory()
         {
-            Debug.Log("Try open inv");
             if (invController.gameObject.activeInHierarchy)
             {
                 return;

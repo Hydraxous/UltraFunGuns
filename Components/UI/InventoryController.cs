@@ -147,11 +147,6 @@ namespace UltraFunGuns
             }
             return new InventoryControllerData(newNodeArray.ToArray(), data.modVersion, data.firstTimeUsingInventory, data.firstTimeModLoaded, data.lecturedAboutVersion);
         }
-
-        private void OnDestroy()
-        {
-            Debug.LogError("INVENTORY DESTROYED.");
-        }
     }
 
     [System.Serializable]

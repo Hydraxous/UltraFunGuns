@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
 
@@ -11,24 +12,15 @@ namespace UltraFunGuns.Patches
         [HarmonyPatch(typeof(SteamController), nameof(SteamController.SubmitCyberGrindScore))]
         public static class CyberGrindPreventer
         {
-            public static bool Prefix()
+            public static bool Prefix(SteamController __instance)
             {
-                Debug.Log("ERM CYBERGWIND?");
                 if(UFGWeaponManager.WeaponsInUse)
                 {
+                    Debug.Log("UFG: weapons used. Disqualifying cybergrind score.");
                     return false;
                 }
 
                 return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(EndlessGrid),"OnEnable")]
-        public static class CyberWarning
-        {
-            public static void Postfix()
-            {
-
             }
         }
     }

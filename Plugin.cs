@@ -21,8 +21,6 @@ namespace UltraFunGuns
         public UFGWeaponManager gunPatch;
         public InventoryControllerDeployer invControllerDeployer;
 
-        public static bool usedWeapons = true;
-
         public const string RELEASE_VERSION = "1.1.8-Experimental";
         const string GITHUB_URL = "https://api.github.com/repos/Hydraxous/ultrafunguns/tags";
 
@@ -55,7 +53,6 @@ namespace UltraFunGuns
                 CanvasController canvas = MonoSingleton<CanvasController>.Instance;
                 if(!canvas.TryGetComponent<InventoryControllerDeployer>(out invControllerDeployer))
                 {
-                    usedWeapons = false;
                     invControllerDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
                 }
 
@@ -66,7 +63,6 @@ namespace UltraFunGuns
                 GunControl gc = MonoSingleton<GunControl>.Instance;
                 if (!gc.TryGetComponent<UFGWeaponManager>(out UFGWeaponManager ultraFGPatch))
                 {
-                    usedWeapons = false;
                     gunPatch = gc.gameObject.AddComponent<UFGWeaponManager>();
                     gunPatch.Slot7Key = SLOT_7_KEY.Value;
                     gunPatch.Slot8Key = SLOT_8_KEY.Value;
@@ -170,27 +166,12 @@ namespace UltraFunGuns
             
         }
 
-        private static void UpdateMajorAssistUsage()
-        {
-            if (MonoSingleton<StatsManager>.Instance != null)
-            {
-                if (!MonoSingleton<StatsManager>.Instance.majorUsed)
-                {
-                    MonoSingleton<StatsManager>.Instance.majorUsed = usedWeapons;
-                }
-            }
-        }
 
         private void Update()
         {
             try
             {
-                if(!InLevel())
-                {
-                    usedWeapons = false;
-                }
                 CheckWeapons();
-                UpdateMajorAssistUsage();
             }
             catch(System.Exception e)
             {
