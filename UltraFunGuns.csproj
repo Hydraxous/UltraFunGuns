@@ -123,8 +123,9 @@
   <ItemGroup>
     <Folder Include="Components\UI\Terminal\" />
     <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
-    <Folder Include="Components\Weapons\SmartRocket\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
+    <Folder Include="Components\Weapons\SmartRocket\GuidedRocket\" />
+    <Folder Include="Components\Weapons\SmartRocket\Nikita\" />
   </ItemGroup>
 
   <Target Name="WarnBeforeBuild" BeforeTargets="BeforeBuild">

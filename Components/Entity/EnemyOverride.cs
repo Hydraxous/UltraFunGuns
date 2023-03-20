@@ -26,8 +26,8 @@ namespace UltraFunGuns
         private Collider primaryCollider;
         private Rigidbody primaryRigidbody;
 
-        private List<Action<Collision>> onCollisionEvents;
-
+        private List<Action<Collision>> onCollisionEvents = new List<Action<Collision>>();
+        private List<Action> onDeathEvents = new List<Action>();
 
         private Dictionary<Renderer, Material[]> startMaterials = new Dictionary<Renderer, Material[]>();
         private Renderer[] renderers;
@@ -48,6 +48,7 @@ namespace UltraFunGuns
             spiderBody = GetComponent<SpiderBody>();
             statue = GetComponent<Statue>();
 
+            Enemy.onDeath.AddListener(ExecuteOnDeathEvents);
 
             GetPhysicsComponents();
             GetRenderComponents();
@@ -139,6 +140,22 @@ namespace UltraFunGuns
                 {
                     childRb.velocity = force;
                 }
+            }
+        }
+
+        public void AddDeathCallback(Action action)
+        {
+            if(!onDeathEvents.Contains(action))
+            {
+                onDeathEvents.Add(action);
+            }
+        }
+
+        private void ExecuteOnDeathEvents()
+        {
+            foreach(Action action in onDeathEvents)
+            {
+                action?.Invoke();
             }
         }
 

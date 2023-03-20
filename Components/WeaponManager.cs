@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -103,6 +104,9 @@ namespace UltraFunGuns
             NewStyleItem("fingergunhit", "BANG'D");
             NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
             NewStyleItem("fingergunprojhit", "DENIAL");
+            NewStyleItem("admingunkill", "<color=red>GAMING CHAIR</color>");
+            NewStyleItem("brickmindkill", "<color=orange>SOUL ASSIMILATION</color>");
+            NewStyleItem("brickparrykill", "BRICKED");
 
             CanvasController canvas = MonoSingleton<CanvasController>.Instance;
             if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
@@ -163,7 +167,7 @@ namespace UltraFunGuns
             }
         }
 
-        //Registers any weapons tagged with the WeaponInfo attribute
+        //Registers any weapons tagged with the UFGWeapon attribute
         public static void RegisterWeapons()
         {
             if(WeaponsRegistered)
@@ -332,6 +336,16 @@ namespace UltraFunGuns
             }
         }
 
+        public static void AddStyle(int points, string key, GameObject sourceWeapon = null, EnemyIdentifier eid = null, int count = -1, string prefix = "", string postfix ="")
+        {
+            if(!UKAPIP.InLevel())
+            {
+                return;
+            }
+
+            StyleHUD.Instance.AddPoints(points, $"hydraxous.ultrafunguns.{key}", sourceWeapon, eid, count, prefix, postfix);
+        }
+
         public static Color GetColor(WeaponIconColor colorType)
         {
             Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
@@ -380,6 +394,7 @@ namespace UltraFunGuns
             return newWeaponKeys;
         }
 
+        //TODO optimization
         public void DeployWeapons(bool firstTime = false)
         {
             foreach (List<GameObject> customSlot in customSlots)
@@ -491,6 +506,22 @@ namespace UltraFunGuns
                     }
                 }
             }
+
+            if(Input.GetKeyDown(KeyCode.Keypad4))
+            {
+                if(spawnedRod != null)
+                {
+                    return;
+                }
+
+                spawnedRod = GameObject.Instantiate<GameObject>(Prefabs.FishingRod.Asset, this.transform);
+                spawnedRod.SetActive(false);
+                customSlots[0].Add(spawnedRod);
+                WeaponManager.AddWeaponToFreshnessDict(spawnedRod);
+                gc.allWeapons.Add(spawnedRod);
+            }
         }
+
+        private GameObject spawnedRod;
     }
 }

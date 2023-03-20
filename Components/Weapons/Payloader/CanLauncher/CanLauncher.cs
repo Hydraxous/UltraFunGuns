@@ -21,7 +21,6 @@ namespace UltraFunGuns
         public float maxBeamDistance = 500.0f;
         public Vector3 shootVector;
 
-        public Text debugText;
         private Material[] canMaterials;
         private int canMaterialCount = 10;
         private MeshRenderer canPrefabMeshRenderer;

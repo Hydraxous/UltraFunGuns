@@ -98,6 +98,8 @@ namespace UltraFunGuns
                             }
                             else
                             {
+                                Action styleCallback = new Action(() => { WeaponManager.AddStyle((aimbot) ? 1 : 5, "admingunkill", gameObject, enemy); });
+                                enemy.gameObject.EnsureComponent<EnemyOverride>().AddDeathCallback(styleCallback);
                                 enemy.DeliverDamage(hits[x].collider.gameObject, newShot.direction.normalized * 10000.0f, hits[x].point, 2.0f, false, 1.0f, gameObject);
                             }
 

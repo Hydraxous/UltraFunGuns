@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {
@@ -199,7 +201,7 @@ namespace UltraFunGuns
             if (collisionSound != null && soundCooldown.CanFire())
             {
                 soundCooldown.AddCooldown();
-                HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, Random.Range(0.75f, 1.25f), 1.0f, 1.0f);
+                HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, UnityEngine.Random.Range(0.75f, 1.25f), 1.0f, 1.0f);
             }
 
             //Regular collisions should decrease hit counter.
@@ -241,7 +243,7 @@ namespace UltraFunGuns
                 if (eid.bigEnemy && !brickShooter.StormActive && parried)
                 {
                     //If the enemy is V2 or training bot, the brick should fly back at the player lol.
-                    if (Random.value > Mathf.Clamp(0.75f/(enemyParries-2),0f,0.75f))
+                    if (UnityEngine.Random.value > Mathf.Clamp(0.75f/(enemyParries-2),0f,0.75f))
                     {
                         EnemyParry();
                         damageCooldown.AddCooldown();
@@ -250,10 +252,15 @@ namespace UltraFunGuns
                 }
 
                 float damage = rb.velocity.magnitude + 1.0f;
+                if(brickShooter.StormActive)
+                {
+                    Action ondeath = new Action(() => { WeaponManager.AddStyle(4, "brickmindkill", brickShooter.gameObject, eid); });
+                    eid.transform.EnsureComponent<EnemyOverride>().AddDeathCallback(ondeath);
+                }
                 eid.DeliverDamage(eid.gameObject, rb.velocity, col.GetContact(0).point, damage, true, 1.0f, brickShooter.gameObject);
                 hitsRemaining -= 5;
                 damageCooldown.AddCooldown();
-                HydraUtils.PlayAudioClip(fleshHitSound, Random.Range(0.8f, 1.1f), 1.0f);
+                HydraUtils.PlayAudioClip(fleshHitSound, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f);
 
                 //If brick kills enemy lob at another enemy or return it to the player
                 if (eid.health <= 0.0f && hitsRemaining > 0 && parried)
@@ -376,7 +383,7 @@ namespace UltraFunGuns
 
         public void RandomRoll()
         {
-            Vector3 randomTorque = Random.insideUnitSphere * 90.0f;
+            Vector3 randomTorque = UnityEngine.Random.insideUnitSphere * 90.0f;
             rb.AddTorque(randomTorque, ForceMode.Impulse);
         }
 
@@ -399,7 +406,6 @@ namespace UltraFunGuns
             {
                 GuidedLob(homingTarget);
                 //LobAtTarget(homingTarget.position);
-
             }
             else
             {

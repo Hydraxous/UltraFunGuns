@@ -32,6 +32,12 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> BigRockPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (BigRock).prefab");
         public static UKAsset<GameObject> ScottPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Scott).prefab");
         public static UKAsset<GameObject> V1Plush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie.prefab");
+        public static UKAsset<GameObject> FishingRod { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Fishing/Fishing Rod Weapon.prefab");
+
+
+        [UFGAsset("ShittyExplosion")] public static GameObject ShittyExplosionFX { get; private set; }
+
+        public static UKAsset<AudioClip> ShittyExplosionSound { get; private set; } = new UKAsset<AudioClip>("Assets/Sounds/Credits/ThatExplosionSound.wav");
 
         /*
         public static GameObject UK_Explosion 
