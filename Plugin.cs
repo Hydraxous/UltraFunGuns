@@ -31,13 +31,10 @@ namespace UltraFunGuns
 
         private IEnumerator Startup()
         {
+            Data.CheckSetup();
             HydraLogger.StartMessage();
             MagentaAssist.CheckBundles();
-            Data.CheckSetup();
             WeaponManager.Init();
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
 
             HydraLoader.LoadAssets((loaded) =>
             {
@@ -58,6 +55,8 @@ namespace UltraFunGuns
                     enabled = false;
                 }
             });
+
+            yield return null;
         }
 
         /*

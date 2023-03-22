@@ -6,23 +6,36 @@ using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using NewBlood;
+using UltraFunGuns.Keybinds;
 
 namespace UltraFunGuns
 {
-    public class UFGBind
+    [Serializable]
+    public class UFGBind 
     {
         public KeyCode KeyCode { get; private set; }
         public string Name { get; private set; }
 
         public UFGBind(string name, KeyCode bind)
         {
-            KeyCode = bind;
             Name = name;
+            KeyCode = bind;
         }
 
         public void SetBind(KeyCode bind)
         {
             KeyCode = bind;
+            this.Save();
+        }
+
+        public void Save()
+        {
+            if(!Data.Keybinds.Data.BindExists(Name))
+            {
+                Data.Keybinds.Data.binds.Add(this);
+            }
+
+            Data.Keybinds.Save();
         }
 
         public bool IsPressed
@@ -32,6 +45,7 @@ namespace UltraFunGuns
                 return Input.GetKey(KeyCode);
             }
         }
+
 
         public bool WasPerformedThisFrame
         {

@@ -17,7 +17,7 @@ namespace UltraFunGuns
 
         private static string sessionLog;
         private static int logCounter = 0;
-        private static int logSaveThreshold = 100;
+        private static int logSaveThreshold = 45;
 
         private static bool initialized = false;
         public static void Init()
@@ -35,11 +35,11 @@ namespace UltraFunGuns
                 $"GPU Name: {SystemInfo.graphicsDeviceName}\n" +
                 $"GPU Vendor: {SystemInfo.graphicsDeviceVendor}\n" +
                 $"GPU Type: {SystemInfo.graphicsDeviceType}\n" +
-                $"GPU Vram: {SystemInfo.graphicsMemorySize}\n" +
+                $"GPU MEMORY: {SystemInfo.graphicsMemorySize}\n" +
                 "========================================\n" +
                 $"{GetLoadedMods()}\n" +
                 "========================================\n" +
-                "Disclaimer: The contents of this text file will never leave your system unless you share it.\n" +
+                "Disclaimer: The contents of this text file will never leave your system unless you yourself share it.\n" +
                 "Neither Hydraxous or UltraFunGuns collects any data and this log file is used for technical support and debugging purposes only.\n" +
                 "========================================\n";
 
@@ -77,15 +77,15 @@ namespace UltraFunGuns
         {
             string currentScene = $"SCENE: {SceneManager.GetActiveScene().name}";
             string weaponsDeployed = $"Weapons Deployed: {WeaponManager.DeployedWeapons}";
-            string modsLoaded = GetLoadedMods();
-            if(modsLoaded != lastModsLoaded)
+            string modlist = GetLoadedMods();
+            if(modlist != lastModsLoaded)
             {
-                modsLoaded = $"Mods Loaded: {modsLoaded}";
+                lastModsLoaded = modlist;
             }else
             {
-                modsLoaded = "";
+                modlist = "SEE MODLIST ABOVE";
             }
-            return $"{currentScene}\n{weaponsDeployed}\n{modsLoaded}";
+            return $"{currentScene}\n{weaponsDeployed}\n{modlist}";
         }
 
         //Returns a formatted list of loaded mods.
@@ -98,7 +98,7 @@ namespace UltraFunGuns
             {
                 if(plugin.Value.Metadata.GUID != UltraFunGuns.UFG.Info.Metadata.GUID)
                 {
-                    modlist += $"\n-{counter}-\n" +
+                    modlist += $"\n-{counter+1}-\n" +
                     $"LOADER: BepInEx\n" +
                     $"GUID: {plugin.Value.Metadata.GUID}\n" +
                     $"NAME: {plugin.Value.Metadata.Name}\n" +
@@ -134,16 +134,22 @@ namespace UltraFunGuns
             Assembly ufgAsm = Assembly.GetExecutingAssembly();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            string asmFormat = "\n===============\nASM:{0}\n===============\n";
+            string loadedassemblies = "\n=======LOADED ASSEMBLIES======";
 
-            string loadedassemblies = string.Empty;
-
+            int sysasmfound = 0;
             foreach(Assembly asm in assemblies)
             {
-                loadedassemblies += $"\n===============\nASM:{asm.GetName()}\n===============\nFN:{asm.FullName}\n\n";
+                string asmName = asm.GetName().Name;
+
+                if (asmName.Contains("Unity") || asmName.Contains("System") || asmName.Contains("Mono"))
+                {
+                    sysasmfound++;
+                    continue;
+                }
+                loadedassemblies += $"\n\nASM: {asm.GetName().Name}\nV: {asm.GetName().Version}";
             }
 
-            return loadedassemblies;
+            return loadedassemblies + $"\n===============\nSystem Assemblies Found: {sysasmfound}";
         }
 
         public static void Log(string message, DebugChannel channel = DebugChannel.Message)
@@ -166,6 +172,9 @@ namespace UltraFunGuns
                     break;
                 case DebugChannel.Spam:
                     SpamLog(message);                    
+                    break;
+                case DebugChannel.Raw:
+                    Debug.Log(message);
                     break;
                 default:
                     if (UltraFunGuns.DebugMode || channel == DebugChannel.User)
@@ -211,7 +220,7 @@ namespace UltraFunGuns
 
             lastLogToFileMessage = message;
 
-            string formattedLogMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}]({channel.ToString()}): {message}\n";
+            string formattedLogMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}]({channel}): {message}\n";
             sessionLog += formattedLogMessage;
             ++logCounter;
             if (logCounter % logSaveThreshold == 0)
@@ -240,10 +249,10 @@ Created By Hydraxous";
         public static void StartMessage()
         {
             Debug.Log(textHeader);
-            lastModsLoaded = GetLoadedMods();
             Log($"Loading started. Version: {UltraFunGuns.RELEASE_VERSION}", DebugChannel.User);
+            lastModsLoaded = GetLoadedMods();
         }
     }
 
-    public enum DebugChannel { User, Message, Warning, Spam, Error, Fatal }
+    public enum DebugChannel { User, Message, Warning, Spam, Error, Fatal, Raw }
 }

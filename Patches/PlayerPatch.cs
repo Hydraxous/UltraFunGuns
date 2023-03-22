@@ -20,6 +20,24 @@ namespace UltraFunGuns
     {
         public static bool PlayerDead;
 
+        public static bool god;
+        public static bool Prefix(NewMovement __instance, ref int damage)
+        {
+            if(!god)
+            {
+                return true;
+            }
+
+            if (__instance.hp - damage <= 0)
+            {
+                __instance.hp = 1;
+                SonicReverberator.vineBoom_Standard.PlayAudioClip();
+                return false;
+            }
+
+            return true;
+        }
+
         public static void PostFix(NewMovement __instance)
         {
             if(!PlayerDead && __instance.dead)

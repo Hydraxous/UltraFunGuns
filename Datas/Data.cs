@@ -5,9 +5,12 @@ using UnityEngine;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using GameConsole;
 
 namespace UltraFunGuns
 {
+
+    //TODO Redo this whole thing please. its kind of cursed.
     public static class Data
     {
         private const string folderName = "UFG_Data";
@@ -18,6 +21,7 @@ namespace UltraFunGuns
         public static UFGPersistentData<UFG_Configuration> Config = new UFGPersistentData<UFG_Configuration>();
         public static UFGPersistentData<UFG_SaveData> Save = new UFGPersistentData<UFG_SaveData>();
         public static UFGPersistentData<UFG_Loadout> Loadout = new UFGPersistentData<UFG_Loadout>();
+        public static UFGPersistentData<UFG_Keybinds> Keybinds = new UFGPersistentData<UFG_Keybinds>();
 
         public static string GetDataPath(params string[] subpath)
         {
@@ -132,6 +136,7 @@ namespace UltraFunGuns
             Loadout.New();
             Config.New();
             Save.New();
+            Keybinds.New();
         }
 
         public delegate void OnDataChangedHandler();
@@ -275,6 +280,49 @@ namespace UltraFunGuns
                     return false;
                 }
 
+                return true;
+            }
+        }
+
+        [System.Serializable]
+        public class UFG_Keybinds : UFGData
+        {
+            public List<UFGBind> binds;
+
+            public bool TryGetBind(string name, out UFGBind binding)
+            {
+                binding = null;
+
+                foreach(UFGBind bind in binds)
+                {
+                    if(bind.Name == name)
+                    {
+                        binding = bind;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public bool BindExists(string name)
+            {
+                return TryGetBind(name, out UFGBind bind);
+            }
+
+            public UFG_Keybinds()
+            {
+                binds = new List<UFGBind>();
+                HydraLogger.Log("Created new ufg keybinds.",DebugChannel.Warning);
+            }
+
+            public override string FileName()
+            {
+                return "keybind";
+            }
+
+            public override bool IsValid()
+            {
                 return true;
             }
         }

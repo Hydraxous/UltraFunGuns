@@ -5,33 +5,24 @@ using System.Reflection;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UltraFunGuns.Keybinds;
 
 namespace UltraFunGuns
 {
     public static class WeaponManager
     {
         public const int SLOTS = 4, SLOT_OFFSET = 7;
-        // Assigned by UMM
-        /*
-        public static UKKeyBind[] UFGSlotKeys = {
-            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 7", KeyCode.Alpha7),
-            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 8", KeyCode.Alpha8),
-            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 9", KeyCode.Alpha9),
-            UKAPI.GetKeyBind("<color=orange>UFG</color> Slot 10", KeyCode.Alpha0)
-        };
-        */
 
         public static UFGBind[] UFGSlotKeys = {
-            new UFGBind("Slot 7", KeyCode.Alpha7),
-            new UFGBind("Slot 8", KeyCode.Alpha8),
-            new UFGBind("Slot 9", KeyCode.Alpha9),
-            new UFGBind("Slot 10", KeyCode.Alpha0),
-
+            KeybindManager.Fetch(new UFGBind("Slot 7", KeyCode.Alpha7)),
+            KeybindManager.Fetch(new UFGBind("Slot 8", KeyCode.Alpha8)),
+            KeybindManager.Fetch(new UFGBind("Slot 9", KeyCode.Alpha9)),
+            KeybindManager.Fetch(new UFGBind("Slot 10", KeyCode.Alpha0)),
         };
 
         //public static UKKeyBind SecretButton = UKAPI.GetKeyBind("<color=orange>UFG</color> Secret", KeyCode.K);
 
-        public static UFGBind SecretButton = new UFGBind("Secret Button", KeyCode.K);
+        public static UFGBind SecretButton = KeybindManager.Fetch(new UFGBind("Secret Button", KeyCode.K));
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;

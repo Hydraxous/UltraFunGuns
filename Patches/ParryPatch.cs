@@ -15,6 +15,10 @@ namespace UltraFunGuns
             if(!target.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
             {
                 ufgObject = target.GetComponentInParent<IUFGInteractionReceiver>();
+                if(ufgObject == null)
+                {
+                    ufgObject = target.GetComponentInChildren<IUFGInteractionReceiver>();
+                }
             }
 
             if(ufgObject != null)
