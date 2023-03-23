@@ -233,7 +233,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Write Log","Forces HydraLogger to write to file.")]
         public static void WriteLog()
         {
-            string logFilePath = DataManager.GetDataPath("log.txt");
+            string logFilePath = Data.DataManager.GetDataPath("log.txt");
 
             File.WriteAllText(logFilePath, sessionLog);
         }

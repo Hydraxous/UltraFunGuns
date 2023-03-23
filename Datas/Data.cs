@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using GameConsole;
 using UltraFunGuns.Datas;
+using HydraDynamics.DataPersistence;
 
 namespace UltraFunGuns
 {
@@ -14,10 +15,11 @@ namespace UltraFunGuns
     //TODO Redo this whole thing please. its kind of cursed. Done :)
     public static class Data
     {
+        public static DataManager DataManager { get; private set; } = new DataManager();
 
-        public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(new Loadout(), "loadout.ufg");
-        public static DataFile<SaveInfo> SaveInfo { get; private set; } = new DataFile<SaveInfo>(new SaveInfo(), "save.ufg");
-        public static DataFile<Config> Config { get; private set; } = new DataFile<Config>(new Config(), "config.txt", Formatting.Indented);
+        public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(DataManager, new Loadout(), "loadout.ufg");
+        public static DataFile<SaveInfo> SaveInfo { get; private set; } = new DataFile<SaveInfo>(DataManager, new SaveInfo(), "save.ufg");
+        public static DataFile<Config> Config { get; private set; } = new DataFile<Config>(DataManager, new Config(), "config.txt", Formatting.Indented);
 
         public static void SaveAll()
         {

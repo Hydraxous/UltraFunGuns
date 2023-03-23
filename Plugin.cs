@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using HydraDynamics.Debugging;
 using Newtonsoft.Json.Linq;
 using System.Collections;
 using UltraFunGuns.Datas;
@@ -20,6 +21,8 @@ namespace UltraFunGuns
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
 
+        public static HLogger Logger { get; private set; }
+
         public static bool DebugMode
         {
             get
@@ -38,6 +41,9 @@ namespace UltraFunGuns
         private void Awake()
         {
             UFG = this;
+            Logger = new HLogger(this, Data.DataManager);
+            Logger.AddContextLogAction(() => { return $"Weapons Deployed: {WeaponManager.DeployedWeapons}"; });
+            Logger.Log("Bruh!!!!!!!!!!!!!!!!!!", HydraDynamics.Debugging.DebugChannel.Warning);
             Data.CheckSetup();
             //HydraLogger.Log("UFG starting.");
             StartCoroutine(Startup());
@@ -46,7 +52,7 @@ namespace UltraFunGuns
 
         private IEnumerator Startup()
         {
-            HydraLogger.StartMessage();
+            //HydraLogger.StartMessage();
             MagentaAssist.CheckBundles();
             WeaponManager.Init();
 
@@ -161,7 +167,7 @@ namespace UltraFunGuns
 
         private void OnApplicationQuit()
         {
-            DataManager.SaveAll();
+            Data.SaveAll();
             HydraLogger.WriteLog();
         }
 

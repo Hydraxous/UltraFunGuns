@@ -5,7 +5,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UltraFunGuns.Datas;
-using UltraFunGuns.Keybinds;
+using HydraDynamics.Keybinds;
 
 namespace UltraFunGuns
 {
@@ -20,7 +20,7 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private static Keybinding inventoryKey = KeybindManager.Fetch(new Keybinding("Inventory", KeyCode.I));
+        private static Keybinding inventoryKey = Keys.KeybindManager.Fetch(new Keybinding("Inventory", KeyCode.I));
 
         private static bool sentVersionMessage = false;
 
@@ -53,60 +53,10 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            NewCheckStatus();
+            CheckStatus();
         }
 
-        //TODO optimization
-        private void CheckInventoryStatus()
-        {
-            if (!UKAPIP.InLevel())
-            {
-                return;
-            }
-
-            if (om.paused)
-            {
-                if (inventoryManagerOpen)
-                {
-                    invController.gameObject.SetActive(true);
-                    if (!UltraFunGuns.UsingLatestVersion)
-                    {
-                        SendVersionHelpMessage();
-                    }
-                }
-                else
-                {
-                    invController.gameObject.SetActive(false);
-                    invControllerButton.gameObject.SetActive(true);
-                    configHelpMessage.gameObject.SetActive(false);
-                    versionHelpMessage.gameObject.SetActive(false);
-                    displayingHelpMessage = false;
-                }
-            }
-            else
-            {
-                if (Data.SaveInfo.Data.firstTimeModLoaded)
-                {
-                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.KeyCode.ToString()), "", "", 2);
-                    Data.SaveInfo.Data.firstTimeModLoaded = false;
-                    Data.SaveInfo.Save();
-                }
-
-                if (inventoryManagerOpen)
-                {
-                    CloseInventory();
-                }
-                invControllerButton.gameObject.SetActive(false);
-            }
-
-            if (inventoryKey.WasPerformedThisFrame)
-            {
-                invController.RefreshSlotKeyDisplays();
-                OpenInventory();
-            }
-        }
-
-        private void NewCheckStatus()
+        private void CheckStatus()
         {
             if (!UKAPIP.InLevel())
             {
@@ -180,7 +130,7 @@ namespace UltraFunGuns
 
             if (Data.SaveInfo.Data.firstTimeUsingInventory)
             {
-                MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
+                //MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("WARNING: Having UFG weapons enabled at any point will enable the Major Assists for the duration of the level.", "", "", 4);
                 Data.SaveInfo.Data.firstTimeUsingInventory = false;
                 Data.SaveInfo.Save();
             }

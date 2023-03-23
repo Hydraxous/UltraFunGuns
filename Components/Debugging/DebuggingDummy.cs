@@ -5,6 +5,7 @@ using System.Text;
 using System.Transactions;
 using UltraFunGuns.Datas;
 using UnityEngine;
+using HydraDynamics.Keybinds;
 
 namespace UltraFunGuns
 {
@@ -12,7 +13,7 @@ namespace UltraFunGuns
     {
         private ExampleClass example = new ExampleClass();
 
-        private Keybinding testKey = new Keybinding("TestKey", KeyCode.Keypad1);
+        private Keybinding testKey = Keys.KeybindManager.Fetch(new Keybinding("TestKey", KeyCode.Keypad1));
 
         private void Start()
         {

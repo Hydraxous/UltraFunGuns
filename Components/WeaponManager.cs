@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UltraFunGuns.Keybinds;
+using HydraDynamics.Keybinds;
 using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
@@ -15,13 +15,13 @@ namespace UltraFunGuns
         public const int SLOTS = 4, SLOT_OFFSET = 7;
 
         public static Keybinding[] UFGSlotKeys = {
-            KeybindManager.Fetch(new Keybinding("Slot 7", KeyCode.Alpha7)),
-            KeybindManager.Fetch(new Keybinding("Slot 8", KeyCode.Alpha8)),
-            KeybindManager.Fetch(new Keybinding("Slot 9", KeyCode.Alpha9)),
-            KeybindManager.Fetch(new Keybinding("Slot 10", KeyCode.Alpha0)),
+            Keys.KeybindManager.Fetch(new Keybinding("Slot 7", KeyCode.Alpha7)),
+            Keys.KeybindManager.Fetch(new Keybinding("Slot 8", KeyCode.Alpha8)),
+            Keys.KeybindManager.Fetch(new Keybinding("Slot 9", KeyCode.Alpha9)),
+            Keys.KeybindManager.Fetch(new Keybinding("Slot 10", KeyCode.Alpha0)),
         };
 
-        public static Keybinding SecretButton = KeybindManager.Fetch(new Keybinding("Secret Button", KeyCode.K));
+        public static Keybinding SecretButton = Keys.KeybindManager.Fetch(new Keybinding("Secret Button", KeyCode.K));
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;
