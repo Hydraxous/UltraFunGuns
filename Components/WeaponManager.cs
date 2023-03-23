@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UltraFunGuns.Keybinds;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {
@@ -13,16 +14,14 @@ namespace UltraFunGuns
     {
         public const int SLOTS = 4, SLOT_OFFSET = 7;
 
-        public static UFGBind[] UFGSlotKeys = {
-            KeybindManager.Fetch(new UFGBind("Slot 7", KeyCode.Alpha7)),
-            KeybindManager.Fetch(new UFGBind("Slot 8", KeyCode.Alpha8)),
-            KeybindManager.Fetch(new UFGBind("Slot 9", KeyCode.Alpha9)),
-            KeybindManager.Fetch(new UFGBind("Slot 10", KeyCode.Alpha0)),
+        public static Keybinding[] UFGSlotKeys = {
+            KeybindManager.Fetch(new Keybinding("Slot 7", KeyCode.Alpha7)),
+            KeybindManager.Fetch(new Keybinding("Slot 8", KeyCode.Alpha8)),
+            KeybindManager.Fetch(new Keybinding("Slot 9", KeyCode.Alpha9)),
+            KeybindManager.Fetch(new Keybinding("Slot 10", KeyCode.Alpha0)),
         };
 
-        //public static UKKeyBind SecretButton = UKAPI.GetKeyBind("<color=orange>UFG</color> Secret", KeyCode.K);
-
-        public static UFGBind SecretButton = KeybindManager.Fetch(new UFGBind("Secret Button", KeyCode.K));
+        public static Keybinding SecretButton = KeybindManager.Fetch(new Keybinding("Secret Button", KeyCode.K));
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;
@@ -134,6 +133,18 @@ namespace UltraFunGuns
             }
 
             return weaponInfos.ToArray();
+        }
+
+        public static UFGWeapon GetWeaponInfo(Type t)
+        {
+            UFGWeapon weaponInfo = (UFGWeapon)Attribute.GetCustomAttribute(t, typeof(UFGWeapon));
+
+            if (weaponInfo == null)
+            {
+                HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+            }
+
+            return weaponInfo;
         }
 
         public static int WeaponCount
@@ -367,7 +378,7 @@ namespace UltraFunGuns
             gc = GetComponent<GunControl>();
         }
 
-        public List<List<string>> CreateWeaponKeyset(Data.UFG_Loadout invControllerData)
+        public List<List<string>> CreateWeaponKeyset(Loadout invControllerData)
         {
             List<List<string>> newWeaponKeys = new List<List<string>>();
             for (int x = 0; x < invControllerData.slots.Length; x++)

@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {

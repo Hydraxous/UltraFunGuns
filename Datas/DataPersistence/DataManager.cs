@@ -4,22 +4,26 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Linq;
 using BepInEx;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace UltraFunGuns.Datas
 {
+
     public static class DataManager
     {
-        public static DataFile<Invdata> InventoryData { get; private set; } = new DataFile<Invdata>(new Invdata(),"testdata.ufg");
 
-        const string FOLDER_NAME = "UFG_Data";
+        private const string FOLDER_SUFFIX = "_Data";
 
         public static string GetDataPath(params string[] subpath)
         {
-            string modDir = Assembly.GetExecutingAssembly().Location;
+            Assembly currentAssembly = Assembly.GetExecutingAssembly();
+            string modDir = currentAssembly.Location;
+            string asmName = currentAssembly.GetName().Name;
             modDir = Path.GetDirectoryName(modDir);
-            string localPath = Path.Combine(modDir, FOLDER_NAME);
+            string localPath = Path.Combine(modDir, asmName+FOLDER_SUFFIX);
 
             if (!Directory.Exists(localPath))
             {
@@ -35,6 +39,11 @@ namespace UltraFunGuns.Datas
             return localPath;
         }
 
+        public static void SaveAll()
+        {
+            
+        }
+
         //Save to file.
         public static void SaveData<T>(DataFile<T> data) where T : Validatable
         {
@@ -42,6 +51,7 @@ namespace UltraFunGuns.Datas
             string dataFilePath = GetDataPath(data.FileName);
             File.WriteAllText(dataFilePath, serializedData);
             HydraLogger.Log($"{data.FileName} Data saved.");
+            Debug.LogError("HDL: Data file was incorrectly setup. This is a result of an initialization error.");
         }
 
         //Load from file.
@@ -51,7 +61,7 @@ namespace UltraFunGuns.Datas
 
             if(data == null)
             {
-                HydraLogger.Log("FATAL ERROR. A persistent data variable was attempted to be loaded by the data manager, but it was never initialized and therefore has no fallback.", DebugChannel.Fatal);
+                Debug.LogError("HydraLib: Data file was incorrectly setup. This is a result of an initialization error.");
                 return null;
             }
 
@@ -82,114 +92,8 @@ namespace UltraFunGuns.Datas
             //HydraLogger.Log($"Loaded: {dataObject.FileName()}");
             return dataObject;
         }
-    }
 
-    public class DataFile<T> where T : Validatable
-    {
-        private bool autoSave = true;
-        public string FileName { get; }
+       
 
-        public Formatting Formatting { get; }
-        private T fallbackData;
-        private T data;
-        public T Data
-        {
-            get
-            {
-                if(data == null)
-                {
-                    Load();
-                }
-                return data;
-            }
-
-            set
-            {
-                data = value;
-                if(autoSave)
-                {
-                    Save();
-                }
-            }
-        }
-
-        public DataFile(T fallback, string filename, Formatting jsonFormatting = Formatting.None)
-        {
-            FileName = filename;
-            Formatting = jsonFormatting;
-            fallbackData = fallback;
-        }
-
-        public void SetAutoSave(bool enabled)
-        {
-            autoSave = enabled;
-            if(autoSave)
-            {
-                Save();
-            }
-        }
-            
-        public void Save()
-        {
-            DataManager.SaveData<T>(this);
-        }
-
-        public void Load()
-        {
-            if(FileName.IsNullOrWhiteSpace())
-            {
-                HydraLogger.Log($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.", DebugChannel.Fatal);
-                New();
-                return;
-            }
-
-            data = DataManager.LoadData(this);
-
-            if(data == null)
-            {
-                New();
-            }
-        }
-
-        public void New()
-        {
-            if(fallbackData == null)
-            {
-                HydraLogger.Log($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.", DebugChannel.Fatal);
-                data = default(T);
-                return;
-            }
-
-            data = fallbackData;
-            Save();
-        }
-
-        public bool Validate()
-        {
-            return Data.Validate();
-        }
-    }
-
-    [System.Serializable]
-    public class Invdata : Validatable
-    {
-        public string text;
-        public int number;
-
-        public Invdata(string text = "lol", int number = 2)
-        {
-            this.text = text;
-            this.number = number;
-        }
-
-        public override bool Validate()
-        {
-            return true;
-        }
-    }
-
-    public abstract class Validatable
-    {
-        public abstract bool Validate();
     }
 }

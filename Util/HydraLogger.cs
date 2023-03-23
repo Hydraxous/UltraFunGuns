@@ -8,6 +8,7 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using System.Reflection;
 using System.Linq;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {
@@ -232,7 +233,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Write Log","Forces HydraLogger to write to file.")]
         public static void WriteLog()
         {
-            string logFilePath = Data.GetDataPath("log.txt");
+            string logFilePath = DataManager.GetDataPath("log.txt");
 
             File.WriteAllText(logFilePath, sessionLog);
         }

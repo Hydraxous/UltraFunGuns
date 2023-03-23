@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {

@@ -7,37 +7,41 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 using NewBlood;
 using UltraFunGuns.Keybinds;
+using UltraFunGuns.Datas;
+using Newtonsoft.Json;
 
 namespace UltraFunGuns
 {
     [Serializable]
-    public class UFGBind 
+    public class Keybinding
     {
         public KeyCode KeyCode { get; private set; }
         public string Name { get; private set; }
 
-        public UFGBind(string name, KeyCode bind)
+        public Keybinding(string name, KeyCode bind)
         {
             Name = name;
             KeyCode = bind;
         }
 
+        public void Rebind()
+        {
+            KeybindManager.StartKeyRebind(this);
+        }
+
         public void SetBind(KeyCode bind)
         {
             KeyCode = bind;
-            this.Save();
+            Save();
         }
 
+        //this sucks so bad T-T
         public void Save()
         {
-            if(!Data.Keybinds.Data.BindExists(Name))
-            {
-                Data.Keybinds.Data.binds.Add(this);
-            }
-
-            Data.Keybinds.Save();
+            KeybindManager.Keybinds.Data.SaveBind(this);
         }
 
+        [JsonIgnore]
         public bool IsPressed
         {
             get
@@ -46,7 +50,7 @@ namespace UltraFunGuns
             }
         }
 
-
+        [JsonIgnore]
         public bool WasPerformedThisFrame
         {
             get
@@ -54,24 +58,5 @@ namespace UltraFunGuns
                 return Input.GetKeyDown(KeyCode);
             }
         }
-
-        public bool PlayerHeld
-        {
-            get
-            {
-                return IsPressed && !gamePaused;
-
-            }
-        }
-
-        public bool PlayerPerformed
-        {
-            get
-            {
-                return WasPerformedThisFrame && !gamePaused;
-            }
-        }
-
-        private static bool gamePaused => OptionsManager.Instance.paused;
     }
 }

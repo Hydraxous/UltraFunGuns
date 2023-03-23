@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {
@@ -87,7 +88,8 @@ namespace UltraFunGuns
         {
             if(RectTransform != null)
             {
-                RectTransform.localScale *= Data.Config.Data.InventoryInfoCardScale;
+                float scale = Data.Config.Data.InventoryInfoCardScale;
+                RectTransform.localScale = new Vector3(scale, scale, scale);
             }
         }
 

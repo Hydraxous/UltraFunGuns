@@ -13,7 +13,7 @@ namespace UltraFunGuns
 
         public static bool Prefix(EnemyIdentifier __instance)
         {
-            if(__instance.dead || !Data.Config.Data.DebugMode)
+            if(__instance.dead || !UltraFunGuns.DebugMode)
             {
                 return true;
             }
@@ -28,7 +28,7 @@ namespace UltraFunGuns
 
         public static void Postfix(EnemyIdentifier __instance, Vector3 force, Vector3 hitPoint, float multiplier, bool tryForExplode, float critMultiplier)
         {
-            if(Data.Config.Data.DebugMode)
+            if(UltraFunGuns.DebugMode)
             {
                 float damageNum = 0;
 

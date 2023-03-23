@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 
 namespace UltraFunGuns
 {
+    [BepInDependency("Hydraxous.HydraDynamics", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin("Hydraxous.ULTRAKILL.UltraFunGuns", "UltraFunGuns", "1.2.0")]
     public class UltraFunGuns : BaseUnityPlugin
     {
@@ -18,20 +19,33 @@ namespace UltraFunGuns
 
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
-        public static bool DebugMode => Data.Config.Data.DebugMode;
+
+        public static bool DebugMode
+        {
+            get
+            {
+                if (Data.Config != null)
+                {
+                    return Data.Config.Data.DebugMode;
+                }
+
+                return false;
+            }
+        }
 
         public static UltraFunGuns UFG { get; private set; }
 
         private void Awake()
         {
             UFG = this;
+            Data.CheckSetup();
+            //HydraLogger.Log("UFG starting.");
             StartCoroutine(Startup());
         }
 
 
         private IEnumerator Startup()
         {
-            Data.CheckSetup();
             HydraLogger.StartMessage();
             MagentaAssist.CheckBundles();
             WeaponManager.Init();
@@ -139,7 +153,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
         public static void ToggleDebugMode()
         {
-            bool debugMode = !Data.Config.Data.DebugMode;
+            bool debugMode = !DebugMode;
             Data.Config.Data.DebugMode = debugMode;
             Data.Config.Save();
             HydraLogger.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}", DebugChannel.User);
@@ -147,7 +161,7 @@ namespace UltraFunGuns
 
         private void OnApplicationQuit()
         {
-            Data.SaveAll();
+            DataManager.SaveAll();
             HydraLogger.WriteLog();
         }
 

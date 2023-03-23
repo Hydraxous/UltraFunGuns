@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace UltraFunGuns.Components.Debugging
+namespace UltraFunGuns
 {
     public class CoroutineRunner : MonoBehaviour
     {

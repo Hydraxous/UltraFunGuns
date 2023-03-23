@@ -12,11 +12,11 @@ namespace UltraFunGuns
     {
         private ExampleClass example = new ExampleClass();
 
-        private UFGBind testKey = new UFGBind("TestKey", KeyCode.Keypad1);
+        private Keybinding testKey = new Keybinding("TestKey", KeyCode.Keypad1);
 
         private void Start()
         {
-            HydraLogger.Log(DataManager.InventoryData.Data.text + $"\n\n\n{DataManager.InventoryData.Data.number}\n\n", DebugChannel.Warning);
+            
 
 
 
@@ -59,65 +59,12 @@ namespace UltraFunGuns
                 HydraLogger.Log($"Test Key Pressed: {testKey.KeyCode}", DebugChannel.Warning);
             }
 
-            if(Input.GetKeyDown(KeyCode.Keypad0) && !rebinding)
+            if(Input.GetKeyDown(KeyCode.Keypad0))
             {
                 HydraLogger.Log("Started rebinding.", DebugChannel.Warning);
-                RebindKey();
+                testKey.Rebind();
             }
              
-        }
-
-
-        private void RebindKey()
-        {
-            StartCoroutine(RebindProcess(testKey));
-        }
-
-        private bool rebinding = false;
-
-        private IEnumerator RebindProcess(UFGBind bind)
-        {
-            float timer = 10.0f;
-            rebinding = true;
-            int counter = 0;
-
-            yield return new WaitForSeconds(0.25f);
-
-            while(rebinding && timer > 0.0f)
-            {
-                yield return null;
-                timer -= Time.deltaTime;
-
-                Event current = Event.current;
-
-                if(current.type != EventType.KeyDown && current.type != EventType.KeyUp)
-                {
-                    continue;
-                }
-
-                switch(current.keyCode)
-                {
-                    case KeyCode.None:
-                        if(counter % 60 == 0)
-                        {
-                            HydraLogger.Log($"KeyCodeNone", DebugChannel.Warning);
-                        }
-                        break;
-
-                    case KeyCode.Escape:
-                        rebinding = false;
-                        break;
-                    default:
-                        HydraLogger.Log($"Rebinding to {current.keyCode}", DebugChannel.Warning);
-                        bind.SetBind(current.keyCode);
-                        rebinding = false;
-                        continue;
-                }
-
-                counter++;
-            }
-            rebinding = false;
-            HydraLogger.Log($"Rebinding stopped", DebugChannel.Warning);
         }
 
     }

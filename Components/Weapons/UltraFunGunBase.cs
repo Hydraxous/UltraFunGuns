@@ -21,7 +21,7 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            weaponInfo = Data.GetWeaponInfo(this.GetType());
+            weaponInfo = WeaponManager.GetWeaponInfo(this.GetType());
             actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
