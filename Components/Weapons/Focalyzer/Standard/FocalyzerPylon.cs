@@ -324,13 +324,16 @@ namespace UltraFunGuns
             Shatter();
         }
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
             string invoker = interaction.invokeType.Name;
             if(invoker != "Focalyzer" && invoker != "FocalyzerAlternate")
             {
                 Shatter();
+                return true;
             }
+
+            return false;
         }
 
         public bool Parried(Vector3 aimVector)

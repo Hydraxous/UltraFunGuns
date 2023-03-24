@@ -28,7 +28,7 @@ namespace UltraFunGuns
             {
                 aimRay.origin = projectileOrigin.position;
                 aimRay.direction = hit.point - projectileOrigin.position;
-                HydraLogger.Log($"Raycast hit [{hit.collider.gameObject.name}]");
+                Deboog.Log($"Raycast hit [{hit.collider.gameObject.name}]");
             }
 
             return aimRay;
@@ -652,6 +652,36 @@ namespace UltraFunGuns
                 return (T)(object)transform.gameObject.AddComponent(typeof(T));
             }
         }
+
+
+        public static Vector3 GetTargetPoint(this EnemyIdentifier eid)
+        {
+            if(eid == null)
+            {
+                return Vector3.zero;
+            }
+
+            if(eid.weakPoint != null)
+            {
+                return eid.weakPoint.transform.position;
+            }
+
+            return eid.transform.position;
+        }
+
+        public static void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)
+        {
+            if (Prefabs.BulletTrail == null)
+            {
+                return;
+            }
+
+            GameObject newBulletTrail = GameObject.Instantiate<GameObject>(Prefabs.BulletTrail, endPosition, Quaternion.identity);
+            newBulletTrail.transform.up = normal;
+            LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
+            Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
+            line.SetPositions(linePoints);
+        }
     }
 
     public class TargetObject
@@ -812,6 +842,7 @@ namespace UltraFunGuns
                 return;
             }
         }
+
     }
 
     public class Trajectory
@@ -885,6 +916,108 @@ namespace UltraFunGuns
             Vector3[] points = GetPoints(quality, drag);
             time = Mathf.Clamp01(time);
             return points[Mathf.FloorToInt((points.Length - 1) * time)];
+        }
+    }
+
+    public class Ring
+    {
+        private int objectCount;
+
+        private float radius;
+        public float Radius
+        {
+            get
+            {
+                return CalcRadius();
+            }
+
+            set
+            {
+                this.radius = value;
+                circumference = CalcCircumference();
+            }
+        }
+
+        public float CalcRadius()
+        {
+            return circumference / (2 * Mathf.PI);
+        }
+
+        private float circumference;
+
+        public float Circumference
+        {
+            get
+            {
+                return CalcCircumference();
+            }
+
+            set
+            {
+                circumference = value;
+                radius = CalcRadius();
+            }
+        }
+
+        public float Diameter
+        {
+            get
+            {
+                return radius * 2;
+            }
+
+            set
+            {
+                radius = (value / 2);
+            }
+        }
+
+        public float CalcCircumference()
+        {
+            return 2 * Mathf.PI * radius;
+        }
+
+
+        public Ring(int objectCount, float radius)
+        {
+            this.objectCount = objectCount;
+            this.radius = radius;
+        }
+        
+        public void SetCircumferenceFromObjectRadius(float objectRadius)
+        {
+            Circumference = objectRadius * objectCount;
+        }
+
+        public void SetCircumference(float circumference)
+        {
+            radius = circumference / (2 * Mathf.PI);
+        }
+
+        public float GetSliceSize()
+        {
+            return 2 * Mathf.PI / objectCount;
+        }
+
+        public Vector3[] GetPositions()
+        {
+            if(objectCount == 1)
+            {
+                return new Vector3[] { Vector3.zero };
+            }
+
+            List<Vector3> positions = new List<Vector3>();
+            float slice = GetSliceSize();
+            for (int i = 0; i < objectCount; i++)
+            {
+                float angle = slice * i;
+                float newX = (Radius * Mathf.Cos(angle));
+                float newZ = (Radius * Mathf.Sin(angle));
+
+                positions.Add(new Vector3(newX,newZ,0.0f));
+            }
+
+            return positions.ToArray();
         }
     }
 }

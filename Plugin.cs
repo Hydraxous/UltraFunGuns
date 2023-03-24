@@ -21,31 +21,15 @@ namespace UltraFunGuns
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
 
-        public static HLogger Logger { get; private set; }
-
-        public static bool DebugMode
-        {
-            get
-            {
-                if (Data.Config != null)
-                {
-                    return Data.Config.Data.DebugMode;
-                }
-
-                return false;
-            }
-        }
-
         public static UltraFunGuns UFG { get; private set; }
 
         private void Awake()
         {
             UFG = this;
-            Logger = new HLogger(this, Data.DataManager);
-            Logger.AddContextLogAction(() => { return $"Weapons Deployed: {WeaponManager.DeployedWeapons}"; });
-            Logger.Log("Bruh!!!!!!!!!!!!!!!!!!", HydraDynamics.Debugging.DebugChannel.Warning);
             Data.CheckSetup();
-            //HydraLogger.Log("UFG starting.");
+            HLogger.AddContextLogAction(() => { return $"Weapons Deployed: {WeaponManager.DeployedWeapons}"; });
+            HLogger.Log(textHeader, HydraDynamics.Debugging.DebugChannel.Warning);
+            HLogger.Log("UFG starting.");
             StartCoroutine(Startup());
         }
 
@@ -66,12 +50,12 @@ namespace UltraFunGuns
                     UKAPIP.Init();
                     Patches.CheatsPatch.CyberGrindPreventer.Init();
                     Commands.Register();
-                    HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                    Deboog.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
                 }
                 else
                 {
-                    HydraLogger.Log("Loading failed.", DebugChannel.Fatal);
+                    Deboog.Log("Loading failed.", DebugChannel.Fatal);
                     enabled = false;
                 }
             });
@@ -96,11 +80,11 @@ namespace UltraFunGuns
                     DoPatching();
                     UKAPIP.Init();
                     Commands.Register();
-                    HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                    UltraFunGuns.UFG.Logger.Log("Successfully Loaded!", DebugChannel.User);
                 }
                 else
                 {
-                    HydraLogger.Log("Loading failed.", DebugChannel.Fatal);
+                    UltraFunGuns.UFG.Logger.Log("Loading failed.", DebugChannel.Fatal);
                     enabled = false;
                 }
             });
@@ -139,17 +123,17 @@ namespace UltraFunGuns
                         UsingLatestVersion = (LatestVersion == RELEASE_VERSION);
                         if (UsingLatestVersion)
                         {
-                            HydraLogger.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion), DebugChannel.User);
+                            Deboog.Log(string.Format("You are using the latest version of UFG: {0}", LatestVersion), DebugChannel.User);
                         }
                         else
                         {
-                            HydraLogger.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion), DebugChannel.User);
+                            Deboog.Log(string.Format("New version of UFG available: {0}. Please consider updating.", LatestVersion), DebugChannel.User);
                         }
                     }
                     catch (System.Exception e)
                     {
                         UsingLatestVersion = true;
-                        HydraLogger.Log(string.Format("Error getting version info. Current Version: {0}\n{1}\n{2}", RELEASE_VERSION, e.Message, e.StackTrace), DebugChannel.Error);
+                        Deboog.Log(string.Format("Error getting version info. Current Version: {0}\n{1}\n{2}", RELEASE_VERSION, e.Message, e.StackTrace), DebugChannel.Error);
                     }
 
                 }
@@ -162,18 +146,57 @@ namespace UltraFunGuns
             bool debugMode = !DebugMode;
             Data.Config.Data.DebugMode = debugMode;
             Data.Config.Save();
-            HydraLogger.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}", DebugChannel.User);
+         
+            Deboog.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}", DebugChannel.User);
         }
 
         private void OnApplicationQuit()
         {
             Data.SaveAll();
-            HydraLogger.WriteLog();
+            UltraFunGuns.UFG.HLogger.WriteLog();
         }
 
         private void OnDisable()
         {
-            HydraLogger.WriteLog();
+            UltraFunGuns.UFG.HLogger.WriteLog();
+        }
+
+        const string textHeader = @"
+   __  ______             ______            ______                
+  / / / / / /__________ _/ ____/_  ______  / ____/_  ______  _____
+ / / / / / __/ ___/ __ `/ /_  / / / / __ \/ / __/ / / / __ \/ ___/
+/ /_/ / / /_/ /  / /_/ / __/ / /_/ / / / / /_/ / /_/ / / / (__  ) 
+\____/_/\__/_/   \__,_/_/    \__,_/_/ /_/\____/\__,_/_/ /_/____/
+
+Created By Hydraxous";
+
+
+        private HLogger logger;
+
+        public HLogger HLogger
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = new HLogger(this, Data.DataManager);
+                }
+                return logger;
+            }
+
+        }
+
+        public static bool DebugMode
+        {
+            get
+            {
+                if (Data.Config != null)
+                {
+                    return Data.Config.Data.DebugMode;
+                }
+
+                return false;
+            }
         }
     }
 

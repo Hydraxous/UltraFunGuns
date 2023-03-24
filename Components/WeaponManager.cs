@@ -14,14 +14,15 @@ namespace UltraFunGuns
     {
         public const int SLOTS = 4, SLOT_OFFSET = 7;
 
-        public static Keybinding[] UFGSlotKeys = {
-            Keys.KeybindManager.Fetch(new Keybinding("Slot 7", KeyCode.Alpha7)),
-            Keys.KeybindManager.Fetch(new Keybinding("Slot 8", KeyCode.Alpha8)),
-            Keys.KeybindManager.Fetch(new Keybinding("Slot 9", KeyCode.Alpha9)),
-            Keys.KeybindManager.Fetch(new Keybinding("Slot 10", KeyCode.Alpha0)),
+        public static Keybinding[] UFGSlotKeys = new Keybinding[] 
+        {
+            new Keybinding("Slot 7", KeyCode.Alpha7),
+            new Keybinding("Slot 8", KeyCode.Alpha8),
+            new Keybinding("Slot 9", KeyCode.Alpha9),
+            new Keybinding("Slot 10", KeyCode.Alpha0),
         };
 
-        public static Keybinding SecretButton = Keys.KeybindManager.Fetch(new Keybinding("Secret Button", KeyCode.K));
+        public static Keybinding SecretButton = new Keybinding("Secret Button", KeyCode.K);
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;
@@ -31,6 +32,12 @@ namespace UltraFunGuns
             RegisterWeapons();
             UKAPIP.OnLevelChanged += OnLevelChanged;
             //UltraFunGuns.UFG.OnModUnloaded.AddListener(DeInit);
+            
+            Keys.Fetch(ref SecretButton);   
+            for(int i=0; i<UFGSlotKeys.Length; i++)
+            {
+                Keys.Fetch(ref UFGSlotKeys[i]);
+            }
         }
 
         private static void DeInit()
@@ -141,7 +148,7 @@ namespace UltraFunGuns
 
             if (weaponInfo == null)
             {
-                HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+                Deboog.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
             }
 
             return weaponInfo;
@@ -225,7 +232,7 @@ namespace UltraFunGuns
 
                 int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
 
-                HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
+                Deboog.Log($"Found weapon: {attribute.DisplayName}");
                 weapons.Add(attribute.WeaponKey, attribute);
             }
 
@@ -262,7 +269,7 @@ namespace UltraFunGuns
 
             if(go == null)
             {
-                HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
+                Deboog.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
                 return false;
             }
 
@@ -276,12 +283,12 @@ namespace UltraFunGuns
                     return true;
                 }
 
-                HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
+                Deboog.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
                 return false;
 
             } catch (Exception ex)
             {
-                HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
+                Deboog.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
             }
 
             return false;
@@ -307,7 +314,7 @@ namespace UltraFunGuns
                 if (!slotData[slot].Contains(newNodeData))
                 {
                     slotData[slot].Add(newNodeData);
-                    HydraLogger.Log($"Found weapon: {infos[i].DisplayName}");
+                    Deboog.Log($"Found weapon: {infos[i].DisplayName}");
                 }
             }
 
@@ -429,14 +436,14 @@ namespace UltraFunGuns
 
                     if (!WeaponManager.Weapons.TryGetValue(weaponKey, out UFGWeapon weaponInfo))
                     {
-                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
+                        Deboog.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
                         this.enabled = false;
                         return;
                     }
 
                     if (!HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                     {
-                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...", DebugChannel.Error);
+                        Deboog.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...", DebugChannel.Error);
                         continue;
                     }
 
@@ -467,7 +474,7 @@ namespace UltraFunGuns
                 weaponsGiven = "Weapons given: " + weaponsGiven;
                 AddWeapons();
                 WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
-                HydraLogger.Log(weaponsGiven, DebugChannel.User);
+                Deboog.Log(weaponsGiven, DebugChannel.User);
             }
         }
 

@@ -30,12 +30,14 @@ namespace UltraFunGuns.Datas
         private static void CheckMagenta()
         {
             AssetManager.Instance.SendMessage("hello");
-            HydraLogger.Log($"Magenta Set.");
+            Deboog.Log($"Magenta Set.");
         }
 
         public static void CheckBundles()
         {
-            HydraLogger.Log("Checking bundles.");
+
+
+            Deboog.Log("Checking bundles.");
             string currentBundleFile = File.ReadAllText(unhardenedBundlePath);
 
             //lol

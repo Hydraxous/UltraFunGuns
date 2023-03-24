@@ -155,7 +155,7 @@ namespace UltraFunGuns
                         //Add refraction to glass >:3
                         if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
                         {
-                            HydraLogger.Log("FOUND COIN WITH LASER", DebugChannel.User);
+                            Deboog.Log("FOUND COIN WITH LASER", DebugChannel.User);
                             if(HydraUtils.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
                             {
 

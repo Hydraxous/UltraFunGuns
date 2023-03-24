@@ -218,12 +218,15 @@ namespace UltraFunGuns
             return false;
         }
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
             if (interaction.data.Contains("shot"))
             {
                 Explode();
+                return true;
             }
+
+            return false;
         }
 
         public Vector3 GetPosition()

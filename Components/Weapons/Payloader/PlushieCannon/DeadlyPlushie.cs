@@ -110,9 +110,9 @@ namespace UltraFunGuns
             return false;
         }
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
-            return;
+            return false;
         }
 
         public Vector3 GetPosition()

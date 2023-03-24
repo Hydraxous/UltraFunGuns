@@ -7,6 +7,24 @@ namespace UltraFunGuns.Datas
 {
     public static class Keys
     {
-        public static KeybindManager KeybindManager { get; private set; } = new KeybindManager(Data.DataManager);
+        private static KeybindManager keybindManager;
+        public static KeybindManager KeybindManager
+        {
+            get
+            {
+                if(keybindManager == null)
+                {
+                    keybindManager = new KeybindManager(Data.DataManager);
+                }
+                return keybindManager;
+            }
+        }
+
+        public static void Fetch(ref Keybinding fallback)
+        {
+            fallback.SetKeybindManager(KeybindManager);
+            KeybindManager.Fetch(ref fallback);
+        }
+
     }
 }

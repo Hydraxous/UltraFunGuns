@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UltraFunGuns.Datas;
 using UnityEngine;
 using UnityEngine.InputSystem.HID;
 
@@ -14,9 +15,10 @@ namespace UltraFunGuns
     public class AdminGun : UltraFunGunBase
     {
         [UFGAsset] public static AudioClip AdminGun_FireSound { get; private set; }
-        [UFGAsset("Wicked.prefab", true)] private static GameObject somethingWicked;
+        public static UKAsset<GameObject> somethingWicked = new UKAsset<GameObject>("Assets/Prefabs/Enemies/Wicked.prefab");
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
 
+        public bool penetrateWalls = true;
         public int hitscans = 16;
         public float spread = 0.06f;
 
@@ -51,9 +53,9 @@ namespace UltraFunGuns
             {
                 if(HydraUtils.SphereCastMacro(mainCam.position,0.25f,mainCam.forward,300.0f, out RaycastHit hit))
                 {
-                    if(somethingWicked != null)
+                    if(somethingWicked.Asset != null)
                     {
-                        GameObject.Instantiate<GameObject>(somethingWicked, hit.point + Vector3.up, Quaternion.identity);
+                        GameObject.Instantiate<GameObject>(somethingWicked.Asset, hit.point + Vector3.up, Quaternion.identity);
                     }
                 }
             }
@@ -70,94 +72,132 @@ namespace UltraFunGuns
             }
 
             Vector3 lineStart = firePoint.position;
+
             for(int i = 0; i< hitscans; i++)
             {
-                Ray newShot = GetRandomRaycast();
+                FireBullet(GetRandomRaycast());
+            }
 
-                if(HydraUtils.SphereCastAllMacro(newShot.origin, 0.15f, newShot.direction, Mathf.Infinity, out RaycastHit[] hits))
+            AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.8f, 1.3f), 1.0f, 0.0f);
+        }
+
+        private void FireBullet(Ray newShot, bool reflection = false)
+        {
+            if (!HydraUtils.SphereCastAllMacro(newShot.origin, 0.15f, newShot.direction, Mathf.Infinity, out RaycastHit[] hits))
+            {
+                return;
+            }
+
+            hits = HydraUtils.SortRaycastHitsByDistance(hits);
+
+            int lastHit = 0;
+
+            for (int x = 0; x < hits.Length; x++)
+            {
+                if (CheckCoin(hits[x]) && !reflection)
                 {
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
+                    Destroy(hits[x].collider.gameObject);
+                    CoinReflect(hits[x].transform.position);
+                    lastHit = x;
+                    break;
+                }
 
-                    for(int x=0; x < hits.Length; x++)
+                if (hits[x].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver receiver))
+                {
+                    lastHit = x;
+
+                    UFGInteractionEventData eventData = new UFGInteractionEventData()
                     {
-                        if (hits[x].collider.IsColliderEnemy(out EnemyIdentifier enemy))
-                        {
-                            if(enemy.enemyType == EnemyType.Wicked)
-                            {
-                                SonicReverberator.vineBoom_Loudest.PlayAudioClip(enemy.transform.position,1.3f, 1.0f, 0.7f);
-                                if (Prefabs.SmackFX != null)
-                                {
-                                    Transform newFx = Instantiate<GameObject>(Prefabs.SmackFX, enemy.transform.position+Vector3.up*2.0f, Quaternion.identity).transform;
-                                    newFx.localScale *= 3.0f;
-                                }
-                                Vector3 playerBump = NewMovement.Instance.transform.position - enemy.transform.position;
-                                float dist = playerBump.magnitude;
-                                dist = Mathf.Lerp(0.0f,200.0f,Mathf.InverseLerp(600.0f,0.0f,dist));
-                                NewMovement.Instance.rb.velocity = playerBump.normalized*dist;
-                                Destroy(enemy.gameObject);
-                            }
-                            else
-                            {
-                                Action styleCallback = new Action(() => { WeaponManager.AddStyle((aimbot) ? 1 : 5, "admingunkill", gameObject, enemy); });
-                                enemy.gameObject.EnsureComponent<EnemyOverride>().AddDeathCallback(styleCallback);
-                                enemy.DeliverDamage(hits[x].collider.gameObject, newShot.direction.normalized * 10000.0f, hits[x].point, 2.0f, false, 1.0f, gameObject);
-                            }
+                        data = "shot.god",
+                        direction = newShot.direction,
+                        interactorPosition = newShot.origin,
+                        invokeType = typeof(AdminGun)
+                    };
 
-                            Visualizer.DrawLine(1.0f, firePoint.position, hits[x].point);
-
-                            /*
-                            EnemyOverride enemyOverride = enemy.Override();
-                            if (enemyOverride != null)
-                            {
-                                enemyOverride.SetRagdoll(true);
-                                enemyOverride.Knockback(mainCam.forward * 50.0f);
-                            }
-                            */
-                            //enemy.DeliverDamage(hit.collider.gameObject, newShot.direction * 5000f, hit.point, 2.0f, true, 2.0f, gameObject);
-                        }
-
-                        GameObject newHitDecal = GameObject.Instantiate(Prefabs.BulletImpactFX, hits[x].point + (hits[x].normal * 0.01f), Quaternion.identity);
-                        newHitDecal.transform.parent = hits[x].collider.transform;
-                        newHitDecal.transform.up = hits[x].normal;
-                        Visualizer.DrawLine(1.0f, firePoint.position, hits[x].point);
-
-                        if ((hits[x].collider.gameObject.layer == 24 || hits[x].collider.gameObject.layer == 25 || hits[x].collider.gameObject.layer == 8))
-                        {
-                            break;
-                        }
+                    if (receiver.Interact(eventData) && !penetrateWalls)
+                    {
+                        break;
                     }
 
                 }
 
-                //remove
-                continue;
-
-                if(HydraUtils.SphereCastMacro(newShot.origin, 0.15f, newShot.direction, Mathf.Infinity, out RaycastHit hit))
+                if ((hits[x].collider.gameObject.layer == 24 || hits[x].collider.gameObject.layer == 25 || hits[x].collider.gameObject.layer == 8))
                 {
-                    if (hit.collider.IsColliderEnemy(out EnemyIdentifier enemy))
+                    lastHit = x;
+                    if (!penetrateWalls)
+                        break;
+                }
+
+                if (hits[x].collider.IsColliderEnemy(out EnemyIdentifier enemy))
+                {
+                    lastHit = x;
+                    if (enemy.enemyType == EnemyType.Wicked)
                     {
-                        enemy.DeliverDamage(hit.collider.gameObject, newShot.direction.normalized * 10000.0f, hit.point, 2.0f, false, 1.0f, gameObject);
-
-                        Visualizer.DrawLine(1.0f, firePoint.position, hit.point);
-
-                        /*
-                        EnemyOverride enemyOverride = enemy.Override();
-                        if (enemyOverride != null)
+                        SonicReverberator.vineBoom_Loudest.PlayAudioClip(enemy.transform.position, 1.3f, 1.0f, 0.7f);
+                        if (Prefabs.SmackFX != null)
                         {
-                            enemyOverride.SetRagdoll(true);
-                            enemyOverride.Knockback(mainCam.forward * 50.0f);
+                            Transform newFx = Instantiate<GameObject>(Prefabs.SmackFX, enemy.transform.position + Vector3.up * 2.0f, Quaternion.identity).transform;
+                            newFx.localScale *= 3.0f;
                         }
-                        */
-                        //enemy.DeliverDamage(hit.collider.gameObject, newShot.direction * 5000f, hit.point, 2.0f, true, 2.0f, gameObject);
+                        Vector3 playerBump = NewMovement.Instance.transform.position - enemy.transform.position;
+                        float dist = playerBump.magnitude;
+                        dist = Mathf.Lerp(0.0f, 200.0f, Mathf.InverseLerp(600.0f, 0.0f, dist));
+                        NewMovement.Instance.rb.velocity = playerBump.normalized * dist;
+                        Destroy(enemy.gameObject);
+                    }
+                    else
+                    {
+                        Action styleCallback = new Action(() => { WeaponManager.AddStyle((aimbot) ? 1 : 5, "admingunkill", gameObject, enemy); });
+                        enemy.gameObject.EnsureComponent<EnemyOverride>().AddDeathCallback(styleCallback);
+                        enemy.DeliverDamage(hits[x].collider.gameObject, newShot.direction.normalized * 10000.0f, hits[x].point, 2.0f, false, 1.0f, gameObject);
                     }
 
-                    GameObject newHitDecal = GameObject.Instantiate(Prefabs.BulletImpactFX, hit.point+(hit.normal*0.01f), Quaternion.identity);
-                    newHitDecal.transform.parent = hit.collider.transform;
-                    newHitDecal.transform.up = hit.normal;
-                    Visualizer.DrawLine(1.0f, firePoint.position, hit.point);
+                    Visualizer.DrawLine(1.0f, firePoint.position, hits[x].point);
                 }
             }
-            AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.8f, 1.3f), 1.0f, 0.0f);
+
+            if(reflection)
+            {
+                HydraUtils.CreateBulletTrail(newShot.origin, hits[lastHit].point, hits[lastHit].normal);
+                return;
+            }
+
+            GameObject newHitDecal = GameObject.Instantiate(Prefabs.BulletImpactFX, hits[lastHit].point + (hits[lastHit].normal * 0.01f), Quaternion.identity);
+            newHitDecal.transform.parent = hits[lastHit].collider.transform;
+            newHitDecal.transform.up = hits[lastHit].normal;
+            Visualizer.DrawLine(1.0f, firePoint.position, hits[lastHit].point);
+        }
+
+        private bool CheckCoin(RaycastHit hit)
+        {
+            if(!hit.collider.gameObject.TryGetComponent<Coin>(out Coin coin))
+            {
+                coin = hit.collider.GetComponentInChildren<Coin>();
+                if(coin == null)
+                    return false;
+            }
+
+            if(coin.shot)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        private void CoinReflect(Vector3 coinPosition)
+        {
+            EnemyIdentifier[] enemies = EnemyTracker.Instance.GetCurrentEnemies().Where(x=>(!x.dead && !x.blessed)).ToArray();
+
+            Instantiate(Prefabs.ShittyExplosionFX, coinPosition, Quaternion.identity);
+            Prefabs.ShittyExplosionSound.Asset.PlayAudioClip(coinPosition, 1.3f, 1.0f, 0.7f);
+
+            for (int i=0; i<enemies.Length; i++)
+            {
+                Ray fireRay = new Ray(coinPosition, enemies[i].GetTargetPoint() - coinPosition);
+                FireBullet(fireRay, true);
+            }
         }
 
         private void Boom()

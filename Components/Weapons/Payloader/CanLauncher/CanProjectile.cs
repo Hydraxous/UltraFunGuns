@@ -154,7 +154,7 @@ namespace UltraFunGuns
 
         public void HitEnemy(EnemyIdentifier enemy, Vector3 impactSpot)
         {
-            HydraLogger.Log($"({gameObject.name}) can hit enemy ({enemy.name})");
+            Deboog.Log($"({gameObject.name}) can hit enemy ({enemy.name})");
             if(dead || enemy.dead || enemy == null)
             {
                 return;
@@ -194,7 +194,7 @@ namespace UltraFunGuns
                 {
                     otherCan.Explode(oldVelocity, 2);
                 }
-                HydraLogger.Log("Parried and hit other can");
+                Deboog.Log("Parried and hit other can");
             }
             else
             {
@@ -294,7 +294,7 @@ namespace UltraFunGuns
                     AlterVelocity(newDirection, false);
                     return;
                 }
-                HydraLogger.Log($"({gameObject.name}) can is sleeping!");
+                Deboog.Log($"({gameObject.name}) can is sleeping!");
                 sleeping = true;
                 return;
             }
@@ -355,14 +355,16 @@ namespace UltraFunGuns
             }
         }
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
             switch(interaction.invokeType.ToString())
             {
                 case "FingerGun":
                     Explode(interaction.direction);
-                    break;
+                    return true;
             }
+
+            return false;
         }
 
         public Vector3 GetPosition()

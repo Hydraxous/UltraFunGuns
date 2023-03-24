@@ -24,7 +24,9 @@ namespace UltraFunGuns
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
-            HydraLogger.Log($"AssetLoader: Finding asset tags.");
+            
+            
+            Deboog.Log($"AssetLoader: Finding asset tags.");
 
             foreach (Type type in assembly.GetTypes())
             {
@@ -32,7 +34,7 @@ namespace UltraFunGuns
             }
 
             AssetsLoaded = true;
-            HydraLogger.Log($"UltraLoader: Asset loading complete.");
+            Deboog.Log($"UltraLoader: Asset loading complete.");
             return true;
         }
 
@@ -75,7 +77,7 @@ namespace UltraFunGuns
             //Check if a key was provided to the attribute, otherwise use the member's name.
             string assetKey = (ufgAsset.Key != "") ? ufgAsset.Key : field.Name;
 
-            HydraLogger.Log($"AssetLoader: Found asset tag {assetKey}");
+            Deboog.Log($"AssetLoader: Found asset tag {assetKey}");
 
             Type fieldType = field.FieldType;
 
@@ -85,16 +87,16 @@ namespace UltraFunGuns
             {
                 if(!LoadUKPrefabs)
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
+                    Deboog.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
                     return;
                 }
 
                 if (!TryLoadVanillaAsset(assetKey, fieldType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"Failed to find asset: {assetKey}");
+                    Deboog.Log($"Failed to find asset: {assetKey}");
                 }
 
-                HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
+                Deboog.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
 
                 field.SetValue(null, loadedAsset);
             }
@@ -102,13 +104,13 @@ namespace UltraFunGuns
             {
                 if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, fieldType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
+                    Deboog.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name}");
 
                     field.SetValue(null, loadedAsset);
                 }
                 else
                 {
-                    HydraLogger.Log($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                    Deboog.Log($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
                 }
             }   
         }
@@ -140,11 +142,11 @@ namespace UltraFunGuns
             //Check if a key was provided to the attribute, otherwise use the member's name.
             string assetKey = (ufgAsset.Key != "") ? ufgAsset.Key : property.Name;
 
-            HydraLogger.Log($"AssetLoader: Found asset tag {assetKey}");
+            Deboog.Log($"AssetLoader: Found asset tag {assetKey}");
 
             if (!property.CanWrite)
             {
-                HydraLogger.Log($"AssetLoader: {property.DeclaringType.Name}: {property.Name}: No setter found, unable to assign asset.", DebugChannel.Fatal);
+                Deboog.Log($"AssetLoader: {property.DeclaringType.Name}: {property.Name}: No setter found, unable to assign asset.", DebugChannel.Fatal);
                 return;
             }
 
@@ -156,16 +158,16 @@ namespace UltraFunGuns
             {
                 if (!LoadUKPrefabs)
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
+                    Deboog.Log($"AssetLoader: {assetKey} was not loaded because LoadUKPrefabs is disabled.", DebugChannel.Warning);
                     return;
                 }
 
                 if (!TryLoadVanillaAsset(assetKey, propertyType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"Failed to find asset: {assetKey}");
+                    Deboog.Log($"Failed to find asset: {assetKey}");
                 }
 
-                HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType}), successfully cached to {propertyType.DeclaringType}.{propertyType.Name}");
+                Deboog.Log($"AssetLoader: {assetKey} ({propertyType}), successfully cached to {propertyType.DeclaringType}.{propertyType.Name}");
 
                 property.SetValue(null, loadedAsset);
             }
@@ -173,12 +175,12 @@ namespace UltraFunGuns
             {
                 if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, propertyType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
+                    Deboog.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
                     property.SetValue(null, loadedAsset);
                 }
                 else
                 {
-                    HydraLogger.Log($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                    Deboog.Log($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
                 }
             }     
         }
@@ -196,7 +198,7 @@ namespace UltraFunGuns
 
             if (obj == null)
             {
-                HydraLogger.Log($"AssetLoader: Attempted to load asset {key} of type {type.Name}, but it was not found in the assetbundle.", DebugChannel.Error);
+                Deboog.Log($"AssetLoader: Attempted to load asset {key} of type {type.Name}, but it was not found in the assetbundle.", DebugChannel.Error);
                 return false;
             }
 

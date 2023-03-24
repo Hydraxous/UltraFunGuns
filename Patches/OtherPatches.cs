@@ -27,18 +27,22 @@ namespace UltraFunGuns
                 if (codes[i].opcode == System.Reflection.Emit.OpCodes.Ldstr)
                 {
 
-                    HydraLogger.Log(">!!!", DebugChannel.Fatal);
+                    
+    
+    
+    
+    (">!!!", DebugChannel.Fatal);
                     var strOperand = codes[i].operand as string;
                     //Check if string is the one we want
                     if (strOperand == "Current weapon not in StyleHUD weaponFreshness dict!!!")
                     {
-                        HydraLogger.Log("FOUND IT.", DebugChannel.Fatal);
+                        Deboog.Log("FOUND IT.", DebugChannel.Fatal);
                         startIndex = i;
                         break;
                     }
                     else
                     {
-                        HydraLogger.Log(">NOT STRING", DebugChannel.Fatal);
+                        Deboog.Log(">NOT STRING", DebugChannel.Fatal);
                     }
                 }
             }
@@ -47,7 +51,7 @@ namespace UltraFunGuns
             if (startIndex > -1)
             {
                 codes.RemoveRange(startIndex, 2);
-                HydraLogger.Log(">REMOVED CODE INDICIES", DebugChannel.Fatal);
+                Deboog.Log(">REMOVED CODE INDICIES", DebugChannel.Fatal);
 
             }
 

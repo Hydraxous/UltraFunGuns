@@ -40,7 +40,10 @@ namespace UltraFunGuns
             if(firePoint == null)
             {
                 firePoint = mainCam;
-                HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Error);
+                
+                
+                
+                Deboog.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Error);
             }
 
             HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_weaponIcon", out UnityEngine.Object weapon_weaponIcon);
@@ -119,22 +122,22 @@ namespace UltraFunGuns
 
         public virtual void FirePrimary()
         {
-            HydraLogger.Log($"{gameObject.name} Fired Primary! (not implemented)");
+            Deboog.Log($"{gameObject.name} Fired Primary! (not implemented)");
         }
 
         public virtual void FireSecondary()
         {
-            HydraLogger.Log($"{gameObject.name} Fired Secondary! (not implemented)");
+            Deboog.Log($"{gameObject.name} Fired Secondary! (not implemented)");
         }
         
         public virtual void DoSecret()
         {
-            HydraLogger.Log($"{gameObject.name} Used Secret! (not implemented)");
+            Deboog.Log($"{gameObject.name} Used Secret! (not implemented)");
         }
 
         public virtual void DebugAction()
         {
-            HydraLogger.Log($"{gameObject.name} Used Debug Action! (not implemented)");
+            Deboog.Log($"{gameObject.name} Used Debug Action! (not implemented)");
         }
 
         //Adds sound effect to dict
@@ -144,19 +147,19 @@ namespace UltraFunGuns
 
             if(audioSourceObject == null)
             {
-                HydraLogger.Log(string.Format("{0} is missing AudioSource Object: {1}", gameObject.name, clipName), DebugChannel.Error);
+                Deboog.Log(string.Format("{0} is missing AudioSource Object: {1}", gameObject.name, clipName), DebugChannel.Error);
                 return false;
             }else
             {
                 if(!audioSourceObject.TryGetComponent<AudioSource>(out AudioSource newAudioSrc))
                 {
-                    HydraLogger.Log(string.Format("{0} is missing AudioSource Component: {1}", gameObject.name, clipName), DebugChannel.Error);
+                    Deboog.Log(string.Format("{0} is missing AudioSource Component: {1}", gameObject.name, clipName), DebugChannel.Error);
                     return false;
                 }
 
                 if(soundEffects.ContainsKey(name))
                 {
-                    HydraLogger.Log(string.Format("{0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName), DebugChannel.Warning);
+                    Deboog.Log(string.Format("{0} attempted to add AudioSource: {1}, more than once.", gameObject.name, clipName), DebugChannel.Warning);
                     return false;
                 }
 
@@ -177,14 +180,14 @@ namespace UltraFunGuns
                 }
             }
 
-            HydraLogger.Log(string.Format("{0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
+            Deboog.Log(string.Format("{0}: {1}/{2} SFX Added.", gameObject.name, counter, names.Length));
         }
 
         protected void PlaySFX(string name, float minPitch = 1.0f, float maxPitch = 1.0f)
         {
             if(!soundEffects.ContainsKey(name))
             {
-                HydraLogger.Log(string.Format("{0}: sound effect: {1} not present in dictionary.", gameObject.name, name), DebugChannel.Error);
+                Deboog.Log(string.Format("{0}: sound effect: {1} not present in dictionary.", gameObject.name, name), DebugChannel.Error);
                 return;
             }
 

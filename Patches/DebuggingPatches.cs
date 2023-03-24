@@ -16,8 +16,8 @@ namespace UltraFunGuns.Patches
             [HarmonyPatch(nameof(GameStateManager.RegisterState))]
             static bool Prefix1(GameStateManager __instance, GameState newState)
             {
-                HydraLogger.Log("--Registered State--");
-                HydraLogger.Log(FormatGameState(newState));
+                Deboog.Log("--Registered State--");
+                Deboog.Log(FormatGameState(newState));
                 return true;
             }
 
@@ -25,12 +25,12 @@ namespace UltraFunGuns.Patches
             [HarmonyPatch("EvaluateState")]
             static bool Prefix2(GameStateManager __instance, Dictionary<string, GameState> ___activeStates)
             {
-                HydraLogger.Log("--Evaluate State--");
+                Deboog.Log("--Evaluate State--");
                 foreach (KeyValuePair<string, GameState> keyValuePair in ___activeStates)
                 {
                     if (keyValuePair.Value != null)
                     {
-                        HydraLogger.Log(FormatGameState(keyValuePair.Value));
+                        Deboog.Log(FormatGameState(keyValuePair.Value));
                     }
                 }
                 return true;

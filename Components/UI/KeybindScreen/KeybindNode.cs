@@ -20,14 +20,20 @@ namespace UltraFunGuns
             if (binding == null)
                 return;
             
-            if (KeybindManager.RebindingKey)
+            if (binding.KeybindManager == null)
             {
-                KeybindManager.CancelRebinding();
+                Debug.Log("Manager null");
+                return;
             }
 
-            if (currentBind.text != null)
+            if(binding.KeybindManager.RebindingKey)
             {
-                currentBind.text = "<color=orange>???</orange>";
+                binding.KeybindManager.CancelRebinding();
+            }
+
+            if (currentBind != null)
+            {
+                currentBind.text = "<color=orange>???</color>";
             }
 
             if (rebindButton != null)
@@ -37,7 +43,7 @@ namespace UltraFunGuns
 
             binding.Rebind((bind) =>
             {
-                if (currentBind.text != null)
+                if (currentBind != null)
                     currentBind.text = $"<color=orange>{bind.KeyCode}</color>";
 
                 if (rebindButton != null)

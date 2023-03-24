@@ -446,9 +446,10 @@ namespace UltraFunGuns
         }
 
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
-            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}", DebugChannel.Warning);
+            
+            Deboog.Log($"{gameObject.name} shot by {interaction.invokeType.Name}", DebugChannel.Warning);
 
             switch(interaction.invokeType.Name)
             {
@@ -458,8 +459,10 @@ namespace UltraFunGuns
 
                 case "FingerGun":
                     Pop();
-                    break;
+                    return true;
             }
+
+            return false;
         }
 
         public Vector3 GetPosition()

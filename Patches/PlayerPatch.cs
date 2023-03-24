@@ -31,7 +31,7 @@ namespace UltraFunGuns
             if (__instance.hp - damage <= 0)
             {
                 __instance.hp = 1;
-                SonicReverberator.vineBoom_Standard.PlayAudioClip();
+                SonicReverberator.vineBoom_Loudest.PlayAudioClip();
                 return false;
             }
 

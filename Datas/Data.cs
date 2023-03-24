@@ -15,7 +15,18 @@ namespace UltraFunGuns
     //TODO Redo this whole thing please. its kind of cursed. Done :)
     public static class Data
     {
-        public static DataManager DataManager { get; private set; } = new DataManager();
+        private static DataManager dataManager;
+        public static DataManager DataManager 
+        { 
+            get
+            {
+                if(dataManager == null)
+                {
+                    dataManager = new DataManager();
+                }
+                return dataManager;
+            }
+        }
 
         public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(DataManager, new Loadout(), "loadout.ufg");
         public static DataFile<SaveInfo> SaveInfo { get; private set; } = new DataFile<SaveInfo>(DataManager, new SaveInfo(), "save.ufg");
@@ -23,9 +34,11 @@ namespace UltraFunGuns
 
         public static void SaveAll()
         {
+            Deboog.Log("Saving all.", DebugChannel.User);
             Loadout.Save();
             SaveInfo.Save();
             Config.Save();
+            //Keys.KeybindManager.Bindings.Save();
         }
 
         [Commands.UFGDebugMethod("Reload Config", "Reloads the config file.")]
@@ -59,10 +72,11 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Reset All Data", "Resets UFG Mod data.")]
         public static void FirstTimeSetup()
         {
-            HydraLogger.Log("Creating new persistent data.");
+            Deboog.Log("Creating new persistent data.", DebugChannel.User);
             Loadout.New();
             Config.New();
             SaveInfo.New();
+            Keys.KeybindManager.Bindings.New();
         }
 
         public static void CheckSetup()
@@ -72,7 +86,7 @@ namespace UltraFunGuns
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
                 FirstTimeSetup();
-                HydraLogger.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
+                Deboog.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
             }
         }
     }

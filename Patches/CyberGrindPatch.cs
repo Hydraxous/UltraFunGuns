@@ -16,7 +16,8 @@ namespace UltraFunGuns.Patches
             {
                 if (weaponsUsed)
                 {
-                    HydraLogger.Log("Modded weapons used. Disqualifying Cybergrind submission.", DebugChannel.Warning);
+
+                    Deboog.Log("Modded weapons used. Disqualifying Cybergrind submission.", DebugChannel.Warning);
                     return false;
                 }
 

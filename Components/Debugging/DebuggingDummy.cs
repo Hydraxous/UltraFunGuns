@@ -13,20 +13,11 @@ namespace UltraFunGuns
     {
         private ExampleClass example = new ExampleClass();
 
-        private Keybinding testKey = Keys.KeybindManager.Fetch(new Keybinding("TestKey", KeyCode.Keypad1));
+        private Keybinding testKey = new Keybinding("TestKey", KeyCode.Keypad1);
 
         private void Start()
         {
-            
-
-
-
-            return;
-            foreach(KeyValuePair<string, string> dependancy in AssetManager.Instance.assetDependencies)
-            {
-                HydraLogger.Log($"{dependancy.Key}:{dependancy.Value}");
-            }
-            
+            Keys.Fetch(ref testKey);
         }
 
         private void Update()
@@ -57,12 +48,13 @@ namespace UltraFunGuns
 
             if (testKey.WasPerformedThisFrame)
             {
-                HydraLogger.Log($"Test Key Pressed: {testKey.KeyCode}", DebugChannel.Warning);
+                
+                Deboog.Log($"Test Key Pressed: {testKey.KeyCode}", DebugChannel.Warning);
             }
 
             if(Input.GetKeyDown(KeyCode.Keypad0))
             {
-                HydraLogger.Log("Started rebinding.", DebugChannel.Warning);
+                Deboog.Log("Started rebinding.", DebugChannel.Warning);
                 testKey.Rebind();
             }
              

@@ -50,7 +50,7 @@ namespace UltraFunGuns
                 CanProjectile hitCan = currentHit.transform.GetComponentInParent<CanProjectile>();
                 if (hitCan != null)
                 {
-                    HydraLogger.Log($"{hitCan.name} was shot!");
+                    Deboog.Log($"{hitCan.name} was shot!");
                     switch (__instance.beamType)
                     {
                         case BeamType.Railgun:
@@ -91,7 +91,7 @@ namespace UltraFunGuns
             }
             catch (System.Exception e)
             {
-                HydraLogger.Log($"Revolver Hit Error: {e.Message}\n{e.StackTrace}", DebugChannel.Error);
+                Deboog.Log($"Revolver Hit Error: {e.Message}\n{e.StackTrace}", DebugChannel.Error);
             }
 
         }

@@ -9,7 +9,7 @@ namespace UltraFunGuns
     {
         void Shot(BeamType beamType);
         bool Parried(Vector3 aimVector);
-        void Interact(UFGInteractionEventData interaction);
+        bool Interact(UFGInteractionEventData interaction);
         Vector3 GetPosition();
     }
 

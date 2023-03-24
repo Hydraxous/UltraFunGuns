@@ -223,7 +223,7 @@ namespace UltraFunGuns
         //After its parried by v2 or training bot it will damage the player
         private bool CheckPlayerHit(Collision col)
         {
-            HydraLogger.Log(HydraUtils.CollisionInfo(col), DebugChannel.Warning);
+            Deboog.Log(HydraUtils.CollisionInfo(col), DebugChannel.Warning);
             if(col.gameObject.tag == "Player")
             {
                 return true;
@@ -462,9 +462,9 @@ namespace UltraFunGuns
             return true;
         }
 
-        public void Interact(UFGInteractionEventData interaction)
+        public bool Interact(UFGInteractionEventData interaction)
         {
-            return;
+            return false;
         }
 
         public Vector3 GetPosition()

@@ -11,7 +11,7 @@ namespace UltraFunGuns
     {
         public static void Postfix(bool firstTime)
         {
-            HydraLogger.Log($"GunControl: Set weapons {firstTime}");
+            Deboog.Log($"GunControl: Set weapons {firstTime}");
             WeaponManager.DeployWeapons(firstTime);
         }
 
