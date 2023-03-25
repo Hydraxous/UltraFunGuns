@@ -62,7 +62,7 @@ namespace UltraFunGuns
         private void DoBoom()
         {
             
-            Deboog.Log("Can explosion - Size:" + explosionSize);
+            HydraLogger.Log("Can explosion - Size:" + explosionSize);
         }
 
         private void DoRays(CanExplosionProfile profile)

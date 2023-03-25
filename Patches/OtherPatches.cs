@@ -36,13 +36,13 @@ namespace UltraFunGuns
                     //Check if string is the one we want
                     if (strOperand == "Current weapon not in StyleHUD weaponFreshness dict!!!")
                     {
-                        Deboog.Log("FOUND IT.", DebugChannel.Fatal);
+                        HydraLogger.Log("FOUND IT.", DebugChannel.Fatal);
                         startIndex = i;
                         break;
                     }
                     else
                     {
-                        Deboog.Log(">NOT STRING", DebugChannel.Fatal);
+                        HydraLogger.Log(">NOT STRING", DebugChannel.Fatal);
                     }
                 }
             }
@@ -51,7 +51,7 @@ namespace UltraFunGuns
             if (startIndex > -1)
             {
                 codes.RemoveRange(startIndex, 2);
-                Deboog.Log(">REMOVED CODE INDICIES", DebugChannel.Fatal);
+                HydraLogger.Log(">REMOVED CODE INDICIES", DebugChannel.Fatal);
 
             }
 

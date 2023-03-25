@@ -19,16 +19,10 @@ namespace UltraFunGuns
         {
             if (binding == null)
                 return;
-            
-            if (binding.KeybindManager == null)
-            {
-                Debug.Log("Manager null");
-                return;
-            }
 
-            if(binding.KeybindManager.RebindingKey)
+            if(KeybindManager.RebindingKey)
             {
-                binding.KeybindManager.CancelRebinding();
+                KeybindManager.CancelRebinding();
             }
 
             if (currentBind != null)

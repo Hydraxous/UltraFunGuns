@@ -10,7 +10,7 @@ namespace UltraFunGuns
         private void Start()
         {
 
-            Deboog.Log($"{gameObject.name} was created, but it was not loaded properly from the assetbundle.", DebugChannel.Error);
+            HydraLogger.Log($"{gameObject.name} was created, but it was not loaded properly from the assetbundle.", DebugChannel.Error);
         }
     }
 }

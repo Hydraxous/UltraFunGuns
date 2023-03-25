@@ -223,7 +223,7 @@ namespace UltraFunGuns
         //After its parried by v2 or training bot it will damage the player
         private bool CheckPlayerHit(Collision col)
         {
-            Deboog.Log(HydraUtils.CollisionInfo(col), DebugChannel.Warning);
+            HydraLogger.Log(HydraUtils.CollisionInfo(col), DebugChannel.Warning);
             if(col.gameObject.tag == "Player")
             {
                 return true;

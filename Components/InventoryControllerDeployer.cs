@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UltraFunGuns.Datas;
 using HydraDynamics.Keybinds;
+using HydraDynamics;
 
 namespace UltraFunGuns
 {
@@ -20,7 +21,7 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private static Keybinding inventoryKey = new Keybinding("Inventory", KeyCode.I);
+        private static Keybinding inventoryKey = Hydynamics.GetKeybinding("Inventory", KeyCode.I);
 
         private static bool sentVersionMessage = false;
 
@@ -38,8 +39,6 @@ namespace UltraFunGuns
         //TODO optimization
         private void Awake()
         {
-            Keys.Fetch(ref inventoryKey);
-
             om = MonoSingleton<OptionsManager>.Instance;
             canvas = GetComponent<RectTransform>();
             pauseMenu = transform.Find("PauseMenu").gameObject;

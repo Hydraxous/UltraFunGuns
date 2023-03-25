@@ -138,7 +138,7 @@ namespace UltraFunGuns
             //data = GetCurrentInventoryData();
             Data.Loadout.Data.slots = GetInventoryLoadout();
             Data.Loadout.Save();
-            Deboog.Log("Inventory saved.");
+            HydraLogger.Log("Inventory saved.");
         }
 
         public InventorySlotData[] GetInventoryLoadout()
@@ -156,7 +156,7 @@ namespace UltraFunGuns
         {
             if (infoCard != null)
             {
-                //Deboog.Log("Weapon Card info set");
+                //HydraLogger.Log("Weapon Card info set");
                 infoCard.SetWeaponInfo(info);
             }
         }
@@ -170,7 +170,7 @@ namespace UltraFunGuns
 
             if(enabled != infoCard.gameObject.activeInHierarchy)
             {
-                //Deboog.Log("Weapon Card info state changed " + enabled);
+                //HydraLogger.Log("Weapon Card info state changed " + enabled);
                 infoCard.gameObject.SetActive(enabled);
             }
         }

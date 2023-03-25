@@ -11,7 +11,7 @@ namespace UltraFunGuns
         public override void FirePrimary()
         {
 
-            Deboog.Log("maxwell!");
+            HydraLogger.Log("maxwell!");
         }
     }
 }

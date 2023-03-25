@@ -279,7 +279,7 @@ namespace UltraFunGuns
             {
                 return false;
             }
-            Deboog.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
+            HydraLogger.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
             switch (target.targetType)
             {
                 case TargetObject.TargetType.Dodgeball:
@@ -481,7 +481,7 @@ namespace UltraFunGuns
                 body.velocity += forceVector;
                 body.velocity += upVector;
                 
-                Deboog.Log(enemy.enemyType.ToString() + "  " + body.velocity);
+                HydraLogger.Log(enemy.enemyType.ToString() + "  " + body.velocity);
                 SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
                 //splatt.invincibilityTimer = splatTimer;
                 //splatt.velocityToSplatThreshold = splatThreshold;

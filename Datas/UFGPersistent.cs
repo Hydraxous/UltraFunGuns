@@ -40,18 +40,18 @@ namespace UltraFunGuns.Datas
         {
             if(isFunny)
             {
-                Deboog.Log("It do be funny.", DebugChannel.Warning);
+                HydraLogger.Log("It do be funny.", DebugChannel.Warning);
             }else
             {
-                Deboog.Log("It dont be funny.", DebugChannel.Warning);
+                HydraLogger.Log("It dont be funny.", DebugChannel.Warning);
             }
 
             if (funnyValue > 0)
             {
-                Deboog.Log("It do be over 0", DebugChannel.Warning);
+                HydraLogger.Log("It do be over 0", DebugChannel.Warning);
             }else
             {
-                Deboog.Log("It dont be over 0", DebugChannel.Warning);
+                HydraLogger.Log("It dont be over 0", DebugChannel.Warning);
             }
         }
     }
@@ -94,7 +94,7 @@ namespace UltraFunGuns.Datas
 
         public void Save()
         {
-            Deboog.Log($"\"Saved\": {value}", DebugChannel.Warning);
+            HydraLogger.Log($"\"Saved\": {value}", DebugChannel.Warning);
         }
 
         public void Load()
@@ -103,7 +103,7 @@ namespace UltraFunGuns.Datas
             {
                 value = default(T);
             }
-            Deboog.Log($"\"Loaded\": {value}", DebugChannel.Warning);
+            HydraLogger.Log($"\"Loaded\": {value}", DebugChannel.Warning);
         }
 
         public void New()

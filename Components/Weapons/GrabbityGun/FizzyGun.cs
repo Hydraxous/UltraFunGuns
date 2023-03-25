@@ -136,7 +136,7 @@ public class FizzyGun : UltraFunGunBase
             return;
         }
 
-        Deboog.Log($"Beginning manipulation on object {col.name}", DebugChannel.Warning);
+        HydraLogger.Log($"Beginning manipulation on object {col.name}", DebugChannel.Warning);
 
         if (col.attachedRigidbody != null)
         {
@@ -160,7 +160,7 @@ public class FizzyGun : UltraFunGunBase
     {
         if (heldObject != null)
         {
-            Deboog.Log($"Ending manipulation on object {heldObject.name}", DebugChannel.Warning);
+            HydraLogger.Log($"Ending manipulation on object {heldObject.name}", DebugChannel.Warning);
 
             heldObject.transform.parent = heldObjectParent;
             heldObject = null;

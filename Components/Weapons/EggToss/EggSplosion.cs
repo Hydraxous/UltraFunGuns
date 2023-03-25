@@ -74,7 +74,7 @@ namespace UltraFunGuns
                 }
             }
             
-            Deboog.Log($"Eggsplosion spawned eggs: {eggsSpawned}");
+            HydraLogger.Log($"Eggsplosion spawned eggs: {eggsSpawned}");
         }
     }
 }

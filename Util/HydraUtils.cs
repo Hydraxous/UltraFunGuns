@@ -28,7 +28,7 @@ namespace UltraFunGuns
             {
                 aimRay.origin = projectileOrigin.position;
                 aimRay.direction = hit.point - projectileOrigin.position;
-                Deboog.Log($"Raycast hit [{hit.collider.gameObject.name}]");
+                HydraLogger.Log($"Raycast hit [{hit.collider.gameObject.name}]");
             }
 
             return aimRay;

@@ -18,7 +18,7 @@ namespace UltraFunGuns
 
         public static void LoadAssets(Action<bool> onLoaderComplete)
         {
-            Deboog.Log("Loader: Loading Assetbundle.");
+            HydraLogger.Log("Loader: Loading Assetbundle.");
 
             //Check error here.
             bundleRequest = AssetBundle.LoadFromMemoryAsync(Properties.Resources.UltraFunGuns);
@@ -28,7 +28,7 @@ namespace UltraFunGuns
             {
                 AssetManifest.RegisterAssets();
                 AssetBundle = bundleRequest.assetBundle;
-                Deboog.Log("Loader: Assetbundle Loaded.");
+                HydraLogger.Log("Loader: Assetbundle Loaded.");
                 bool loadSuccess = RegisterAll();
                 BundleLoaded = loadSuccess;
                 onLoaderComplete?.Invoke(loadSuccess);
@@ -80,16 +80,16 @@ namespace UltraFunGuns
         {
             try
             {
-                Deboog.Log("Loader: Registering all assets.");
+                HydraLogger.Log("Loader: Registering all assets.");
                 RegisterDataFiles();
                 RegisterCustomAssets();
-                Deboog.Log("Loader: Asset registration complete.");
+                HydraLogger.Log("Loader: Asset registration complete.");
                 return true;
             }
             catch (System.Exception e)
             {
-                Deboog.Log("Loader: Asset loading failed!", DebugChannel.Fatal);
-                Deboog.Log($"Loader: {e.Message}", DebugChannel.Fatal);
+                HydraLogger.Log("Loader: Asset loading failed!", DebugChannel.Fatal);
+                HydraLogger.Log($"Loader: {e.Message}", DebugChannel.Fatal);
                 return false;
             }
         }
@@ -98,16 +98,16 @@ namespace UltraFunGuns
         {
             try
             {
-                Deboog.Log("HydraLoader: loading mod assets");
+                HydraLogger.Log("HydraLoader: loading mod assets");
                 //assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
-                Deboog.Log("HydraLoader: loading complete");
+                HydraLogger.Log("HydraLoader: loading complete");
                 return true;
             }
             catch (Exception e)
             {
-                Deboog.Log($"HydraLoader: asset loading failed\n{e.Message}", DebugChannel.Fatal);
+                HydraLogger.Log($"HydraLoader: asset loading failed\n{e.Message}", DebugChannel.Fatal);
                 return false;
             }
         }
@@ -128,7 +128,7 @@ namespace UltraFunGuns
                     }
                     
                 }
-                Deboog.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
+                HydraLogger.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
                 dataRegistered = true;
             }
         }
@@ -143,7 +143,7 @@ namespace UltraFunGuns
 
                     if(newPrefab == null)
                     {
-                        Deboog.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle", DebugChannel.Error);
+                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle", DebugChannel.Error);
                         newPrefab = AssetBundle.LoadAsset<GameObject>("BrokenAsset");
                         newPrefab.name = asset.name;
                     }
@@ -157,7 +157,7 @@ namespace UltraFunGuns
                         prefabRegistry.Add(asset.name, newPrefab);
                     }
                 }
-                Deboog.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
+                HydraLogger.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
 
                 assetsRegistered = true;
             }
@@ -179,7 +179,7 @@ namespace UltraFunGuns
                     this.modules = componentsToAdd;
                 }
                 assetsToRegister.Add(this);
-                Deboog.Log(String.Format("prefab: {0}, registered successfully.", assetName));
+                HydraLogger.Log(String.Format("prefab: {0}, registered successfully.", assetName));
 
             }
         }
@@ -197,7 +197,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataFile = dataFile;
                 dataToRegister.Add(this);
-                Deboog.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
+                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
             }
 
             public CustomAssetData(string dataName, Type type) //For loading general assets
@@ -205,7 +205,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataType = type;
                 dataToRegister.Add(this);
-                Deboog.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
+                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
             }
         }
     }

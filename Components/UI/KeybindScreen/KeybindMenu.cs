@@ -1,4 +1,5 @@
-﻿using HydraDynamics.Keybinds;
+﻿using HydraDynamics;
+using HydraDynamics.Keybinds;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +22,7 @@ namespace UltraFunGuns
 
         private void Update()
         {
-            if (!Keys.KeybindManager.RebindingKey)
+            if (!KeybindManager.RebindingKey)
             {
                 if(Input.GetKeyDown(KeyCode.Escape))
                 {
@@ -35,7 +36,7 @@ namespace UltraFunGuns
             if (bindingNodePrefab == null)
                 return;
 
-            Keybinding[] keybindings = Keys.KeybindManager.Bindings.Data.GetBinds();
+            Keybinding[] keybindings = Hydynamics.GetKeybinds();
 
             Debug.Log($"Keybinds populating. {keybindings.Length}");
             foreach (var keybind in keybindings)
@@ -45,7 +46,7 @@ namespace UltraFunGuns
 
             foreach(Keybinding binding in keybindings)
             {
-                if(binding.KeybindManager == null)
+                if(binding == null)
                 {
                     continue;
                 }

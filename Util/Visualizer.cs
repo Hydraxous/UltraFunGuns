@@ -22,7 +22,7 @@ namespace UltraFunGuns
             Data.Config.Data.EnableVisualizer = nowEnabled;
             Data.Config.Save();
 
-            Deboog.Log($"Visual Debugging: {nowEnabled}", DebugChannel.User);
+            HydraLogger.Log($"Visual Debugging: {nowEnabled}", DebugChannel.User);
         }
 
         public static void DrawSphere(Vector3 position, float radius, float time = 1.0f)
@@ -56,7 +56,7 @@ namespace UltraFunGuns
 
             if (points.Length < 2)
             {
-                Deboog.Log("Not enough points provided for Visualizer.DrawLine", DebugChannel.Error);
+                HydraLogger.Log("Not enough points provided for Visualizer.DrawLine", DebugChannel.Error);
                 return;
             }
 

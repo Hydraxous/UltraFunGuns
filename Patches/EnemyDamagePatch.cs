@@ -38,7 +38,7 @@ namespace UltraFunGuns
                     healthCache.Remove(__instance);
                 }
                 string msg = $"\nFORCE: {force.x}|{force.y}|{force.z}|({force.magnitude})\nMUL: {multiplier}\nCRIT: {critMultiplier}\nDMG: {damageNum}";
-                Deboog.Log(msg);
+                HydraLogger.Log(msg);
                 Visualizer.DisplayTextAtPosition(msg, hitPoint, Color.red,10.0f);
             }
         }

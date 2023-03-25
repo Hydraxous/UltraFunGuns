@@ -8,6 +8,7 @@ using System.ComponentModel;
 using GameConsole;
 using UltraFunGuns.Datas;
 using HydraDynamics.DataPersistence;
+using HydraDynamics;
 
 namespace UltraFunGuns
 {
@@ -15,26 +16,13 @@ namespace UltraFunGuns
     //TODO Redo this whole thing please. its kind of cursed. Done :)
     public static class Data
     {
-        private static DataManager dataManager;
-        public static DataManager DataManager 
-        { 
-            get
-            {
-                if(dataManager == null)
-                {
-                    dataManager = new DataManager();
-                }
-                return dataManager;
-            }
-        }
-
-        public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(DataManager, new Loadout(), "loadout.ufg");
-        public static DataFile<SaveInfo> SaveInfo { get; private set; } = new DataFile<SaveInfo>(DataManager, new SaveInfo(), "save.ufg");
-        public static DataFile<Config> Config { get; private set; } = new DataFile<Config>(DataManager, new Config(), "config.txt", Formatting.Indented);
+        public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(new Loadout(), "loadout.ufg");
+        public static DataFile<SaveInfo> SaveInfo { get; private set; } = new DataFile<SaveInfo>(new SaveInfo(), "save.ufg");
+        public static DataFile<Config> Config { get; private set; } = new DataFile<Config>(new Config(), "config.txt", Formatting.Indented);
 
         public static void SaveAll()
         {
-            Deboog.Log("Saving all.", DebugChannel.User);
+            HydraLogger.Log("Saving all.", DebugChannel.User);
             Loadout.Save();
             SaveInfo.Save();
             Config.Save();
@@ -72,11 +60,10 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Reset All Data", "Resets UFG Mod data.")]
         public static void FirstTimeSetup()
         {
-            Deboog.Log("Creating new persistent data.", DebugChannel.User);
+            HydraLogger.Log("Creating new persistent data.", DebugChannel.User);
             Loadout.New();
             Config.New();
             SaveInfo.New();
-            Keys.KeybindManager.Bindings.New();
         }
 
         public static void CheckSetup()
@@ -86,9 +73,29 @@ namespace UltraFunGuns
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
                 FirstTimeSetup();
-                Deboog.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
+                HydraLogger.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
             }
         }
+
+        public static string GetDataPath(params string[] subpath)
+        {
+            string asmFolder = Assembly.GetExecutingAssembly().Location;
+            string localPath = Path.GetDirectoryName(asmFolder);
+
+            if (!Directory.Exists(localPath))
+            {
+                Directory.CreateDirectory(localPath);
+            }
+
+            if (subpath.Length > 0)
+            {
+                string subLocalPath = Path.Combine(subpath);
+                localPath = Path.Combine(localPath, subLocalPath);
+            }
+
+            return localPath;
+        }
+
     }
 
     [System.Serializable]
@@ -150,7 +157,7 @@ namespace UltraFunGuns
 
         public SaveInfo()
         {
-            this.modVersion = UltraFunGuns.RELEASE_VERSION;
+            this.modVersion = ConstInfo.RELEASE_VERSION;
             this.firstTimeModLoaded = true;
             this.firstTimeUsingInventory = true;
         }
@@ -169,7 +176,7 @@ namespace UltraFunGuns
             }
 
             //If the version is mismatched with the save files, regenerate all files.
-            if (modVersion != UltraFunGuns.RELEASE_VERSION)
+            if (modVersion != ConstInfo.RELEASE_VERSION)
             {
                 //DataManager.Config.New();
                 //DataManager.Loadout.New();
