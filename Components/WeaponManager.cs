@@ -305,7 +305,7 @@ namespace UltraFunGuns
             {
                 int slot = ((infos[i].Slot < 0) ? 0 : (infos[i].Slot > slotData.Count) ? slotData.Count - 1 : infos[i].Slot);
 
-                InventoryNodeData newNodeData = new InventoryNodeData(infos[i].WeaponKey, infos[i].Equipped);
+                InventoryNodeData newNodeData = new InventoryNodeData(infos[i].WeaponKey, infos[i].Equipped, infos[i].StartUnlocked);
                 if (!slotData[slot].Contains(newNodeData))
                 {
                     slotData[slot].Add(newNodeData);
@@ -388,7 +388,7 @@ namespace UltraFunGuns
                 List<string> newWeaponKeyList = new List<string>();
                 for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
                 {
-                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled)
+                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled && invControllerData.slots[x].slotNodes[y].weaponUnlocked)
                     {
                         newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }
@@ -428,7 +428,6 @@ namespace UltraFunGuns
 
                 foreach (string weaponKey in weaponKeySlots[i])
                 {
-
                     if (!WeaponManager.Weapons.TryGetValue(weaponKey, out UFGWeapon weaponInfo))
                     {
                         HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);

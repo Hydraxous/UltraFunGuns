@@ -252,7 +252,7 @@ Created By Hydraxous";
 
         public static void StartMessage()
         {
-            Debug.Log(textHeader);
+            Debug.LogWarning(textHeader);
             Log($"Loading started. Version: {ConstInfo.RELEASE_VERSION}", DebugChannel.User);
             lastModsLoaded = GetLoadedMods();
         }

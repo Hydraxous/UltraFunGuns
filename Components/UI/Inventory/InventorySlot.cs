@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,15 @@ namespace UltraFunGuns
     {
         InventoryController inventoryController;
         public int ID;
+
+        public int ActiveNodeCount
+        {
+            get
+            {
+                return nodes.Where(x => x.data.weaponUnlocked).Count();
+            }
+        }
+
         public List<InventoryNode> nodes = new List<InventoryNode>();
 
         public RectTransform r_transform;
@@ -68,7 +78,11 @@ namespace UltraFunGuns
 
         private void CreateNewNode(InventoryNodeData nodeData, int slotIndex)
         {
-            InventoryNode newNode = GameObject.Instantiate<GameObject>(InventoryControllerDeployer.UFGInventoryNode, r_transform).GetComponent<InventoryNode>();    
+            InventoryNode newNode = GameObject.Instantiate<GameObject>(InventoryControllerDeployer.UFGInventoryNode, r_transform).GetComponent<InventoryNode>();   
+            if(!nodeData.weaponUnlocked)
+            {
+                newNode.gameObject.SetActive(false);
+            }
             nodes.Add(newNode);
             newNode.Initialize(nodeData, this, slotIndex);
         }
@@ -92,6 +106,7 @@ namespace UltraFunGuns
 
             for (int i = 0; i < nodeDatas.Length; i++)
             {
+
                 CreateNewNode(nodeDatas[i], i);
             }
 

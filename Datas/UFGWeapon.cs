@@ -16,7 +16,7 @@ namespace UltraFunGuns
         public int Slot { get; }
         public WeaponIconColor IconColor { get; }
         public WeaponAbility[] Abilities { get; private set; }
-        public bool IsFinished { get; }
+        public bool StartUnlocked { get; }
         public GameObject Prefab { get; private set; }
 
         private Sprite weaponIcon;
@@ -56,15 +56,15 @@ namespace UltraFunGuns
         /// <param name="Slot">Default slot</param>
         /// <param name="Equipped">Default Equipped</param>
         /// <param name="IconColor">Color of the Weapon Icon</param>
-        /// <param name="IsFinished">Should this be loaded in a non-debug build?</param>
-        public UFGWeapon(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool IsFinished = false)
+        /// <param name="StartUnlocked">Should this be loaded in a non-debug build?</param>
+        public UFGWeapon(string WeaponKey, string DisplayName, int Slot, bool Equipped, WeaponIconColor IconColor, bool StartUnlocked = true)
         {
             this.WeaponKey = WeaponKey;
             this.DisplayName = DisplayName;
             this.Equipped = Equipped;
             this.Slot = Slot;
             this.IconColor = IconColor;
-            this.IsFinished = IsFinished;
+            this.StartUnlocked = StartUnlocked;
         }
 
         public void SetAbilities(WeaponAbility[] abilities)

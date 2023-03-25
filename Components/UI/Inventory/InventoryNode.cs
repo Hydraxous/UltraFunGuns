@@ -73,9 +73,11 @@ namespace UltraFunGuns
         //The chad non-layout group function
         public void RefreshPosition()
         {
-            float anchorPercentage = 1.0f / ((float) slot.nodes.Count);
-            float anchorMin = (slot.nodes.Count - (slotIndexPosition + 1)) * anchorPercentage;
-            float anchorMax = (slot.nodes.Count - slotIndexPosition) * anchorPercentage;
+            int nodeCount = slot.nodes.Count;
+
+            float anchorPercentage = 1.0f / ((float) nodeCount);
+            float anchorMin = (nodeCount - (slotIndexPosition + 1)) * anchorPercentage;
+            float anchorMax = (nodeCount - slotIndexPosition) * anchorPercentage;
 
             nodeTransform.anchorMin = new Vector2(0.0f, anchorMin);
             nodeTransform.anchorMax = new Vector2(1.0f, anchorMax);
@@ -206,11 +208,13 @@ namespace UltraFunGuns
     {
         public string weaponKey;
         public bool weaponEnabled;
+        public bool weaponUnlocked;
 
-        public InventoryNodeData(string weaponKey, bool enabled = true)
+        public InventoryNodeData(string weaponKey, bool enabled = true, bool weaponUnlocked = true)
         {
             this.weaponKey = weaponKey;
             this.weaponEnabled = enabled;
+            this.weaponUnlocked = weaponUnlocked;
         }
 
         public InventoryNodeData()

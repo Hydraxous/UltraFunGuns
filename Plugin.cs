@@ -65,13 +65,10 @@ namespace UltraFunGuns
             yield return null;
         }
 
-
         private void DoPatching()
         {
             harmony.PatchAll();
         }
-
-        
 
         [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
         public static void ToggleDebugMode()

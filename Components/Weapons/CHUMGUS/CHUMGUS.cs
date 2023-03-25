@@ -16,7 +16,7 @@ namespace UltraFunGuns
      * 
      */
 
-    [UFGWeapon("Chumgus", "C.H.U.M.G.U.S.", 2, true, WeaponIconColor.Green)]
+    [UFGWeapon("Chumgus", "C.H.U.M.G.U.S.", 2, true, WeaponIconColor.Green, false)]
     public class CHUMGUS : UltraFunGunBase
     {
 
