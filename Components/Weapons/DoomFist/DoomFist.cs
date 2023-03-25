@@ -5,7 +5,7 @@ using System.Text;
 namespace UltraFunGuns
 {
     [WeaponAbility("Punch","Do a punch", 0, RichTextColors.aqua)]
-    [UFGWeapon("DoomFist", "Hydraulic Gauntlet", 3, true, WeaponIconColor.Red)]
+    [UFGWeapon("DoomFist", "Hydraulic Gauntlet", 3, true, WeaponIconColor.Red, false)]
     public class DoomFist : UltraFunGunBase
     {
         public float chargeTime = 0.0f;

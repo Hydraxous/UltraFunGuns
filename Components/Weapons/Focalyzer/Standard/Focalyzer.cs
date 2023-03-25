@@ -20,6 +20,8 @@ namespace UltraFunGuns
         [UFGAsset("FocalyzerPylon")] public static GameObject pylonPrefab { get; private set; }
         [UFGAsset("FocalyzerLaser")] public static GameObject laserPrefab { get; private set; }
 
+        
+
         private bool throwingPylon = false;
         public bool laserActive = false;
         public bool hittingAPylon = false;

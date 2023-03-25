@@ -388,7 +388,7 @@ namespace UltraFunGuns
                 List<string> newWeaponKeyList = new List<string>();
                 for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
                 {
-                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled && invControllerData.slots[x].slotNodes[y].weaponUnlocked)
+                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled && (invControllerData.slots[x].slotNodes[y].weaponUnlocked || UltraFunGuns.DebugMode))
                     {
                         newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
                     }

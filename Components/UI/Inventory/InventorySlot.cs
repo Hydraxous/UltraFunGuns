@@ -45,7 +45,8 @@ namespace UltraFunGuns
             else if(newSlot < 0)
             {
                 nodeListCopy.Add(node);
-            }else
+            }
+            else
             {
                 nodeListCopy.Insert(newSlot, node);
             }
@@ -73,16 +74,11 @@ namespace UltraFunGuns
         public void RemoveNode(InventoryNode node)
         {
             nodes.Remove(node);
-            Refresh();
         }
 
         private void CreateNewNode(InventoryNodeData nodeData, int slotIndex)
         {
             InventoryNode newNode = GameObject.Instantiate<GameObject>(InventoryControllerDeployer.UFGInventoryNode, r_transform).GetComponent<InventoryNode>();   
-            if(!nodeData.weaponUnlocked)
-            {
-                newNode.gameObject.SetActive(false);
-            }
             nodes.Add(newNode);
             newNode.Initialize(nodeData, this, slotIndex);
         }
@@ -117,6 +113,15 @@ namespace UltraFunGuns
         {
             for(int i = 0; i < nodes.Count; i++)
             {
+                int currentSiblingIndex = nodes[i].transform.GetSiblingIndex();
+
+                if(currentSiblingIndex != i)
+                {
+                    //Set current location in list to the place of the one we are moving.
+                    r_transform.GetChild(i).SetSiblingIndex(currentSiblingIndex);
+                    nodes[i].transform.SetSiblingIndex(i);
+                }
+
                 nodes[i].slotIndexPosition = i;
                 nodes[i].Refresh();
             }

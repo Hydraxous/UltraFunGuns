@@ -38,6 +38,7 @@ namespace UltraFunGuns
         [UFGAsset("ShittyExplosion")] public static GameObject ShittyExplosionFX { get; private set; }
 
         public static UKAsset<AudioClip> ShittyExplosionSound { get; private set; } = new UKAsset<AudioClip>("Assets/Sounds/Credits/ThatExplosionSound.wav");
+        public static UKAsset<AudioClip> BonusBreakSound { get; private set; } = new UKAsset<AudioClip>("Assets/Sounds/Environment/bonusbreak.wav");
 
         /*
         public static GameObject UK_Explosion 

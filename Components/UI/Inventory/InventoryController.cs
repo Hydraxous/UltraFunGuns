@@ -97,6 +97,7 @@ namespace UltraFunGuns
                         newSlot1 = Mathf.Clamp(slots.Count, 0, slots.Count - 1);
                     }
                     slots[newSlot1].InsertNode(node);
+                    slot.Refresh();
                     break;
                 case "Left":
                     slot.RemoveNode(node);
@@ -110,6 +111,7 @@ namespace UltraFunGuns
                         newSlot2 = Mathf.Clamp(slots.Count, 0, slots.Count - 1);
                     }
                     slots[newSlot2].InsertNode(node);
+                    slot.Refresh();
                     break;
             }
             SaveInventoryData();

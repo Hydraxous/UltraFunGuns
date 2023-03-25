@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green)]
+    [UFGWeapon("Bulletstorm", "Bulletstorm", 3, true, WeaponIconColor.Green, false)]
     public class Bulletstorm : UltraFunGunBase
     {
 

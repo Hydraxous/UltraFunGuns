@@ -70,9 +70,10 @@ namespace UltraFunGuns
             Refresh();
         }
 
-        //The chad non-layout group function
+        //The chad non-layout group function, update: :'^(
         public void RefreshPosition()
         {
+            return;
             int nodeCount = slot.nodes.Count;
 
             float anchorPercentage = 1.0f / ((float) nodeCount);
@@ -111,6 +112,13 @@ namespace UltraFunGuns
             {
                 b_up.gameObject.SetActive(true);
                 b_down.gameObject.SetActive(true);
+            }
+
+            gameObject.SetActive(data.weaponUnlocked);
+
+            if(UltraFunGuns.DebugMode)
+            {
+                gameObject.SetActive(true);
             }
 
             RefreshPosition();

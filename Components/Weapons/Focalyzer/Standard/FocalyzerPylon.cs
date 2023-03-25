@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using System.Net.NetworkInformation;
 
 namespace UltraFunGuns
 {
@@ -14,6 +15,8 @@ namespace UltraFunGuns
          */
     public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver
     {
+        [UFGAsset("FocalyzerPylonShatterFX_Red")] public static GameObject PylonShatterFX { get; private set; }
+
         public Animator animator;
         public Animator laserAnimator;
 
@@ -40,7 +43,7 @@ namespace UltraFunGuns
         private float lifeTimeLeft = 0.0f;
 
         public bool disco = false;
-
+        private bool dying = false;
         private AudioSource discoAudio;
 
         private Rigidbody rb;
@@ -298,7 +301,15 @@ namespace UltraFunGuns
         //TODO break animation
         void Shatter()
         {
+            if (dying)
+            {
+                return;
+            }
+
+            dying = true;
             Events.OnPlayerRespawn -= Shatter;
+            Instantiate(PylonShatterFX, transform.position, Quaternion.identity);
+            Prefabs.BonusBreakSound.Asset.PlayAudioClip(transform.position, 1.1f, 1.0f, 0.6f);
             Destroy(gameObject);
         }
 
