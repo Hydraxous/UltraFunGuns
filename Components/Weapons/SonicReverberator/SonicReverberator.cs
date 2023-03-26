@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -39,7 +41,6 @@ namespace UltraFunGuns
         public bool skipConeCheck = true, enablePlayerKnockback = true;
 
         public float baseGyroRotationSpeed = 0.01f;
-        public float currentGyroRotationSpeed = 0.01f;
         public float gyroRotationSpeedModifier = 0.1f;
 
         public float chargeLevel = 0.0f;
@@ -76,6 +77,9 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldownTime = 0.0f;
 
+        private GyroRotator[] rotators;
+
+
         public override void OnAwakeFinished()
         {
             pistons = transform.Find("viewModelWrapper/MoyaiGun/Animated/PistonBase").gameObject.AddComponent<VisualCounterAnimator>();
@@ -83,12 +87,28 @@ namespace UltraFunGuns
             chargeIncrease = transform.Find("viewModelWrapper/Audios/ChargeIncrease").GetComponent<AudioSource>();
             chargeDecrease = transform.Find("viewModelWrapper/Audios/ChargeDecrease").GetComponent<AudioSource>();
             chargeFinal = transform.Find("viewModelWrapper/Audios/ChargeFinal").GetComponent<AudioSource>();
+            rotators = GetComponentsInChildren<GyroRotator>();
+            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
         }
 
-
-        private void Start()
+        private void SetGyroSpeed(float newSpeed)
         {
-            HelpChildren();
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                if (rotators[i] == null)
+                    continue;
+                rotators[i].Speed = newSpeed;
+            }
+        }
+
+        private void SetGyroEnable(bool newState)
+        {
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                if (rotators[i] == null)
+                    continue;
+                rotators[i].Spin = newState;
+            }
         }
 
         public override Dictionary<string, ActionCooldown> SetActionCooldowns()
@@ -116,24 +136,25 @@ namespace UltraFunGuns
             {
                 Fire();
             }
+
+            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            {
+                SecretAnimation();
+            }
         }
 
-
-        private void HelpChildren()
+        private void SecretAnimation()
         {
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();    
-            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
-        }
 
+        }
 
         protected override void DoAnimations()
         {
-            currentGyroRotationSpeed = baseGyroRotationSpeed * (chargeLevel*gyroRotationSpeedModifier);
+            SetGyroSpeed(baseGyroRotationSpeed * (chargeLevel * gyroRotationSpeedModifier));
+            SetGyroEnable(charging);
             animator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
             animator.SetBool("Charging", charging);
+            
             
             int chargeState = GetChargeState(chargeLevel);
             if (chargeState > lastChargeState)
