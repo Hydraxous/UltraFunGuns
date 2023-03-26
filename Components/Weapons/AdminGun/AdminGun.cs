@@ -18,11 +18,10 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> somethingWicked = new UKAsset<GameObject>("Assets/Prefabs/Enemies/Wicked.prefab");
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
 
-        public bool penetrateWalls = true;
         public int hitscans = 16;
         public float spread = 0.06f;
 
-        private bool aimbot;
+        private bool gamerMode;
 
         private ActionCooldown primaryFire = new ActionCooldown(0.05f), secondaryFire = new ActionCooldown(0.05f);
 
@@ -45,7 +44,7 @@ namespace UltraFunGuns
             if (WeaponManager.SecretButton.WasPerformedThisFrame)
             {
                 animator.Play("SelectFire", 0, 0);
-                aimbot = !aimbot;
+                gamerMode = !gamerMode;
                 switchFireModeSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f, 0.0f);
             }
 
@@ -63,7 +62,7 @@ namespace UltraFunGuns
 
         private void ShootGun()
         {
-            if (aimbot)
+            if (gamerMode)
             {
                 if (HydraUtils.TryGetTarget(out Vector3 directionToTarget))
                 {
@@ -114,7 +113,7 @@ namespace UltraFunGuns
                         invokeType = typeof(AdminGun)
                     };
 
-                    if (receiver.Interact(eventData) && !penetrateWalls)
+                    if (receiver.Interact(eventData) && !gamerMode)
                     {
                         break;
                     }
@@ -124,7 +123,7 @@ namespace UltraFunGuns
                 if ((hits[x].collider.gameObject.layer == 24 || hits[x].collider.gameObject.layer == 25 || hits[x].collider.gameObject.layer == 8))
                 {
                     lastHit = x;
-                    if (!penetrateWalls)
+                    if (!gamerMode)
                         break;
                 }
 
@@ -147,7 +146,7 @@ namespace UltraFunGuns
                     }
                     else
                     {
-                        Action styleCallback = new Action(() => { WeaponManager.AddStyle((aimbot) ? 1 : 5, "admingunkill", gameObject, enemy); });
+                        Action styleCallback = new Action(() => { WeaponManager.AddStyle((gamerMode) ? 1 : 5, "admingunkill", gameObject, enemy); });
                         enemy.gameObject.EnsureComponent<EnemyOverride>().AddDeathCallback(styleCallback);
                         enemy.DeliverDamage(hits[x].collider.gameObject, newShot.direction.normalized * 10000.0f, hits[x].point, 2.0f, false, 1.0f, gameObject);
                     }

@@ -198,14 +198,14 @@ namespace UltraFunGuns
                 return;
             }
 
-            ProcessHit(hit);
-
             if (hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
             {
-
+                EnemyOverride enemyOverride = eid.Override();
+                enemyOverride.Knockback(direction.normalized*chargeLevel);
+                eid.DeliverDamage(eid.gameObject, direction.normalized * 2000.0f, hit.point, 1.5f, true, 0.0f, gameObject);
             }else if(hit.rigidbody != null)
             {
-
+                hit.rigidbody.velocity = direction.normalized * chargeLevel;
             }
         }
 

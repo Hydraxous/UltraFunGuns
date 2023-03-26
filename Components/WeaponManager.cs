@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 using HydraDynamics.Keybinds;
 using UltraFunGuns.Datas;
 using HydraDynamics;
+using HydraDynamics.Events;
+using System.Data;
 
 namespace UltraFunGuns
 {
@@ -32,7 +34,24 @@ namespace UltraFunGuns
         {
             RegisterWeapons();
             UKAPIP.OnLevelChanged += OnLevelChanged;
+            CrossModEvents.SubscribeToModEvents(CheckEvent, "WeaponDeployer");
             //UltraFunGuns.UFG.OnModUnloaded.AddListener(DeInit);
+        }
+
+        private static void CheckEvent(ModEventData data)
+        {
+            if(data.targetSubscriptionKey != "WeaponDeployer")
+                return;
+
+            if (data.targetModGUID != ConstInfo.GUID)
+                return;
+
+            if (data.eventName != "RedeployWeapons")
+                return;
+
+            DeployWeapons();
+
+            CrossModEvents.UnsubscribeFromModEvents("WeaponDeployer");
         }
 
         private static void DeInit()
