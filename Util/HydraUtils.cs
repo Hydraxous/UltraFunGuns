@@ -682,6 +682,14 @@ namespace UltraFunGuns
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
             line.SetPositions(linePoints);
         }
+
+        public static Vector3 Abs(this Vector3 vector)
+        {
+            vector.x = Mathf.Abs(vector.x);
+            vector.y = Mathf.Abs(vector.y);
+            vector.z = Mathf.Abs(vector.z);
+            return vector;
+        }
     }
 
     public class TargetObject

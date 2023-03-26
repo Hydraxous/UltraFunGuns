@@ -40,12 +40,18 @@ namespace UltraFunGuns
         public float fireRateSpeed = 0.02f;
         public float maxRange = 200.0f;
 
-        public int fireAmount = 50;
+        public int fireAmount = 5;
+
+        private Vibrator vibrator;
 
         public override void OnAwakeFinished()
         {
             //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
-
+            MeshRenderer cube = GetComponentInChildren<MeshRenderer>();
+            if(cube != null)
+            {
+                vibrator = cube.gameObject.AddComponent<Vibrator>();
+            }
         }
 
         private void Start()
@@ -58,6 +64,7 @@ namespace UltraFunGuns
             if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && actionCooldowns["primaryCooldown"].CanFire() && !om.paused)
             {
                 Shoot();
+                vibrator?.AddTime(1.0f);
             }
         }
 

@@ -79,7 +79,6 @@ namespace UltraFunGuns
 
         private GyroRotator[] rotators;
 
-
         public override void OnAwakeFinished()
         {
             pistons = transform.Find("viewModelWrapper/MoyaiGun/Animated/PistonBase").gameObject.AddComponent<VisualCounterAnimator>();
@@ -145,7 +144,7 @@ namespace UltraFunGuns
 
         private void SecretAnimation()
         {
-
+            //animator.Play("Inspect", 0, 0);
         }
 
         protected override void DoAnimations()
