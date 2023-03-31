@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using UltraFunGuns.Util;
@@ -11,6 +12,10 @@ namespace UltraFunGuns
     {
         private UltraFunGunBase.ActionCooldown impactCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private Rigidbody rb;
+
+        public GameObject sourceWeapon = null;
+        public float damage = 1.0f;
+        private bool dying = false;
 
         private void Awake()
         {
@@ -33,6 +38,7 @@ namespace UltraFunGuns
             if(transform.Find("SpecialPutDownSound").TryGetComponent<AudioSource>(out AudioSource audio))
             {
                 plushAudioSrc = audio;
+                plushAudioSrc.spatialBlend = 0.87f;
                 PlayPlushieAudio();
             }
         }
@@ -62,10 +68,10 @@ namespace UltraFunGuns
 
             if (collision.IsCollisionEnemy(out EnemyIdentifier eid))
             {
-                
+                eid.DeliverDamage(eid.gameObject, collision.relativeVelocity, collision.GetContact(0).normal, damage, true, 0.5f, sourceWeapon);
             }
 
-            if(impactCooldown.CanFire())
+            if (impactCooldown.CanFire())
             {
                 Impact(collision);
             }else
@@ -77,6 +83,11 @@ namespace UltraFunGuns
         //When we collide with something
         private void Impact(Collision col)
         {
+            if (dying)
+                return;
+
+            dying = true;
+
             Explode(transform.position+col.GetContact(0).normal * 0.24f);
         }
 

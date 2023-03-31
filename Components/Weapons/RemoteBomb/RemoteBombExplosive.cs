@@ -364,7 +364,7 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            if(interaction.data.Contains("shot") || interaction.data.Contains("explode"))
+            if(interaction.ContainsAnyTag("shot", "explode"))
             {
                 Detonate(true);
                 return true;

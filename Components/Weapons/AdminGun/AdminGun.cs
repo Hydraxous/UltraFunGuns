@@ -107,10 +107,11 @@ namespace UltraFunGuns
 
                     UFGInteractionEventData eventData = new UFGInteractionEventData()
                     {
-                        data = "shot.god",
+                        tags = new string[] { "shot", "god" },
                         direction = newShot.direction,
                         interactorPosition = newShot.origin,
-                        invokeType = typeof(AdminGun)
+                        invokeType = typeof(AdminGun),
+                        power = 1000
                     };
 
                     if (receiver.Interact(eventData) && !gamerMode)

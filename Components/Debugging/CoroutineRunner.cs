@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HydraDynamics.Debugging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -45,6 +46,17 @@ namespace UltraFunGuns
         {
             CoroutineRunner coroutineRunner = new GameObject("New Rebinder").AddComponent<CoroutineRunner>();
             return coroutineRunner.RunCoroutine(coroutine);
+        }
+
+        public static void DelayedExecute(Action action, float delayInSeconds)
+        {
+            RunCoroutine(DelayedExecution(action, delayInSeconds));
+        }
+
+        private static IEnumerator DelayedExecution(Action action, float timeInSeconds)
+        {
+            yield return new WaitForSecondsRealtime(timeInSeconds);
+            action?.Invoke();
         }
     }
 }

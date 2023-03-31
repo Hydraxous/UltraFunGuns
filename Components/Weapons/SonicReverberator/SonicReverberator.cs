@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UltraFunGuns
 {
@@ -46,12 +47,6 @@ namespace UltraFunGuns
         public float chargeLevel = 0.0f;
         public float chargeSpeedMultiplier = 2.8f;
         public float chargeDecayMultiplier = 0.25f;
-
-        //TODO try to remove this.
-        private float blastForceMultiplier = 100.0f;
-        private float blastForceUpwardsMultiplier = 30.0f;
-        private float hitBoxRadiusMultiplier = 0.75f;
-        private float blastOriginZOffset = 0.49f;
 
         private float maxTargetAngle = 80.0f;
         private float minTargetAngle = 18.0f;
@@ -107,6 +102,14 @@ namespace UltraFunGuns
                 if (rotators[i] == null)
                     continue;
                 rotators[i].Spin = newState;
+            }
+        }
+
+        private void AddGyroSpin(float velocity)
+        {
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                rotators[i]?.AddAngularVelocity(velocity);
             }
         }
 
@@ -181,15 +184,44 @@ namespace UltraFunGuns
             moyaiAnimator.SetFloat("ChargeLevel", chargeLevel + 0.5f);
         }
 
-
-
-        private void FireRemade()
+        private float CalcDistance(float scalar)
         {
-            float thickness = 0.0f;
-            float maxRange = 0.0f;
+            //y = (x+((x*(x*0.45))/5))
+            float distance = scalar * 0.45f;
+            distance *= scalar;
+            distance /= scalar;
+            distance += scalar;
+            distance *= 2.0f;
+            return Mathf.Min(distance, maxRange);
+        }
+        
+        private float CalcRadius(float scalar)
+        {
+            //y = (x+((x*(x*0.45))/5))*0.15
+            float radius = scalar * 0.45f;
+            radius *= scalar;
+            radius /= scalar;
+            radius += scalar;
+            radius *= 0.8f;
+            return Mathf.Min(radius, maxRange);
+        }
 
+        private void Fire()
+        {
+            float thickness = CalcRadius(chargeLevel);
+            float maxRange = CalcDistance(chargeLevel);
 
-            if(HydraUtils.SphereCastAllMacro(mainCam.position, thickness, mainCam.forward, maxRange, out RaycastHit[] hits))
+            VineBoom(); // does the thing
+
+            //float currentAngle = Mathf.Clamp(chargeLevel, minTargetAngle, maxTargetAngle);
+            int chargeState = GetChargeState();
+
+            MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
+            MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
+
+            Visualizer.DrawSphereCast(mainCam.position, thickness, mainCam.forward, maxRange, 3.0f);
+
+            if (HydraUtils.SphereCastAllMacro(mainCam.position, thickness, mainCam.forward, maxRange, out RaycastHit[] hits))
             {
                 foreach (RaycastHit hit in hits)
                 {
@@ -197,86 +229,11 @@ namespace UltraFunGuns
                 }
             }
 
-        }
+            KnockbackPlayer();
 
-        private void ProcessHit(RaycastHit hit)
-        {
-            if (hit.collider.IsColliderEnvironment())
-            {
-                return;
-            }
-
-            if (!HydraUtils.LineOfSightCheck(mainCam.position, hit.point))
-            {
-                return;
-            }
-
-            Vector3 direction = hit.point - mainCam.position;
-
-            if (!HydraUtils.ConeCheck(mainCam.forward, direction, maxTargetAngle))
-            {
-                return;
-            }
-
-            if (hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
-            {
-                EnemyOverride enemyOverride = eid.Override();
-                enemyOverride.Knockback(direction.normalized*chargeLevel);
-                eid.DeliverDamage(eid.gameObject, direction.normalized * 2000.0f, hit.point, 1.5f, true, 0.0f, gameObject);
-            }else if(hit.rigidbody != null)
-            {
-                hit.rigidbody.velocity = direction.normalized * chargeLevel;
-            }
-        }
-
-
-
-        //RULES FOR HITREG
-        /*
-         * 1. Enemy must be within range.
-         * 1b. Enemy must be in line of sight.
-         * 2. Enemy must not be dead.
-         * 3. Enemy must be within target angle.
-         * - Zombie tags will get knockback
-         * - Drones will start to crash
-         * - Stone creatures will take damage
-         * - Fullcharge will instakill everything.
-         * - 
-         * 4. The closer the enemy is the stronger the force applied to them will be.
-         * 5. Any rigidbodies which aren't enemies should get knocked back if they aren't kinematic
-         * 6. Any Dodgeballs should be excited with the corresponding charge state
-         * 7. Any projectiles should be reflected using the player look direction as a normal
-         */
-        //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
-        private void Fire()
-        {
-            int chargeState = GetChargeState();
-            
             animator.Play("SonicReverberator_Shoot");
             pistons.DisplayCount = chargeState;
-            SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(ReverbProjectile, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
-            BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
-            BOOM.power = chargeLevel;
-            BOOM.powerState = chargeState;
-     
-            VineBoom(); // does the thing
-
-            float currentAngle = Mathf.Clamp(chargeLevel, minTargetAngle, maxTargetAngle);
-
-            List<TargetObject> targets = new List<TargetObject>();
-
-            GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
-            targets = HydraUtils.GetTargetsFromGameObjects(enemyObjectsActive);
-
-            //MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
-            //MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
-            //TODO restore old code. operate fine ??? its bokren
-            for(int i = 0; i < targets.Count; i++)
-            {
-                EffectTarget(targets[i], currentAngle);
-            }
-
-            KnockbackPlayer();
+            AddGyroSpin(chargeLevel);
 
             actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
             chargeLevel = 0;
@@ -284,37 +241,50 @@ namespace UltraFunGuns
             charging = false;
         }
 
-        private bool EffectTarget(TargetObject target, float angle)
+        private void ProcessHit(RaycastHit hit)
         {
-            Ray targetRay = new Ray();
-            targetRay.origin = mainCam.transform.position;
-            targetRay.direction = target.gameObject.transform.position - mainCam.transform.position;
-
-            if (!HydraUtils.LineOfSightCheck(targetRay.origin, target.gameObject.transform.position))
+            if (!HydraUtils.LineOfSightCheck(mainCam.position, hit.point) )
             {
-                return false;
+                //return;
             }
 
-            if(!HydraUtils.ConeCheck(mainCam.TransformDirection(0,0,1).normalized, targetRay.direction, angle))
+            Vector3 direction = hit.point - mainCam.position;
+
+            if ((Vector3.Dot((hit.collider.transform.position - mainCam.position), mainCam.forward) < 0) && !skipConeCheck)
             {
-                return false;
-            }
-            HydraLogger.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
-            switch (target.targetType)
-            {
-                case TargetObject.TargetType.Dodgeball:
-                    target.targetPoint.GetComponent<ThrownDodgeball>().ExciteBall(GetChargeState());
-                    break;
-                case TargetObject.TargetType.Zombie:
-                    target.targetPoint.GetComponent<Zombie>().KnockBack(targetRay.direction*chargeLevel);
-                    break;
-                default:
-                    break;
+                return;
             }
 
-            return false;
+            if (hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
+            {
+                EnemyOverride enemyOverride = eid.Override();
+                eid.DeliverDamage(eid.gameObject, direction.normalized * 2000.0f, hit.point, chargeLevel*0.1f, true, 0.0f, gameObject);
+                enemyOverride.Knockback(direction.normalized*chargeLevel * 20.0f);
+            }else if(hit.collider.attachedRigidbody != null)
+            {
+                hit.collider.attachedRigidbody.velocity = direction.normalized * chargeLevel;
+            }
+
+            Vector3 reflect = Vector3.Reflect(mainCam.position - hit.collider.bounds.center, mainCam.forward);
+
+            ParryTool.TryParryProjectile(hit.collider, reflect, out Projectile _);
+            ParryTool.TryParryCannonball(hit.collider, reflect, out Cannonball __);
+
+            if (hit.collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
+            {
+                UFGInteractionEventData eventData = new UFGInteractionEventData()
+                {
+                    invokeType = typeof(SonicReverberator),
+                    interactorPosition = mainCam.position,
+                    direction = direction,
+                    tags = new string[] { "shot", "sonic", "shatter" },
+                    power = chargeLevel,
+                };
+
+                uFGInteractionReceiver.Interact(eventData);
+            }
+
         }
-
 
         public int GetChargeState(float charge) //gets charge state from provided charge level.
         {
@@ -333,7 +303,6 @@ namespace UltraFunGuns
             return GetChargeState(chargeLevel);
         }
 
-
         private void OnDisable()
         {
             lastKnownCooldownTime = Time.time;
@@ -345,166 +314,6 @@ namespace UltraFunGuns
             if ((actionCooldowns["fire"].TimeToFire - Time.time) > 0.0f)
             {
                 actionCooldowns["fire"].TimeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
-            }
-        }
-
-        //TODO TODAY IS THE DAY.
-        //TODO FIX THIS 
-        //I'm gonna keep writing TODO messages you cannot stop me, you are in the past, you have no control of my actions.
-        //TODO fix this
-        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
-        {
-            try
-            {
-                if (!enemy.dead)
-                { 
-                EnemyType enemyType = enemy.enemyType;
-                bool canKnockback = false;
-                bool boss = enemy.gameObject.TryGetComponent<BossIdentifier>(out BossIdentifier b);
-                switch (enemyType)
-                {
-                    case EnemyType.Drone:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Virtue:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Soldier:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Stray:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Stalker:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Swordsmachine:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Streetcleaner:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.V2:
-                        canKnockback = true;
-                        boss = true;
-                        break;
-                    case EnemyType.Filth:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Gabriel:
-                        canKnockback = true;
-                        boss = true;
-                        break;
-                    case EnemyType.Turret:
-                        if (!enemy.gameObject.GetComponent<Turret>().aiming)
-                        {
-                            canKnockback = true;
-                        }
-                        break;
-                    case EnemyType.Schism:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Minos:
-                        boss = true;
-                        break;
-                    case EnemyType.MinosPrime:
-                        boss = true;
-                        break;
-                    case EnemyType.V2Second:
-                        boss = true;
-                        break;
-                    case EnemyType.Wicked:
-                        boss = true;
-                        break;
-                    case EnemyType.Leviathan:
-                        boss = true;
-                        break;
-                    case EnemyType.GabrielSecond:
-                        boss = true;
-                        break;
-                    case EnemyType.HideousMass:
-                        boss = true;
-                        break;
-                    case EnemyType.Ferryman:
-                        boss = true;
-                        break;
-                    default:
-                        canKnockback = false;
-                        break;
-                }
-
-                int chargeState = GetChargeState();
-                if (canKnockback)
-                {
-                    DoKnockback(enemy.gameObject, blastOrigin);
-                    if (chargeState < chargeMilestones.Count && chargeState >= chargeMilestones.Count / 1.5f)
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
-                    }
-                }
-                    if (GetChargeState() >= chargeMilestones.Count)
-                    {
-                        if (boss || enemy.TryGetComponent<BossIdentifier>(out BossIdentifier bossId))
-                        {
-                            if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp) || enemy.TryGetComponent<MinosBoss>(out MinosBoss minosBoss)) //hehe style :)
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<Gabriel>(out Gabriel gaybe) || enemy.TryGetComponent<GabrielSecond>(out GabrielSecond gaybe2))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.gabrielkill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<Wicked>(out Wicked wicked))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(20000, "hydraxous.ultrafunguns.wickedkill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<V2>(out V2 v2))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.v2kill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "<b>BOSS </b>", "");
-                            }
-                            enemy.health = 0;
-                        }
-                        else
-                        {
-                            enemy.Explode();
-                            MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "", "");
-                        }
-                    }
-                }
-            }catch(System.Exception e)
-            {
-                //TODO Remove this try catch and fix this properly you silly lol.
-            }
-        }
-
-        //TODO eat shit and die
-        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO Fix this algorithm so it actually works
-        {
-            int chargeState = GetChargeState();
-            EnemyIdentifier enemy;
-            float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
-            float distanceMultiplier = 10.0f / distanceFromBlast;
-            Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
-            Vector3 upVector = new Vector3(0, blastForceUpwardsMultiplier * chargeState, 0);
-            forceVector *= distanceMultiplier;
-
-            if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
-            {
-                enemy.gameObject.GetComponent<NavMeshAgent>().enabled = false;
-                Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
-                body.isKinematic = false;
-                body.useGravity = false;
-                body.velocity += forceVector;
-                body.velocity += upVector;
-                
-                HydraLogger.Log(enemy.enemyType.ToString() + "  " + body.velocity);
-                SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
-                //splatt.invincibilityTimer = splatTimer;
-                //splatt.velocityToSplatThreshold = splatThreshold;
             }
         }
 
@@ -537,7 +346,7 @@ namespace UltraFunGuns
             }
         }
 
-        //This is yucky but its fine.
+        //This is yucky but its fine. No, fix it.
         private void VineBoom()
         {
             GameObject vineBoomNoise = GameObject.Instantiate<GameObject>(new GameObject(),this.transform);

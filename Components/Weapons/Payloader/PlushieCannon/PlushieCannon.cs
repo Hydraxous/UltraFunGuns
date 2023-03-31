@@ -32,11 +32,13 @@ namespace UltraFunGuns
             Prefabs.MandyPlush.Asset,
             Prefabs.V1Plush.Asset,
             Prefabs.ScottPlush.Asset,
-            //HydraPlushie    
+            Prefabs.HydraPlushie
         };
 
         private float targetBeamThickness = 0.5f, maxBeamDistance = 50.0f;
         public float shootForce = 130.0f, spinSpeed = 90.0f;
+
+        public float damage = 1.0f;
 
         //[UFGAsset("HydraPlushie")] public static GameObject HydraPlushie { get; private set; }
 
@@ -65,6 +67,9 @@ namespace UltraFunGuns
             firedPlushie.transform.forward = targetVelocity.normalized;
             DeadlyPlushie plushie = firedPlushie.AddComponent<DeadlyPlushie>();
 
+            plushie.sourceWeapon = gameObject;
+            plushie.damage = damage;
+
             if(plushie.TryGetComponent<Rigidbody>(out Rigidbody rb))
             {
                 rb.velocity = targetVelocity;
@@ -86,7 +91,7 @@ namespace UltraFunGuns
         private GameObject PickPlushie()
         {
             GameObject[] sorted = plushies;
-            if (lastFired != null)
+            if (lastFired != null && plushies.Length > 1)
             {
                 sorted = plushies.Where(x => x != lastFired && x != null).ToArray();
             }

@@ -144,7 +144,7 @@ namespace UltraFunGuns
                                 direction = laserVector,
                                 interactorPosition = mainCam.transform.position,
                                 power = 1.0f,
-                                data = "shot,laser"
+                                tags = new string[] {"shot", "laser"}
                             });
                         }
 

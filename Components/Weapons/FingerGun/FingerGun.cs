@@ -158,7 +158,7 @@ namespace UltraFunGuns
                         {
                             ufgInteractable.Interact(new UFGInteractionEventData()
                             {
-                                data = "explode,shot,heavy",
+                                tags = new string[] {"explode", "shot", "heavy"},
                                 direction = hitRay.direction,
                                 interactorPosition = hitRay.origin,
                                 power = 2.0f,
@@ -335,7 +335,7 @@ namespace UltraFunGuns
                         {
                             ufgInteractable.Interact(new UFGInteractionEventData()
                             {
-                                data = "explode",
+                                tags = new string[] { "explode" },
                                 direction = ufgInteractable.GetPosition() - position,
                                 interactorPosition = position,
                                 power = 2.0f,

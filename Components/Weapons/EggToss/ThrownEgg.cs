@@ -220,7 +220,7 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            if (interaction.data.Contains("shot"))
+            if (interaction.ContainsTag("shot"))
             {
                 Explode();
                 return true;

@@ -66,6 +66,26 @@ namespace UltraFunGuns
             destroyAfterTime.TimeLeft = time;
         }
 
+        public static void DrawSphereCast(Vector3 origin, float radius, Vector3 direction, float maxRange, float time)
+        {
+            if (!UltraFunGuns.DebugMode || !Data.Config.Data.EnableVisualizer)
+                return;
+            
+            if (radius > 0)
+            {
+                int sphereCount = Mathf.CeilToInt(maxRange / radius);
+
+                Vector3 currentPos = origin;
+
+                for(int i =0; i < sphereCount; i++)
+                {
+                    DrawSphere(currentPos, radius, time);
+                    currentPos += direction.normalized * radius;
+                }
+            }
+            DrawRay(origin, direction.normalized * maxRange, time);
+        }
+
         public static void DrawRay(Vector3 position, Vector3 direction, float time = 0.4f)
         {
             if (!UltraFunGuns.DebugMode || !Data.Config.Data.EnableVisualizer)

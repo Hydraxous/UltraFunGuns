@@ -37,5 +37,10 @@ namespace UltraFunGuns
             currentRot += angularVelocity * Time.timeScale;
             transform.localRotation = Quaternion.AngleAxis(currentRot, rotateAxis); //bad bad gimbal lock go away stinky >:(
         }
+
+        public void AddAngularVelocity(float velocity)
+        {
+            angularVelocity += velocity;
+        }
     }
 }

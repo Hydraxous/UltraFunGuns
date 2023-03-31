@@ -460,6 +460,15 @@ namespace UltraFunGuns
                 case "FingerGun":
                     Pop();
                     return true;
+
+                case "SonicReverberator":
+                    interaction.power *= 0.25f;
+                    break;
+            }
+
+            if(interaction.ContainsTag("shot"))
+            {
+                ExciteBall(Mathf.CeilToInt(interaction.power));
             }
 
             return false;

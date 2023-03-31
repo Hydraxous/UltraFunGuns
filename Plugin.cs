@@ -50,6 +50,7 @@ namespace UltraFunGuns
                     VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     UKAPIP.Init();
+                    CustomPlacedObjects.CustomPlacedObjectManager.Init();
                     CheatsPatch.CyberGrindPreventer.Init();
                     Commands.Register();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
