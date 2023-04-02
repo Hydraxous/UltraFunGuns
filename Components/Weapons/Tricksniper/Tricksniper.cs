@@ -316,5 +316,14 @@ namespace UltraFunGuns
             line.SetPositions(linePoints);
         }
 
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"TURNS: {turnsCompleted}\n";
+            debug += $"REVOLUTIONS: {revolutions}\n";
+            debug += $"SCOPE: {scopedIn}\n";
+            return debug;
+        }
+
     }
 }

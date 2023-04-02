@@ -140,6 +140,27 @@ namespace UltraFunGuns
             HydraLogger.Log($"{gameObject.name} Used Debug Action! (not implemented)");
         }
 
+        public virtual string GetDebuggingText()
+        {
+            return
+                $"WEAPONKEY: {weaponInfo.WeaponKey}\n" +
+                $"DISPLAYNAME: {weaponInfo.DisplayName}\n";
+        }
+
+        void OnGUI()
+        {
+            if (!UltraFunGuns.DebugMode)
+                return;
+            //GUI.skin.label.fontSize = 20;
+            //GUI.skin.label.font = Prefabs.VCR_Font.Asset;
+            GUI.skin.box.fontSize = 35;
+            GUI.skin.box.font = Prefabs.VCR_Font.Asset;
+            GUI.skin.box.normal.textColor = Color.white;
+            GUI.skin.box.alignment = TextAnchor.UpperLeft;
+            GUILayout.Box(GetDebuggingText().TrimEnd('\n','\r'));
+            //GUILayout.Label(GetDebuggingText());
+        }
+
         //Adds sound effect to dict
         private bool AddSFX(string clipName)
         { 
@@ -232,6 +253,11 @@ namespace UltraFunGuns
                     return true;
                 }
                 return false;
+            }
+
+            public override string ToString()
+            {
+                return Mathf.Max(0,TimeToFire - Time.time).ToString("0.000");
             }
         }
 

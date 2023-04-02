@@ -105,13 +105,10 @@ namespace UltraFunGuns
                     DoSecret();
                 }
 
-                /*
-                if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
+                if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive && UltraFunGuns.DebugMode)
                 {
                     activeDodgeball.ExciteBall();
                 }
-                */
-
             }
         }
 
@@ -253,6 +250,19 @@ namespace UltraFunGuns
             {
                 activeDodgeball.Pop();
             }
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"BALL_OUT: {dodgeBallActive}\n";
+            if (dodgeBallActive)
+                debug += $"BALL_LEVEL: {activeDodgeball.timesExcited}\n";
+            debug += $"THROW_CHARGE: {currentCharge}\n";
+            debug += $"PULL_TIMER: {pullTimer}\n";
+            debug += $"PULL_CD: {pullCooldown}\n";
+            debug += $"BBALL: {basketBallMode}\n";
+            return debug;
         }
     }
 }

@@ -257,5 +257,13 @@ namespace UltraFunGuns
         {
             pylonsRemaining = Mathf.Clamp(pylonsRemaining + 1, 0, maxStoredPylons);
         }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"LASER: {laserActive}\n";
+            debug += $"PYLONS_LEFT: {pylonsRemaining}";
+            return debug;
+        }
     }
 }

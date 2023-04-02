@@ -178,6 +178,18 @@ namespace UltraFunGuns
         {
             throwingExplosive = false;
         }
+
+        public override string GetDebuggingText()
+        {
+            string debugText = base.GetDebuggingText();
+
+            debugText +=
+                $"BOMBCOUNT: {thrownExplosives.Count}\n" +
+                $"THROW_CD: {actionCooldowns["primaryFire"]}\n" +
+                $"DETONATE_CD: {actionCooldowns["secondaryFire"]}";
+
+            return debugText;
+        }
     }
 }
 

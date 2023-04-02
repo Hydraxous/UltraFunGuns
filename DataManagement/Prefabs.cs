@@ -12,6 +12,10 @@ namespace UltraFunGuns
         [UFGAsset("HydraDevPlushie")] public static GameObject HydraPlushie { get; private set; }
 
         public static UKAsset<GameObject> UK_Explosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Explosion.prefab");
+        public static UKAsset<GameObject> UK_ExplosionMalicious { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionMaliciousRail.prefab");
+
+        public static UKAsset<Font> VCR_Font { get; private set; } = new UKAsset<Font>("Assets/Fonts/VCR_OSD_MONO_1.001.ttf");
+
         public static UKAsset<GameObject> HakitaPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Hakita).prefab");
         public static UKAsset<GameObject> PITRPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (PITR).prefab");
         public static UKAsset<GameObject> HeckPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Heckteck).prefab");

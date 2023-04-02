@@ -27,7 +27,13 @@ namespace UltraFunGuns.Datas
         //Literally just does what AssetHelper.LoadPrefab does but for every type.
         private T LoadAsset<T>() where T : UnityEngine.Object
         {
-            string lolLmao = AssetManager.Instance.gameObject.name;
+            string lolLmao = AssetManager.Instance.gameObject.name; //Make sure the assetmanager gets instanced so we do not get NRE's
+
+            if(!AssetManager.Instance.assetDependencies.ContainsKey(path))
+            {
+                HydraLogger.Log($"UKAsset: {path} does not exist.",DebugChannel.Fatal);
+                return null;
+            }
 
             string text = MonoSingleton<AssetManager>.Instance.assetDependencies[path];
             MonoSingleton<AssetManager>.Instance.LoadBundles(new string[]

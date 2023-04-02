@@ -22,7 +22,8 @@ namespace UltraFunGuns.Components.Weapons.Melee
         public void Hit()
         {
             animator.Play("Hit", 0, 0);
-            currentHitAnimation = (currentHitAnimation + 1 > (hitAnimationVariations - 1)) ? 0 : currentHitAnimation + 1;
+            
+            currentHitAnimation = (UnityEngine.Random.value >= 0.75f) ? UnityEngine.Random.Range(0,hitAnimationVariations-1) : (currentHitAnimation + 1 > (hitAnimationVariations - 1)) ? 0 : currentHitAnimation + 1;
             animator.SetInteger("HitAnim", currentHitAnimation);
         }
 

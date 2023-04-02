@@ -192,7 +192,7 @@ namespace UltraFunGuns
                 if (CheckPlayerHit(col))
                 {
                     NewMovement.Instance.GetHurt(30*enemyParries, false, 1.0f, true, true);
-                    HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, 1.0f + Mathf.Clamp(0.15f*enemyParries,0.5f,3.0f), 1.0f, 0.0f);
+                    collisionSound.PlayAudioClip(col.GetContact(0).point, 1.0f + Mathf.Clamp(0.15f*enemyParries,0.5f,3.0f), 1.0f, 0.0f);
                     Break();
                     return;
                 }
@@ -201,7 +201,7 @@ namespace UltraFunGuns
             if (collisionSound != null && soundCooldown.CanFire())
             {
                 soundCooldown.AddCooldown();
-                HydraUtils.PlayAudioClip(collisionSound, col.GetContact(0).point, UnityEngine.Random.Range(0.75f, 1.25f), 1.0f, 1.0f);
+                collisionSound.PlayAudioClip(col.GetContact(0).point, UnityEngine.Random.Range(0.75f, 1.25f), 1.0f, 1.0f);
             }
 
             //Regular collisions should decrease hit counter.
@@ -238,7 +238,7 @@ namespace UltraFunGuns
                 return false;
             }
 
-            if(HydraUtils.IsCollisionEnemy(col, out EnemyIdentifier eid))
+            if(EnemyTools.IsCollisionEnemy(col, out EnemyIdentifier eid))
             {
                 if (eid.bigEnemy && !brickShooter.StormActive && parried)
                 {
@@ -260,12 +260,12 @@ namespace UltraFunGuns
                 eid.DeliverDamage(eid.gameObject, rb.velocity, col.GetContact(0).point, damage, true, 1.0f, brickShooter.gameObject);
                 hitsRemaining -= 5;
                 damageCooldown.AddCooldown();
-                HydraUtils.PlayAudioClip(fleshHitSound, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f);
+                fleshHitSound.PlayAudioClip(UnityEngine.Random.Range(0.8f, 1.1f));
 
                 //If brick kills enemy lob at another enemy or return it to the player
                 if (eid.health <= 0.0f && hitsRemaining > 0 && parried)
                 {
-                    if(HydraUtils.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid2))
+                    if(EnemyTools.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid2))
                     {
                         if(eid2 != eid)
                         {
@@ -402,7 +402,7 @@ namespace UltraFunGuns
                 newFx.localScale *= 3.0f;
             }
 
-            if (HydraUtils.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+            if (EnemyTools.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid))
             {
                 GuidedLob(homingTarget);
                 //LobAtTarget(homingTarget.position);
@@ -434,7 +434,7 @@ namespace UltraFunGuns
             float soundPitch = Mathf.Clamp(0.85f + (0.15f * enemyParries),1.0f,3.0f);
             
             if(tennisHit != null)
-                HydraUtils.PlayAudioClip(tennisHit, soundPitch, 1.0f, 0.0f);
+                tennisHit.PlayAudioClip(soundPitch, 1.0f);
 
             LobAtPlayer();
         }

@@ -7,7 +7,7 @@ namespace UltraFunGuns;
 
 [WeaponAbility("Physic Manipulate", "Manipulate a physics object", 0, RichTextColors.aqua)]
 [WeaponAbility("Physic Lock", "Lock a physics object in place", 1, RichTextColors.aqua)]
-[UFGWeapon("FizzyGun", "PHYSICS GUN", 3, true, WeaponIconColor.Blue)]
+[UFGWeapon("FizzyGun", "Fizix Gun", 3, true, WeaponIconColor.Blue)]
 public class FizzyGun : UltraFunGunBase
 {
     public float forceOnRb = 150.0f;
@@ -15,28 +15,42 @@ public class FizzyGun : UltraFunGunBase
     public float groupForce = 2.0f;
     public float groupMaxRange = 10.0f;
 
+    public float stopRange = 0.2f;
     
     public bool setVelo = false;
 
     public float maxRange = 10.0f;
     public float minAngle = 0.60f; //45o angle
-    public bool IsHoldingObject => (heldObject != null);
+    public bool IsHoldingObject => (heldObjectRigidbody != null);
 
     private Transform objectHolder;
 
-    private Collider heldObject;
+    private Rigidbody heldObjectRigidbody;
     private Transform heldObjectParent;
-    private bool objectWasKinematic;
     private bool waitForPrimaryFireReleased;
 
-    public override void OnAwakeFinished()
+    private Dictionary<Rigidbody, bool> oldKinematicStates = new Dictionary<Rigidbody, bool>();
+
+    private bool checking, hittingSomething;
+
+    private Transform ObjectHolder
     {
-        objectHolder = new GameObject("PhysicsObjectHolder").transform;
-        objectHolder.parent = transform;
+        get
+        {
+            if(objectHolder == null)
+            {
+                objectHolder = new GameObject("PhysicsObjectHolder").transform;
+            }
+            return objectHolder;
+        }
     }
 
     public override void GetInput()
     {
+        if (IsHoldingObject)
+        {
+            UpdateHolderPosition();
+        }
 
         if (InputManager.Instance.InputSource.Fire1.IsPressed)
         {
@@ -65,12 +79,14 @@ public class FizzyGun : UltraFunGunBase
         }
     }
 
+
     void FixedUpdate()
     {
-        if (IsHoldingObject)
-        {
-            UpdateHolderPosition();
-        }
+        if (!IsHoldingObject)
+            return;
+
+        float dist = Vector3.Distance(heldObjectRigidbody.transform.position+heldObjectRigidbody.centerOfMass,ObjectHolder.position);
+        heldObjectRigidbody.velocity = (dist < stopRange) ? Vector3.zero : (ObjectHolder.position - heldObjectRigidbody.position)*3.0f;
     }
 
     private void FireBeam()
@@ -89,9 +105,11 @@ public class FizzyGun : UltraFunGunBase
     private bool CheckForCollider(out Collider col)
     {
         col = null;
+        hittingSomething = false;
 
-        if(Physics.Raycast(mainCam.position, mainCam.forward, out RaycastHit hit))
+        if (Physics.Raycast(mainCam.position, mainCam.forward, out RaycastHit hit, LayerMask.GetMask("Environment", "Outdoors", "Outdoors Non-solid","Default", "Limb", "Gib", "Armor", "Projectile")))
         {
+            hittingSomething = true;
             if(hit.collider != null)
             {
                 lastDistFromCamera = hit.distance;
@@ -109,79 +127,92 @@ public class FizzyGun : UltraFunGunBase
     //Updates the position of the object holder relative to the camera
     private void UpdateHolderPosition()
     {
-        if(objectHolder != null)
-        {
-            return;
-        }
 
         Vector3 camPos = mainCam.position;
         Vector3 camDirection = mainCam.forward;
 
         Vector3 newWorldPos = camPos + camDirection * lastDistFromCamera;
 
-        objectHolder.transform.position = newWorldPos;
+        ObjectHolder.position = newWorldPos;
 
         camPos.y = newWorldPos.y;
 
         Vector3 directionToCamera = camPos - newWorldPos;
         Quaternion newRotation = Quaternion.LookRotation(directionToCamera, Vector3.up);
 
-        objectHolder.transform.rotation = newRotation;
+        ObjectHolder.rotation = newRotation;
     }
 
     private void BeginManipulation(Collider col)
     {
         if (col == null)
-        {
             return;
+        
+        //Dont grab objects with no arby
+        if (col.attachedRigidbody == null)
+            return;
+
+        heldObjectRigidbody = col.attachedRigidbody;
+
+        HydraLogger.Log($"Beginning manipulation on object {heldObjectRigidbody.name}", DebugChannel.Warning);
+
+
+        if(!oldKinematicStates.ContainsKey(heldObjectRigidbody))
+        {
+            oldKinematicStates.Add(heldObjectRigidbody, heldObjectRigidbody.isKinematic);
+        }else
+        {
+            heldObjectRigidbody.isKinematic = oldKinematicStates[heldObjectRigidbody];
         }
 
-        HydraLogger.Log($"Beginning manipulation on object {col.name}", DebugChannel.Warning);
-
-        if (col.attachedRigidbody != null)
+        if (heldObjectRigidbody.transform.parent != null)
         {
-            objectWasKinematic = col.attachedRigidbody.isKinematic;
-            col.attachedRigidbody.isKinematic = true;
+            heldObjectParent = heldObjectRigidbody.transform.parent;
         }
-        else
-        {
-            objectWasKinematic = false;
-        }
-
-        heldObject = col;
-        if(heldObject.transform.parent != null)
-        {
-            heldObjectParent = heldObject.transform.parent;
-        }
-        heldObject.transform.parent = objectHolder;
+        heldObjectRigidbody.transform.parent = ObjectHolder;
     }
 
     private void EndManipulation()
     {
-        if (heldObject != null)
-        {
-            HydraLogger.Log($"Ending manipulation on object {heldObject.name}", DebugChannel.Warning);
+        if (!IsHoldingObject)
+            return;
+     
+        HydraLogger.Log($"Ending manipulation on object {heldObjectRigidbody.name}", DebugChannel.Warning);
 
-            heldObject.transform.parent = heldObjectParent;
-            heldObject = null;
-            heldObjectParent = null;
-        }
+        heldObjectRigidbody.transform.parent = heldObjectParent;
+        heldObjectParent = null;
+        heldObjectRigidbody = null;
+
     }
 
     private void PhysicsLockObject()
     {
-        if (IsHoldingObject) 
-        {
-            if(heldObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
-            {
-                rigidbody.isKinematic = true;
-                EndManipulation();
-            }
-        }
+        if (!IsHoldingObject)
+            return;
+
+        waitForPrimaryFireReleased = true;
+        heldObjectRigidbody.isKinematic = true;
+        EndManipulation();
     }
 
     public void OnDisable()
     {
         EndManipulation();
+    }
+
+    public override string GetDebuggingText()
+    {
+        string debug = base.GetDebuggingText();
+        debug += $"CHECKING: {InputManager.Instance.InputSource.Fire1.IsPressed}\n";
+        debug += $"ISHOLD: {IsHoldingObject}\n";
+        debug += $"HITTING: {hittingSomething}\n";
+        if (IsHoldingObject)
+        {
+            debug += $"HELD: {heldObjectRigidbody.name}\n";
+            debug += $"VELO: {heldObjectRigidbody.velocity}\n";
+            debug += $"SPEED: {heldObjectRigidbody.velocity.magnitude}\n";
+            debug += $"KINEMATIC: {heldObjectRigidbody.isKinematic}\n";
+        }
+        return debug;
     }
 }

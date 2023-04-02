@@ -23,7 +23,7 @@ namespace UltraFunGuns
         public float rigidbodyForceMultiplier = 70.0f;
         public float explosionRadius = 6f;
         public float explosionDamage = 1.6f;
-        public float explosionChainDelay = 0.5f;
+        public float explosionChainDelay = 0.20f;
 
         public float stuckDamageMultiplier = 1.5f;
         public float stickDamage = 0.05f;
@@ -36,6 +36,10 @@ namespace UltraFunGuns
         private bool pushedPlayer = false;
 
         private AudioSource AC_armingBeep, AC_ambientBeep;
+
+        private static Vector3 lastExplosionPosition = Vector3.zero;
+        List<RemoteBombExplosive> chainedExplosives = new List<RemoteBombExplosive>();
+
 
         private void Awake()
         {
@@ -152,9 +156,27 @@ namespace UltraFunGuns
             return armed && alive;
         }
 
+        private bool waitingToExplode = false;
+
+        private bool ChainDetonate(RemoteBombExplosive source, float delay)
+        {
+            if (chainedExplosives.Contains(source) || !alive || waitingToExplode)
+                return false;
+
+            HydraLogger.Log($"Detonating after time! {delay}");
+            waitingToExplode = true;
+            StartCoroutine(DetonateAfterTime(delay));
+            return true;
+        }
+
+        private IEnumerator DetonateAfterTime(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            Detonate(true);
+        }
+
         public bool Detonate(bool force = false)
         {
-
             if ((force || armed) && alive)
             {
                 Events.OnPlayerDeath -= () => Detonate(true);
@@ -179,87 +201,130 @@ namespace UltraFunGuns
             AC_armingBeep.Play();
         }
 
+
         private void DoExplosion()
         {
             List<EnemyIdentifier> hitEnemies = new List<EnemyIdentifier>();
 
             Rigidbody playerRB = null;
 
+            Visualizer.DrawSphere(transform.position, explosionRadius, 2.0f);
+
             Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Limb", "Projectile", "BigCorpse", "Armor", "Default", "Ignore Raycast"));
-            if (colliders != null)
+            if (colliders == null)
+                return;
+
+            foreach (Collider col in colliders)
             {
-                foreach (Collider col in colliders)
+                if (col.tag == "Floor")
+                    continue;
+
+                Vector3 hitPoint = col.ClosestPoint(transform.position);
+                Vector3 hitDirection = hitPoint - transform.position;
+
+                float distance = hitDirection.magnitude;
+
+                if (col.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier eidID))
                 {
-                    if(col.tag != "Floor")
+                    if (!hitEnemies.Contains(eidID.eid) && !eidID.eid.dead)
                     {
-                        Vector3 hitPoint = col.ClosestPoint(transform.position);
-                        Vector3 hitDirection = hitPoint - transform.position;
-
-                        float distance = hitDirection.magnitude;
-
-                        if(col.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier eidID))
-                        {
-                            if (!hitEnemies.Contains(eidID.eid) && !eidID.eid.dead)
-                            {
-                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
-                                float damageAmount = (eidID.eid == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
-                                eidID.eid.DeliverDamage(eidID.eid.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
-                                hitEnemies.Add(eidID.eid);
-                            }
-                        }
-
-                        if (col.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-                        {
-                            if (!hitEnemies.Contains(enemy) && !enemy.dead)
-                            {
-                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
-                                float damageAmount = (enemy == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff; 
-                                enemy.DeliverDamage(enemy.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
-                                hitEnemies.Add(enemy);
-                            }
-                        }
-
-                        if (col.TryGetComponent<RemoteBombExplosive>(out RemoteBombExplosive remoteBombExplosive))
-                        { 
-                            float rangeDelay = Mathf.InverseLerp(0.0f, explosionRadius, distance);
-                            remoteBombExplosive.Invoke("Detonate", explosionChainDelay * rangeDelay);
-                        }
-
-                        if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
-                        {
-                            float damageFalloff = Mathf.InverseLerp(explosionRadius*4, 0.0f, distance);
-
-                            Vector3 playerPos = player.transform.position;
-                            playerPos.y += 1.25f;
-
-                            Vector3 pushDir = playerPos - transform.position;
-                            playerRB = player.rb;
-
-                            playerRB.velocity += (pushDir.normalized * (explosionDamage * damageFalloff)) * playerKnockbackMultiplier;
-                            pushedPlayer = true;
-                        }
-
-                        if (col.TryGetComponent<Rigidbody>(out Rigidbody hitRb))
-                        {
-                            bool applyForce = true;
-
-                            if(playerRB != null)
-                            {
-                                if(hitRb == playerRB)
-                                {
-                                    applyForce = false;
-                                }
-                            }
-
-                            if (!hitRb.isKinematic && applyForce)
-                            {
-                                float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
-                                hitRb.AddExplosionForce((explosionDamage * 50  * damageFalloff)*rigidbodyForceMultiplier, transform.position, explosionRadius);
-                            }
-
-                        }
-                    }                
+                        float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                        float damageAmount = (eidID.eid == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
+                        eidID.eid.DeliverDamage(eidID.eid.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                        hitEnemies.Add(eidID.eid);
+                    }
                 }
+
+                if (col.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
+                {
+                    if (!hitEnemies.Contains(enemy) && !enemy.dead)
+                    {
+                        float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                        float damageAmount = (enemy == stuckTarget) ? explosionDamage * damageFalloff * stuckDamageMultiplier : explosionDamage * damageFalloff;
+                        enemy.DeliverDamage(enemy.gameObject, hitDirection.normalized, hitPoint, damageAmount, true, 0, weapon.gameObject);
+                        hitEnemies.Add(enemy);
+                    }
+                }
+
+                if (col.TryFindComponent<RemoteBombExplosive>(out RemoteBombExplosive remoteBombExplosive))
+                {
+                    float rangeDelay = Mathf.InverseLerp(0.0f, explosionRadius, distance);
+                    if(chainedExplosives.Count > 100)
+                    {
+                        //There is no point in chaining any past 100 since there will be a nuke.
+                        Destroy(remoteBombExplosive.gameObject);
+                    }else if(remoteBombExplosive.ChainDetonate(this, explosionChainDelay * rangeDelay))
+                    {
+                        chainedExplosives.Add(remoteBombExplosive);
+                    }
+                }                
+
+                if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
+                {
+                    float damageFalloff = Mathf.InverseLerp(explosionRadius * 4, 0.0f, distance);
+
+                    Vector3 playerPos = player.transform.position;
+                    playerPos.y += 1.25f;
+
+                    Vector3 pushDir = playerPos - transform.position;
+                    playerRB = player.rb;
+
+                    playerRB.velocity += (pushDir.normalized * (explosionDamage * damageFalloff)) * playerKnockbackMultiplier;
+                    pushedPlayer = true;
+                }
+
+                if (col.TryGetComponent<Breakable>(out Breakable breakable))
+                {
+                    breakable.Break();
+                }
+
+                if(col.TryGetComponent<Glass>(out Glass glass))
+                {
+                    glass.Shatter();
+                }
+
+                if (col.TryGetComponent<Rigidbody>(out Rigidbody hitRb))
+                {
+                    bool applyForce = true;
+
+                    if (playerRB != null)
+                    {
+                        if (hitRb == playerRB)
+                        {
+                            applyForce = false;
+                        }
+                    }
+
+                    if (!hitRb.isKinematic && applyForce)
+                    {
+                        float damageFalloff = Mathf.InverseLerp(explosionRadius, 0.0f, distance);
+                        hitRb.AddExplosionForce((explosionDamage * 50 * damageFalloff) * rigidbodyForceMultiplier, transform.position, explosionRadius);
+                    }
+                }
+
+            }
+
+            int chainCount = chainedExplosives.Count;
+
+            if (waitingToExplode && (Vector3.Distance(lastExplosionPosition, transform.position) < 8.0f))
+                return;
+
+            switch(chainCount)
+            {
+                case 0: 
+                    break;
+                case var expression when (chainCount > 2 && chainCount < 6):
+                    Instantiate(Prefabs.UK_Explosion.Asset, transform.position, Quaternion.identity);
+                    lastExplosionPosition = transform.position;
+                    break;
+                case var expression when (chainCount > 6 && chainCount < 100):
+                    Instantiate(Prefabs.UK_ExplosionMalicious.Asset, transform.position, Quaternion.identity);
+                    lastExplosionPosition = transform.position;
+                    break;
+                case var expression when (chainCount > 100):
+                    Instantiate(MysticFlare.MysticFlareExplosion, transform.position, Quaternion.identity);
+                    lastExplosionPosition = transform.position;
+                    break;
             }
         }
 

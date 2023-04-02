@@ -364,5 +364,12 @@ namespace UltraFunGuns
             shooting = false;
             reloading = false;
         }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"AMMO: {CurrentAmmo}\n";
+            return debug;
+        }
     }
 }

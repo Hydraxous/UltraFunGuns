@@ -74,77 +74,6 @@ namespace UltraFunGuns
             return newHits.Count > 0;
         }
 
-        public static bool TryGetHomingTarget(Vector3 sampleLocation, out Transform homingTarget, out EnemyIdentifier enemyComponent)
-        {
-            homingTarget = null;
-            enemyComponent = null;
-
-            List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
-            List<Transform> targetPoints = new List<Transform>();
-            GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
-            foreach (GameObject enemyObject in enemyObjectsActive)
-            {
-                if (enemyObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
-                {
-                    if (!enemyFound.dead && !possibleTargets.Contains(enemyFound))
-                    {
-                        possibleTargets.Add(enemyFound);
-                        Transform enemyTargetPoint;
-                        if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
-                        {
-                            enemyTargetPoint = enemyFound.weakPoint.transform;
-                        }
-                        else
-                        {
-                            EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
-                            if (enemyFoundIdentifier)
-                            {
-                                enemyTargetPoint = enemyFoundIdentifier.transform;
-                            }
-                            else
-                            {
-                                enemyTargetPoint = enemyFound.transform;
-                            }
-                        }
-
-                        Vector3 directionToEnemy = enemyTargetPoint.position - sampleLocation;
-                        if (Physics.Raycast(sampleLocation, directionToEnemy, out RaycastHit rayHit, directionToEnemy.magnitude, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default")))
-                        {
-                            if (rayHit.collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier losEnemyID) || rayHit.collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier losEnemyIDID))
-                            {
-                                targetPoints.Add(enemyTargetPoint);
-                            }
-                        }
-
-                    }
-                }
-            }
-
-            int closestIndex = -1;
-            float closestDistance = Mathf.Infinity;
-            for (int i = 0; i < targetPoints.Count; i++)
-            {
-                Vector3 distance = targetPoints[i].position - sampleLocation;
-                if (distance.sqrMagnitude < closestDistance)
-                {
-                    closestIndex = i;
-                    closestDistance = distance.sqrMagnitude;
-                }
-            }
-
-            if (closestIndex > -1)
-            {
-                homingTarget = targetPoints[closestIndex];
-                enemyComponent = homingTarget.GetComponent<EnemyIdentifier>();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-
-        }
-
         public static string CollisionInfo(Collision col)
         {
             string str = "Name: {0}\n" + "Layer: {1}\n" + "Tag: {2}\n" + "ContactCount: {3}";
@@ -173,64 +102,6 @@ namespace UltraFunGuns
             return sortedHits.ToArray();
         }
 
-        /// <summary>
-        /// Get a velocity vector for a projectile parabola with a specified flight time.
-        /// </summary>
-        /// <param name="start">Start position</param>
-        /// <param name="end">End Position</param>
-        /// <param name="airTime">Total flight time</param>
-        /// <returns></returns>
-        public static Vector3 GetVelocityTrajectory(Vector3 start, Vector3 end, float airTime)
-        {
-            Vector3 gravity = Physics.gravity;
-
-            airTime = (airTime == 0) ? airTime + 0.0001f : airTime;
-
-            Vector3 parabolaMiddleHeight = Vector3.LerpUnclamped(start, end, 0.5f / airTime);
-            parabolaMiddleHeight -= gravity * airTime;
-
-            Vector3 shootDirection = parabolaMiddleHeight - start;
-
-            return shootDirection;
-        }
-
-        public static Vector3 CalculateProjectileArcPosition(Vector3 start, Vector3 end, float airTime, float normalizedTime)
-        {
-            Vector3 initialDirection = GetVelocityTrajectory(start, end, airTime);
-
-            Vector3[] trajectoryPoints = GetTrajectoryPoints(start, Physics.gravity, initialDirection, 0.0f, airTime);
-
-            int index = Mathf.FloorToInt(trajectoryPoints.Length-1 * normalizedTime);
-
-            return trajectoryPoints[index];
-        }
-
-        //TODO optimize this. This does not do what it was ported for. Purpose is for getting a point along a trajectory at a given time. This function is for drawing said trajectory, not querying it.
-        private static Vector3[] GetTrajectoryPoints(Vector3 start, Vector3 gravity, Vector3 direction, float drag, float flightTime)
-        {
-
-            Vector3 currentVelocity = direction;
-
-            float positionStep = flightTime / 100;
-
-            Vector3 lastPosition = start;
-
-            List<Vector3> points = new List<Vector3>();
-
-            for (int i = 0; i < 100 * 2; i++)
-            {
-                currentVelocity = currentVelocity * (1 - positionStep * drag);
-
-                currentVelocity += gravity * positionStep;
-
-                points.Add(lastPosition);
-
-                lastPosition += currentVelocity * positionStep;
-            }
-
-            return points.ToArray();
-        }
-
         //LOS check only counts the level, environment, etc. as obstruction of view.
         public static bool LineOfSightCheck(Vector3 source, Vector3 target)
         {
@@ -249,58 +120,6 @@ namespace UltraFunGuns
                 }
             }
             return true;
-        }
-
-        public static bool IsColliderEnemy(this Collider collider, out EnemyIdentifier enemy, bool filterDead = true)
-        {
-            enemy = null;
-            if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
-            {
-                if(enemyIDID.eid != null)
-                {
-                    enemy = enemyIDID.eid;
-                    if(!enemy.dead || !filterDead)
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-            {
-                enemy = enemyID;
-                if (!enemy.dead || !filterDead)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static bool IsCollisionEnemy(this Collision collider, out EnemyIdentifier enemy, bool filterDead = true)
-        {
-            enemy = null;
-            if (collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
-            {
-                if (enemyIDID.eid != null)
-                {
-                    enemy = enemyIDID.eid;
-                    if (!enemy.dead || !filterDead)
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-            {
-                enemy = enemyID;
-                if (!enemy.dead || !filterDead)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public static bool IsColliderEnvironment(this Collider col)
@@ -396,11 +215,6 @@ namespace UltraFunGuns
 
         }
 
-        public static bool ConeCheck(Vector3 direction1, Vector3 direction2, float maximumAngle = 90.0f)
-        {
-            return Vector3.Angle(direction1, direction2) <= maximumAngle;
-        }
-
         public static T[] GetAllAttributesOfType<T>() where T : Attribute
         {
             List<T> attributeList = new List<T>();
@@ -428,170 +242,12 @@ namespace UltraFunGuns
             return attributeList.ToArray();
         }
 
-        public static void PlayAudioClip(this AudioClip clip, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
-        {
-            PlayAudioClip(clip, Vector3.zero, pitch, volume, spatialBlend);
-        }
-
-        public static void PlayAudioClip(this AudioClip clip, Vector3 position, float pitch = 1.0f, float volume = 1.0f, float spatialBlend = 0.0f)
-        {
-            if (clip == null)
-            {
-                return;
-            }
-
-            GameObject newAudioObject = new GameObject($"AudioSource({clip.name})");
-            newAudioObject.transform.position = position;
-            AudioSource newAudioSource = newAudioObject.AddComponent<AudioSource>();
-            DestroyAfterTime destroyOverTime = newAudioObject.AddComponent<DestroyAfterTime>();
-            newAudioSource.playOnAwake = false;
-            newAudioSource.spatialBlend = spatialBlend;
-            newAudioSource.volume = volume;
-            newAudioSource.pitch = pitch;
-            newAudioSource.clip = clip;
-            newAudioSource.Play();
-        }
+        
 
 
         public static Ray ToRay(this Transform transform)
         {
             return new Ray(transform.position, transform.forward);
-        }
-
-        public static TargetObject GetTargetFromGameObject(GameObject targetGameObject)
-        {
-            TargetObject newTargetObject = new TargetObject(targetGameObject);
-            return newTargetObject;
-        }
-
-        public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
-        {
-            List<TargetObject> newTargets = new List<TargetObject>();
-            for (int i = 0; i < targetGameObjects.Length; i++)
-            {
-                TargetObject newTarget = new TargetObject(targetGameObjects[i]);
-                if (newTarget.validTarget)
-                {
-                    newTargets.Add(new TargetObject(targetGameObjects[i]));
-                }
-            }
-            return newTargets;
-        }
-
-        public static bool CanBeDamaged (this EnemyIdentifier eid)
-        {
-            if(eid == null)
-            {
-                return false;
-            }
-
-            if(eid.dead)
-            {
-                return false;
-            }
-
-            if(eid.health <= 0.0f)
-            {
-                return false;
-            }
-
-            if(!eid.enabled)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-
-        //TODO optimize this. this camera only
-        public static bool TryGetTarget(out Vector3 targetDirection) //Return true if enemy target found.
-        {
-            List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
-            List<Transform> targetPoints = new List<Transform>();
-            GameObject[] enemyObjectsActive = EnemyTracker.Instance.GetCurrentEnemies().Where(x=> !x.blessed && !x.dead).Select(e => e.gameObject).ToArray();
-            Transform camera = CameraController.Instance.transform;
-
-            foreach (GameObject enemyObject in enemyObjectsActive)
-            {
-                if (enemyObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyFound))
-                {
-                    if (!enemyFound.dead && !possibleTargets.Contains(enemyFound))
-                    {
-                        possibleTargets.Add(enemyFound);
-                        Transform enemyTargetPoint;
-                        if (enemyFound.weakPoint != null && enemyFound.weakPoint.activeInHierarchy)
-                        {
-                            enemyTargetPoint = enemyFound.weakPoint.transform;
-                        }
-                        else
-                        {
-                            EnemyIdentifierIdentifier enemyFoundIdentifier = enemyFound.GetComponentInChildren<EnemyIdentifierIdentifier>();
-                            if (enemyFoundIdentifier)
-                            {
-                                enemyTargetPoint = enemyFoundIdentifier.transform;
-                            }
-                            else
-                            {
-                                enemyTargetPoint = enemyFound.transform;
-                            }
-                        }
-
-                       
-
-                        //Cone check
-                        Vector3 directionToEnemy = (enemyTargetPoint.position - camera.position).normalized;
-                        Vector3 lookDirection = camera.forward;
-                        if (SphereCastMacro(camera.position,0.05f,directionToEnemy,Mathf.Infinity, out RaycastHit hit))
-                        {
-                            switch (hit.collider.gameObject.layer)
-                            {
-                                case 10:
-                                case 11:
-                                    targetPoints.Add(enemyTargetPoint);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //Get closest target
-            int closestIndex = -1;
-            float closestDistance = Mathf.Infinity;
-            for (int i = 0; i < targetPoints.Count; i++)
-            {
-                Vector3 distance = targetPoints[i].position - camera.position;
-                if (distance.sqrMagnitude < closestDistance)
-                {
-                    closestIndex = i;
-                    closestDistance = distance.sqrMagnitude;
-                }
-            }
-
-            if (closestIndex > -1)
-            {
-                targetDirection = targetPoints[closestIndex].position - camera.position;
-                return true;
-            }
-            else //No targets found.
-            {
-                targetDirection = Vector3.zero;
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Returns local quaternion rotation based off of world space quaternion
-        /// </summary>
-        /// <param name="transform"></param>
-        /// <param name="worldRotation"></param>
-        /// <returns></returns>
-        public static Quaternion WorldToLocalRotation(this Transform transform, Quaternion worldRotation)
-        {
-            return Quaternion.Inverse(transform.rotation) * worldRotation;
         }
 
         /// <summary>
@@ -622,53 +278,6 @@ namespace UltraFunGuns
             CameraController.Instance.rotationY = newY;
         }
 
-        /// <summary>
-        /// Returns the component if it is found on the gameobject. If it isn't found, it will add the component.
-        /// </summary>
-        /// <returns>Always returns component</returns>
-        public static T EnsureComponent<T>(this GameObject gameObject)
-        {
-            if(gameObject.TryGetComponent<T>(out T component))
-            {
-                return component;
-            }else
-            {
-                return (T)(object)gameObject.AddComponent(typeof(T));
-            }
-        }
-
-        /// <summary>
-        /// Returns the component if it is found on the transform. If it isn't found, it will add the component.
-        /// </summary>
-        /// <returns>Always returns component</returns>
-        public static T EnsureComponent<T>(this Transform transform)
-        {
-            if (transform.TryGetComponent<T>(out T component))
-            {
-                return component;
-            }
-            else
-            {
-                return (T)(object)transform.gameObject.AddComponent(typeof(T));
-            }
-        }
-
-
-        public static Vector3 GetTargetPoint(this EnemyIdentifier eid)
-        {
-            if(eid == null)
-            {
-                return Vector3.zero;
-            }
-
-            if(eid.weakPoint != null)
-            {
-                return eid.weakPoint.transform.position;
-            }
-
-            return eid.transform.position;
-        }
-
         public static void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)
         {
             if (Prefabs.BulletTrail == null)
@@ -681,14 +290,6 @@ namespace UltraFunGuns
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
             line.SetPositions(linePoints);
-        }
-
-        public static Vector3 Abs(this Vector3 vector)
-        {
-            vector.x = Mathf.Abs(vector.x);
-            vector.y = Mathf.Abs(vector.y);
-            vector.z = Mathf.Abs(vector.z);
-            return vector;
         }
     }
 

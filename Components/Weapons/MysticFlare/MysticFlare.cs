@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace UltraFunGuns
 {
     
-    [UFGWeapon("MysticFlare", "Mystic Flaaaare", 0, true, WeaponIconColor.Red, false)]
-    [WeaponAbility("Primary", "Fires a projectile attack! using <color=orange>Fire 1</color>.", 6, RichTextColors.red)]
-    [WeaponAbility("Secondary", "Shits and farts usiong <color=orange>Fire 2</color>.", 2, RichTextColors.lime)]
+    [UFGWeapon("MysticFlare", "Mystic Flare", 0, true, WeaponIconColor.Red, true)]
+    [WeaponAbility("Flare", "Throw a flare using <color=orange>Fire 1</color>.", 6, RichTextColors.red)]
     public class MysticFlare : UltraFunGunBase
     {
         [UFGAsset("MysticFlareProjectile")] private static GameObject flareProjectilePrefab;
+        [UFGAsset("MysticFlareExplosion")] public static GameObject MysticFlareExplosion { get; private set; }
         public float maxRange = 13.0f;
 
         private MysticFlareProjectile deployedFlare;
@@ -47,6 +48,18 @@ namespace UltraFunGuns
 
             deployedFlare.Detonate();
             deployedFlare = null;
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"FLARE: {deployedFlare != null}\n";
+            if (deployedFlare != null)
+            {
+                debug += $"FLARE_DIST: {Vector3.Distance(deployedFlare.transform.position,mainCam.transform.position)}\n";
+                debug += $"FLARE_SPEED: {deployedFlare.MoveSpeed.ToString("0.000")}\n";
+            }
+            return debug;
         }
     }
 

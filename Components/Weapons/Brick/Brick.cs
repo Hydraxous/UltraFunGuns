@@ -108,7 +108,7 @@ namespace UltraFunGuns
                     continue;
                 }
 
-                if(HydraUtils.IsColliderEnemy(hit.collider, out EnemyIdentifier eid))
+                if(EnemyTools.IsColliderEnemy(hit.collider, out EnemyIdentifier eid))
                 {
                     if(eid.weakPoint != null)
                     {
@@ -142,7 +142,7 @@ namespace UltraFunGuns
                     if(!thrownBricks.Contains(rb))
                     {
                         thrownBricks.Add(rb);
-                        HydraUtils.PlayAudioClip(whoosh,UnityEngine.Random.Range(0.6f,0.9f));
+                        whoosh.PlayAudioClip(UnityEngine.Random.Range(0.6f, 0.9f));
                     }
 
                     rb.velocity = aimRay.direction * force;
@@ -191,6 +191,16 @@ namespace UltraFunGuns
 
                 bricksOut[i].SetBrickGun(this);
             }
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"BRICKSTORM: {StormActive}\n";
+            debug += $"BRICKS: {thrownBricks.Count}\n";
+            debug += $"THROW_CD: {throwCooldown}\n";
+            debug += $"STORM_CD: {stormCooldown}";
+            return debug;
         }
     }
 

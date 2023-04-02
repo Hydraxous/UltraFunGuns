@@ -103,5 +103,13 @@ namespace UltraFunGuns
         {
             animator.Play("CanLauncher_Equip");
         }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            if (lastFired != null)
+                debug += $"LAST_FIRED: {lastFired.name}\n";
+            return debug;
+        }
     }
 }

@@ -158,7 +158,7 @@ namespace UltraFunGuns
                         if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
                         {
                             HydraLogger.Log("FOUND COIN WITH LASER", DebugChannel.User);
-                            if(HydraUtils.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+                            if(EnemyTools.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
                             {
 
                                 if(eid != null)
@@ -258,6 +258,16 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator.Play("Focalyzer_Equip");
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"LASER: {laserActive}\n";
+            debug += $"REFRACTING: {hittingAPylon}\n";
+            if (laser != null)
+                debug += $"PYLONS: {laser.GetPylonCount()}\n";
+            return debug;
         }
     }
 }

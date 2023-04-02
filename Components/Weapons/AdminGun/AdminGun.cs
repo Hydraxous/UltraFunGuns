@@ -11,7 +11,7 @@ namespace UltraFunGuns
 {
     [WeaponAbility("Full-Auto 16x.50 AE", "Fire a continuous stream of 16 .50 AE cartridges simultaneously.", 0, RichTextColors.red)]
     [WeaponAbility("Full-Auto Explosives", "Fire a continuous stream of explosive bolts.", 1, RichTextColors.red)]
-    [UFGWeapon("AdminGun","Sexyness", 0, true, WeaponIconColor.Red)]
+    [UFGWeapon("AdminGun","Ultrasex", 0, true, WeaponIconColor.Red)]
     public class AdminGun : UltraFunGunBase
     {
         [UFGAsset] public static AudioClip AdminGun_FireSound { get; private set; }
@@ -64,7 +64,7 @@ namespace UltraFunGuns
         {
             if (gamerMode)
             {
-                if (HydraUtils.TryGetTarget(out Vector3 directionToTarget))
+                if (EnemyTools.TryGetTarget(out Vector3 directionToTarget))
                 {
                     HydraUtils.SetPlayerRotation(Quaternion.LookRotation(directionToTarget, Vector3.up));
                 }
@@ -119,6 +119,16 @@ namespace UltraFunGuns
                         break;
                     }
 
+                }
+
+                if (hits[x].collider.TryGetComponent<Breakable>(out Breakable breakable))
+                {
+                    breakable.Break();
+                }
+
+                if (hits[x].collider.TryGetComponent<Glass>(out Glass glass))
+                {
+                    glass.Shatter();
                 }
 
                 if ((hits[x].collider.gameObject.layer == 24 || hits[x].collider.gameObject.layer == 25 || hits[x].collider.gameObject.layer == 8))
@@ -226,6 +236,14 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator.Play("Equip", 0, 0);
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug +=
+                $"GAMER_MODE: {gamerMode}\n";
+            return debug;
         }
     }
 }

@@ -41,6 +41,12 @@ namespace UltraFunGuns
                 plushAudioSrc.spatialBlend = 0.87f;
                 PlayPlushieAudio();
             }
+
+            Collider col = gameObject.GetComponentInChildren<Collider>();
+            if(col != null)
+            {
+                col.gameObject.layer = 10;
+            }
         }
 
         
@@ -105,9 +111,15 @@ namespace UltraFunGuns
 
         public void Shot(BeamType beamType)
         {
+            dying = true;
             VirtualExplosion explosion = new VirtualExplosion(transform.position, 30.0f);
 
             EnemyIdentifier[] enemies = explosion.GetAffectedEnemies();
+
+            foreach(EnemyIdentifier enemy in enemies)
+            {
+                enemy.DeliverDamage(enemy.gameObject, enemy.transform.position - transform.position, enemy.transform.position, damage, true, 1.0f, sourceWeapon);
+            }
 
             List<Vector3> positions = enemies.Select(x => x.transform.position).ToList();
 

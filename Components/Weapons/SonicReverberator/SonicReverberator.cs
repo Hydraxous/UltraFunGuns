@@ -392,5 +392,15 @@ namespace UltraFunGuns
             vineBoomAudioSource.dopplerLevel = 0.05f;
             vineBoomAudioSource.Play();
         }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"CHARGE: {chargeLevel}\n";
+            debug += $"MILESTONE: {GetChargeState(chargeLevel)}\n";
+            debug += $"CHARGING: {charging}\n";
+            return debug;
+        }
+        
     }
 }
