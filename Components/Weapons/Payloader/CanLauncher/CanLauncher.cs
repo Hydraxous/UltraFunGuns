@@ -25,6 +25,8 @@ namespace UltraFunGuns
         private int canMaterialCount = 10;
         private MeshRenderer canPrefabMeshRenderer;
 
+        private ActionCooldown fireCanCooldown = new ActionCooldown(0.75f, true);
+
         public override void OnAwakeFinished()
         {
             List<Material> canTextureList = new List<Material>();
@@ -38,17 +40,6 @@ namespace UltraFunGuns
             canMaterials = canTextureList.ToArray();
 
             canPrefabMeshRenderer = CanProjectile.GetComponentInChildren<MeshRenderer>();
-
-            //TODO FX HydraLoader.prefabRegistry.TryGetValue("TricksniperMuzzleFX", out muzzleFX);
-            //debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
-        }
-
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(0.75f, true));
-            //cooldowns.Add("explodeDelay", new ActionCooldown(0.2f));
-            return cooldowns;
         }
 
         private void Start()
@@ -58,13 +49,11 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && fireCanCooldown.CanFire() && !om.paused)
             {
-                actionCooldowns["primaryFire"].AddCooldown();
+                fireCanCooldown.AddCooldown();
                 Shoot();
             }
-
-            //debugText.text = String.Format("{0} ROT\n{1} TURN", revolutions, turnsCompleted);
         }
 
         private void Shoot(Ray direction)

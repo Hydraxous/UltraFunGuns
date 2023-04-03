@@ -72,6 +72,8 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldownTime = 0.0f;
 
+        private ActionCooldown fireCooldown = new ActionCooldown(0.75f, true);
+
         private GyroRotator[] rotators;
 
         public override void OnAwakeFinished()
@@ -113,16 +115,9 @@ namespace UltraFunGuns
             }
         }
 
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fire", new ActionCooldown(0.75f, true));
-            return cooldowns;
-        }
-
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && actionCooldowns["fire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && fireCooldown.CanFire() && !om.paused)
             {
                 charging = true;
                 chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
@@ -134,7 +129,7 @@ namespace UltraFunGuns
                 chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime * chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["fire"].CanFire() && !om.paused && chargeLevel >= 2.0f)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && fireCooldown.CanFire() && !om.paused && chargeLevel >= 2.0f)
             {
                 Fire();
             }
@@ -154,7 +149,7 @@ namespace UltraFunGuns
         {
             SetGyroSpeed(baseGyroRotationSpeed * (chargeLevel * gyroRotationSpeedModifier));
             SetGyroEnable(charging);
-            animator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
+            animator.SetBool("CanShoot", fireCooldown.CanFire());
             animator.SetBool("Charging", charging);
             
             
@@ -235,7 +230,7 @@ namespace UltraFunGuns
             pistons.DisplayCount = chargeState;
             AddGyroSpin(chargeLevel);
 
-            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
+            fireCooldown.AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
             chargeLevel = 0;
             lastChargeState = 0;
             charging = false;
@@ -311,9 +306,9 @@ namespace UltraFunGuns
         //TODO FIX THIS IT FORCES COOLDOWN VERY DUMB!!
         private void OnEnable()
         {
-            if ((actionCooldowns["fire"].TimeToFire - Time.time) > 0.0f)
+            if ((fireCooldown.TimeToFire - Time.time) > 0.0f)
             {
-                actionCooldowns["fire"].TimeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
+                fireCooldown.TimeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
             }
         }
 

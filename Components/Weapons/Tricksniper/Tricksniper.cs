@@ -20,8 +20,6 @@ namespace UltraFunGuns
         public GameObject scopeUI;
         public GameObject viewModelWrapper;
 
-        public Text debugText;
-
         public float maxTargetAngle = 150.0f;
         public float spreadTightness = 3.0f;
         public float bulletPenetrationChance = 20.0f; // 100 Percentage
@@ -38,23 +36,19 @@ namespace UltraFunGuns
         public float lastRecordedRotation = 0.0f;
 
         public bool scopedIn = false;
-        public float scopeInTime = 0.15f;
+        public float scopeInTime = 0.25f;
         public float scopeTime = 0.0f;
+
+        private ActionCooldown fireCooldown = new ActionCooldown(0.65f, true);
+        private ActionCooldown turnExpiry = new ActionCooldown(0.2f);
+
+        private bool playReloadAnimWhenUnscoped;
 
         public override void OnAwakeFinished()
         {
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
-            debugText = transform.Find("DebugCanvas/DebugPanel/DebugText").GetComponent<Text>();
             scopeUI.SetActive(false);
-        }
-
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire",new ActionCooldown(0.65f, true));
-            cooldowns.Add("turnExpiry", new ActionCooldown(0.2f));
-            return cooldowns;
         }
 
         private void Start()
@@ -64,9 +58,9 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && fireCooldown.CanFire() && !om.paused)
             {
-                actionCooldowns["primaryFire"].AddCooldown();
+                fireCooldown.AddCooldown();
                 Shoot();
             }
 
@@ -94,7 +88,6 @@ namespace UltraFunGuns
             }
 
             CheckRotation();
-            debugText.text = String.Format("{0} ROT\n{1} TURN", revolutions, turnsCompleted);
         }
 
 
@@ -106,7 +99,7 @@ namespace UltraFunGuns
             {
                 ++turnsCompleted;
             }
-            else if(actionCooldowns["turnExpiry"].CanFire())
+            else if(turnExpiry.CanFire())
             {
                 turnsCompleted = 0;
                 revolutions = 0;
@@ -116,7 +109,7 @@ namespace UltraFunGuns
             {
                 turnsCompleted = 0;
                 ++revolutions;
-                actionCooldowns["turnExpiry"].AddCooldown();
+                turnExpiry.AddCooldown();
             }
             lastRecordedRotation = currentRotation;
         }
@@ -217,7 +210,14 @@ namespace UltraFunGuns
             DoHit(shootRay, penetration);
 
             Instantiate<GameObject>(muzzleFX, (scopedIn) ? mainCam.position : firePoint.position, Quaternion.identity).transform.forward = (scopedIn) ? mainCam.forward : firePoint.forward;
-            
+
+            if(!scopedIn)
+            {
+                animator.Play("Fire", 0, 0);
+            }else
+            {
+                playReloadAnimWhenUnscoped = true;
+            }
         }
 
         private void DoHit(Ray hitRay, bool penetration)
@@ -314,6 +314,21 @@ namespace UltraFunGuns
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
             line.SetPositions(linePoints);
+        }
+
+        protected override void DoAnimations()
+        {
+            animator.SetFloat("ScopeAmount", scopeTime/scopeInTime);
+            if(!scopedIn && scopeTime <= 0.0f && playReloadAnimWhenUnscoped)
+            {
+                playReloadAnimWhenUnscoped = false;
+                animator.Play("Tricksniper_Reload", 0, 0);
+            }
+        }
+
+        private void OnEnable()
+        {
+            animator.Play("Equip",0 ,0);
         }
 
         public override string GetDebuggingText()

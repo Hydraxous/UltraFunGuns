@@ -19,6 +19,8 @@ namespace UltraFunGuns
         private List<RemoteBombExplosive> thrownExplosives = new List<RemoteBombExplosive>();
         private bool throwingExplosive = false;
 
+        private ActionCooldown throwBombCD = new ActionCooldown(0.45f, true), detonateBombCD = new ActionCooldown(0.25f, true);
+
         public override void OnAwakeFinished()
         {
             AddSFX("Throw", "Detonate");
@@ -42,11 +44,11 @@ namespace UltraFunGuns
         {
 
             HydraLogger.Log($"Remote bomb fired primary");
-            if(actionCooldowns["primaryFire"].CanFire())
+            if(throwBombCD.CanFire())
             {
                 if(!throwingExplosive)
                 {
-                    actionCooldowns["primaryFire"].AddCooldown();
+                    throwBombCD.AddCooldown();
                     StartCoroutine(ThrowExplosive());
                 }
             }
@@ -55,11 +57,11 @@ namespace UltraFunGuns
         //Detonate currently active and armed bombs
         public override void FireSecondary()
         {
-            if(actionCooldowns["secondaryFire"].CanFire())
+            if(detonateBombCD.CanFire())
             {
                 if(thrownExplosives.Count > 0)
                 {
-                    actionCooldowns["secondaryFire"].AddCooldown();
+                    detonateBombCD.AddCooldown();
                     animator.Play("RemoteBomb_Anim_Detonate", 0, 0.0f);
                     PlaySFX("Detonate", 0.85f, 1.0f);
                     List<RemoteBombExplosive> bombsToDetonate = new List<RemoteBombExplosive>();
@@ -134,25 +136,6 @@ namespace UltraFunGuns
             }
         }
 
-        /*
-        private IEnumerator DetonateExplosives(List<RemoteBombExplosive> bombs)
-        { 
-            while(bombs.Count > 0)
-            {
-                RemoteBombExplosive bomb = bombs[0];
-                bombs.Remove(bomb);
-                bomb.Detonate();
-
-                float timer = bombDetonationDelay;
-                while(timer > 0.0f)
-                {
-                    timer -= Time.deltaTime;
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-        }
-
-        */
         protected override void DoAnimations()
         {
             
@@ -166,14 +149,6 @@ namespace UltraFunGuns
             }
         }
 
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(0.45f, true));
-            cooldowns.Add("secondaryFire", new ActionCooldown(0.25f, true));
-            return cooldowns;
-        }
-
         private void OnDisable()
         {
             throwingExplosive = false;
@@ -185,8 +160,8 @@ namespace UltraFunGuns
 
             debugText +=
                 $"BOMBCOUNT: {thrownExplosives.Count}\n" +
-                $"THROW_CD: {actionCooldowns["primaryFire"]}\n" +
-                $"DETONATE_CD: {actionCooldowns["secondaryFire"]}";
+                $"THROW_CD: {throwBombCD}\n" +
+                $"DETONATE_CD: {detonateBombCD}";
 
             return debugText;
         }

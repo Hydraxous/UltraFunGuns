@@ -6,7 +6,6 @@ namespace UltraFunGuns
     //Base class for UFG weapons.
     public abstract class UltraFunGunBase : MonoBehaviour
     {
-        public Dictionary<string, ActionCooldown> actionCooldowns;
         public Dictionary<string, AudioSource> soundEffects = new Dictionary<string, AudioSource>();
 
         protected Transform mainCam, firePoint;
@@ -22,7 +21,6 @@ namespace UltraFunGuns
         private void Awake()
         {
             weaponInfo = WeaponManager.GetWeaponInfo(this.GetType());
-            actionCooldowns = SetActionCooldowns();
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
             player = MonoSingleton<NewMovement>.Instance;
@@ -40,10 +38,7 @@ namespace UltraFunGuns
             if(firePoint == null)
             {
                 firePoint = mainCam;
-                
-                
-                
-                HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Error);
+                HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Warning);
             }
 
             HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_weaponIcon", out UnityEngine.Object weapon_weaponIcon);
@@ -70,8 +65,6 @@ namespace UltraFunGuns
 
             OnAwakeFinished();
         }
-        
-
 
         public virtual void OnAwakeFinished() {}
 
@@ -84,15 +77,13 @@ namespace UltraFunGuns
         //Example input function call this in update.
         public virtual void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused)
             {
-                actionCooldowns["primaryFire"].AddCooldown();
                 FirePrimary();
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["secondaryFire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && !om.paused)
             {
-                actionCooldowns["secondaryFire"].AddCooldown();
                 FireSecondary();
             }
 
@@ -108,16 +99,6 @@ namespace UltraFunGuns
                     DebugAction();
                 }
             }
-
-        }
-
-        //Implement the cooldowns here.
-        public virtual Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(1.0f, true));
-            cooldowns.Add("secondaryFire", new ActionCooldown(1.0f, true));
-            return cooldowns;
         }
 
         public virtual void FirePrimary()

@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using System.Runtime.CompilerServices;
+using UnityEngine.InputSystem;
 
 namespace UltraFunGuns;
 
@@ -14,6 +15,8 @@ public class FizzyGun : UltraFunGunBase
     public float forwardBias = 5.0f;
     public float groupForce = 2.0f;
     public float groupMaxRange = 10.0f;
+
+    public float rotateSpeed = 15.0f;
 
     public float stopRange = 0.2f;
     
@@ -29,9 +32,11 @@ public class FizzyGun : UltraFunGunBase
     private Transform heldObjectParent;
     private bool waitForPrimaryFireReleased;
 
-    private Dictionary<Rigidbody, bool> oldKinematicStates = new Dictionary<Rigidbody, bool>();
+    private Dictionary<Rigidbody, RigidbodySettings> oldKinematicStates = new Dictionary<Rigidbody, RigidbodySettings>();
 
-    private bool checking, hittingSomething;
+    private RigidbodySettings manipulatedSettings = new RigidbodySettings(RigidbodyConstraints.FreezeRotation, RigidbodyInterpolation.None, false);
+
+    private bool checking, hittingSomething, rotating;
 
     private Transform ObjectHolder
     {
@@ -50,7 +55,7 @@ public class FizzyGun : UltraFunGunBase
         if (IsHoldingObject)
         {
             UpdateHolderPosition();
-        }
+        } 
 
         if (InputManager.Instance.InputSource.Fire1.IsPressed)
         {
@@ -68,6 +73,14 @@ public class FizzyGun : UltraFunGunBase
         if (InputManager.Instance.InputSource.Fire2.WasPerformedThisFrame && IsHoldingObject)
         {
             PhysicsLockObject();
+        }
+
+        if (WeaponManager.SecretButton.IsPressed && IsHoldingObject)
+        {
+            RotateManipulation();
+        }else if(rotating)
+        {
+            rotating = false;
         }
 
         if (Input.GetKeyDown(KeyCode.Equals))
@@ -100,6 +113,28 @@ public class FizzyGun : UltraFunGunBase
         {
             BeginManipulation(col);
         }
+    }
+
+    Quaternion lookRot = Quaternion.identity;
+
+    private void RotateManipulation()
+    {
+        if(!rotating)
+        {
+            lookRot = CameraController.Instance.transform.rotation;
+            rotating = true;
+        }
+
+        HydraUtils.SetPlayerRotation(lookRot);
+
+        Vector2 lookInput = InputManager.Instance.InputSource.Look.ReadValue<Vector2>();
+
+        Vector3 axis = new Vector3(lookInput.y,-lookInput.x, 0.0f);
+
+        axis = CameraController.Instance.transform.rotation * axis;
+
+        //heldObjectRigidbody.Rotate(axis, lookInput.magnitude * Time.deltaTime * rotateSpeed);
+        heldObjectRigidbody.transform.RotateAround(ObjectHolder.position, axis, lookInput.magnitude * Time.deltaTime * rotateSpeed);
     }
 
     private bool CheckForCollider(out Collider col)
@@ -159,10 +194,12 @@ public class FizzyGun : UltraFunGunBase
 
         if(!oldKinematicStates.ContainsKey(heldObjectRigidbody))
         {
-            oldKinematicStates.Add(heldObjectRigidbody, heldObjectRigidbody.isKinematic);
+            oldKinematicStates.Add(heldObjectRigidbody, new RigidbodySettings(heldObjectRigidbody));
+            manipulatedSettings.ApplySettings(heldObjectRigidbody);
         }else
         {
-            heldObjectRigidbody.isKinematic = oldKinematicStates[heldObjectRigidbody];
+            oldKinematicStates[heldObjectRigidbody].ApplySettings(heldObjectRigidbody);
+            oldKinematicStates.Remove(heldObjectRigidbody);
         }
 
         if (heldObjectRigidbody.transform.parent != null)
@@ -214,5 +251,38 @@ public class FizzyGun : UltraFunGunBase
             debug += $"KINEMATIC: {heldObjectRigidbody.isKinematic}\n";
         }
         return debug;
+    }
+}
+
+public struct RigidbodySettings
+{
+    public RigidbodyConstraints constraints;
+    public RigidbodyInterpolation interpolation;
+    public bool isKinematic;
+
+    public RigidbodySettings(Rigidbody rigidbody)
+    {
+        SetSettings(rigidbody);
+    }
+
+    public RigidbodySettings(RigidbodyConstraints constraints, RigidbodyInterpolation interpolation, bool isKinematic)
+    {
+        this.constraints = constraints;
+        this.interpolation = interpolation;
+        this.isKinematic = isKinematic;
+    }
+
+    public void ApplySettings(Rigidbody rigidbody)
+    {
+        rigidbody.isKinematic = isKinematic;
+        rigidbody.interpolation = interpolation;
+        rigidbody.constraints = constraints;
+    }
+
+    public void SetSettings(Rigidbody rigidbody)
+    {
+        constraints = rigidbody.constraints;
+        interpolation = rigidbody.interpolation;
+        isKinematic = rigidbody.isKinematic;
     }
 }

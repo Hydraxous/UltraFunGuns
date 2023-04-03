@@ -31,6 +31,10 @@ namespace UltraFunGuns
 
         private LayerMask laserHitMask;
 
+        private ActionCooldown fireCooldown = new ActionCooldown(0.16f, true);
+        private ActionCooldown damageTick = new ActionCooldown(0.25f);
+        private ActionCooldown throwPylonCooldown = new ActionCooldown(1.0f, true);
+
         public override void OnAwakeFinished()
         {
             weaponIcon.variationColor = 2;
@@ -46,7 +50,7 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !throwingPylon && actionCooldowns["fireLaser"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !throwingPylon && fireCooldown.CanFire() && !om.paused)
             {
                 laserActive = true;
                 FireLaser();
@@ -56,7 +60,7 @@ namespace UltraFunGuns
             {
                 laserActive = false;
                 hittingAPylon = false;
-                actionCooldowns["fireLaser"].AddCooldown();
+                fireCooldown.AddCooldown();
             }else
             {
                 //should make the laser follow the weapon even when it's turning off.
@@ -68,7 +72,7 @@ namespace UltraFunGuns
                 DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && throwPylonCooldown.CanFire())
             {
                 if (!om.paused && (laser.GetPylonCount() < laser.maxPylons || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) && !throwingPylon)
                 {
@@ -119,18 +123,18 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            if (actionCooldowns["damageTick"].CanFire())
+                            if (damageTick.CanFire())
                             {
-                                actionCooldowns["damageTick"].AddCooldown();
+                                damageTick.AddCooldown();
                                 enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                             }
                             break;
                         }
                         else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
                         {
-                            if (actionCooldowns["damageTick"].CanFire())
+                            if (damageTick.CanFire())
                             {
-                                actionCooldowns["damageTick"].AddCooldown();
+                                damageTick.AddCooldown();
                                 enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                             }
                             break;
@@ -165,9 +169,9 @@ namespace UltraFunGuns
                                 {
                                     if(!eid.dead)
                                     {
-                                        if (actionCooldowns["damageTick"].CanFire())
+                                        if (damageTick.CanFire())
                                         {
-                                            actionCooldowns["damageTick"].AddCooldown();
+                                            damageTick.AddCooldown();
                                             Vector3 newDirection = eid.transform.position - coin.transform.position;
                                             eid.DeliverDamage(eid.gameObject, newDirection, eid.transform.position, 1.5f, false);
                                         }
@@ -219,7 +223,7 @@ namespace UltraFunGuns
         IEnumerator ThrowPylon()
         {
             throwingPylon = true;
-            actionCooldowns["throwPylon"].AddCooldown();
+            throwPylonCooldown.AddCooldown();
             animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
             GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
@@ -235,15 +239,6 @@ namespace UltraFunGuns
 
             newPylon.GetComponent<Rigidbody>().velocity = (mainCam.TransformDirection(0, 0, 1)*40.0f);
             throwingPylon = false;
-        }
-
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fireLaser", new ActionCooldown(0.16f, true));
-            cooldowns.Add("damageTick", new ActionCooldown(0.25f));
-            cooldowns.Add("throwPylon", new ActionCooldown(1.0f, true));
-            return cooldowns;
         }
 
         private void OnDisable()

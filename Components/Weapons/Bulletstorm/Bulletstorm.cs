@@ -44,6 +44,9 @@ namespace UltraFunGuns
 
         private Vibrator vibrator;
 
+        private ActionCooldown fireCooldown = new ActionCooldown(0.75f, true);
+        private ActionCooldown fireRate = new ActionCooldown(0.02f, true);
+
         public override void OnAwakeFinished()
         {
             //HydraLoader.prefabRegistry.TryGetValue("BulletTrail", out bulletTrailPrefab);
@@ -61,7 +64,7 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && actionCooldowns["primaryCooldown"].CanFire() && !om.paused)
+            if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && fireCooldown.CanFire() && !om.paused)
             {
                 Shoot();
                 vibrator?.AddTime(1.0f);
@@ -70,7 +73,7 @@ namespace UltraFunGuns
 
         private void Shoot()
         {
-            if (!actionCooldowns["fireRate"].CanFire())
+            if (!fireRate.CanFire())
             {
                 return;
             }
@@ -133,14 +136,6 @@ namespace UltraFunGuns
             LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
             Vector3[] linePoints = new Vector3[2] { startPosition, endPosition };
             line.SetPositions(linePoints);
-        }
-
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryCooldown", new ActionCooldown(0.75f, true));
-            cooldowns.Add("fireRate", new ActionCooldown(0.02f));
-            return cooldowns;
         }
 
         private GameObject GetProjectile()

@@ -16,27 +16,14 @@ namespace UltraFunGuns
     {
         [UFGAsset("ThrownEgg")] public static GameObject ThrownEggPrefab { get; private set; }
 
+        private ActionCooldown throwEgg = new ActionCooldown(0.6f, true), dropEgg = new ActionCooldown(0.3f, true);
+
         public float forceMultiplier = 59.0f;
         private bool throwingEgg = false;
 
-        private void Start()
-        {
-            //HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
-            //HydraLoader.prefabRegistry.TryGetValue("EggImpactFX", out thrownEggPrefab.GetComponent<ThrownEgg>().impactFX);
-            //HydraLoader.prefabRegistry.TryGetValue("EggSplosion", out thrownEggPrefab.GetComponent<ThrownEgg>().eggsplosionPrefab);
-        }
-
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("primaryFire", new ActionCooldown(0.6f, true));
-            cooldowns.Add("secondaryFire", new ActionCooldown(0.3f, true));
-            return cooldowns;
-        }
-
         protected override void DoAnimations()
         {
-            bool ableToShoot = (actionCooldowns["primaryFire"].CanFire() || actionCooldowns["secondaryFire"].CanFire());
+            bool ableToShoot = (throwEgg.CanFire() || dropEgg.CanFire());
             animator.SetBool("CanShoot", ableToShoot);
         }
 
@@ -69,13 +56,13 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && actionCooldowns["primaryFire"].CanFire() && !throwingEgg)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && throwEgg.CanFire() && !throwingEgg)
             {
-                actionCooldowns["primaryFire"].AddCooldown();
+                throwEgg.AddCooldown();
                 StartCoroutine(ThrowEgg());
-            }else if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["secondaryFire"].CanFire() && !throwingEgg)
+            }else if(MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && dropEgg.CanFire() && !throwingEgg)
             {
-                actionCooldowns["secondaryFire"].AddCooldown();
+                dropEgg.AddCooldown();
                 StartCoroutine(DropEgg());
             }
         }

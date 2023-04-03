@@ -47,4 +47,12 @@ namespace UltraFunGuns
             }
         }
     }
+
+
+
+    [HarmonyPatch(typeof(NewMovement))]
+    public static class InputDisruptor
+    {
+
+    }
 }
