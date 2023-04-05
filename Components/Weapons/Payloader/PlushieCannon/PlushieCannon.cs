@@ -6,8 +6,9 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("PlushieCannon", "Plushie Gun", 0, true, WeaponIconColor.Yellow)]
-    [WeaponAbility("Fire","Shoot a plushie", 0, RichTextColors.aqua)]
+    [UFGWeapon("PlushieCannon", "dev_cannon", 0, true, WeaponIconColor.Yellow)]
+    [WeaponAbility("DeliverDamage()","Fire a plushie with <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
+    [WeaponAbility("Fray()","Firing upon a plushie will result in a frayed explosion.", 1, RichTextColors.red)]
     public class PlushieCannon : UltraFunGunBase
     {
         private GameObject[] plushies = new GameObject[]

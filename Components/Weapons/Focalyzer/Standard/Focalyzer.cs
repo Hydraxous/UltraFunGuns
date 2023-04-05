@@ -218,7 +218,6 @@ namespace UltraFunGuns
             laser.BuildLine(normal);
         }
 
-        //Check for consequences of your hubris. Update: No hubris found... yet.
         //Throws pylon out TODO maybe update position so it comes from the gun?
         IEnumerator ThrowPylon()
         {

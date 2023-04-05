@@ -5,7 +5,9 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("GrabbityGun", "Grabbity Gun", 3, true, WeaponIconColor.Yellow)]
+    [WeaponAbility("Discharge", "Launch physics objects <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
+    [WeaponAbility("Grabbity Well", "Pull physics objects <color=orange>Fire 2</color>", 1, RichTextColors.aqua)]
+    [UFGWeapon("GrabbityGun", "Grabbity Gun (Experimental)", 3, true, WeaponIconColor.Yellow)]
     public class GrabbityGun : UltraFunGunBase
     {
         public float forceOnRb = 150.0f;
@@ -13,11 +15,10 @@ namespace UltraFunGuns
         public float groupForce = 2.0f;
         public float groupMaxRange = 10.0f;
 
-        public bool vacuumMode = false;
         public bool setVelo = false;
 
         public float maxRange = 10.0f;
-        public float minAngle = 0.60f; //45o angle
+        public float minAngle = 0.60f; //45 angle
 
 
         private ActionCooldown primaryFireDelay = new ActionCooldown(0.4f, true), secondaryDelay = new ActionCooldown(0.2f, true);
@@ -28,7 +29,7 @@ namespace UltraFunGuns
 
         public override void GetInput()
         {
-            if(primaryFireDelay.CanFire() && InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame)
+            if (primaryFireDelay.CanFire() && InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame)
             {
                 primaryFireDelay.AddCooldown();
                 FirePrimary();
@@ -36,15 +37,7 @@ namespace UltraFunGuns
 
             if (WeaponManager.SecretButton.WasPerformedThisFrame)
             {
-                vacuumMode = !vacuumMode;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Equals))
-            {
-                if (UltraFunGuns.DebugMode)
-                {
-                    setVelo = !setVelo;
-                }
+                setVelo = !setVelo;
             }
         }
 
@@ -133,7 +126,7 @@ namespace UltraFunGuns
                 return;
             }
 
-            if(rigidbody == NewMovement.Instance.rb)
+            if (rigidbody == NewMovement.Instance.rb)
             {
                 return;
             }
@@ -141,33 +134,34 @@ namespace UltraFunGuns
             Vector3 camPos = mainCam.position;
             Vector3 pullDirection = Vector3.zero;
 
-            if(collider.IsColliderEnemy(out EnemyIdentifier eid))
+            if (collider.IsColliderEnemy(out EnemyIdentifier eid))
             {
                 EnemyOverride enemyOverride = eid.Override();
-                if(!enemyOverrides.Contains(enemyOverride))
+                if (!enemyOverrides.Contains(enemyOverride))
                 {
                     enemyOverrides.Add(enemyOverride);
                     enemyOverride.SetRagdoll(true);
-                    enemyOverride.AddCollisionEvent((col) => 
-                    { 
+                    enemyOverride.AddCollisionEvent((col) =>
+                    {
 
-                        if(!enemyOverrides.Contains(enemyOverride))
+                        if (!enemyOverrides.Contains(enemyOverride))
                         {
                             return;
                         }
 
-                        switch(col.gameObject.layer)
+                        switch (col.gameObject.layer)
                         {
-                            case 0: case 8:
+                            case 0:
+                            case 8:
                                 TryDamage();
                                 break;
                             default:
-                                break; 
+                                break;
                         }
 
                         void TryDamage()
                         {
-                            if(!eid.CanBeDamaged())
+                            if (!eid.CanBeDamaged())
                             {
                                 return;
                             }
@@ -185,16 +179,12 @@ namespace UltraFunGuns
                 }
             }
 
-            if(vacuumMode)
-            {
-                pullDirection = camPos - (rigidbody.centerOfMass+rigidbody.transform.position);
-            }
-            else
-            {
-                pullDirection = checkOrigin - (rigidbody.centerOfMass + rigidbody.transform.position);
-            }
 
-            if(setVelo)
+
+            pullDirection = checkOrigin - (rigidbody.centerOfMass + rigidbody.transform.position);
+
+
+            if (setVelo)
             {
                 rigidbody.velocity = pullDirection * groupForce;
             }
@@ -203,7 +193,7 @@ namespace UltraFunGuns
                 rigidbody.velocity += pullDirection * groupForce;
             }
 
-            Visualizer.DrawRay(rigidbody.transform.position+rigidbody.centerOfMass, rigidbody.velocity, 0.5f);
+            Visualizer.DrawRay(rigidbody.transform.position + rigidbody.centerOfMass, rigidbody.velocity, 0.5f);
 
         }
 

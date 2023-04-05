@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
@@ -14,9 +11,8 @@ namespace UltraFunGuns
     //TODO optimization
     public class Tricksniper : UltraFunGunBase
     {
-        //public GameObject bulletTrailPrefab;
-        //TODO fix this
         [UFGAsset("TricksniperMuzzleFX")] public static GameObject muzzleFX { get; private set; }
+        [UFGAsset("ReflectedSniperShot")] private static GameObject reflectedSniperShot;
         public GameObject scopeUI;
         public GameObject viewModelWrapper;
 
@@ -39,8 +35,12 @@ namespace UltraFunGuns
         public float scopeInTime = 0.25f;
         public float scopeTime = 0.0f;
 
+        private float timeScopedIn = 0.0f;
+
+        public float spinCooldownMinThreshold = 5.0f;
+
         private ActionCooldown fireCooldown = new ActionCooldown(0.65f, true);
-        private ActionCooldown turnExpiry = new ActionCooldown(0.2f);
+        private ActionCooldown turnExpiry = new ActionCooldown(0.35f);
 
         private bool playReloadAnimWhenUnscoped;
 
@@ -49,11 +49,6 @@ namespace UltraFunGuns
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
             scopeUI.SetActive(false);
-        }
-
-        private void Start()
-        {
-
         }
 
         public override void GetInput()
@@ -87,32 +82,45 @@ namespace UltraFunGuns
                 scopeUI.SetActive(false);
             }
 
-            CheckRotation();
+            CheckSpin();
+
+            timeScopedIn = (scopedIn) ? timeScopedIn + Time.deltaTime: 0.0f;
         }
 
-
-        private void CheckRotation()
+        private Vector3 lastLook = Vector3.forward;
+        private float currentSpin = 0.0f;
+        
+        private void CheckSpin()
         {
-            float currentRotation = mainCam.transform.eulerAngles.y;
-            float rotationDifference = Mathf.Abs(lastRecordedRotation - currentRotation);
-            if (rotationDifference >= turnCountThreshold)
-            {
-                ++turnsCompleted;
-            }
-            else if(turnExpiry.CanFire())
-            {
-                turnsCompleted = 0;
-                revolutions = 0;
-            }
+            Vector3 lookVector = mainCam.transform.forward;
+            lookVector.y = 0;
+            lookVector.Normalize();
 
-            if(turnsCompleted >= revolveCountThreshold)
+            float lookDelta = Vector3.SignedAngle(lastLook, lookVector, Vector3.up);
+
+            lastLook = lookVector;
+
+            if(Mathf.Abs(lookDelta) >= spinCooldownMinThreshold)
             {
-                turnsCompleted = 0;
-                ++revolutions;
                 turnExpiry.AddCooldown();
             }
-            lastRecordedRotation = currentRotation;
+
+            currentSpin += lookDelta;
+
+            if (turnExpiry.CanFire())
+            {
+                revolutions = 0;
+                currentSpin = 0.0f;
+            }   
+
+            if(Mathf.Abs(currentSpin) >= 360f)
+            {
+                currentSpin -= 360.0f * Mathf.Sign(currentSpin);
+                ++revolutions;
+            }
+
         }
+
 
         private bool GetTarget(out Vector3 targetDirection) //Return true if enemy target found.
         {
@@ -149,7 +157,7 @@ namespace UltraFunGuns
                         Vector3 lookDirection = mainCam.TransformDirection(Vector3.forward).normalized;
 
                         float currentTargetAngle = (revolutions * (rotationalAngleMultiplier * (revolutions + 1.25f)));
-                        if(Vector3.Angle(directionToEnemy, lookDirection) <= Mathf.Clamp(currentTargetAngle, 0.0f, maxTargetAngle))
+                        if(Vector3.Angle(directionToEnemy, lookDirection) <= Mathf.Clamp(currentTargetAngle, 0.0f, maxTargetAngle) || revolutions > 7)
                         {
                             targetPoints.Add(enemyTargetPoint);
                         }
@@ -188,12 +196,25 @@ namespace UltraFunGuns
             bool enemyFound = false;
             Ray shootRay = new Ray(mainCam.position, mainCam.forward);
 
-            if (revolutions != 0)
+            if (revolutions > 0)
             {
                 if (GetTarget(out Vector3 targetDir))
                 {
                     enemyFound = true;
                     shootRay.direction = targetDir;
+
+                    Vector3 leveledSample = targetDir;
+                    leveledSample.y = 0.0f;
+
+                    Vector3 cameraLeveledSample = shootRay.direction;
+                    cameraLeveledSample.y = 0.0f;
+
+
+                    if(Vector3.Dot(leveledSample.normalized, cameraLeveledSample.normalized) < 0.0f)
+                    {
+                        Quaternion newLook = Quaternion.LookRotation(new Vector3(leveledSample.x, shootRay.direction.y, leveledSample.z), Vector3.up);
+                        HydraUtils.SetPlayerRotation(newLook);
+                    }
                 }
                 penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f) || penetration);
             }    
@@ -240,18 +261,18 @@ namespace UltraFunGuns
                             break;
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
+                        if (hits[i].collider.IsColliderEnemy(out EnemyIdentifier eid))
                         {
-                            enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, this.gameObject);
-
-                            if (!penetration)
+                            eid.DeliverDamage(eid.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, gameObject);
+                            if(scopedIn)
                             {
-                                break;
+                                if(timeScopedIn < 0.085f)
+                                    WeaponManager.AddStyle(50, "tricksniperquickscope", gameObject, eid);
+                            }else
+                            {
+                                bool trick = revolutions > 0;
+                                WeaponManager.AddStyle((trick) ? 100 : 30, (trick) ? "tricksniper360" : "tricksnipernoscope", gameObject, eid);
                             }
-                        }
-                        else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-                        {
-                            enemyID.DeliverDamage(hits[i].collider.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, this.gameObject);
 
                             if (!penetration)
                             {
@@ -268,25 +289,25 @@ namespace UltraFunGuns
                             }
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
+                        if (hits[i].collider.gameObject.TryFindComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
                         {
-                            egg.Explode();
-                            if (!penetration)
+                            UFGInteractionEventData eventData = new UFGInteractionEventData()
+                            {
+                                tags = new string[] { "shot", "pierce", "heavy", (scopedIn) ? "" : "god" },
+                                data = "",
+                                interactorPosition = mainCam.position,
+                                direction = hitRay.direction,
+                                invokeType = typeof(Tricksniper),
+                                power = 60f
+                            };
+
+                            if(uFGInteractionReceiver.Interact(eventData) && !penetration)
                             {
                                 break;
                             }
                         }
 
-                        if (hits[i].collider.gameObject.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
-                        {
-                            dodgeBall.ExciteBall(6);
-                            if (!penetration)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
+                        if (hits[i].collider.gameObject.TryFindComponent<Grenade>(out Grenade grenade))
                         {
                             MonoSingleton<TimeController>.Instance.ParryFlash();
                             grenade.Explode();
@@ -294,6 +315,11 @@ namespace UltraFunGuns
                             {
                                 break;
                             }
+                        }
+
+                        if (hits[i].collider.gameObject.TryFindComponent<Coin>(out Coin coin))
+                        {
+                            coin.DelayedReflectRevolver(hits[i].point, reflectedSniperShot);
                         }
                     }
                     CreateBulletTrail((scopedIn) ? mainCam.position : firePoint.position, hits[endingHit].point, hits[endingHit].normal);
@@ -334,9 +360,10 @@ namespace UltraFunGuns
         public override string GetDebuggingText()
         {
             string debug = base.GetDebuggingText();
-            debug += $"TURNS: {turnsCompleted}\n";
+            debug += $"SPIN: {currentSpin}\n";
+            debug += $"TURN_CD: {turnExpiry}\n";
             debug += $"REVOLUTIONS: {revolutions}\n";
-            debug += $"SCOPE: {scopedIn}\n";
+            debug += $"SCOPE: ({scopeTime/scopeInTime}) {scopedIn}\n";
             return debug;
         }
 

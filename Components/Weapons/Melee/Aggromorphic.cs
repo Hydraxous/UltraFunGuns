@@ -7,7 +7,7 @@ namespace UltraFunGuns.Components.Weapons.Melee
 {
     [WeaponAbility("Assault", "Use the Aggromorph to it's fullest ability.", 0, RichTextColors.aqua)]
     [WeaponAbility("Morph", "Morph the weapon.", 1, RichTextColors.lime)]
-    [UFGWeapon("Aggromorphic", "Aggromorphic", 2, true, WeaponIconColor.Red, true)]
+    [UFGWeapon("Aggromorphic", "Aggromorph", 2, true, WeaponIconColor.Red, true)]
     public class Aggromorphic : UltraFunGunBase
     {
         public float damage = 1.0f;
@@ -122,7 +122,7 @@ namespace UltraFunGuns.Components.Weapons.Melee
             if (audioCooldown.CanFire())
             {
                 audioCooldown.AddCooldown();
-                currentWeapon?.PlayHitAudio(hit.point, 0.2f);
+                currentWeapon?.PlayHitAudio(hit.point, 0.2f, true);
             }
             
             eid.DeliverDamage(eid.gameObject, mainCam.forward * 5000.0f, hit.point, currentWeapon.damage, true, 1.0f, gameObject);

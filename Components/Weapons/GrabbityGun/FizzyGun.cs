@@ -6,9 +6,10 @@ using UnityEngine.InputSystem;
 
 namespace UltraFunGuns;
 
-[WeaponAbility("Physic Manipulate", "Manipulate a physics object", 0, RichTextColors.aqua)]
-[WeaponAbility("Physic Lock", "Lock a physics object in place", 1, RichTextColors.aqua)]
-[UFGWeapon("FizzyGun", "Fizix Gun", 3, true, WeaponIconColor.Blue)]
+[WeaponAbility("Manipulate", "Manipulate a physics object <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
+[WeaponAbility("Lock", "Lock a physics object in place <color=orange>Fire 2</color>", 1, RichTextColors.aqua)]
+[WeaponAbility("Rotat-e", "Rotate held object <color=orange>secret</color>", 2, RichTextColors.aqua)]
+[UFGWeapon("FizzyGun", "Fizix Gun (Experimental)", 3, true, WeaponIconColor.Blue)]
 public class FizzyGun : UltraFunGunBase
 {
     public float forceOnRb = 150.0f;

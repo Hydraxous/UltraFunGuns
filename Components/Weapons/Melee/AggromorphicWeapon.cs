@@ -8,6 +8,7 @@ namespace UltraFunGuns.Components.Weapons.Melee
     public class AggromorphicWeapon : MonoBehaviour
     {
         [SerializeField] private AudioClip[] hitSounds;
+        [SerializeField] private AudioClip[] hitEnemySounds;
         [SerializeField] private int hitAnimationVariations = 1;
         public float hitCooldown = 0.3f;
         public float damage = 1f;
@@ -27,9 +28,17 @@ namespace UltraFunGuns.Components.Weapons.Melee
             animator.SetInteger("HitAnim", currentHitAnimation);
         }
 
-        public void PlayHitAudio(Vector3 position, float spatial)
+        public void PlayHitAudio(Vector3 position, float spatial, bool flesh = false)
         {
-            hitSounds[UnityEngine.Random.Range(0,hitSounds.Length)].PlayAudioClip(position, UnityEngine.Random.Range(0.85f, 1.1f),1.0f,spatial);
+
+            if(flesh)
+            {
+                hitEnemySounds[UnityEngine.Random.Range(0, hitEnemySounds.Length)].PlayAudioClip(position, UnityEngine.Random.Range(0.85f, 1.1f), 1.0f, spatial);
+            }
+            else
+            {
+                hitSounds[UnityEngine.Random.Range(0,hitSounds.Length)].PlayAudioClip(position, UnityEngine.Random.Range(0.85f, 1.1f),1.0f,spatial);
+            }
         }
 
         public void SecretAnimation()

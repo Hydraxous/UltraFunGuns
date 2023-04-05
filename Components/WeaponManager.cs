@@ -118,6 +118,9 @@ namespace UltraFunGuns
             NewStyleItem("admingunkill", "<color=red>GAMING CHAIR</color>");
             NewStyleItem("brickmindkill", "<color=orange>SOUL ASSIMILATION</color>");
             NewStyleItem("brickparrykill", "BRICKED");
+            NewStyleItem("tricksniperquickscope", "QUICKSCOPE");
+            NewStyleItem("tricksniper360", "<color=cyan>TRICKSHOT</color>");
+            NewStyleItem("tricksnipernoscope", "<color=orange>NOSCOPE</color>");
 
             CanvasController canvas = MonoSingleton<CanvasController>.Instance;
             if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))

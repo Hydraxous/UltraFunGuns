@@ -13,9 +13,9 @@ namespace UltraFunGuns
     //OR you can choose the beams and you find them in the levels!!!
     //OR Enemies drop them in levels at a frequency depending on how many beams you have
 
-    [WeaponAbility("Fire","Fire the current configuration.", 0, RichTextColors.red)]
-    [WeaponAbility("Reformat","Swith the current configuration.", 1, RichTextColors.lime)]
-    [UFGWeapon("ArmCannon", "Praime", 2, true, WeaponIconColor.Red, false)]
+    //[WeaponAbility("Fire","Fire the current configuration.", 0, RichTextColors.red)]
+    //[WeaponAbility("Reformat","Swith the current configuration.", 1, RichTextColors.lime)]
+    //[UFGWeapon("ArmCannon", "Praime", 2, true, WeaponIconColor.Red, false)]
     public class Praime : UltraFunGunBase
     {
         
@@ -67,6 +67,5 @@ namespace UltraFunGuns
      * 
      * Flubon Beam: Projectiles bounce 3 - 9 times
      * 
-     * Paradox Beam: Speeds up time? LMAO
      */ 
 }

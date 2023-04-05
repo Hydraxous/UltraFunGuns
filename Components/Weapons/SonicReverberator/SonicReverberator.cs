@@ -8,24 +8,8 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace UltraFunGuns
 {
-
-    //at this point, literally just copy the code from grabby gun
-
-    /*Gun that fires a "Sonic Wave" in a cone in front of it. Can be charged indefinitely.
-     * Charging scales with size of sonic wave, knockback velocity, and player knockback velocity.
-     * 
-     * It's a vine boom gun :)
-     * 
-     * TODO:
-     * - Fix charging animations jittering
-     * - Fix equip animation
-     * - Affect non-kinematic rigidbodies
-     * 
-     * BUGS: 
-     * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
-     * The nature of being able to charge indefinitely causes many issues.
-     * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
-     */
+    [WeaponAbility("Reverberate", "Release the stored power of Moyai with <color=orange>Fire 2</color>", 0, RichTextColors.aqua)]
+    [WeaponAbility("Stockpile", "Excite Moyai by holding <color=orange>Fire 1</color>", 1, RichTextColors.aqua)]
     [UFGWeapon("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {

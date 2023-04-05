@@ -9,6 +9,7 @@ namespace UltraFunGuns
     public static class ParryTool
     {
         //This is copied from the game with minor tweaks
+        //TODO fix this
         public static void ParryProjectile(Projectile proj, Vector3 parryDirection)
         {
             proj.hittingPlayer = false;
@@ -92,12 +93,14 @@ namespace UltraFunGuns
             proj.transform.SetParent(null, true);
         }
 
+        //TODO fix this
         public static void ParryCannonball(Cannonball cannonball, Vector3 direction)
         {
             cannonball.transform.forward = direction;
             cannonball.Launch();
         }
 
+        //TODO fix this
         public static bool TryParryCannonball(Collider collider, Vector3 direction, out Cannonball cannonball)
         {
             cannonball = null;
@@ -119,6 +122,7 @@ namespace UltraFunGuns
 
         }
 
+        //TODO fix this
         public static bool TryParryProjectile(Collider collider, Vector3 direction, out Projectile foundProjectile)
         {
             foundProjectile = null;
