@@ -8,7 +8,6 @@ namespace UltraFunGuns
     public class UFGAsset : Attribute
     {
         public string Key { get; }
-        public bool UKPrefab { get; }
 
         /// <summary>
         /// Asset tag. Anythng tagged with this, UltraLoader will attempt to load from assetbundles at runtime.

@@ -177,6 +177,18 @@ namespace UltraFunGuns
             }
         }
 
+        private static InventoryController invController;
+
+        public static void RefreshInventory()
+        {
+            if(invController == null)
+            {
+                invController = GameObject.FindObjectOfType<InventoryController>();
+            }
+
+            invController?.Refresh();
+        }
+
     }
 
     [System.Serializable]

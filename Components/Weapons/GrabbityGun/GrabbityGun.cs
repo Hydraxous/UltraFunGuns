@@ -7,7 +7,7 @@ namespace UltraFunGuns
 {
     [WeaponAbility("Discharge", "Launch physics objects <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
     [WeaponAbility("Grabbity Well", "Pull physics objects <color=orange>Fire 2</color>", 1, RichTextColors.aqua)]
-    [UFGWeapon("GrabbityGun", "Grabbity Gun (Experimental)", 3, true, WeaponIconColor.Yellow)]
+    [UFGWeapon("GrabbityGun", "Grabbity Gun (Experimental)", 3, true, WeaponIconColor.Yellow, false)]
     public class GrabbityGun : UltraFunGunBase
     {
         public float forceOnRb = 150.0f;

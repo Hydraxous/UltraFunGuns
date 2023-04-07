@@ -113,6 +113,21 @@ namespace UltraFunGuns
             this.slots = WeaponManager.GetDefaultLoadout();
         }
 
+        public void SetUnlocked(string weaponKey, bool unlocked)
+        {
+            foreach (InventorySlotData slot in slots)
+            {
+                foreach (InventoryNodeData node in slot.slotNodes)
+                {
+                    if (node.weaponKey != weaponKey)
+                        continue;
+
+                    node.weaponUnlocked = unlocked;
+                    return;
+                }
+            }
+        }
+
         public override bool Validate()
         {
             if (!(slots.Length > 0))

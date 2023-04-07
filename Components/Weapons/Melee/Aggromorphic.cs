@@ -78,7 +78,7 @@ namespace UltraFunGuns.Components.Weapons.Melee
             hitEnemies.Clear();
             hitEnvironmentAudio = false;
             currentWeapon?.Hit();
-            if (HydraUtils.SphereCastAllMacro(mainCam.position, 0.25f, mainCam.forward, maxRange, out RaycastHit[] hits))
+            if (HydraUtils.SphereCastAllMacro(mainCam.position, 0.75f, mainCam.forward, maxRange, out RaycastHit[] hits))
             {
                 foreach (RaycastHit hit in hits)
                 {

@@ -377,6 +377,26 @@ namespace UltraFunGuns
             Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
             return color;
         }
+
+        public static void SetWeaponUnlocked(string weaponKey, bool unlocked)
+        {
+            if(!Weapons.ContainsKey(weaponKey))
+                return;
+
+            Data.Loadout.Data.SetUnlocked(weaponKey, unlocked);
+            Data.Loadout.Save();
+            InventoryController.RefreshInventory();
+            DeployWeapons();
+        }
+
+        [Commands.UFGDebugMethod("UnlockAll", "Unlocks all weapons")]
+        public static void UnlockAll()
+        {
+            foreach(KeyValuePair<string, UFGWeapon> weaponInfo in Weapons)
+            {
+                SetWeaponUnlocked(weaponInfo.Value.WeaponKey, true);
+            }
+        }
     }
 
     public class WeaponDeployer : MonoBehaviour

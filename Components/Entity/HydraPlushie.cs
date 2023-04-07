@@ -44,10 +44,13 @@ namespace UltraFunGuns
                 src.pitch = src.pitch - (src.pitch * 0.23f);
             }
 
-            if(breakFX != null)
+            if (breakFX != null)
             {
                 Instantiate(breakFX, transform);
             }
+
+            WeaponManager.SetWeaponUnlocked("FizzyGun", true);
+            WeaponManager.SetWeaponUnlocked("GrabbityGun", true);
         }
 
         private void OnTriggerEnter(Collider col)

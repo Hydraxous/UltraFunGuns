@@ -11,6 +11,12 @@ namespace UltraFunGuns
     //TODO optimization
     public class Tricksniper : UltraFunGunBase
     {
+        [UFGAsset("TrickshotReaction_0")] private static AudioClip trickshotReaction0;
+        [UFGAsset("TrickshotReaction_1")] private static AudioClip trickshotReaction1;
+        [UFGAsset("TrickshotReaction_2")] private static AudioClip trickshotReaction2;
+        [UFGAsset("TrickshotReaction_3")] private static AudioClip trickshotReaction3;
+
+        private static AudioClip[] trickshotReactions = new AudioClip[] { trickshotReaction0, trickshotReaction1, trickshotReaction2, trickshotReaction3 };
         [UFGAsset("TricksniperMuzzleFX")] public static GameObject muzzleFX { get; private set; }
         [UFGAsset("ReflectedSniperShot")] private static GameObject reflectedSniperShot;
         public GameObject scopeUI;
@@ -271,6 +277,11 @@ namespace UltraFunGuns
                             }else
                             {
                                 bool trick = revolutions > 0;
+                                if(trick && trickshotReactions != null)
+                                {
+                                    trickshotReactions[UnityEngine.Random.Range(0, trickshotReactions.Length)].PlayAudioClip();
+                                }
+
                                 WeaponManager.AddStyle((trick) ? 100 : 30, (trick) ? "tricksniper360" : "tricksnipernoscope", gameObject, eid);
                             }
 

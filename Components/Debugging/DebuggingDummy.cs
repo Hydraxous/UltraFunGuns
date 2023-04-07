@@ -20,6 +20,7 @@ namespace UltraFunGuns
         private void Awake()
         {
             CrossModEvents.SubscribeToModEvents(InterpretModEvent);
+            HydraLogger.Log($"NEW BUILD (5)", DebugChannel.Warning);
         }
 
         private void Update()

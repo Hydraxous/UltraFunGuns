@@ -44,6 +44,8 @@ namespace UltraFunGuns
         public bool isExcited = false;
         public bool beingPulled = false;
 
+        private bool dead;
+
         private AudioSource bigHitSound;
         private AudioSource homingSound;
         private AudioSource exciteSound;
@@ -239,6 +241,10 @@ namespace UltraFunGuns
 
         public void Pop()
         {
+            if (dead)
+                return;
+
+            dead = true;
             Events.OnPlayerRespawn -= Pop;
             GameObject.Instantiate<GameObject>(dodgeballPopFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
@@ -453,15 +459,17 @@ namespace UltraFunGuns
 
             switch(interaction.invokeType.Name)
             {
-                case "Focalyzer": case "FocalyzerAlternate":
-                    //Slow down
-                    break;
+                case nameof(Focalyzer): 
+                case nameof(FocalyzerAlternate):
+                    SetSustainVelocity(Vector3.Reflect(sustainedVelocity.normalized, interaction.direction.normalized));
+                    return true;
 
-                case "FingerGun":
+                case nameof(FingerGun):
+                case nameof(AdminGun):
                     Pop();
                     return true;
 
-                case "SonicReverberator":
+                case nameof(SonicReverberator):
                     interaction.power *= 0.25f;
                     break;
             }

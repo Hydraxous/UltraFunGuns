@@ -7,7 +7,7 @@ using UnityEngine.AI;
 namespace UltraFunGuns
 {
     
-    [UFGWeapon("MysticFlare", "Mystic Flare", 0, true, WeaponIconColor.Red, true)]
+    [UFGWeapon("MysticFlare", "Mystic Flare", 0, true, WeaponIconColor.Red, false)]
     [WeaponAbility("Flare", "Throw a flare using <color=orange>Fire 1</color>.", 6, RichTextColors.red)]
     public class MysticFlare : UltraFunGunBase
     {

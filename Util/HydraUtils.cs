@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.HID;
 using MonoMod.RuntimeDetour.HookGen;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace UltraFunGuns
 {
