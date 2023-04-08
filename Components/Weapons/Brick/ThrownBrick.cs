@@ -471,5 +471,10 @@ namespace UltraFunGuns
         {
             return transform.position;
         }
+
+        public bool Targetable(TargetQuery query)
+        {
+            return false;
+        }
     }
 }

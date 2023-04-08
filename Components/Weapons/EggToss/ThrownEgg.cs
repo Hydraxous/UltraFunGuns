@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -232,6 +234,11 @@ namespace UltraFunGuns
         public Vector3 GetPosition()
         {
             return transform.position;
+        }
+
+        public bool Targetable(TargetQuery targetQuery)
+        {
+            return targetQuery.CheckTargetable(transform.position);
         }
     }
 }

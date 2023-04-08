@@ -60,7 +60,8 @@ namespace UltraFunGuns
         {
             Vector3 target = Vector3.zero;
 
-            Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, targetBeamThickness, maxBeamDistance);
+            Ray aimRay = (weaponIdentifier.duplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, targetBeamThickness, maxBeamDistance);
+
 
             Vector3 targetVelocity = aimRay.direction * shootForce;
             CameraController.Instance.CameraShake(0.15f);

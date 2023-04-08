@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -132,6 +133,25 @@ namespace UltraFunGuns
         {
             List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
             List<Transform> targetPoints = new List<Transform>();
+
+            TargetQuery targetQuery = new TargetQuery()
+            {
+                queryOrigin = mainCam.position,
+                queryDirection = mainCam.forward,
+                checkLineOfSight = true,
+                maxRange = maxRange,
+                lineOfSightCollider = player.playerCollider,
+                lineOfSightErrorMargin = 1.2f
+            };
+
+            IUFGInteractionReceiver[] foundReceivers = GameObject.FindObjectsOfType<MonoBehaviour>().OfType<IUFGInteractionReceiver>().Where(x=>x!=null).Where(y=>y.Targetable(targetQuery)).OrderBy(z=>Vector3.Distance(z.GetPosition(),mainCam.position)).ToArray();
+
+            if(foundReceivers.Length > 0)
+            {
+                targetDirection = foundReceivers[0].GetPosition()-mainCam.position;
+                return true;
+            }
+
             GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
             foreach (GameObject enemyObject in enemyObjectsActive)
             {
@@ -245,6 +265,7 @@ namespace UltraFunGuns
             {
                 playReloadAnimWhenUnscoped = true;
             }
+            CameraController.Instance.CameraShake(1.1f);
         }
 
         private void DoHit(Ray hitRay, bool penetration)

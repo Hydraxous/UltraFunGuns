@@ -59,7 +59,7 @@ namespace UltraFunGuns
         private void Fire()
         {
 
-            Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, targetBeamThickness, maxBeamDistance);
+            Ray aimRay = (weaponIdentifier.duplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, targetBeamThickness, maxBeamDistance);
             Vector3 targetVelocity = aimRay.direction * shootForce;
 
             lastFired = PickPlushie();

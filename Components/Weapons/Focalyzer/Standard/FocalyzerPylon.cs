@@ -357,5 +357,10 @@ namespace UltraFunGuns
         {
             return transform.position;
         }
+
+        public bool Targetable(TargetQuery targetQuery)
+        {
+            return false;
+        }
     }
 }

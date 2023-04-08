@@ -46,5 +46,7 @@ namespace UltraFunGuns
 
         [UFGAsset("SmackFX")] public static GameObject SmackFX { get; private set; }
 
+        [UFGAsset("BlackSmokeShockwave")] public static GameObject BlackSmokeShockwave { get; private set; }
+
     }
 }

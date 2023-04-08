@@ -102,7 +102,7 @@ namespace UltraFunGuns
             throwingExplosive = true;
             yield return new WaitForSeconds(0.1666f);
             PlaySFX("Throw", 0.95f, 1.15f);
-            Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.25f, 40.0f);
+            Ray aimRay = (weaponIdentifier.duplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.25f, 40.0f);
             GameObject newExplosive = Instantiate<GameObject>(RemoteExplosivePrefab, firePoint.position, Quaternion.identity);
             RemoteBombExplosive newBomb = newExplosive.GetComponent<RemoteBombExplosive>();
 

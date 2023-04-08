@@ -371,5 +371,13 @@ namespace UltraFunGuns
         {
             return transform.position;
         }
+
+        public bool Targetable(TargetQuery targetQuery)
+        {
+            if (sleeping || dead)
+                return false;
+
+            return targetQuery.CheckTargetable(transform.position);
+        }
     }
 }

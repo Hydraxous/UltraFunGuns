@@ -12,6 +12,7 @@ namespace UltraFunGuns
         protected OptionsManager om;
         protected NewMovement player;
         protected WeaponIcon weaponIcon;
+        protected WeaponIdentifier weaponIdentifier;
         protected Animator animator;
 
         protected UFGWeapon weaponInfo;
@@ -26,6 +27,7 @@ namespace UltraFunGuns
             player = MonoSingleton<NewMovement>.Instance;
             animator = GetComponent<Animator>();
             weaponIcon = GetComponent<WeaponIcon>();
+            weaponIdentifier = GetComponent<WeaponIdentifier>();
             foreach (Transform transf in gameObject.GetComponentsInChildren<Transform>(true))
             {
                 if (transf.name == "firePoint")

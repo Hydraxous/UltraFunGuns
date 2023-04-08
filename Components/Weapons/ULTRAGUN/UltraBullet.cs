@@ -15,6 +15,8 @@ namespace UltraFunGuns
         public float Power { get; private set; }
         public float PowerDecayRate = 30f;
 
+        public bool Falling { get; private set; }
+
         private Rigidbody rb;
         public Rigidbody Rigidbody 
         {
@@ -53,7 +55,6 @@ namespace UltraFunGuns
             if (Rigidbody == null)
                 return;
 
-
             if (Power > 0.0f)
                 Rigidbody.velocity = transform.forward * maxPower;
 
@@ -66,12 +67,19 @@ namespace UltraFunGuns
 
         private void LateUpdate()
         {
-            if (thrustFX != null)
-                thrustFX.gameObject.SetActive(Power > 0.0f);
+            if(!Falling && Power <= 0.0f)
+            {
+                if (thrustFX != null)
+                    thrustFX.gameObject.SetActive(false);
 
-            if(fallFX != null)
-                fallFX.gameObject.SetActive(Power <= 0.0f);
+                if (fallFX != null)
+                    fallFX.gameObject.SetActive(true);
 
+                Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.Inverse(transform.rotation));
+
+                gameObject.AddComponent<DestroyAfterTime>().TimeLeft = 25.0f;
+                Falling = true;
+            }
         }
 
         public void Explode()
@@ -94,6 +102,11 @@ namespace UltraFunGuns
             if (!((LayerMaskDefaults.Get(LMD.EnemiesAndEnvironment) & (1 << col.gameObject.layer)) != 0))
             {
                 return;
+            }
+
+            if(col.IsCollisionEnemy(out EnemyIdentifier eid))
+            {
+                eid.DeliverDamage(eid.gameObject, transform.forward * 500 * Power, col.GetContact(0).point, 1.2f, true, 0, gameObject);
             }
 
             Explode();
@@ -125,6 +138,19 @@ namespace UltraFunGuns
         public Vector3 GetPosition()
         {
             return transform.position;
+        }
+
+        private void OnDestroy()
+        {
+            Explode();
+        }
+
+        public bool Targetable(TargetQuery query)
+        {
+            if (Exploded)
+                return false;
+
+            return query.CheckTargetable(transform.position);
         }
     }
 }

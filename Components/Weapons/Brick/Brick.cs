@@ -133,7 +133,7 @@ namespace UltraFunGuns
         {
             if(ready)
             {
-                Ray aimRay = HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.2f);
+                Ray aimRay = (weaponIdentifier.duplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.2f);
 
                 GameObject newBrick = GameObject.Instantiate(thrownBrickPrefab, firePoint.position, UnityEngine.Random.rotation);
                 newBrick.transform.forward = aimRay.direction;

@@ -210,7 +210,7 @@ namespace UltraFunGuns
             throwPylonCooldown.AddCooldown();
             animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
-            GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+            GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, firePoint.position, Quaternion.identity);
             GameObject pylonFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint);
             pylonFX.transform.position = firePoint.position;
             pylonFX.transform.forward = firePoint.forward;
