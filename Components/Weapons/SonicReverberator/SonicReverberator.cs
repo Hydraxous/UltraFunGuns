@@ -13,7 +13,7 @@ namespace UltraFunGuns
     [UFGWeapon("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {
-        [UFGAsset("SonicReverberationExplosion")] public static GameObject ReverbProjectile { get; private set; }
+        [UFGAsset("SonicBoom")] public static GameObject ReverbProjectile { get; private set; }
 
         [UFGAsset("vB_standard")] public static AudioClip vineBoom_Standard { get; private set; }
         [UFGAsset("vB_loud")] public static AudioClip vineBoom_Loud { get; private set; }
@@ -207,6 +207,20 @@ namespace UltraFunGuns
                     ProcessHit(hit);
                 }
             }
+            
+            if(ReverbProjectile != null)
+            {
+                GameObject newReverb = Instantiate(ReverbProjectile, firePoint.position, Quaternion.identity);
+                newReverb.transform.forward = mainCam.forward;
+
+                SonicBoom sonicBoom = newReverb.GetComponent<SonicBoom>();
+
+                sonicBoom.Size = thickness;
+                sonicBoom.Range = maxRange;
+                sonicBoom.LifeTime = 0.36f;
+            }
+
+            //spawn fx
 
             KnockbackPlayer();
 

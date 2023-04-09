@@ -408,6 +408,14 @@ namespace UltraFunGuns
             }
         }
 
+        private void OnTriggerEnter(Collider col)
+        {
+            if(col.gameObject.layer == 23 && col.isTrigger)
+            {
+                Detonate(true);
+            }
+        }
+
         public void Shot(BeamType beamType)
         {
             switch (beamType)

@@ -27,6 +27,9 @@ namespace UltraFunGuns
         private float minPowerCost = 30.0f;
 
         private float power;
+
+        private AbilityMeter powerDisplay;
+
         public float Power
         {
             get
@@ -42,6 +45,12 @@ namespace UltraFunGuns
 
         private List<UltraBullet> firedBullets = new List<UltraBullet>();
 
+        public override void OnAwakeFinished()
+        {
+            powerDisplay = GetComponentInChildren<AbilityMeter>();
+        }
+
+        //fired bullets take fuel to fly.
         private void Start()
         {
             Power = maxPower;
@@ -67,6 +76,11 @@ namespace UltraFunGuns
             }
 
             Power += (ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) ? maxPower : powerRestoreRate * Time.deltaTime;
+        }
+
+        private void LateUpdate()
+        {
+            powerDisplay?.SetAmount(Power/maxPower);
         }
 
         private void Fire()
@@ -134,6 +148,19 @@ namespace UltraFunGuns
                 boostDenied_SFX.PlayAudioClip(UnityEngine.Random.Range(0.89f, 1.11f));
                 return;
             }
+
+            float reclaimedPower = 0.0f;
+
+            for(int i =0; i< firedBullets.Count;i++)
+            {
+                reclaimedPower = firedBullets[i].Power;
+                firedBullets[i].SetPower(0.0f);
+            }
+
+            Power += reclaimedPower;
+
+
+            return;
 
             int bulletCount = firedBullets.Count;
             float powerPerBullet = Power/ bulletCount;
