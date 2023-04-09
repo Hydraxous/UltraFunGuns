@@ -6,7 +6,7 @@ The mod is currently in VERY early development so more weapons will be released 
 In the meantime you can have some fun with the absolute hilariously buggy mess that is this mod.
 **THE MOD ENABLES MAJOR ASSISTS WHEN THE WEAPONS ARE IN USE**
 
-# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.7-Experimental/UFG-1.1.7-Experimental.zip)
+# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/1.1.8-Experimental/UFG-1.1.8-Experimental.zip)
 
 ![Focalyzer2](https://user-images.githubusercontent.com/8602389/194092032-e4119719-a5c8-4230-886e-c8f141061c57.png)
 
