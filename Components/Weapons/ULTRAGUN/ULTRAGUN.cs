@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
+    [WeaponAbility("Heavy Shell", "SHOOT WITH <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
     [UFGWeapon("UltraGun", "ULTRAGUN", 3, true, WeaponIconColor.Green)]
     public class UltraGun : UltraFunGunBase
     {
@@ -22,7 +23,7 @@ namespace UltraFunGuns
 
         public float powerRestoreRate = 50.0f;
         public float minPower = 10.0f;
-        public float maxPower = 200.0f;
+        public float maxPower = 125.0f;
 
         private float minPowerCost = 30.0f;
 
@@ -54,6 +55,7 @@ namespace UltraFunGuns
         private void Start()
         {
             Power = maxPower;
+            powerDisplay.gameObject.SetActive(false);
         }
 
         public override void GetInput()
@@ -66,14 +68,31 @@ namespace UltraFunGuns
 
             if (InputManager.Instance.InputSource.Fire2.WasPerformedThisFrame && secondaryBoost.CanFire() && !om.paused)
             {
-                secondaryBoost.AddCooldown();
-                BulletBoost();
+                firedBullets = firedBullets.Where(x => x != null).Where(y => !y.Falling).ToList();
+
+                if (firedBullets.Count <= 0)
+                {
+                    boostDenied_SFX.PlayAudioClip(UnityEngine.Random.Range(0.89f, 1.11f));
+                }else
+                {
+                    DropAllBullets();
+                }
             }
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
+            if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
             {
                 animator?.Play("Inspect", 0, 0);
+                DivideBullets();
             }
+
+            if(Input.GetKeyDown(KeyCode.LeftBracket))
+            {
+                --divisions;
+            }else if(Input.GetKeyDown(KeyCode.RightBracket))
+            {
+                ++divisions;
+            }
+
 
             Power += (ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) ? maxPower : powerRestoreRate * Time.deltaTime;
         }
@@ -123,12 +142,11 @@ namespace UltraFunGuns
 
             if (newBulletObject.TryGetComponent<UltraBullet>(out UltraBullet bullet))
             {
-                Power -= bulletPower;
-                bullet.SetPower(bulletPower*1.5f);
+                bullet.SetOriginWeapon(this);
                 bullet.SetDirection(ray.direction);
                 firedBullets.Add(bullet);
+                bullet.SetPower(GetPower(bullet));
             }
-
 
             if (!player.gc.onGround)
             {
@@ -139,54 +157,37 @@ namespace UltraFunGuns
             }
         }
 
-        private void BulletBoost()
+        private void DropAllBullets()
         {
-            firedBullets = firedBullets.Where(x => x != null).Where(y=>y.Power > 0.0f).ToList();
-
-            if (firedBullets.Count <= 0)
+            firedBullets = firedBullets.Where(x => x != null).Where(y=>!y.Falling).ToList();
+            for (int i = 0; i < firedBullets.Count; i++)
             {
-                boostDenied_SFX.PlayAudioClip(UnityEngine.Random.Range(0.89f, 1.11f));
-                return;
-            }
-
-            float reclaimedPower = 0.0f;
-
-            for(int i =0; i< firedBullets.Count;i++)
-            {
-                reclaimedPower = firedBullets[i].Power;
-                firedBullets[i].SetPower(0.0f);
-            }
-
-            Power += reclaimedPower;
-
-
-            return;
-
-            int bulletCount = firedBullets.Count;
-            float powerPerBullet = Power/ bulletCount;
-            float ratio = powerPerBullet / maxPower;
-
-            float powerConsumed = 0;
-
-            for(int i = 0; i < bulletCount; i++)
-            {
-                if (firedBullets[i] == null)
-                    continue;
-
-                firedBullets[i].SetPower(firedBullets[i].Power + (firedBullets[i].Power * (ratio*2.0f)));
-                if(Prefabs.BlackSmokeShockwave != null)
-                {
-                    Instantiate(Prefabs.BlackSmokeShockwave, firedBullets[i].transform.position+(-firedBullets[i].transform.forward*0.25f), Quaternion.LookRotation(-firedBullets[i].transform.forward, firedBullets[i].transform.up));
-                }
-                Power -= powerPerBullet;
+                firedBullets[i].Fall();
             }
         }
 
-        //cant boost again until all boosted bullets are dead and power is full.
-        private bool boostingActive;
-        private IEnumerator BulletBooster()
+        private int divisions = 3;
+
+        private void DivideBullets()
         {
-            yield return null;
+            firedBullets = firedBullets.Where(x => x != null).ToList();
+            for (int i = 0; i < firedBullets.Count; i++)
+            {
+                firedBullets[i].Divide(divisions);
+            }
+        }
+
+        public float GetPower(UltraBullet bullet)
+        {
+            firedBullets = firedBullets.Where(x => x != null).Where(y => !y.Falling).ToList();
+
+            if (firedBullets.Contains(bullet))
+            {
+                return maxPower / firedBullets.Count;
+            }
+
+            //Not on the list, geddaahdahere
+            return 0.0f;
         }
 
         private void OnEnable()

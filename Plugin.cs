@@ -12,6 +12,7 @@ namespace UltraFunGuns
     [BepInDependency("Hydraxous.HydraDynamics", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(ConstInfo.GUID, ConstInfo.NAME, ConstInfo.VERSION)]
     [HydynamicsInfo(ConstInfo.NAME, ConstInfo.GUID, ConstInfo.VERSION)]
+    [BepInProcess("ULTRAKILL.exe")]
     public class UltraFunGuns : BaseUnityPlugin
     {
         Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
@@ -29,11 +30,11 @@ namespace UltraFunGuns
 
         private void Awake()
         {
+            Freecam.SpawnFreecam();
             UFG = this;
             Data.CheckSetup();
             StartCoroutine(Startup());
         }
-
 
         private IEnumerator Startup()
         {

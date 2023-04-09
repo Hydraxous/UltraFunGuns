@@ -13,6 +13,13 @@ namespace UltraFunGuns
 
         public static UKAsset<GameObject> UK_Explosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Explosion.prefab");
         public static UKAsset<GameObject> UK_ExplosionMalicious { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionMaliciousRail.prefab");
+        public static UKAsset<GameObject> UK_ExplosionSuper { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionSuper.prefab");
+        public static UKAsset<GameObject> UK_ExplosionBig { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionBig.prefab");
+        public static UKAsset<GameObject> UK_ExplosionPrime { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionPrime.prefab");
+        public static UKAsset<GameObject> UK_ExplosionLightning { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionLightning Variant.prefab");
+        public static UKAsset<GameObject> UK_ExplosionSand { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionSand.prefab");
+        public static UKAsset<GameObject> UK_MindflayerExplosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/MindflayerExplosion.prefab");
+        
 
         public static UKAsset<Font> VCR_Font { get; private set; } = new UKAsset<Font>("Assets/Fonts/VCR_OSD_MONO_1.001.ttf");
 

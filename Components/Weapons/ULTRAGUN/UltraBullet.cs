@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,13 +12,21 @@ namespace UltraFunGuns
 {
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver
     {
+        [SerializeField] private Transform superchargeFX;
+        
         [SerializeField] private Transform thrustFX, fallFX;
+
 
         private float maxPower;
         public float Power { get; private set; }
         public float PowerDecayRate = 30f;
 
         public bool Falling { get; private set; }
+        public bool Supercharged { get; private set; }
+
+        public bool IsDivision { get; private set; }
+
+        private UltraGun originWeapon;
 
         private Rigidbody rb;
         public Rigidbody Rigidbody 
@@ -41,6 +52,75 @@ namespace UltraFunGuns
             }
         }
 
+        public void SetOriginWeapon(UltraGun gun)
+        {
+            originWeapon = gun;
+        }
+
+        public void Divide(int divideInto = 3)
+        {
+            if (divideInto < 2 || IsDivision)
+                return;
+            Vector3 storedVelocity = Rigidbody.velocity;
+            Fall();
+            Vector3 ringCenter = transform.position;
+
+            Ring ring = new Ring(divideInto, divideInto*1.4f);
+
+            //ring.SetCircumferenceFromObjectRadius(2/divideInto);
+
+            Vector3[] ringPositions = ring.GetPositions();
+            for(int i=0; i< ringPositions.Length; i++)
+            {
+                ringPositions[i] = transform.rotation * ringPositions[i];
+            }
+
+            //ringPositions.Do(x => { x = transform.rotation * x; });
+            float currentSpeed = storedVelocity.magnitude;
+
+            transform.localScale /= divideInto;
+            transform.position = ringCenter+ringPositions[0];
+            Rigidbody.velocity = storedVelocity;
+            IsDivision = true;
+
+            HydraLogger.Log($"Bullet divided from {gameObject.name}", DebugChannel.Warning);
+
+            for (int i = 1; i < ringPositions.Length; i++)
+            {
+                UltraBullet newBullet = Instantiate(gameObject, ringPositions[i]+ringCenter, transform.rotation).GetComponent<UltraBullet>();
+                newBullet.rb = newBullet.GetComponent<Rigidbody>();
+                newBullet.rb.velocity = storedVelocity + ((newBullet.transform.position - ringCenter).normalized * (currentSpeed * 0.25f));
+            }
+
+            Rigidbody.velocity += (transform.position - ringCenter).normalized * (currentSpeed * 0.25f);
+        }
+
+        public void Fall()
+        {
+            if (Falling)
+                return;
+
+            if (Supercharged)
+                Supercharged = false;
+
+            Falling = true;
+
+            if (thrustFX != null)
+                thrustFX.gameObject.SetActive(false);
+
+            if (superchargeFX != null)
+                superchargeFX.gameObject.SetActive(false);
+
+            if (fallFX != null)
+                fallFX.gameObject.SetActive(true);
+            
+            originWeapon = null;
+
+            Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.Inverse(transform.rotation));
+
+            gameObject.AddComponent<DestroyAfterTime>().TimeLeft = 25.0f;
+        }
+
         public void SetDirection(Vector3 direction)
         {
             if (Rigidbody == null)
@@ -55,30 +135,26 @@ namespace UltraFunGuns
             if (Rigidbody == null)
                 return;
 
-            if (Power > 0.0f)
-                Rigidbody.velocity = transform.forward * maxPower;
+            if (Power > 0.0f && !Falling)
+                Rigidbody.velocity = transform.forward * ((originWeapon != null) ? Power : maxPower);
 
             transform.forward = Rigidbody.velocity;
 
-
-            Power -= Time.fixedDeltaTime * PowerDecayRate;
-            Power = Mathf.Max(0, Power);
+            if (originWeapon != null)
+            {
+                SetPower(originWeapon.GetPower(this));
+            }else
+            {
+                Power -= Time.fixedDeltaTime * PowerDecayRate;
+                Power = Mathf.Max(0, Power);
+            }   
         }
 
         private void LateUpdate()
         {
             if(!Falling && Power <= 0.0f)
             {
-                if (thrustFX != null)
-                    thrustFX.gameObject.SetActive(false);
-
-                if (fallFX != null)
-                    fallFX.gameObject.SetActive(true);
-
-                Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.Inverse(transform.rotation));
-
-                gameObject.AddComponent<DestroyAfterTime>().TimeLeft = 25.0f;
-                Falling = true;
+                Fall();
             }
         }
 
@@ -88,7 +164,23 @@ namespace UltraFunGuns
                 return;
 
             Exploded = true;
-            Instantiate(Prefabs.UK_Explosion.Asset, transform.position, Quaternion.identity);
+
+            GameObject explosion = Prefabs.UK_Explosion.Asset;
+
+            //mini Explosion
+           
+            if(Supercharged) //Lightning
+            {
+                explosion = Prefabs.UK_MindflayerExplosion.Asset;
+            }
+
+            GameObject newExplosion = Instantiate(explosion, transform.position, Quaternion.identity);
+
+            if( IsDivision)
+            {
+                float scale = transform.localScale.z;
+                newExplosion.transform.localScale *= scale;
+            }
             Destroy(gameObject);
         }
 
@@ -106,7 +198,7 @@ namespace UltraFunGuns
 
             if(col.IsCollisionEnemy(out EnemyIdentifier eid))
             {
-                eid.DeliverDamage(eid.gameObject, transform.forward * 500 * Power, col.GetContact(0).point, 1.2f, true, 0, gameObject);
+                eid.DeliverDamage(eid.gameObject, -col.GetContact(0).normal * col.relativeVelocity.magnitude * 100.0f, col.GetContact(0).point, 1.2f, true, 0, (originWeapon != null) ? originWeapon.gameObject : null);
             }
 
             Explode();
@@ -115,16 +207,70 @@ namespace UltraFunGuns
         public void Shot(BeamType beamType)
         {
             TimeController.Instance.ParryFlash();
+
+            if (beamType == BeamType.Railgun)
+            {
+                SetDirection(CameraController.Instance.transform.forward);
+                Supercharge();
+                return;
+            }
+
+            if(beamType == BeamType.MaliciousFace)
+            {
+                SetDirection(CameraController.Instance.transform.forward);
+                Divide(8);
+                return;
+            }
+
             Explode();
+        }
+
+        public void Supercharge()
+        {
+            if (Supercharged)
+                return;
+
+            Supercharged = true;
+
+            originWeapon = null;
+            Falling = false;
+
+            SetPower(150.0f);
+
+            if (thrustFX != null)
+                thrustFX.gameObject.SetActive(false);
+
+            if (superchargeFX != null)
+                superchargeFX.gameObject.SetActive(true);
+
+            if (fallFX != null)
+                fallFX.gameObject.SetActive(false);
+
+            Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.LookRotation(-transform.forward, Vector3.up));
+
+            Destroy(GetComponent<DestroyAfterTime>());
         }
 
         public bool Parried(Vector3 aimVector)
         {
-            return false;
+            SetDirection(aimVector);
+            if(Falling)
+            {
+                Divide(4);
+                //Supercharge();
+            }
+            return true;
         }
 
         public bool Interact(UFGInteractionEventData interaction)
         {
+            if(interaction.ContainsAnyTag("electricity"))
+            {
+                SetDirection(interaction.direction);
+                Supercharge();
+                return true;
+            }
+
             if (interaction.ContainsAnyTag("shot", "explode"))
             {
                 TimeController.Instance.ParryFlash();

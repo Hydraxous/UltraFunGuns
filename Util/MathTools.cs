@@ -90,5 +90,27 @@ namespace UltraFunGuns
 
             return points.ToArray();
         }
+
+        public static void Cycle(ref this int i, int amount, int max)
+        {
+            if(max <= 1)
+            {
+                i = 0;
+                return;
+            }
+
+            i += amount;
+
+            while(i >= max)
+            {
+                i -= max;
+            }
+
+            while(i < 0)
+            {
+                i = max - i;
+            }
+        }
+
     }
 }

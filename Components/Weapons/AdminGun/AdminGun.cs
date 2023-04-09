@@ -25,6 +25,9 @@ namespace UltraFunGuns
 
         private ActionCooldown primaryFire = new ActionCooldown(0.05f), secondaryFire = new ActionCooldown(0.05f);
 
+        private GameObject[] explosions = { Prefabs.UK_MindflayerExplosion.Asset, Prefabs.UK_ExplosionBig.Asset, Prefabs.UK_ExplosionLightning.Asset, Prefabs.UK_ExplosionSuper.Asset, Prefabs.UK_ExplosionMalicious.Asset, Prefabs.UK_ExplosionPrime.Asset, Prefabs.UK_ExplosionSand.Asset, Prefabs.UK_Explosion.Asset };
+        private int explosionIndex = 0;
+
         public override void GetInput()
         {
             if(MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !om.paused && primaryFire.CanFire())
@@ -50,7 +53,7 @@ namespace UltraFunGuns
 
             if(Input.GetKeyDown(KeyCode.I))
             {
-                //Idk man it was for testing.
+                explosionIndex.Cycle(1, explosions.Length);
                 return;
                 if(HydraUtils.SphereCastMacro(mainCam.position,0.25f,mainCam.forward,300.0f, out RaycastHit hit))
                 {
@@ -217,7 +220,7 @@ namespace UltraFunGuns
             Ray ray = mainCam.ToRay();
             if (HydraUtils.SphereCastMacro(ray.origin, 0.15f, ray.direction, Mathf.Infinity, out RaycastHit hit))
             {
-                GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
+                GameObject.Instantiate(explosions[explosionIndex], hit.point, Quaternion.identity);
             }
             AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.6f, 1.0f), 1.0f, 0.0f);
         }
@@ -243,8 +246,9 @@ namespace UltraFunGuns
         public override string GetDebuggingText()
         {
             string debug = base.GetDebuggingText();
-            debug +=
-                $"GAMER_MODE: {gamerMode}\n";
+            debug += $"GAMER_MODE: {gamerMode}\n";
+            if (explosions[explosionIndex] != null)
+                debug += $"EXP: {explosions[explosionIndex].name}";
             return debug;
         }
     }

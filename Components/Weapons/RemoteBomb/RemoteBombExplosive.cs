@@ -257,7 +257,18 @@ namespace UltraFunGuns
                     {
                         chainedExplosives.Add(remoteBombExplosive);
                     }
-                }                
+                }else if(col.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
+                {
+                    UFGInteractionEventData eventData = new UFGInteractionEventData()
+                    { 
+                        data = "",
+                        tags = new string[] { "explode", "fire" },
+                        direction = transform.forward,
+                        interactorPosition= transform.position,
+                        invokeType = typeof(RemoteBombExplosive),
+                        power = chainedExplosives.Count
+                    };
+                }
 
                 if (col.TryGetComponent<NewMovement>(out NewMovement player) && !pushedPlayer)
                 {
@@ -437,7 +448,7 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            if(interaction.ContainsAnyTag("shot", "explode"))
+            if(interaction.ContainsAnyTag("shot", "explode") && interaction.invokeType.Name != nameof(RemoteBombExplosive))
             {
                 Detonate(true);
                 return true;
