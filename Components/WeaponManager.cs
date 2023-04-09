@@ -383,10 +383,28 @@ namespace UltraFunGuns
             if(!Weapons.ContainsKey(weaponKey))
                 return;
 
+            if (WeaponUnlocked(weaponKey) == unlocked)
+                return;
+
             Data.Loadout.Data.SetUnlocked(weaponKey, unlocked);
             Data.Loadout.Save();
+
+            if(unlocked && UKAPIP.InLevel())
+            {
+                HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.KeyCode}</color>] to open UFG Inventory.");
+            }
+
             InventoryController.RefreshInventory();
             DeployWeapons();
+        }
+
+        public static bool WeaponUnlocked(string weaponKey)
+        {
+            if(Weapons.ContainsKey(weaponKey))
+            {
+                return Data.Loadout.Data.CheckUnlocked(weaponKey);
+            }
+            return false;
         }
 
         [Commands.UFGDebugMethod("UnlockAll", "Unlocks all weapons")]

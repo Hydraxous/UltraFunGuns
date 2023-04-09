@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("UltraGun", "ULTRAGUN", 0, true, WeaponIconColor.Blue)]
+    [UFGWeapon("UltraGun", "ULTRAGUN", 3, true, WeaponIconColor.Green)]
     public class UltraGun : UltraFunGunBase
     {
 

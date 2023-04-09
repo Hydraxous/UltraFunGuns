@@ -21,7 +21,7 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        private static Keybinding inventoryKey = Hydynamics.GetKeybinding("Inventory", KeyCode.I);
+        public static Keybinding inventoryKey { get; private set; } = Hydynamics.GetKeybinding("Inventory", KeyCode.I);
 
         private static bool sentVersionMessage = false;
 

@@ -50,6 +50,8 @@ namespace UltraFunGuns
 
             if(Input.GetKeyDown(KeyCode.I))
             {
+                //Idk man it was for testing.
+                return;
                 if(HydraUtils.SphereCastMacro(mainCam.position,0.25f,mainCam.forward,300.0f, out RaycastHit hit))
                 {
                     if(somethingWicked.Asset != null)

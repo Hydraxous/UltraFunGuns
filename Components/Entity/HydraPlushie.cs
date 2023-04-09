@@ -51,15 +51,20 @@ namespace UltraFunGuns
 
             WeaponManager.SetWeaponUnlocked("FizzyGun", true);
             WeaponManager.SetWeaponUnlocked("GrabbityGun", true);
+            WeaponManager.SetWeaponUnlocked("PlushieCannon", true);
         }
 
         private void OnTriggerEnter(Collider col)
         {
-
             if (col.gameObject.layer == 4 || col.tag.ToLower().Contains("water") || col.gameObject.TryGetComponent<Water>(out Water water))
             {
                 WaterDamage();
             }
+        }
+
+        private void OnDestroy()
+        {
+            WaterDamage();
         }
     }
 }
