@@ -17,13 +17,13 @@ namespace UltraFunGuns
         [UFGAsset("BigGun_Fire")] private static AudioClip fire_SFX;
         
         
-        private ActionCooldown primaryFire = new ActionCooldown(0.30f, true);
+        private ActionCooldown primaryFire = new ActionCooldown(0.5f, true);
         private ActionCooldown secondaryBoost = new ActionCooldown(0.5f, true);
 
 
         public float powerRestoreRate = 50.0f;
         public float minPower = 10.0f;
-        public float maxPower = 125.0f;
+        public float maxPower = 80.0f;
 
         private float minPowerCost = 30.0f;
 
@@ -109,11 +109,6 @@ namespace UltraFunGuns
                 return;
 
             float bulletPower = Power / 2.0f;
-            if(bulletPower <= minPowerCost)
-            {
-                boostDenied_SFX.PlayAudioClip(UnityEngine.Random.Range(0.89f,1.11f));
-                return;
-            }
 
             AudioSource firesrc = fire_SFX.PlayAudioClip(UnityEngine.Random.Range(0.9f,1.1f));
             if(firesrc != null)
@@ -156,6 +151,16 @@ namespace UltraFunGuns
                 player.rb.velocity += (Vector3.Reflect(mainCam.forward, Vector3.up)* bulletPower*0.45f);
             }
         }
+
+        private void Barrage()
+        {
+            if(!barraging)
+            {
+
+            }
+        }
+
+        private bool barraging;
 
         private void DropAllBullets()
         {

@@ -21,10 +21,14 @@ namespace UltraFunGuns
         public float Power { get; private set; }
         public float PowerDecayRate = 30f;
 
+        public float Damage = 1.2f;
+
         public bool Falling { get; private set; }
         public bool Supercharged { get; private set; }
 
         public bool IsDivision { get; private set; }
+
+        private float divisionScale => (transform.localScale.x + transform.localScale.y + transform.localScale.z/3);
 
         private UltraGun originWeapon;
 
@@ -42,6 +46,13 @@ namespace UltraFunGuns
         }
 
         public bool Exploded { get; private set; }
+
+
+        private void Start()
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
 
         public void SetPower(float power)
         {
@@ -65,9 +76,13 @@ namespace UltraFunGuns
             Fall();
             Vector3 ringCenter = transform.position;
 
-            Ring ring = new Ring(divideInto, divideInto*1.4f);
+            Ring ring = new Ring(divideInto, divideInto*2f);
 
-            //ring.SetCircumferenceFromObjectRadius(2/divideInto);
+            HydraLogger.Log($"Ring rad {ring.Radius}", DebugChannel.Warning);
+
+            float objectRadius = GetComponent<CapsuleCollider>().radius/divideInto;
+
+            ring.SetCircumferenceFromObjectRadius(objectRadius);
 
             Vector3[] ringPositions = ring.GetPositions();
             for(int i=0; i< ringPositions.Length; i++)
@@ -88,6 +103,7 @@ namespace UltraFunGuns
             for (int i = 1; i < ringPositions.Length; i++)
             {
                 UltraBullet newBullet = Instantiate(gameObject, ringPositions[i]+ringCenter, transform.rotation).GetComponent<UltraBullet>();
+                newBullet.IsDivision = true;
                 newBullet.rb = newBullet.GetComponent<Rigidbody>();
                 newBullet.rb.velocity = storedVelocity + ((newBullet.transform.position - ringCenter).normalized * (currentSpeed * 0.25f));
             }
@@ -174,13 +190,13 @@ namespace UltraFunGuns
                 explosion = Prefabs.UK_MindflayerExplosion.Asset;
             }
 
-            GameObject newExplosion = Instantiate(explosion, transform.position, Quaternion.identity);
-
-            if( IsDivision)
+            if (IsDivision)
             {
-                float scale = transform.localScale.z;
-                newExplosion.transform.localScale *= scale;
+                explosion = Prefabs.ShittyExplosionFX;
             }
+
+            GameObject newExplosion = Instantiate(explosion, transform.position, Quaternion.identity);
+            
             Destroy(gameObject);
         }
 
@@ -198,7 +214,8 @@ namespace UltraFunGuns
 
             if(col.IsCollisionEnemy(out EnemyIdentifier eid))
             {
-                eid.DeliverDamage(eid.gameObject, -col.GetContact(0).normal * col.relativeVelocity.magnitude * 100.0f, col.GetContact(0).point, 1.2f, true, 0, (originWeapon != null) ? originWeapon.gameObject : null);
+                float damageValue = (IsDivision) ? Damage * divisionScale : Damage;
+                eid.DeliverDamage(eid.gameObject, -col.GetContact(0).normal * col.relativeVelocity.magnitude * 100.0f, col.GetContact(0).point, damageValue, true, 0, (originWeapon != null) ? originWeapon.gameObject : null);
             }
 
             Explode();

@@ -30,7 +30,6 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            Freecam.SpawnFreecam();
             UFG = this;
             Data.CheckSetup();
             StartCoroutine(Startup());

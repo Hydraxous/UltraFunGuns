@@ -592,6 +592,7 @@ namespace UltraFunGuns
         {
             this.objectCount = objectCount;
             this.radius = radius;
+            Circumference = CalcCircumference();
         }
         
         public void SetCircumferenceFromObjectRadius(float objectRadius)

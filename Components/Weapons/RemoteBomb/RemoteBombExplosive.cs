@@ -274,6 +274,8 @@ namespace UltraFunGuns
                 {
                     float damageFalloff = Mathf.InverseLerp(explosionRadius * 4, 0.0f, distance);
 
+                    CameraController.Instance.CameraShake(damageFalloff*1.5f);
+
                     Vector3 playerPos = player.transform.position;
                     playerPos.y += 1.25f;
 
