@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver
+    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         [UFGAsset("CanLauncher_CanExplosion")] private static GameObject canExplosion;
         [UFGAsset("CanLauncher_CanProjectile_BounceFX")] private static GameObject bounceFX;
@@ -56,7 +56,6 @@ namespace UltraFunGuns
         private void Start()
         {
             killTimer = killTime;
-            Events.OnPlayerRespawn += Die;
         }
 
         private void Update()
@@ -328,7 +327,8 @@ namespace UltraFunGuns
         //pops soda does tiny aoe damage later
         private void Die()
         {
-            Events.OnPlayerRespawn -= Die;
+            if (dead)
+                return;
 
             //instantiate tiny explosion pop fx that does tiny aoe damage.
             dead = true;
@@ -378,6 +378,11 @@ namespace UltraFunGuns
                 return false;
 
             return targetQuery.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Die();
         }
     }
 }

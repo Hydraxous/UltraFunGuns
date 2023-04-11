@@ -8,6 +8,8 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     [WeaponAbility("Heavy Shell", "SHOOT WITH <color=orange>Fire 1</color>", 0, RichTextColors.aqua)]
+    [WeaponAbility("Barrage", "Hold <color=orange>Fire 2</color> and release for a barrage of shells.", 1, RichTextColors.lime)]
+    [WeaponAbility("TX-Fuel", "The last shell fired will maintain it's initial speed.", 2, RichTextColors.yellow)]
     [UFGWeapon("UltraGun", "ULTRAGUN", 3, true, WeaponIconColor.Green)]
     public class UltraGun : UltraFunGunBase
     {
@@ -29,6 +31,13 @@ namespace UltraFunGuns
 
         private float power;
 
+        private float barrageChargeMin = 0.0f, barrageChargeMax = 1.15f, barrageChargeMultiplier = 1.0f;
+        private float barrageCharge;
+
+        private int barrageAmount = 3;
+
+        private float barrageFireDelay = 0.15f;
+
         private AbilityMeter powerDisplay;
 
         public float Power
@@ -46,37 +55,38 @@ namespace UltraFunGuns
 
         private List<UltraBullet> firedBullets = new List<UltraBullet>();
 
-        public override void OnAwakeFinished()
-        {
-            powerDisplay = GetComponentInChildren<AbilityMeter>();
-        }
+        private UltraBullet lastBullet;
 
         //fired bullets take fuel to fly.
         private void Start()
         {
+            powerDisplay = GetComponentInChildren<AbilityMeter>();
             Power = maxPower;
-            powerDisplay.gameObject.SetActive(false);
         }
 
         public override void GetInput()
         {
-            if(InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame && primaryFire.CanFire() && !om.paused)
+            if (om.paused || barraging)
+                return;
+
+            if(InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame && primaryFire.CanFire())
             {
                 primaryFire.AddCooldown();
-                Fire();
+                Ray ray = (IsDuplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.85f, 20000f);
+                Fire(ray.direction);
             }
 
-            if (InputManager.Instance.InputSource.Fire2.WasPerformedThisFrame && secondaryBoost.CanFire() && !om.paused)
+            if (InputManager.Instance.InputSource.Fire2.IsPressed)
             {
-                firedBullets = firedBullets.Where(x => x != null).Where(y => !y.Falling).ToList();
-
-                if (firedBullets.Count <= 0)
-                {
-                    boostDenied_SFX.PlayAudioClip(UnityEngine.Random.Range(0.89f, 1.11f));
-                }else
-                {
-                    DropAllBullets();
-                }
+                barrageCharge = Mathf.Clamp(barrageCharge + Time.deltaTime * barrageChargeMultiplier, barrageChargeMin, barrageChargeMax);
+            }
+            else if(barrageCharge > barrageChargeMax/barrageAmount) //at least enough for a barrage of 1 :|
+            {
+                Barrage();
+            }
+            else
+            {
+                barrageCharge = Mathf.Clamp(barrageCharge - (Time.deltaTime * barrageChargeMultiplier), barrageChargeMin, barrageChargeMax);
             }
 
             if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
@@ -99,14 +109,25 @@ namespace UltraFunGuns
 
         private void LateUpdate()
         {
-            powerDisplay?.SetAmount(Power/maxPower);
+            if (barrageAmount <= 0)
+                barrageAmount = 1;
+
+            float ratio = 1.0f/(float)barrageAmount;
+
+            float fill = (barrageCharge / barrageChargeMax);
+
+            float remainder = fill % ratio;
+
+            fill -= remainder;
+
+            powerDisplay?.SetAmount(fill/ratio);
         }
 
-        private void Fire()
+        private UltraBullet Fire(Vector3 aimDirection)
         {
 
             if (UltraBulletPrefab == null)
-                return;
+                return null;
 
             float bulletPower = Power / 2.0f;
 
@@ -126,9 +147,6 @@ namespace UltraFunGuns
             TimeController.Instance.HitStop(0.015f);
             CameraController.Instance.CameraShake(Mathf.Max(1.4f, bulletPower/50f));
 
-            //dual wield powerup fix sillyness ensues otherwise
-            Ray ray = (weaponIdentifier.duplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.85f, 20000f);
-
             float viewDot = Vector3.Dot(mainCam.forward, Vector3.down);
 
             
@@ -138,8 +156,9 @@ namespace UltraFunGuns
             if (newBulletObject.TryGetComponent<UltraBullet>(out UltraBullet bullet))
             {
                 bullet.SetOriginWeapon(this);
-                bullet.SetDirection(ray.direction);
+                bullet.SetDirection(aimDirection);
                 firedBullets.Add(bullet);
+                lastBullet = bullet;
                 bullet.SetPower(GetPower(bullet));
             }
 
@@ -150,17 +169,55 @@ namespace UltraFunGuns
             {
                 player.rb.velocity += (Vector3.Reflect(mainCam.forward, Vector3.up)* bulletPower*0.45f);
             }
+
+            return bullet;
         }
 
         private void Barrage()
         {
             if(!barraging)
             {
-
+                barraging = true;
+                StartCoroutine(DoBarrage());
             }
         }
 
         private bool barraging;
+
+        private IEnumerator DoBarrage()
+        {
+            int barrageCount = Mathf.RoundToInt((float)barrageAmount * (barrageCharge / barrageChargeMax));
+
+            List<Collider> bulletColliders = new List<Collider>();
+
+            for (int i = 0; i < barrageCount; i++)
+            {
+                UltraBullet bullet = Fire(mainCam.forward + ((mainCam.rotation * UnityEngine.Random.insideUnitCircle) * 0.085f));
+                bullet.SetPower(125f);
+                bullet.SetPower(3f);//Want velocity but to fall, its jank idc.
+                bullet.SetOriginWeapon(null);
+                barrageCharge = Mathf.Clamp( barrageCharge-(barrageChargeMax / barrageAmount), barrageChargeMin, barrageChargeMax);
+                Collider[] col = bullet.GetComponentsInChildren<Collider>();
+                for(int x=0; x<col.Length; x++)
+                {
+                    if (col[x] == null)
+                        continue;
+
+                    foreach(Collider shotCollider in bulletColliders)
+                    {
+                        if (shotCollider == null)
+                            continue;
+
+                        Physics.IgnoreCollision(shotCollider, col[x], true);
+                    }
+                }
+
+                bulletColliders.AddRange(col);
+                yield return new WaitForSeconds(barrageFireDelay);
+            }
+
+            barraging = false;
+        }
 
         private void DropAllBullets()
         {
@@ -184,6 +241,11 @@ namespace UltraFunGuns
 
         public float GetPower(UltraBullet bullet)
         {
+            if (bullet != lastBullet)
+                return 0.0f;
+
+            return maxPower;
+
             firedBullets = firedBullets.Where(x => x != null).Where(y => !y.Falling).ToList();
 
             if (firedBullets.Contains(bullet))
@@ -200,11 +262,18 @@ namespace UltraFunGuns
             animator.Play("Equip", 0, 0);
         }
 
+        private void OnDisable()
+        {
+            barrageCharge = barrageChargeMin;
+            barraging = false;
+        }
+
         public override string GetDebuggingText()
         {
             string debug = base.GetDebuggingText();
 
             debug += $"POWER: {Power}\n";
+            debug += $"BARRAGE: {barrageCharge}\n";
             if (firedBullets.Count > 0)
             {
                 firedBullets = firedBullets.Where(x => x != null).ToList();

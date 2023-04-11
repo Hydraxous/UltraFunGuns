@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using UltraFunGuns.Datas;
 using UltraFunGuns.Patches;
+using UltraFunGuns.Util;
 
 namespace UltraFunGuns
 {
@@ -53,6 +54,7 @@ namespace UltraFunGuns
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
                     CheatsPatch.CyberGrindPreventer.Init();
                     Commands.Register();
+                    FreecamAssist.Init();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
                 }

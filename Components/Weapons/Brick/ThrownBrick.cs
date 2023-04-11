@@ -5,7 +5,7 @@ using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {
-    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver
+    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         [UFGAsset("BrickBreakFX")] private static GameObject brickBreakFX;
         [UFGAsset("TennisHit")] private static AudioClip tennisHit;
@@ -44,7 +44,6 @@ namespace UltraFunGuns
 
         private void Start()
         {
-            Events.OnPlayerRespawn += Break;
             hitsRemaining = HitsRemaining;
         }
 
@@ -299,9 +298,15 @@ namespace UltraFunGuns
             return false;
         }
 
+        private bool broken;
+
         public void Break()
         {
-            Events.OnPlayerRespawn -= Break;
+            if (broken)
+                return;
+
+            broken = true;
+
             if(brickBreakFX != null)
             {
                 GameObject.Instantiate<GameObject>(brickBreakFX, transform.position, Quaternion.identity);
@@ -475,6 +480,11 @@ namespace UltraFunGuns
         public bool Targetable(TargetQuery query)
         {
             return false;
+        }
+
+        public void Cleanup()
+        {
+            Break();
         }
     }
 }

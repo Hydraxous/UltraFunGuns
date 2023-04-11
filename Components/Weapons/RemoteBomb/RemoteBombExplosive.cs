@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UltraFunGuns.Components;
 
 namespace UltraFunGuns
 {
-    public class RemoteBombExplosive : MonoBehaviour, IUFGInteractionReceiver
+    public class RemoteBombExplosive : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         [UFGAsset("RemoteBomb_Explosive_Explosion")] public static GameObject ExplosionPrefab { get; private set; }
 
@@ -47,11 +48,6 @@ namespace UltraFunGuns
             indicatorLight = transform.Find("BombMesh/Blinker").GetComponent<Renderer>();
             AC_armingBeep = transform.Find("Audios/Arm_Beep").GetComponent<AudioSource>();
             AC_ambientBeep = transform.Find("Audios/Beep").GetComponent<AudioSource>();
-        }
-
-        private void Start()
-        {
-            Events.OnPlayerDeath += () => Detonate(true);
         }
 
         public void Initiate(RemoteBomb remoteBomb, NewMovement newMovement)
@@ -470,6 +466,11 @@ namespace UltraFunGuns
                 return false;
 
             return targetQuery.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Detonate(true);
         }
     }
 }

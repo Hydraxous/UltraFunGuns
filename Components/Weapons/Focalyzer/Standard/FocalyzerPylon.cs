@@ -13,7 +13,7 @@ namespace UltraFunGuns
      Shatter if punched.
      Move towards player if hit with grapple.
          */
-    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver
+    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         [UFGAsset("FocalyzerPylonShatterFX_Red")] public static GameObject PylonShatterFX { get; private set; }
 
@@ -62,8 +62,6 @@ namespace UltraFunGuns
             disco = (UnityEngine.Random.Range(0.0f, 100.0f) <= 5.0f);
             discoAudio.Play();
             rb = GetComponent<Rigidbody>();
-
-            Events.OnPlayerRespawn += Shatter;
         }
 
         void Update()
@@ -302,12 +300,10 @@ namespace UltraFunGuns
         void Shatter()
         {
             if (dying)
-            {
                 return;
-            }
+            
 
             dying = true;
-            Events.OnPlayerRespawn -= Shatter;
             Instantiate(PylonShatterFX, transform.position, Quaternion.identity);
             Prefabs.BonusBreakSound.Asset.PlayAudioClip(transform.position, 1.1f, 1.0f, 0.6f);
             Destroy(gameObject);
@@ -362,5 +358,10 @@ namespace UltraFunGuns
         {
             return false;
         }
+        public void Cleanup()
+        {
+            Shatter();
+        }
+
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
 
-    public class DestroyAfterTime : MonoBehaviour
+    public class DestroyAfterTime : MonoBehaviour, ICleanable
     {
         public float TimeLeft = 2.0f;
 
@@ -100,6 +100,11 @@ namespace UltraFunGuns
                     tf.parent = null;
                 }
             }
+        }
+
+        public void Cleanup()
+        {
+            Destroy(gameObject);
         }
     }
 

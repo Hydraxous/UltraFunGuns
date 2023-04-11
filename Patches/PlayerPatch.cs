@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
+using UltraFunGuns.Util;
 
 namespace UltraFunGuns
 {
@@ -40,14 +41,26 @@ namespace UltraFunGuns
 
         public static void PostFix(NewMovement __instance)
         {
-            if(!PlayerDead && __instance.dead)
+            if(!PlayerDead && (__instance.dead || __instance.hp <= 0))
             {
                 PlayerDead = true;
                 Events.OnPlayerDeath?.Invoke();
+                HydraLogger.Log("Player died!",DebugChannel.Warning);
             }
         }
     }
 
+
+    [HarmonyPatch(typeof(StatsManager))]
+    public static class StasManagerPatch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(StatsManager.Restart))]
+        public static void Postfix()
+        {
+            Cleaner.Clean();
+        }
+    }
 
 
     [HarmonyPatch(typeof(NewMovement))]

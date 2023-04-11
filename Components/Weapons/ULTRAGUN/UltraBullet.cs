@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver
+    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         [SerializeField] private Transform superchargeFX;
         
@@ -314,6 +314,11 @@ namespace UltraFunGuns
                 return false;
 
             return query.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Explode();
         }
     }
 }

@@ -17,6 +17,17 @@ namespace UltraFunGuns
 
         protected UFGWeapon weaponInfo;
 
+        public bool IsDuplicate
+        {
+            get
+            {
+                if (weaponIdentifier == null)
+                    return false;
+
+                return weaponIdentifier.duplicate;
+            }
+        }
+
         protected virtual void DoAnimations() { }
 
         private void Awake()

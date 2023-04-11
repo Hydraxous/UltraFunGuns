@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class DeadlyPlushie : MonoBehaviour, IUFGInteractionReceiver
+    public class DeadlyPlushie : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         private UltraFunGunBase.ActionCooldown impactCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private Rigidbody rb;
@@ -100,6 +100,9 @@ namespace UltraFunGuns
 
         private void Explode(params Vector3[] positions)
         {
+            if (positions == null)
+                positions = new Vector3[] { transform.position };
+
             for (int i = 0; i < positions.Length; i++)
             {
                 GameObject newExplosionFX = Instantiate(Prefabs.ShittyExplosionFX, positions[i], Quaternion.identity);
@@ -146,6 +149,11 @@ namespace UltraFunGuns
         public bool Targetable(TargetQuery targetQuery)
         {
             return targetQuery.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Explode();
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class NikitaRocket : MonoBehaviour
+    public class NikitaRocket : MonoBehaviour, ICleanable
     {
         [SerializeField] private Image[] speedMeter;
         [SerializeField] private Camera camera;
@@ -126,5 +126,9 @@ namespace UltraFunGuns
             SetCameraActive(false);
         }
 
+        public void Cleanup()
+        {
+            Detonate();
+        }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UltraFunGuns.Components;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
@@ -76,7 +77,6 @@ namespace UltraFunGuns
             player = MonoSingleton<NewMovement>.Instance;
             homingSound.Play();
             homingSound.Pause();
-            Events.OnPlayerRespawn += Pop;
         }
 
         private void Update()
@@ -245,7 +245,6 @@ namespace UltraFunGuns
                 return;
 
             dead = true;
-            Events.OnPlayerRespawn -= Pop;
             GameObject.Instantiate<GameObject>(dodgeballPopFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
@@ -493,6 +492,11 @@ namespace UltraFunGuns
                 return false;
 
             return query.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Pop();
         }
     }
 }
