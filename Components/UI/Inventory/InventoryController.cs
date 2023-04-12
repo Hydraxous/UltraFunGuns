@@ -74,7 +74,7 @@ namespace UltraFunGuns
         //This is called when a button is pressed on a node.
         public void ButtonPressed(InventoryNode node, InventorySlot slot, string buttonPressed)
         {
-            switch(buttonPressed)
+            switch (buttonPressed)
             {
                 case "Icon":
                     node.data.weaponEnabled = !node.data.weaponEnabled;
@@ -89,10 +89,11 @@ namespace UltraFunGuns
                 case "Right":
                     slot.RemoveNode(node);
                     int newSlot1 = slot.ID + 1;
-                    if(newSlot1 >= slots.Count)
+                    if (newSlot1 >= slots.Count)
                     {
                         newSlot1 = 0;
-                    }else if(newSlot1 < 0)
+                    }
+                    else if (newSlot1 < 0)
                     {
                         newSlot1 = Mathf.Clamp(slots.Count, 0, slots.Count - 1);
                     }
@@ -116,15 +117,19 @@ namespace UltraFunGuns
             }
             SaveInventoryData();
             Refresh();
-            if(UKAPIP.InLevel())
-            {
-                RedeployWeapons();
-            }
+
+            RedeployWeapons();
         }
 
         private void RedeployWeapons()//This will cause the UFGWeaponManager to deploy the weapons again as well as vanilla weapons.
         {
-            MonoSingleton<GunSetter>.Instance.ResetWeapons();
+            if(MonoSingleton<GunSetter>.Instance == null)
+            {
+                WeaponManager.DeployWeapons();
+            }else
+            {
+                MonoSingleton<GunSetter>.Instance.ResetWeapons();
+            }
         }
 
         public void Refresh()

@@ -10,6 +10,7 @@ using UltraFunGuns.Datas;
 using HydraDynamics;
 using HydraDynamics.Events;
 using System.Data;
+using System.Transactions;
 
 namespace UltraFunGuns
 {
@@ -66,9 +67,9 @@ namespace UltraFunGuns
         private static InventoryControllerDeployer inventoryDeployer;
 
         [Commands.UFGDebugMethod("Deploy Weapons", "Redeploy weapons")]
-        public static void DeployWeapons(bool firstTime = false)
+        public static void DeployWeapons(bool firstTime = false, bool force = false)
         {
-            if(!UKAPIP.InLevel())
+            if(!UKAPIP.InLevel() && !force && !inventoryMade)
             {
                 return;
             }
@@ -91,10 +92,22 @@ namespace UltraFunGuns
 
         private static void OnLevelChanged(UKAPIP.UKLevelType levType)
         {
+            inventoryMade = false;
+
             if (!UKAPIP.InLevel())
             {
                 return;
             }
+
+            Prep();
+        }
+
+        private static bool inventoryMade;
+
+        private static void Prep()
+        {
+            if (inventoryMade)
+                return;
 
             NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
             NewStyleItem("vibecheck", "VIBE-CHECKED");
@@ -121,6 +134,10 @@ namespace UltraFunGuns
             NewStyleItem("tricksniperquickscope", "QUICKSCOPE");
             NewStyleItem("tricksniper360", "<color=cyan>TRICKSHOT</color>");
             NewStyleItem("tricksnipernoscope", "<color=orange>NOSCOPE</color>");
+            NewStyleItem("ultragunsuperchargekill", "<color=cyan>EXPRESS BILLING</color>");
+            NewStyleItem("ultragunkill", "BILLED");
+            NewStyleItem("ultragunrainkill", "<color=red>WHAT GOES UP</color>");
+            NewStyleItem("ultragunaerialkill", "DEATH FROM ABOVE");
 
             CanvasController canvas = MonoSingleton<CanvasController>.Instance;
             if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
@@ -131,6 +148,8 @@ namespace UltraFunGuns
             {
                 inventoryDeployer = invControllerDeployer;
             }
+
+            inventoryMade = true;
         }
 
         private static Dictionary<string, UFGWeapon> weapons;
@@ -372,6 +391,16 @@ namespace UltraFunGuns
             StyleHUD.Instance.AddPoints(points, $"hydraxous.ultrafunguns.{key}", sourceWeapon, eid, count, prefix, postfix);
         }
 
+        public static void AddStyle(StyleEntry entry)
+        {
+            if (!UKAPIP.InLevel())
+            {
+                return;
+            }
+
+            StyleHUD.Instance.AddPoints(entry.Points, $"hydraxous.ultrafunguns.{entry.Key}", entry.SourceWeapon, entry.EnemyIdentifier, entry.Count, entry.Prefix, entry.Postfix);
+        }
+
         public static Color GetColor(WeaponIconColor colorType)
         {
             Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
@@ -414,6 +443,13 @@ namespace UltraFunGuns
             {
                 SetWeaponUnlocked(weaponInfo.Value.WeaponKey, true);
             }
+        }
+
+        [Commands.UFGDebugMethod("ForceDeploy", "Forcefully deploys weapons")]
+        public static void ForceDeploy()
+        {
+            Prep();
+            DeployWeapons(false, true);
         }
     }
 
@@ -458,13 +494,24 @@ namespace UltraFunGuns
             return newWeaponKeys;
         }
 
+        private void RemoveWeapons()
+        {
+            for(int i=0; i< customSlots.Count; i++)
+            {
+                for(int x =0; x < customSlots[i].Count; x++)
+                {
+                    GameObject toDestroy = customSlots[i][x];
+                    customSlots[i][x] = null;
+                    Destroy(toDestroy);
+                }
+                customSlots[i].Clear();
+            }
+        }
+
         //TODO optimization
         public void DeployWeapons(bool firstTime = false)
         {
-            foreach (List<GameObject> customSlot in customSlots)
-            {
-                customSlot.Clear();
-            }
+            RemoveWeapons();
 
             weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
 

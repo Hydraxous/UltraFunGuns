@@ -8,7 +8,7 @@ namespace UltraFunGuns.Util
 {
     public static class VirtualWeapons
     {
-
+        
     }
 
 
@@ -26,7 +26,8 @@ namespace UltraFunGuns.Util
 
         public EnemyIdentifier[] GetAffectedEnemies()
         {
-            Collider[] hitObjects = Physics.OverlapSphere(Position, Radius);
+            Collider[] hitObjects = Physics.OverlapSphere(Position, Radius, LayerMaskDefaults.Get(LMD.Enemies));
+            Debug.LogWarning($"Hit Obejcts {hitObjects.Length}");
             List<EnemyIdentifier> enemies = new List<EnemyIdentifier>();
             foreach(Collider hitCol in hitObjects)
             {

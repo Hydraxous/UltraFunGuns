@@ -45,8 +45,19 @@ namespace UltraFunGuns
             Collider col = gameObject.GetComponentInChildren<Collider>();
             if(col != null)
             {
-                col.gameObject.layer = 10;
+                col.gameObject.layer = 14;
             }
+
+
+            GameObject sphereHitbox = new GameObject(gameObject.name + " Hitbox");
+            sphereHitbox.transform.parent = transform;
+            sphereHitbox.transform.localPosition = Vector3.zero;
+            sphereHitbox.transform.localRotation = Quaternion.identity;
+            sphereHitbox.layer = 10;
+
+            SphereCollider shootHitbox = sphereHitbox.AddComponent<SphereCollider>();
+            shootHitbox.isTrigger = true;
+            shootHitbox.radius = 1f;
         }
 
         

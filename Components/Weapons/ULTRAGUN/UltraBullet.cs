@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
+using UltraFunGuns.Util;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ namespace UltraFunGuns
 {
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
-        [SerializeField] private Transform superchargeFX;
+        [SerializeField] private Transform superchargedFX;
         
         [SerializeField] private Transform thrustFX, fallFX;
 
@@ -45,12 +46,18 @@ namespace UltraFunGuns
             }
         }
 
+        private Vector3 lastVelocity;
+        private Vector3 startDirection;
         public bool Exploded { get; private set; }
+
+        private bool isMortar = false;
 
 
         private void Start()
         {
             rb = GetComponent<Rigidbody>();
+            startDirection = transform.forward;
+            isMortar = Vector3.Dot(startDirection, Vector3.up) > 0.75f;
         }
 
 
@@ -77,8 +84,6 @@ namespace UltraFunGuns
             Vector3 ringCenter = transform.position;
 
             Ring ring = new Ring(divideInto, divideInto*2f);
-
-            HydraLogger.Log($"Ring rad {ring.Radius}", DebugChannel.Warning);
 
             float objectRadius = GetComponent<CapsuleCollider>().radius/divideInto;
 
@@ -124,15 +129,15 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (superchargeFX != null)
-                superchargeFX.gameObject.SetActive(false);
+            if (superchargedFX != null)
+                superchargedFX.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
             
             originWeapon = null;
 
-            Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.Inverse(transform.rotation));
+            Instantiate(Prefabs.BlackSmokeShockwave, (thrustFX == null) ? transform.position : thrustFX.position , Quaternion.Inverse(transform.rotation));
 
             gameObject.AddComponent<DestroyAfterTime>().TimeLeft = 25.0f;
         }
@@ -155,6 +160,7 @@ namespace UltraFunGuns
                 Rigidbody.velocity = transform.forward * ((originWeapon != null) ? Power : maxPower);
 
             transform.forward = Rigidbody.velocity;
+            lastVelocity = Rigidbody.velocity;
 
             if (originWeapon != null)
             {
@@ -184,10 +190,20 @@ namespace UltraFunGuns
             GameObject explosion = Prefabs.UK_Explosion.Asset;
 
             //mini Explosion
-           
-            if(Supercharged) //Lightning
+
+            if (Supercharged) //Lightning
             {
                 explosion = Prefabs.UK_MindflayerExplosion.Asset;
+
+                VirtualExplosion virtualExplosion = new VirtualExplosion(transform.position, 20f);
+                EnemyIdentifier[] enemiesInRange = virtualExplosion.GetAffectedEnemies();
+                for (int i = 0; i < enemiesInRange.Length; i++)
+                {
+                    Debug.LogWarning($"Enemyinrange_{i}");
+                    enemiesInRange[i].Override().AddStyleEntryOnDeath(new StyleEntry(30, "ultragunsuperchargekill", 1.0f));
+                    Vector3 enemyTargetPoint = enemiesInRange[i].GetTargetPoint();
+                    enemiesInRange[i].DeliverDamage(enemiesInRange[i].gameObject, enemyTargetPoint - transform.position * 200.0f, enemyTargetPoint, 0.4f, true, 0.4f, (originWeapon) ? originWeapon.gameObject : null);
+                }
             }
 
             if (IsDivision)
@@ -212,10 +228,9 @@ namespace UltraFunGuns
                 return;
             }
 
-            if(col.IsCollisionEnemy(out EnemyIdentifier eid))
+            if (col.IsCollisionEnemy(out EnemyIdentifier eid))
             {
-                float damageValue = (IsDivision) ? Damage * divisionScale : Damage;
-                eid.DeliverDamage(eid.gameObject, -col.GetContact(0).normal * col.relativeVelocity.magnitude * 100.0f, col.GetContact(0).point, damageValue, true, 0, (originWeapon != null) ? originWeapon.gameObject : null);
+                HitEnemy(eid, col);
             }
 
             Explode();
@@ -257,8 +272,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (superchargeFX != null)
-                superchargeFX.gameObject.SetActive(true);
+            if (superchargedFX != null)
+                superchargedFX.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);
@@ -266,6 +281,34 @@ namespace UltraFunGuns
             Instantiate(Prefabs.BlackSmokeShockwave, thrustFX.position, Quaternion.LookRotation(-transform.forward, Vector3.up));
 
             Destroy(GetComponent<DestroyAfterTime>());
+        }
+
+        private void HitEnemy(EnemyIdentifier eid, Collision col)
+        {
+            float crit = (Supercharged) ? 1.5f : 0.0f;
+            float damageValue = (IsDivision) ? Damage * divisionScale : Damage;
+            damageValue = (Supercharged) ? damageValue * 1.5f : damageValue;   
+
+            
+            if(Falling && Vector3.Dot(Vector3.down, lastVelocity) > 0.75f && Vector3.Dot(startDirection, Vector3.down) > 0.75f)
+            {
+                eid.Override().AddStyleEntryOnDeath(new StyleEntry(40, "ultragunaerialkill", 1.0f));
+            }
+            else
+            {
+                eid.Override().AddStyleEntryOnDeath(new StyleEntry(25, "ultragunkill", 2.0f));
+            }
+
+            if (Falling && Vector3.Dot(Vector3.down, lastVelocity) > 0.85f && isMortar && (Vector3.Dot(col.GetContact(0).normal, Vector3.up) > 0.25f)) //Bullet was shot into the air and landed on an enemies head.
+            {
+                WeaponManager.AddStyle(new StyleEntry(1000, "ultragunrainkill"));
+                damageValue *= 1000.0f;
+                eid.Explode();
+                return;
+            }
+
+            eid.DeliverDamage(eid.gameObject, -col.GetContact(0).normal * col.relativeVelocity.magnitude * 100.0f, col.GetContact(0).point, damageValue, true, crit, (originWeapon != null) ? originWeapon.gameObject : null);
+
         }
 
         public bool Parried(Vector3 aimVector)

@@ -41,7 +41,7 @@ namespace UltraFunGuns
 
         private List<Rigidbody> thrownBricks = new List<Rigidbody>();
 
-        private ActionCooldown throwCooldown = new ActionCooldown(0.93f, true);
+        private ActionCooldown throwCooldown = new ActionCooldown(0.53f, true);
         private ActionCooldown stormCooldown = new ActionCooldown(0.45f, true);
 
         private WeaponIdentifier wid;

@@ -68,10 +68,6 @@ namespace UltraFunGuns
 
         private void CheckStatus()
         {
-            if (!UKAPIP.InLevel())
-            {
-                return;
-            }
 
             if(inventoryManagerOpen)
             {

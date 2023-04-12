@@ -250,11 +250,10 @@ namespace UltraFunGuns
                     }
                 }
 
-                float damage = rb.velocity.magnitude + 1.0f;
+                float damage = 1.0f+(enemyParries*50f);
                 if(brickShooter.StormActive)
                 {
-                    Action ondeath = new Action(() => { WeaponManager.AddStyle(4, "brickmindkill", brickShooter.gameObject, eid); });
-                    eid.transform.EnsureComponent<EnemyOverride>().AddDeathCallback(ondeath);
+                    eid.Override().AddStyleEntryOnDeath(new StyleEntry(4, "brickmindkill", 2.0f, brickShooter.gameObject));
                 }
                 eid.DeliverDamage(eid.gameObject, rb.velocity, col.GetContact(0).point, damage, true, 1.0f, brickShooter.gameObject);
                 hitsRemaining -= 5;

@@ -32,6 +32,8 @@ namespace UltraFunGuns
         private Dictionary<Renderer, Material[]> startMaterials = new Dictionary<Renderer, Material[]>();
         private Renderer[] renderers;
 
+        private List<StyleEntry> styleEntries = new List<StyleEntry>();
+
         public bool RagdollEnabled { get; private set; }
 
         public bool Frozen { get; private set; }
@@ -143,6 +145,55 @@ namespace UltraFunGuns
             }
         }
 
+        public void AddStyleEntryOnDeath(StyleEntry entry, bool allowMultiple = false)
+        {
+            if (Enemy != null)
+                entry.EnemyIdentifier = Enemy;
+
+            if(!allowMultiple)
+            {
+                if (styleEntries.Where(x => x.Key == entry.Key).ToList().Count > 0)
+                {
+                    styleEntries[0].LifeTime += entry.LifeTime;
+                    return;
+                }
+            }
+
+            styleEntries.Add(entry);
+        }
+
+        private void ExecuteStyleEntries()
+        {
+            styleEntries = styleEntries.Where(x => x.valid).ToList();
+            foreach(StyleEntry entry in styleEntries)
+            {
+                if (entry.AlreadyCounted)
+                    continue;
+
+                //Combine similar entries into one and total count and points
+                List<StyleEntry> similarEntries = styleEntries.Where(x => x.Key == entry.Key && (x != entry)).ToList();
+
+                for (int i = 0; i < similarEntries.Count; i++)
+                {
+                    if (similarEntries[i] == entry)
+                        continue;
+
+                    entry.Points += similarEntries[i].Points;
+                    int similarCount = ((similarEntries[i].Count >= 1) ? similarEntries[i].Count : 1);
+                    entry.Count = (entry.Count >= 1) ? entry.Count + similarCount : 1 + similarCount; //since count is default to -1, this is to correct for it.
+
+                    similarEntries[i].AlreadyCounted = true;
+                }
+
+                if(similarEntries.Count > 0)
+                {
+                    Debug.LogWarning("Combined similar entries");
+                }
+
+                WeaponManager.AddStyle(entry);
+            }
+        }
+
         public void AddDeathCallback(Action action)
         {
             if(!onDeathEvents.Contains(action))
@@ -157,6 +208,8 @@ namespace UltraFunGuns
             {
                 action?.Invoke();
             }
+
+            ExecuteStyleEntries();
         }
 
         public void EnableKnockback()
@@ -266,12 +319,41 @@ namespace UltraFunGuns
     {
         public static EnemyOverride Override(this EnemyIdentifier eid)
         {
-            if(eid.TryGetComponent<EnemyOverride>(out EnemyOverride newOverride))
-            {
-                return newOverride;
-            }
+            return eid.gameObject.EnsureComponent<EnemyOverride>();
+        }
+    }
 
-            return eid.gameObject.AddComponent<EnemyOverride>();
+    public class StyleEntry
+    {
+        public string Key, Prefix, Postfix;
+        public int Points;
+        public float LifeTime;
+        public GameObject SourceWeapon;
+        public EnemyIdentifier EnemyIdentifier;
+        public int Count;
+        public bool AlreadyCounted;
+
+        private float timeCreated;
+
+        public bool valid => (Time.time - timeCreated) < LifeTime;
+
+        public StyleEntry(int points, string key, float lifeTime = 5.0f, GameObject sourceWeapon = null, EnemyIdentifier eid = null, int count = -1, string prefix = "", string postfix = "")
+        {
+            Key = key;
+            Points = points;
+            LifeTime = lifeTime;
+            timeCreated = Time.time;
+            Count = count;
+            SourceWeapon = sourceWeapon;
+            EnemyIdentifier = eid;
+            Count = count;
+            Prefix = prefix;
+            Postfix = postfix;
+        }
+
+        public StyleEntry()
+        {
+            timeCreated = Time.time;
         }
     }
 }

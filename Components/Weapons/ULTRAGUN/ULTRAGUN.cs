@@ -39,6 +39,11 @@ namespace UltraFunGuns
         private float barrageFireDelay = 0.15f;
 
         private AbilityMeter powerDisplay;
+        private Vibrate vibrate;
+        private AudioSource chargingAudioSrc;
+        [UFGAsset("Charge_Loop_Alternate")] private static AudioClip chargingLoopClip;
+
+        private bool canBarrage => barrageCharge > (barrageChargeMax / barrageAmount) && !barraging;
 
         public float Power
         {
@@ -60,6 +65,12 @@ namespace UltraFunGuns
         //fired bullets take fuel to fly.
         private void Start()
         {
+            chargingAudioSrc = gameObject.AddComponent<AudioSource>();
+            chargingAudioSrc.clip = chargingLoopClip;
+            chargingAudioSrc.playOnAwake = true;
+            chargingAudioSrc.loop = true;
+            chargingAudioSrc.Play();
+            vibrate = gameObject.GetComponentInChildren<Vibrate>();
             powerDisplay = GetComponentInChildren<AbilityMeter>();
             Power = maxPower;
         }
@@ -69,8 +80,13 @@ namespace UltraFunGuns
             if (om.paused || barraging)
                 return;
 
-            if(InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame && primaryFire.CanFire())
+            if(InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame && (primaryFire.CanFire() || canBarrage))
             {
+                if(canBarrage)
+                {
+                    Barrage();
+                    return;
+                }
                 primaryFire.AddCooldown();
                 Ray ray = (IsDuplicate) ? new Ray(firePoint.position, mainCam.forward) : HydraUtils.GetProjectileAimVector(mainCam, firePoint, 0.85f, 20000f);
                 Fire(ray.direction);
@@ -80,7 +96,7 @@ namespace UltraFunGuns
             {
                 barrageCharge = Mathf.Clamp(barrageCharge + Time.deltaTime * barrageChargeMultiplier, barrageChargeMin, barrageChargeMax);
             }
-            else if(barrageCharge > barrageChargeMax/barrageAmount) //at least enough for a barrage of 1 :|
+            else if (canBarrage)
             {
                 Barrage();
             }
@@ -92,19 +108,10 @@ namespace UltraFunGuns
             if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
             {
                 animator?.Play("Inspect", 0, 0);
-                DivideBullets();
+                //DivideBullets();
             }
 
-            if(Input.GetKeyDown(KeyCode.LeftBracket))
-            {
-                --divisions;
-            }else if(Input.GetKeyDown(KeyCode.RightBracket))
-            {
-                ++divisions;
-            }
-
-
-            Power += (ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) ? maxPower : powerRestoreRate * Time.deltaTime;
+            //Power += (ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown) ? maxPower : powerRestoreRate * Time.deltaTime;
         }
 
         private void LateUpdate()
@@ -112,15 +119,22 @@ namespace UltraFunGuns
             if (barrageAmount <= 0)
                 barrageAmount = 1;
 
-            float ratio = 1.0f/(float)barrageAmount;
+            float chargeInterval = (barrageCharge / barrageChargeMax);
 
-            float fill = (barrageCharge / barrageChargeMax);
+            //powerDisplay?.SetAmount(fill/ratio);
+            powerDisplay?.SetAmount((chargeInterval));
+            if (vibrate != null)
+            {
+                vibrate.intensity = Mathf.Lerp(0.0f,0.015f, chargeInterval);
+            }
 
-            float remainder = fill % ratio;
+            animator?.SetBool("Cooldown", (!primaryFire.CanFire()));
 
-            fill -= remainder;
-
-            powerDisplay?.SetAmount(fill/ratio);
+            if(chargingAudioSrc != null)
+            {
+                chargingAudioSrc.pitch = Mathf.Lerp(0.0f, 0.9f, chargeInterval);
+                chargingAudioSrc.volume = (chargeInterval > 0.0f) ? 1 : 0;
+            }
         }
 
         private UltraBullet Fire(Vector3 aimDirection)
@@ -216,7 +230,11 @@ namespace UltraFunGuns
                 yield return new WaitForSeconds(barrageFireDelay);
             }
 
+            primaryFire.AddCooldown(primaryFire.FireDelay * 2.0f);
             barraging = false;
+
+            yield return new WaitForSeconds(0.31666f);
+            animator.Play("Cooldown", 0, 0);
         }
 
         private void DropAllBullets()

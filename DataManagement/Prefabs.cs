@@ -10,6 +10,7 @@ namespace UltraFunGuns
         [UFGAsset("BulletImpactFX")] public static GameObject BulletImpactFX { get; private set; }
         [UFGAsset("CanLauncher_MuzzleFX")] public static GameObject CanLauncher_MuzzleFX { get; private set; }
         [UFGAsset("HydraDevPlushie")] public static GameObject HydraPlushie { get; private set; }
+        [UFGAsset("ForceDeployPickup")] public static GameObject ForceDeployPickup { get; private set; }
 
         public static UKAsset<GameObject> UK_Explosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Explosion.prefab");
         public static UKAsset<GameObject> UK_ExplosionMalicious { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionMaliciousRail.prefab");
