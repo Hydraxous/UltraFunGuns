@@ -125,7 +125,7 @@ Primary fire shoots a powerful, piercing, explosive beam. The beam is so powerfu
 ______________________________________________________________________________________________
 The CANnon fires cans! Can you handle it?
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![CANnon Weapon](https://user-images.githubusercontent.com/8602389/231888403-440c86d8-cd5c-40fb-a907-2fdf3e9569de.png)
 
 Primary fire shoots a can.
 Cans can be quite unstable.
@@ -139,7 +139,7 @@ Cans can be quite unstable.
 ______________________________________________________________________________________________
 It is said that those who wield this rifle, and are extremely dizzy, have extreme luck!
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![TricksniperWeapon](https://user-images.githubusercontent.com/8602389/231888633-ebbc1742-31fc-4fc2-8dc8-d9f119c427c7.png)
 
 Spin to win!
 </details>
@@ -152,8 +152,9 @@ Spin to win!
 ______________________________________________________________________________________________
 These are great if you need to level a skyscraper, I wouldn't put too many close together though, they have a tendency to cooperate.
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![RadioExplosive Weapon](https://user-images.githubusercontent.com/8602389/231888741-d75f4422-8341-4551-869d-d9bba9930ec8.png)
 
+  
 If you dominoes, you'll love this.
 </details>
 <details>
@@ -165,8 +166,9 @@ If you dominoes, you'll love this.
 ______________________________________________________________________________________________
 Did you rip that thing off of a tank?? How on Earth??? Ahh who cares...
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![ULTRAGUN Image](https://user-images.githubusercontent.com/8602389/231889438-503dd02c-4aba-4ef2-abf9-7bf52ec1634d.png)
 
+  
 Its a comically large gun, that fires comically large bullets. What else can be said really?
 </details>
 <details>
@@ -178,7 +180,8 @@ Its a comically large gun, that fires comically large bullets. What else can be 
 ______________________________________________________________________________________________
 You can use it like a brick! Or don't! It's your life.
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![Brick Weapon](https://user-images.githubusercontent.com/8602389/231888832-c1d7a47b-7c4e-47de-a49a-3d990a6e86cf.png)
+
 
 WARNING: 0.00001% OF BRICKS HAVE BEEN FOUND TO POSSESS SENTIENCE. BUYER BEWARE.
 </details>
@@ -191,8 +194,9 @@ WARNING: 0.00001% OF BRICKS HAVE BEEN FOUND TO POSSESS SENTIENCE. BUYER BEWARE.
 ______________________________________________________________________________________________
 There. I added it. You're welcome.
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![AdminGun Image](https://user-images.githubusercontent.com/8602389/231888992-e1271f17-3e2c-453b-8d6b-dc3a86a5afa6.png)
 
+  
 Rumor has it you can kill anything with this!
 </details>
 <details>
@@ -204,7 +208,8 @@ Rumor has it you can kill anything with this!
 ______________________________________________________________________________________________
 I think it's an alien. It might be. Who knows. It changes a lot though.
 
-![Hand Gun](https://user-images.githubusercontent.com/8602389/194092046-040d1a3d-18a1-44d0-9cf9-7e969e10856e.png)
+![Aggromorph Weapon](https://user-images.githubusercontent.com/8602389/231889722-615648ba-4524-448e-96bb-235463375824.png)
+
 
 You can live out your fantasy of not having any range whatsoever!
 </details>
@@ -240,7 +245,7 @@ ________________________________________________________________________________
 2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.0/UFG-1.2.0-Release.zip), then extract the archive and place both the UFG and HydraDynamics folder into **BepinEx/plugins**
 Your BepInEx plugins folder should look something like this if you have other mods installed too.
 
-![wdawdawee](https://user-images.githubusercontent.com/8602389/194096157-bffdff6b-f04f-4569-a060-d3e5d770d33e.PNG)
+![installlocation](https://user-images.githubusercontent.com/8602389/231890434-b75de691-d24a-4094-9dc3-a8fa336a0983.PNG)
 
 3. Enjoy.
 _______________________________________________________________________________________________________________________________________
