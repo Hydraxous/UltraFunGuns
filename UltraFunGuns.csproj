@@ -97,6 +97,9 @@
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
+	<Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
 	<Reference Include="BepInEx">
 		<HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
 	</Reference>

@@ -31,6 +31,8 @@ namespace UltraFunGuns
         public float rotationalAngleMultiplier = 4.5f;
 
         public float maxRange = 2000.0f;
+        public int maxRicochet = 200;
+        public float maxRicochetAngle = 27.0f;
 
         public float turnCountThreshold = 6.0f;
         public int revolveCountThreshold = 18;
@@ -63,7 +65,7 @@ namespace UltraFunGuns
             if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.WasPerformedThisFrame && fireCooldown.CanFire() && !om.paused)
             {
                 fireCooldown.AddCooldown();
-                Shoot();
+                Shooot();
             }
 
             bool rightClickPressed = (MonoSingleton<InputManager>.Instance.InputSource.Fire2.IsPressed);
@@ -216,6 +218,149 @@ namespace UltraFunGuns
             }
         }
 
+        private void Shooot()
+        {
+            bool penetration = scopedIn;
+            bool enemyFound = false;
+            Ray shootRay = new Ray(mainCam.position, mainCam.forward);
+
+            if (revolutions > 0)
+            {
+                if (GetTarget(out Vector3 targetDir))
+                {
+                    enemyFound = true;
+                    shootRay.direction = targetDir;
+
+                    Vector3 leveledSample = targetDir;
+                    leveledSample.y = 0.0f;
+
+                    Vector3 cameraLeveledSample = shootRay.direction;
+                    cameraLeveledSample.y = 0.0f;
+
+
+                    if (Vector3.Dot(leveledSample.normalized, cameraLeveledSample.normalized) < 0.0f)
+                    {
+                        Quaternion newLook = Quaternion.LookRotation(new Vector3(leveledSample.x, shootRay.direction.y, leveledSample.z), Vector3.up);
+                        HydraUtils.SetPlayerRotation(newLook);
+                    }
+                }
+                penetration = (bulletPenetrationChance >= UnityEngine.Random.Range(0.0f, 100.0f) || penetration);
+            }
+
+            if (!scopedIn && !enemyFound)
+            {
+                float randomDirectionX = UnityEngine.Random.Range(-1.0f, 1.0f);
+                float randomDirectionY = UnityEngine.Random.Range(-1.0f, 1.0f);
+
+                shootRay.direction = mainCam.TransformDirection(randomDirectionX, randomDirectionY, spreadTightness);
+                penetration = true;
+            }
+
+            List<Vector3> pointsOfContact = new List<Vector3>();
+            pointsOfContact.Add(firePoint.position);
+            Vector3 lastNormal = -mainCam.forward;
+            pointsOfContact = ExecuteHit(shootRay, penetration, pointsOfContact, ref lastNormal);
+            DrawBulletTrail(lastNormal, pointsOfContact.ToArray());
+            Instantiate<GameObject>(muzzleFX, (scopedIn) ? mainCam.position : firePoint.position, Quaternion.identity).transform.forward = (scopedIn) ? mainCam.forward : firePoint.forward;
+
+            if (!scopedIn)
+            {
+                animator.Play("Fire", 0, 0);
+            }
+            else
+            {
+                playReloadAnimWhenUnscoped = true;
+            }
+            CameraController.Instance.CameraShake(1.1f);
+        }
+
+        private List<Vector3> ExecuteHit(Ray hitRay, bool penetration, List<Vector3> pointsOfContact, ref Vector3 lastNormal)
+        {
+            float damageAmount = (scopedIn) ? 1.5f : 3.0f;
+
+            RaycastHit[] hits = Physics.RaycastAll(hitRay, maxRange, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default"));
+            if (hits.Length <= 0 || (hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
+            {
+                pointsOfContact.Add(hitRay.GetPoint(maxRange));
+                return pointsOfContact;
+            }
+
+            hits = hits.OrderBy(x => x.distance).ToArray();
+            for (int i = 0; i < hits.Length; i++)
+            {
+                pointsOfContact.Add(hits[i].point);
+                lastNormal = hits[i].normal;
+
+                if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
+                {
+                    if (Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal)) * 90.0f < maxRicochetAngle && pointsOfContact.Count < maxRicochet)
+                    {
+                        GameObject.Instantiate(Prefabs.BulletImpactFX, hits[i].point, Quaternion.identity).transform.up = hits[i].normal;
+                        return ExecuteHit(new Ray(hits[i].point, Vector3.Reflect(hitRay.direction, hits[i].normal)), penetration, pointsOfContact, ref lastNormal); //Ricochet
+                    }
+                    break;
+                }
+
+                if (hits[i].collider.IsColliderEnemy(out EnemyIdentifier eid))
+                {
+                    eid.DeliverDamage(eid.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, gameObject);
+                    if (scopedIn)
+                    {
+                        if (timeScopedIn < 0.09f)
+                            WeaponManager.AddStyle(50, "tricksniperquickscope", gameObject, eid);
+                    }
+                    else
+                    {
+                        bool trick = revolutions > 0;
+                        if (trick && trickshotReactions != null)
+                        {
+                            trickshotReactions[UnityEngine.Random.Range(0, trickshotReactions.Length)].PlayAudioClip();
+                        }
+
+                        WeaponManager.AddStyle((trick) ? 100 : 30, (trick) ? "tricksniper360" : "tricksnipernoscope", gameObject, eid);
+                    }
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+                {
+                    breakable.Break();
+                }
+
+                if (hits[i].collider.gameObject.TryFindComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
+                {
+                    UFGInteractionEventData eventData = new UFGInteractionEventData()
+                    {
+                        tags = new string[] { "shot", "pierce", "heavy", (scopedIn) ? "" : "god" },
+                        data = "",
+                        interactorPosition = mainCam.position,
+                        direction = hitRay.direction,
+                        invokeType = typeof(Tricksniper),
+                        power = 60f
+                    };
+
+                    uFGInteractionReceiver.Interact(eventData);
+                }
+
+                if (hits[i].collider.gameObject.TryFindComponent<Grenade>(out Grenade grenade))
+                {
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    grenade.Explode();
+                }
+
+                //Fix this.
+                if (hits[i].collider.gameObject.TryFindComponent<Coin>(out Coin coin))
+                {
+                    coin.DelayedReflectRevolver(hits[i].point, reflectedSniperShot);
+                }
+
+                if (!penetration)
+                {
+                    break;
+                }
+            }
+            return pointsOfContact;
+        }
+
         private void Shoot()
         {    
             bool penetration = scopedIn;
@@ -362,6 +507,20 @@ namespace UltraFunGuns
                     return;
                 }
             }
+        }
+
+        private void DrawBulletTrail(Vector3 normal, params Vector3[] positions)
+        {
+            if (Prefabs.BulletTrail == null || positions.Length < 2)
+            {
+                return;
+            }
+
+            GameObject newBulletTrail = Instantiate<GameObject>(Prefabs.BulletTrail, positions[positions.Length-1], Quaternion.identity);
+            newBulletTrail.transform.up = normal;
+            LineRenderer line = newBulletTrail.GetComponent<LineRenderer>();
+            line.positionCount = positions.Length;
+            line.SetPositions(positions);
         }
 
         private void CreateBulletTrail(Vector3 startPosition, Vector3 endPosition, Vector3 normal)

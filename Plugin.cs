@@ -55,6 +55,7 @@ namespace UltraFunGuns
                     CheatsPatch.CyberGrindPreventer.Init();
                     Commands.Register();
                     FreecamAssist.Init();
+                    TextureLoader.Init();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
                 }

@@ -11,7 +11,7 @@ namespace UltraFunGuns
 {
     [WeaponAbility("Full-Auto 16x.50 AE", "Fire a continuous stream of 16 .50 AE cartridges simultaneously.", 0, RichTextColors.red)]
     [WeaponAbility("Full-Auto Explosives", "Fire a continuous stream of explosive bolts.", 1, RichTextColors.red)]
-    [UFGWeapon("AdminGun","Ultrasex", 0, true, WeaponIconColor.Red)]
+    [UFGWeapon("AdminGun","Ultra***", 0, true, WeaponIconColor.Red)]
     public class AdminGun : UltraFunGunBase
     {
         [UFGAsset] public static AudioClip AdminGun_FireSound { get; private set; }
@@ -24,9 +24,6 @@ namespace UltraFunGuns
         private bool gamerMode;
 
         private ActionCooldown primaryFire = new ActionCooldown(0.05f), secondaryFire = new ActionCooldown(0.05f);
-
-        private GameObject[] explosions = { Prefabs.UK_MindflayerExplosion.Asset, Prefabs.UK_ExplosionBig.Asset, Prefabs.UK_ExplosionLightning.Asset, Prefabs.UK_ExplosionSuper.Asset, Prefabs.UK_ExplosionMalicious.Asset, Prefabs.UK_ExplosionPrime.Asset, Prefabs.UK_ExplosionSand.Asset, Prefabs.UK_Explosion.Asset };
-        private int explosionIndex = 0;
 
         public override void GetInput()
         {
@@ -49,19 +46,6 @@ namespace UltraFunGuns
                 animator.Play("SelectFire", 0, 0);
                 gamerMode = !gamerMode;
                 switchFireModeSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.8f, 1.1f), 1.0f, 0.0f);
-            }
-
-            if(Input.GetKeyDown(KeyCode.I))
-            {
-                explosionIndex.Cycle(1, explosions.Length);
-                return;
-                if(HydraUtils.SphereCastMacro(mainCam.position,0.25f,mainCam.forward,300.0f, out RaycastHit hit))
-                {
-                    if(somethingWicked.Asset != null)
-                    {
-                        GameObject.Instantiate<GameObject>(somethingWicked.Asset, hit.point + Vector3.up, Quaternion.identity);
-                    }
-                }
             }
         }
 
@@ -220,7 +204,7 @@ namespace UltraFunGuns
             Ray ray = mainCam.ToRay();
             if (HydraUtils.SphereCastMacro(ray.origin, 0.15f, ray.direction, Mathf.Infinity, out RaycastHit hit))
             {
-                GameObject.Instantiate(explosions[explosionIndex], hit.point, Quaternion.identity);
+                GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
             }
             AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.6f, 1.0f), 1.0f, 0.0f);
         }
@@ -247,8 +231,6 @@ namespace UltraFunGuns
         {
             string debug = base.GetDebuggingText();
             debug += $"GAMER_MODE: {gamerMode}\n";
-            if (explosions[explosionIndex] != null)
-                debug += $"EXP: {explosions[explosionIndex].name}";
             return debug;
         }
     }

@@ -34,11 +34,13 @@ namespace UltraFunGuns
             return true;
         }
 
+        /*
         public static TargetObject GetTargetFromGameObject(GameObject targetGameObject)
         {
             TargetObject newTargetObject = new TargetObject(targetGameObject);
             return newTargetObject;
         }
+        */
 
         public static Vector3 GetTargetPoint(this EnemyIdentifier eid)
         {
@@ -55,6 +57,7 @@ namespace UltraFunGuns
             return eid.transform.position;
         }
 
+    /*
         public static List<TargetObject> GetTargetsFromGameObjects(GameObject[] targetGameObjects)
         {
             List<TargetObject> newTargets = new List<TargetObject>();
@@ -68,7 +71,7 @@ namespace UltraFunGuns
             }
             return newTargets;
         }
-
+    */
         public static bool IsColliderEnemy(this Collider collider, out EnemyIdentifier enemy, bool filterDead = true)
         {
             enemy = null;

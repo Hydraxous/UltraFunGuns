@@ -12,6 +12,7 @@ using HydraDynamics.DataPersistence;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using HydraDynamics.Events;
+using UltraFunGuns.Util;
 
 namespace UltraFunGuns
 {
@@ -28,6 +29,20 @@ namespace UltraFunGuns
 
             if (!UltraFunGuns.DebugMode)
                 return;
+
+            if (Input.GetKeyDown(KeyCode.Keypad6))
+            {
+                HydraLogger.Log("Grabbing random texture.");
+
+                Texture2D randTex = TextureLoader.PullRandomTexture();
+                if(randTex != null)
+                {
+                    HydraLogger.Log("Success.");
+                    Shader.SetGlobalTexture("_BuffTex", randTex);
+                    PostProcessV2_Handler.Instance.buffTex = randTex;
+                    PostProcessV2_Handler.Instance.radiantBuff.SetTexture("_BuffTex", randTex);
+                }
+            }
 
             if (Input.GetKeyDown(KeyCode.Keypad8))
             {
