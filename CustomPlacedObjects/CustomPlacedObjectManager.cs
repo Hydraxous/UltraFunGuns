@@ -39,7 +39,13 @@ namespace UltraFunGuns.CustomPlacedObjects
 
             foreach (ICustomPlacedObject customPlacedObject in objectsForScenes[sceneName])
             {
-                customPlacedObject.Place(sceneName);
+                if(customPlacedObject.Place(sceneName))
+                {
+                    HydraLogger.Log($"{customPlacedObject.GetType().Name}: Placed");
+                }else
+                {
+                    HydraLogger.Log($"{customPlacedObject.GetType().Name}: Failed to place", DebugChannel.Error);
+                }
             }
         }
 
@@ -65,6 +71,6 @@ namespace UltraFunGuns.CustomPlacedObjects
     public interface ICustomPlacedObject
     {
         public string[] GetScenePlacementNames();
-        public void Place(string sceneName);
+        public bool Place(string sceneName);
     }
 }

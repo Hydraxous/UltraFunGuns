@@ -16,6 +16,9 @@ namespace UltraFunGuns.Patches
         [HarmonyPatch("SendActivity")]
         public static bool Prefix(ref Activity ___cachedActivity)
         {
+            if (!UltraFunGuns.DebugMode)
+                return true;
+
             string msg = 
                 $"\nName: {___cachedActivity.Name}" +
                 $"\nState: {___cachedActivity.State}" +

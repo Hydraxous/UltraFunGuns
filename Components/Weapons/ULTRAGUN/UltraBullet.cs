@@ -13,10 +13,10 @@ namespace UltraFunGuns
 {
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
-        [SerializeField] private Transform superchargedFX;
         
-        [SerializeField] private Transform thrustFX, fallFX;
-
+        [SerializeField] private Transform thrustFX, fallFX, cyanThruster;
+        [SerializeField] private MeshRenderer bulletMesh;
+        [SerializeField] private Material easterEggMaterial;
 
         private float maxPower;
         public float Power { get; private set; }
@@ -55,6 +55,13 @@ namespace UltraFunGuns
 
         private void Start()
         {
+            if(bulletMesh != null)
+            {
+                if(UnityEngine.Random.Range(0, 100) == 0)
+                {
+                    bulletMesh.material = easterEggMaterial;
+                }
+            }
             rb = GetComponent<Rigidbody>();
             startDirection = transform.forward;
             isMortar = Vector3.Dot(startDirection, Vector3.up) > 0.75f;
@@ -129,8 +136,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (superchargedFX != null)
-                superchargedFX.gameObject.SetActive(false);
+            if (cyanThruster != null)
+                cyanThruster.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
@@ -155,6 +162,17 @@ namespace UltraFunGuns
         {
             if (Rigidbody == null)
                 return;
+
+            Visualizer.DrawRay(transform.position + (Rigidbody.velocity.normalized * 0.4f), Rigidbody.velocity * Time.fixedDeltaTime, 0.0166f);
+
+            //Reflect when hitting armor (this does NOT work for some reason) TODO
+            if (Physics.Raycast(transform.position + (Rigidbody.velocity.normalized * 0.4f), Rigidbody.velocity * Time.fixedDeltaTime, out RaycastHit hit, Rigidbody.velocity.magnitude * Time.fixedDeltaTime, LayerMask.GetMask("Armor", "Water")))
+            {
+                Visualizer.DrawSphere(hit.point, 0.5f, 5.0f);
+                HydraLogger.Log("Hit amror");
+                Vector3 newDirection = Vector3.Reflect(Rigidbody.velocity, hit.normal);
+                SetDirection(newDirection);
+            }
 
             if (Power > 0.0f && !Falling)
                 Rigidbody.velocity = transform.forward * ((originWeapon != null) ? Power : maxPower);
@@ -272,8 +290,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (superchargedFX != null)
-                superchargedFX.gameObject.SetActive(true);
+            if (cyanThruster != null)
+                cyanThruster.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);
@@ -324,7 +342,7 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            if(interaction.ContainsAnyTag("electricity"))
+            if(interaction.ContainsAnyTag("electricity", "god"))
             {
                 SetDirection(interaction.direction);
                 Supercharge();

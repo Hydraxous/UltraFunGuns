@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    /* Eggplosion object is created when a thrown egg is shot, when an eggsplosions occurs it will attempt to find nearby enemies and throw less powerful eggs at them.
-     the explosion size scales the radius of the enemy check.
-     */
     public class EggSplosion : MonoBehaviour
     {
         public float explosionSize = 50.0f;

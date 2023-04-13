@@ -26,6 +26,9 @@ namespace UltraFunGuns
         private void Update()
         {
 
+            if (!UltraFunGuns.DebugMode)
+                return;
+
             if (Input.GetKeyDown(KeyCode.Keypad8))
             {
                 PlayerDeathPatch.god = !PlayerDeathPatch.god;
@@ -35,7 +38,7 @@ namespace UltraFunGuns
                 }
             }
 
-            if(Input.GetKeyDown(KeyCode.Keypad0) && UKAPIP.InLevel())
+            if(Input.GetKeyDown(KeyCode.Keypad0))
             {
                 Vector3 playerPos = NewMovement.Instance.transform.position;
                 Vector3 cameraPos = CameraController.Instance.transform.position;

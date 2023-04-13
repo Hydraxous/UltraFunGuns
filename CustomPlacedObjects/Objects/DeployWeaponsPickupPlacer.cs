@@ -12,14 +12,16 @@ namespace UltraFunGuns.CustomPlacedObjects.Objects
             return new string[] { "Level 5-S" };
         }
 
-        public void Place(string sceneName)
+        public bool Place(string sceneName)
         {
             switch(sceneName)
             {
                 case "Level 5-S":
                     Place(new Vector3(43.9f, -39.7f, 34.20f), new Vector3(7.14f, 0.0f, 0.0f));
-                    break;
+                    return true;
             }
+
+            return false;
         }
 
         private void Place(Vector3 position, Vector3 rotation)

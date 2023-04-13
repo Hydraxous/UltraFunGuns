@@ -285,6 +285,10 @@ namespace UltraFunGuns
 
                         if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
                         {
+                            if ( Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal)) < 0.25f)
+                            {
+                                DoHit(new Ray(hitRay.origin, Vector3.Reflect(hitRay.direction, hits[i].normal)), penetration);
+                            }
                             break;
                         }
 
