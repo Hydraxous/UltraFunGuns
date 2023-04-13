@@ -9,6 +9,51 @@ Almost all the weapons are ridiculously overpowered as the balance has not yet b
 ![MoreGunUpdate](https://user-images.githubusercontent.com/8602389/231882267-9cb30748-3093-4778-b154-c20336ca7a78.png)
 
 ______________________________________________________________________________________________
+# If you're feeling generous ;)
+______________________________________________________________________________________________
+[![Kofi](https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11d503cc13747866d338b_Button-2.png)](https://ko-fi.com/hydraxous)
+
+<details>
+  <summary>Changelog 1.2.0</summary>
+  UPDATE 1.2.0: MORE GUN
+
+New Additions
+- Added new weapon Remote Explosive
+- Added new weapon CANnon
+- Added new weapon dev_cannon
+- Added new weapon Ultra***
+- Added new weapon Brick
+- Added new weapon Tricksniper
+- Added new wepaon Grabbity Gun
+- Added new weapon Fisix Applicator
+- Added new weapon ULTRAGUN
+- Added in-game key rebinding
+- Added weapon inspector
+- Added weapon info
+- Added UI sound effects
+- Added Dev easter egg :)
+
+Frontend Changes
+- Sonic Reverberator has been reworked from the ground up
+- Reworked interactions with vanilla content
+- You can now parry red focalyzer pylons to push them away from you
+- Updated focalyzer weapons visuals and fx
+- Weapons now support weapon position option
+- Fixed duel wield powerup breaking targeting of some weapons
+- Fixed weapons being deployed in levels which do not support weapons
+- Fixed bug with slab revolver
+- Slab revolver and electric railgun can now interact with some UFG objects
+- Objects that should be cleaned up when the player dies now get cleaned up when the player dies
+- Removed unintended debugging binds present in release
+
+Backend Changes
+- Complete rewrite of asset loader
+- Complete rewrite of data persistence manager
+- Enhanced debugging tools
+- Overall cleanup of code
+</details>
+
+______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
 
