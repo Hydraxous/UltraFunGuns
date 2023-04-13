@@ -9,6 +9,11 @@ Almost all the weapons are ridiculously overpowered as the balance has not yet b
 ![MoreGunUpdate](https://user-images.githubusercontent.com/8602389/231882267-9cb30748-3093-4778-b154-c20336ca7a78.png)
 
 ______________________________________________________________________________________________
+# If you're feeling generous ;)
+______________________________________________________________________________________________
+[![Kofi](https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11d503cc13747866d338b_Button-2.png)](https://ko-fi.com/hydraxous)
+
+______________________________________________________________________________________________
 # Weapons
 ______________________________________________________________________________________________
 
