@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UltraFunGuns.Components;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -14,6 +15,7 @@ namespace UltraFunGuns
         protected WeaponIcon weaponIcon;
         protected WeaponIdentifier weaponIdentifier;
         protected Animator animator;
+        protected WeaponTextureSwapper weaponTextureSwapper;
 
         protected UFGWeapon weaponInfo;
 
@@ -33,6 +35,9 @@ namespace UltraFunGuns
         private void Awake()
         {
             weaponInfo = WeaponManager.GetWeaponInfo(this.GetType());
+            weaponTextureSwapper = GetComponent<WeaponTextureSwapper>();
+            if(weaponTextureSwapper!= null)
+                weaponTextureSwapper.WeaponName = weaponInfo.WeaponKey;
             mainCam = MonoSingleton<CameraController>.Instance.transform;
             om = MonoSingleton<OptionsManager>.Instance;
             player = MonoSingleton<NewMovement>.Instance;

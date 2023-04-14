@@ -53,6 +53,17 @@ namespace UltraFunGuns
             return false;
         }
 
+        public bool ContainsAllTags(params string[] checkTags)
+        {
+            for(int i=0; i< checkTags.Length; i++)
+            {
+                if(!ContainsTag(checkTags[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 
     public struct TargetQuery

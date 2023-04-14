@@ -357,11 +357,23 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            switch(interaction.invokeType.ToString())
+
+            if(interaction.ContainsTag("god"))
             {
-                case "FingerGun":
-                    Explode(interaction.direction);
-                    return true;
+                Explode(Vector3.up, 3);
+                return true;
+            }
+
+            if(interaction.ContainsAnyTag("explode", "heavy", "pierce"))
+            {
+                Explode(interaction.direction, 1);
+                return true;
+            }
+
+            if (interaction.ContainsTag("shot"))
+            {
+                Bounce();
+                return true;
             }
 
             return false;

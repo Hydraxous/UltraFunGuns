@@ -469,13 +469,14 @@ namespace UltraFunGuns
                     return true;
 
                 case nameof(SonicReverberator):
-                    interaction.power *= 0.25f;
-                    break;
+                    ExciteBall(4);
+                    return true;
             }
 
-            if(interaction.ContainsTag("shot"))
+            if(interaction.ContainsAnyTag("shot"))
             {
                 ExciteBall(Mathf.CeilToInt(interaction.power));
+                return true;
             }
 
             return false;

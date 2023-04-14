@@ -112,5 +112,12 @@ namespace UltraFunGuns
             }
         }
 
+        public static bool RandomChance(float percentage)
+        {
+            float ratio = percentage / 100.0f;
+
+            return UnityEngine.Random.value < ratio;
+        }
+
     }
 }

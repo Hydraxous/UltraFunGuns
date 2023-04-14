@@ -134,6 +134,7 @@ namespace UltraFunGuns
             NewStyleItem("tricksniperquickscope", "QUICKSCOPE");
             NewStyleItem("tricksniper360", "<color=cyan>TRICKSHOT</color>");
             NewStyleItem("tricksnipernoscope", "<color=orange>NOSCOPE</color>");
+            NewStyleItem("tricksniperbankshot", "<color=orange>BANKSHOT</color>");
             NewStyleItem("ultragunsuperchargekill", "<color=cyan>EXPRESS BILLING</color>");
             NewStyleItem("ultragunkill", "BILLED");
             NewStyleItem("ultragunrainkill", "<color=red>WHAT GOES UP</color>");

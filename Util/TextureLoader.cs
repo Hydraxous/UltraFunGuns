@@ -42,6 +42,19 @@ namespace UltraFunGuns.Util
             cachedTextures = FindTextures();
         }
 
+        public static void SaveTexture(string path, Texture2D texture)
+        {
+            if (texture == null)
+                return;
+
+            byte[] bytes = texture.EncodeToPNG();
+            if (!Directory.Exists(Path.GetDirectoryName(path)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+            File.WriteAllBytes(path, bytes);
+        }
+
         public static bool TryLoadTexture(string path, out Texture2D tex, bool checkerIfNull = false)
         {
             tex = null;

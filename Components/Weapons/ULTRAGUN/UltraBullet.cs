@@ -342,7 +342,7 @@ namespace UltraFunGuns
 
         public bool Interact(UFGInteractionEventData interaction)
         {
-            if(interaction.ContainsAnyTag("electricity", "god"))
+            if(interaction.ContainsAnyTag("electricity", "god", "sonic"))
             {
                 SetDirection(interaction.direction);
                 Supercharge();

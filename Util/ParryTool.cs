@@ -8,7 +8,7 @@ namespace UltraFunGuns
 {
     public static class ParryTool
     {
-        //This is copied from the game with minor tweaks
+        //This is copied from the game with minor tweaks (it doesnt work at all :))
         //TODO fix this
         public static void ParryProjectile(Projectile proj, Vector3 parryDirection)
         {

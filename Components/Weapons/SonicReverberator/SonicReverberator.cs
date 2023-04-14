@@ -256,6 +256,7 @@ namespace UltraFunGuns
             }else if(hit.collider.attachedRigidbody != null)
             {
                 hit.collider.attachedRigidbody.velocity = direction.normalized * chargeLevel;
+                HydraLogger.Log("Affected RB");
             }
 
             Vector3 reflect = Vector3.Reflect(mainCam.position - hit.collider.bounds.center, mainCam.forward);
@@ -270,7 +271,7 @@ namespace UltraFunGuns
                     invokeType = typeof(SonicReverberator),
                     interactorPosition = mainCam.position,
                     direction = direction,
-                    tags = new string[] { "shot", "sonic", "shatter" },
+                    tags = new string[] { "turn", "sonic", "shatter" },
                     power = chargeLevel,
                 };
 

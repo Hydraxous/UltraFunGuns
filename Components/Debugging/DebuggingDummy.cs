@@ -20,8 +20,7 @@ namespace UltraFunGuns
     {
         private void Awake()
         {
-            CrossModEvents.SubscribeToModEvents(InterpretModEvent);
-            HydraLogger.Log($"NEW BUILD (5)", DebugChannel.Warning);
+
         }
 
         private void Update()
@@ -29,20 +28,6 @@ namespace UltraFunGuns
 
             if (!UltraFunGuns.DebugMode)
                 return;
-
-            if (Input.GetKeyDown(KeyCode.Keypad6))
-            {
-                HydraLogger.Log("Grabbing random texture.");
-
-                Texture2D randTex = TextureLoader.PullRandomTexture();
-                if(randTex != null)
-                {
-                    HydraLogger.Log("Success.");
-                    Shader.SetGlobalTexture("_BuffTex", randTex);
-                    PostProcessV2_Handler.Instance.buffTex = randTex;
-                    PostProcessV2_Handler.Instance.radiantBuff.SetTexture("_BuffTex", randTex);
-                }
-            }
 
             if (Input.GetKeyDown(KeyCode.Keypad8))
             {
@@ -78,64 +63,5 @@ namespace UltraFunGuns
              
         }
 
-
-        private void ReadExtModData()
-        {
-            HydraLogger.Log($"REMD: ATTEMPTING.", DebugChannel.Warning);
-
-            if (Hydynamics.TryGetModInfo("Hydraxous.ULTRAKILL.FishingFriend", out ModInfo fishInfo, "1.0.0"))
-            {
-                FishDataLol fishData = DataManager.ReadExternalModData<FishDataLol>(fishInfo, "fishData.pee");
-                if(fishData != null)
-                {
-                    HydraLogger.Log($"REMD: {fishData.fishName}",DebugChannel.Warning);
-                }else
-                {
-                    HydraLogger.Log($"REMD: FAIL.", DebugChannel.Warning);
-                }
-            }
-        }
-
-        private void InterpretModEvent(ModEventData eventData)
-        {
-            if (eventData.eventName == "FishingFriend.FishEvent")
-            {
-                HydraLogger.Log("Received CME.", DebugChannel.Warning);
-                if(eventData.TryDeserialize<FishDataLol>(out FishDataLol fishData))
-                {
-                    HydraLogger.Log($"{fishData.fishName}",DebugChannel.Warning);
-                }
-            }
-        }
-
-    }
-
-    [Serializable]
-    public class FishDataLol : Validatable
-    {
-
-        public string fishName;
-
-        public float fishAmount;
-
-        public FishDataLol(float fishAmount = 0.01f, string fishName = "")
-        {
-            if (fishAmount == 0.01f)
-                this.fishAmount = UnityEngine.Random.Range(0.01f, 2404.0f);
-
-            if (fishName.IsNullOrWhiteSpace())
-                this.fishName = $"Carl ({this.fishAmount})";
-        }
-
-        [JsonConstructor]
-        public FishDataLol()
-        {
-
-        }
-
-        public override bool Validate()
-        {
-            return !fishName.IsNullOrWhiteSpace();
-        }
     }
 }

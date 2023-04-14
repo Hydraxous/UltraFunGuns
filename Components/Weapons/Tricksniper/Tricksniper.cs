@@ -293,7 +293,9 @@ namespace UltraFunGuns
 
                 if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
                 {
-                    if (Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal)) * 90.0f < maxRicochetAngle && pointsOfContact.Count < maxRicochet)
+                    bool ricochet = UnityEngine.Random.value < (1-Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal))); //The greater angle, the greater the chance to ricochet
+
+                    if (ricochet && pointsOfContact.Count < maxRicochet)
                     {
                         GameObject.Instantiate(Prefabs.BulletImpactFX, hits[i].point, Quaternion.identity).transform.up = hits[i].normal;
                         return ExecuteHit(new Ray(hits[i].point, Vector3.Reflect(hitRay.direction, hits[i].normal)), penetration, pointsOfContact, ref lastNormal); //Ricochet
@@ -303,6 +305,12 @@ namespace UltraFunGuns
 
                 if (hits[i].collider.IsColliderEnemy(out EnemyIdentifier eid))
                 {
+                    if(pointsOfContact.Count > 1)
+                    {
+                        damageAmount = damageAmount * pointsOfContact.Count;
+                        eid.Override().AddStyleEntryOnDeath(new StyleEntry(100, "tricksniperbankshot", 1.4f, gameObject), false);
+
+                    }
                     eid.DeliverDamage(eid.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, gameObject);
                     if (scopedIn)
                     {
@@ -350,7 +358,16 @@ namespace UltraFunGuns
                 //Fix this.
                 if (hits[i].collider.gameObject.TryFindComponent<Coin>(out Coin coin))
                 {
-                    coin.DelayedReflectRevolver(hits[i].point, reflectedSniperShot);
+                    GameObject.Instantiate(coin.coinBreak, coin.transform.position, Quaternion.identity);
+                    Destroy(coin.gameObject);
+                    penetration = true;
+                    Vector3 coinPos = coin.transform.position;
+                    Vector3 newTargetDirection = UnityEngine.Random.insideUnitSphere;
+                    if(EnemyTools.TryGetHomingTarget(coinPos, out Transform homingTarget, out EnemyIdentifier enemy))
+                    {
+                        newTargetDirection = homingTarget.transform.position - coinPos;
+                    }
+                    return ExecuteHit(new Ray(coinPos, newTargetDirection), penetration, pointsOfContact, ref lastNormal);
                 }
 
                 if (!penetration)
