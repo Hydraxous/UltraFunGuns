@@ -11,16 +11,28 @@ namespace UltraFunGuns
     {
         public static bool Prefix(Punch __instance, Transform target, bool __result, ref bool ___hitSomething)
         {
-            ThrownDodgeball dodgeball;
-            if(target.TryGetComponent<ThrownDodgeball>(out dodgeball))
+
+            if(!target.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
             {
-                __instance.anim.Play("Hook", 0, 0.065f);
-                MonoSingleton<TimeController>.Instance.ParryFlash();
-                dodgeball.ExciteBall(2);
-                ___hitSomething = true;
-                __result = true;
-                return false;
+                ufgObject = target.GetComponentInParent<IUFGInteractionReceiver>();
+                if(ufgObject == null)
+                {
+                    ufgObject = target.GetComponentInChildren<IUFGInteractionReceiver>();
+                }
             }
+
+            if(ufgObject != null)
+            {
+                if(ufgObject.Parried(MonoSingleton<CameraController>.Instance.cam.transform.forward))
+                {
+                    __instance.anim.Play("Hook", 0, 0.065f);
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    ___hitSomething = true;
+                    __result = true;
+                    return false;
+                }
+            }
+
             return true;
         }
     }

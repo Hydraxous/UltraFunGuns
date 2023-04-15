@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UltraFunGuns.Components;
+using UltraFunGuns.Components.Entity;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
         private UltraFunGunBase.ActionCooldown maxRangeReflectCooldown = new UltraFunGunBase.ActionCooldown(0.5f);
 
-        public GameObject dodgeballPopFXPrefab;
-        public GameObject impactSound;
+        [UFGAsset("DodgeballPopFX")] private static GameObject dodgeballPopFXPrefab;
+        [UFGAsset("DodgeballImpactSound")] private static GameObject impactSound;
 
         public Transform ballMesh;
-
         public Transform homingTarget;
         public EnemyIdentifier homingTargetEID;
 
@@ -45,6 +46,8 @@ namespace UltraFunGuns
         public bool isExcited = false;
         public bool beingPulled = false;
 
+        private bool dead;
+
         private AudioSource bigHitSound;
         private AudioSource homingSound;
         private AudioSource exciteSound;
@@ -60,8 +63,6 @@ namespace UltraFunGuns
            
             animator = GetComponent<Animator>();
             ballMesh = transform.Find("DodgeballMesh");
-            HydraLoader.prefabRegistry.TryGetValue("DodgeballPopFX", out dodgeballPopFXPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("DodgeballImpactSound", out impactSound);
             bigHitSound = transform.Find("Audios/BigHit").GetComponent<AudioSource>();
             homingSound = transform.Find("Audios/HomingSound").GetComponent<AudioSource>();
             exciteSound = transform.Find("Audios/ExciteSound").GetComponent<AudioSource>();
@@ -135,6 +136,16 @@ namespace UltraFunGuns
 
         private bool TryGetHomingTarget()
         {
+
+            BasketballHoop hoop = GameObject.FindObjectOfType<BasketballHoop>();
+            if(hoop != null)
+            {
+                Vector3 hoopPos = hoop.GetHoopPos();
+                Vector3 newDirection = hoopPos - transform.position;
+                SetSustainVelocity(newDirection);
+                return true;
+            }
+
             List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
             List<Transform> targetPoints = new List<Transform>();
             GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
@@ -241,6 +252,10 @@ namespace UltraFunGuns
 
         public void Pop()
         {
+            if (dead)
+                return;
+
+            dead = true;
             GameObject.Instantiate<GameObject>(dodgeballPopFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
@@ -418,5 +433,82 @@ namespace UltraFunGuns
             }    
         }
 
+        public void Shot(BeamType beamType)
+        {
+            switch (beamType)
+            {
+                case BeamType.Railgun:
+                    ExciteBall(6);
+                    break;
+
+                case BeamType.Revolver:
+                    ExciteBall();
+                    break;
+
+                case BeamType.MaliciousFace:
+                    ExciteBall(2);
+                    break;
+
+                case BeamType.Enemy:
+                    break;
+            }
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            SetSustainVelocity(aimVector);
+            ExciteBall(2);
+            return true;
+        }
+
+
+        public bool Interact(UFGInteractionEventData interaction)
+        {
+            
+            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}");
+
+            switch(interaction.invokeType.Name)
+            {
+                case nameof(Focalyzer): 
+                case nameof(FocalyzerAlternate):
+                    SetSustainVelocity(Vector3.Reflect(sustainedVelocity.normalized, interaction.direction.normalized));
+                    return true;
+
+                case nameof(FingerGun):
+                case nameof(AdminGun):
+                    Pop();
+                    return true;
+
+                case nameof(SonicReverberator):
+                    ExciteBall(4);
+                    return true;
+            }
+
+            if(interaction.ContainsAnyTag("shot"))
+            {
+                ExciteBall(Mathf.CeilToInt(interaction.power));
+                return true;
+            }
+
+            return false;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
+        public bool Targetable(TargetQuery query)
+        {
+            if (dead)
+                return false;
+
+            return query.CheckTargetable(transform.position);
+        }
+
+        public void Cleanup()
+        {
+            Pop();
+        }
     }
 }

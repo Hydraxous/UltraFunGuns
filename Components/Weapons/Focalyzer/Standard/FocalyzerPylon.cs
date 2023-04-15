@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using System.Net.NetworkInformation;
 
 namespace UltraFunGuns
 {
@@ -12,8 +13,10 @@ namespace UltraFunGuns
      Shatter if punched.
      Move towards player if hit with grapple.
          */
-    public class FocalyzerPylon : MonoBehaviour
+    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
+        [UFGAsset("FocalyzerPylonShatterFX_Red")] public static GameObject PylonShatterFX { get; private set; }
+
         public Animator animator;
         public Animator laserAnimator;
 
@@ -34,13 +37,16 @@ namespace UltraFunGuns
 
         public int refractionCount = 0;
         public float AOERadius = 3.5f;
+        public float parryForce = 200.0f;
 
         private float lifeTime = 16.0f;
         private float lifeTimeLeft = 0.0f;
 
         public bool disco = false;
-
+        private bool dying = false;
         private AudioSource discoAudio;
+
+        private Rigidbody rb;
 
         private enum LaserHitType {enemy, nothing, solid, interactable}
 
@@ -55,6 +61,7 @@ namespace UltraFunGuns
             pylonManager.AddPylon(this);
             disco = (UnityEngine.Random.Range(0.0f, 100.0f) <= 5.0f);
             discoAudio.Play();
+            rb = GetComponent<Rigidbody>();
         }
 
         void Update()
@@ -127,7 +134,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode(8.0f);
+                egg.Explode();
                 hitType = LaserHitType.interactable;
             }
 
@@ -164,7 +171,7 @@ namespace UltraFunGuns
                 {
                     if (sphereHit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                     {
-                        egg.Explode(1.0f); //TODO CHANGE
+                        egg.Explode(); //TODO CHANGE
                     }
 
                     if (sphereHit.collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
@@ -292,6 +299,13 @@ namespace UltraFunGuns
         //TODO break animation
         void Shatter()
         {
+            if (dying)
+                return;
+            
+
+            dying = true;
+            Instantiate(PylonShatterFX, transform.position, Quaternion.identity);
+            Prefabs.BonusBreakSound.Asset.PlayAudioClip(transform.position, 1.1f, 1.0f, 0.6f);
             Destroy(gameObject);
         }
 
@@ -311,5 +325,43 @@ namespace UltraFunGuns
                 pylonManager.RemovePylon(this);
             }
         }
+
+        public void Shot(BeamType beamType)
+        {
+            Shatter();
+        }
+
+        public bool Interact(UFGInteractionEventData interaction)
+        {
+            string invoker = interaction.invokeType.Name;
+            if(invoker != "Focalyzer" && invoker != "FocalyzerAlternate")
+            {
+                Shatter();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            rb.AddForce(aimVector.normalized * parryForce, ForceMode.Impulse);
+            return true;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
+        public bool Targetable(TargetQuery targetQuery)
+        {
+            return false;
+        }
+        public void Cleanup()
+        {
+            Shatter();
+        }
+
     }
 }
