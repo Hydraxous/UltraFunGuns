@@ -7,7 +7,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     [WeaponAbility("Cat Power", "Explodes everything in existence it's kind of funny if you think about it.", 0, RichTextColors.fuchsia)]
-    [UFGWeapon("Maxwell","Maxwell", 3, false, WeaponIconColor.Yellow, true)]
+    [UFGWeapon("Maxwell","Maxwell", 3, false, WeaponIconColor.Yellow, false)]
     public class Maxwell : UltraFunGunBase
     {
         private ActionCooldown killCooldown = new ActionCooldown(3.0f, true);
