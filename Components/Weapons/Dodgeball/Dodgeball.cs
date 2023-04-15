@@ -114,6 +114,9 @@ namespace UltraFunGuns
 
         public override void DoSecret()
         {
+            if (Data.SaveInfo.Data.basketballHighScore < 100) //If its unlocked :)
+                return;
+
             basketBallMode = !basketBallMode;
             Data.Config.Data.BasketBallMode = basketBallMode;
             Data.Config.Save();
@@ -229,7 +232,7 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work since coroutine cant run on disabled obj too bad!
+            if (chargingBall && !throwingBall && !pullingBall) //Does not work since coroutine cant run on disabled obj too bad! WONTFIX
             {
                 StartCoroutine(ThrowDodgeball(false,true));
             }

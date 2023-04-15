@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UltraFunGuns.Components;
+using UltraFunGuns.Components.Entity;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -135,6 +136,16 @@ namespace UltraFunGuns
 
         private bool TryGetHomingTarget()
         {
+
+            BasketballHoop hoop = GameObject.FindObjectOfType<BasketballHoop>();
+            if(hoop != null)
+            {
+                Vector3 hoopPos = hoop.GetHoopPos();
+                Vector3 newDirection = hoopPos - transform.position;
+                SetSustainVelocity(newDirection);
+                return true;
+            }
+
             List<EnemyIdentifier> possibleTargets = new List<EnemyIdentifier>();
             List<Transform> targetPoints = new List<Transform>();
             GameObject[] enemyObjectsActive = GameObject.FindGameObjectsWithTag("Enemy");
@@ -454,7 +465,7 @@ namespace UltraFunGuns
         public bool Interact(UFGInteractionEventData interaction)
         {
             
-            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}", DebugChannel.Warning);
+            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}");
 
             switch(interaction.invokeType.Name)
             {

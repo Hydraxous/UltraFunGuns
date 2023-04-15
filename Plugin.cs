@@ -21,6 +21,8 @@ namespace UltraFunGuns
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
 
+        private UltraFunGunBase.ActionCooldown autosave = new UltraFunGunBase.ActionCooldown(120f);
+
         private Action<bool, string> onVersionCheckFinished = (usingLatest, latestVersion) =>
         {
             UsingLatestVersion = usingLatest;
@@ -67,6 +69,15 @@ namespace UltraFunGuns
             });
 
             yield return null;
+        }
+
+        private void Update()
+        {
+            if(autosave.CanFire() && Data.Config.Data.EnableAutosave)
+            {
+                autosave.AddCooldown();
+                Data.SaveAll();
+            }
         }
 
         private void DoPatching()

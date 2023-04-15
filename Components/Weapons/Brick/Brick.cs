@@ -28,10 +28,6 @@ namespace UltraFunGuns
         public float Brickshake { get; private set; } = 0.075f;
         public float BrickParryFlightTime { get; private set; } = 0.85f;
 
-        //TODO make bricks fragment
-        //TODO more sounds
-        //TODO Icon
-
         public float force = 75.0f;
         public float flockMaxRange = 10.0f;
         public float targetPointSurfaceOffset = 0.3f;

@@ -12,6 +12,8 @@ namespace UltraFunGuns
 
         //REGISTRY: Register custom assets for the loader here!
         //TODO Get rid of this class
+        //I cant get rid of this class simply due to the fact that I cannot cast arrays derived from UnityEngine.Object as a UnityEngine.Obejct[]. This would have been how the new loader worked.
+        //However, it doesnt work because Unity :)))) So a work around will be needed at a later date.
         public static void RegisterAssets()
         {
             if(assetsRegistered)
@@ -23,10 +25,6 @@ namespace UltraFunGuns
             //Generic, debug, etc. assets
             new HydraLoader.CustomAssetData("debug_weaponIcon", typeof(Sprite));
             new HydraLoader.CustomAssetData("debug_glowIcon", typeof(Sprite));
-            //new HydraLoader.CustomAssetPrefab("Prototype_Weapon", new Component[] { new WeaponIcon(), new WeaponIdentifier() });
-            //new HydraLoader.CustomAssetPrefab("WMUINode", new Component[] { new InventoryNode() });
-            //new HydraLoader.CustomAssetPrefab("UFGInventoryUI", new Component[] { new InventoryController(), new HudOpenEffect() });
-            //new HydraLoader.CustomAssetPrefab("UFGInventoryButton");
             #endregion
 
             #region Weapon Objects

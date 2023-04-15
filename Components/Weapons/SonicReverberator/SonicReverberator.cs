@@ -302,7 +302,6 @@ namespace UltraFunGuns
             lastKnownCooldownTime = Time.time;
         }
 
-        //TODO FIX THIS IT FORCES COOLDOWN VERY DUMB!!
         private void OnEnable()
         {
             if ((fireCooldown.TimeToFire - Time.time) > 0.0f)
@@ -393,6 +392,7 @@ namespace UltraFunGuns
             debug += $"CHARGE: {chargeLevel}\n";
             debug += $"MILESTONE: {GetChargeState(chargeLevel)}\n";
             debug += $"CHARGING: {charging}\n";
+            debug += $"FIRE_CD: {fireCooldown}\n";
             return debug;
         }
         

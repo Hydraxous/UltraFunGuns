@@ -54,7 +54,6 @@ namespace UltraFunGuns
             oldVelocity = rb.velocity;
         }
 
-        //TODO call when egg is shot eggsplosion hehe
         public void Explode()
         {
             if(!isEggsplosionEgg && !impacted)
@@ -66,13 +65,6 @@ namespace UltraFunGuns
             }  
         }
 
-        //TODO Call when player grapples the egg should heal player for 10 hp or something cringe idk
-        private void Cracked()
-        {
-            
-        }
-
-        //TODO add code for shooting it and habving it explode and also grapple thing do the overload too.
         private void Collide(Collision col)
         {
 

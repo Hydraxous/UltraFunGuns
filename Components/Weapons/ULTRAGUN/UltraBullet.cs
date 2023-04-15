@@ -14,7 +14,7 @@ namespace UltraFunGuns
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
         
-        [SerializeField] private Transform thrustFX, fallFX, cyanThruster;
+        [SerializeField] private Transform thrustFX, fallFX, cyanEffects;
         [SerializeField] private MeshRenderer bulletMesh;
         [SerializeField] private Material easterEggMaterial;
 
@@ -110,7 +110,7 @@ namespace UltraFunGuns
             Rigidbody.velocity = storedVelocity;
             IsDivision = true;
 
-            HydraLogger.Log($"Bullet divided from {gameObject.name}", DebugChannel.Warning);
+            HydraLogger.Log($"Bullet divided from {gameObject.name}");
 
             for (int i = 1; i < ringPositions.Length; i++)
             {
@@ -136,8 +136,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (cyanThruster != null)
-                cyanThruster.gameObject.SetActive(false);
+            if (cyanEffects != null)
+                cyanEffects.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
@@ -290,8 +290,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (cyanThruster != null)
-                cyanThruster.gameObject.SetActive(true);
+            if (cyanEffects != null)
+                cyanEffects.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);

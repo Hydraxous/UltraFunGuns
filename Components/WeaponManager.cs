@@ -36,7 +36,6 @@ namespace UltraFunGuns
             RegisterWeapons();
             UKAPIP.OnLevelChanged += OnLevelChanged;
             CrossModEvents.SubscribeToModEvents(CheckEvent, "WeaponDeployer");
-            //UltraFunGuns.UFG.OnModUnloaded.AddListener(DeInit);
         }
 
         private static void CheckEvent(ModEventData data)

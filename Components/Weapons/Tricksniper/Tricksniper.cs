@@ -12,7 +12,7 @@ namespace UltraFunGuns
     //TODO optimization
     public class Tricksniper : UltraFunGunBase
     {
-        [UFGAsset("TrickshotReaction_0")] private static AudioClip trickshotReaction0;
+        [UFGAsset("TrickshotReaction_0")] public static AudioClip trickshotReaction0 { get; private set; }
         [UFGAsset("TrickshotReaction_1")] private static AudioClip trickshotReaction1;
         [UFGAsset("TrickshotReaction_2")] private static AudioClip trickshotReaction2;
         [UFGAsset("TrickshotReaction_3")] private static AudioClip trickshotReaction3;

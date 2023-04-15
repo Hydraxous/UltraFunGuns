@@ -12,8 +12,6 @@ using HydraDynamics;
 
 namespace UltraFunGuns
 {
-
-    //TODO Redo this whole thing please. its kind of cursed. Done :)
     public static class Data
     {
         public static DataFile<Loadout> Loadout { get; private set; } = new DataFile<Loadout>(new Loadout(), "loadout.ufg");
@@ -26,7 +24,7 @@ namespace UltraFunGuns
             Loadout.Save();
             SaveInfo.Save();
             Config.Save();
-            //Keys.KeybindManager.Bindings.Save();
+            HydraLogger.WriteLog();
         }
 
         [Commands.UFGDebugMethod("Reload Config", "Reloads the config file.")]
@@ -101,6 +99,8 @@ namespace UltraFunGuns
     [System.Serializable]
     public class Loadout : Validatable
     {
+        public override bool AllowExternalRead => true;
+
         public InventorySlotData[] slots;
 
         public Loadout(InventorySlotData[] slots)
@@ -182,17 +182,21 @@ namespace UltraFunGuns
     [System.Serializable]
     public class SaveInfo : Validatable
     {
+        public override bool AllowExternalRead => true;
+
         public bool firstTimeUsingInventory;
         public bool firstTimeModLoaded;
         public string modVersion;
+
+        public int basketballHighScore;
 
         public SaveInfo()
         {
             this.modVersion = ConstInfo.RELEASE_VERSION;
             this.firstTimeModLoaded = true;
             this.firstTimeUsingInventory = true;
+            this.basketballHighScore = 0;
         }
-
 
         public override bool Validate()
         {
@@ -222,10 +226,14 @@ namespace UltraFunGuns
     [System.Serializable]
     public class Config : Validatable
     {
+        public override bool AllowExternalRead => false;
+
         //Generic
         public bool DebugMode;
         public bool DisableVersionMessages;
         public bool EnableVisualizer;
+        public bool EnableAutosave;
+        public bool EnableBasketballHoop;
 
         //Weapon values
         public bool BasketBallMode;
@@ -241,6 +249,8 @@ namespace UltraFunGuns
             this.DebugMode = false;
             this.EnableVisualizer = false;
             this.InventoryInfoCardScale = 1.0f;
+            this.EnableAutosave = true;
+            this.EnableBasketballHoop = true;
         }
 
         public override bool Validate()
