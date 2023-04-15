@@ -81,7 +81,7 @@ namespace UltraFunGuns.Properties {
         ///    &quot;Assets/Models/SisyphusPrime/SisyHeart.mat&quot;,
         ///    &quot;Assets/Data/Sandbox/Enemies/Mindflayer.asset&quot;,
         ///    &quot;Assets/Data/Sandbox/Enemies/Super Projectile Husk.asset&quot;,
-        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantescape.ogg&quot;, [rest of string was truncated]&quot;;.
+        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantes [rest of string was truncated]&quot;;.
         /// </summary>
         public static string UnhardendedBundlesJson {
             get {
