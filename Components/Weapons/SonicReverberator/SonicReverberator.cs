@@ -1,30 +1,23 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UltraFunGuns
 {
-    /*Gun that fires a "Sonic Wave" in a cone in front of it. Can be charged indefinitely.
-     * Charging scales with size of sonic wave, knockback velocity, and player knockback velocity.
-     * 
-     * It's a vine boom gun :)
-     * 
-     * TODO:
-     * - Fix charging animations jittering
-     * - Fix equip animation
-     * - Affect non-kinematic rigidbodies
-     * 
-     * BUGS: 
-     * Enemy knockback is completely broken and needs to be reworked. : See enemy navigation disabling and rocket launcher code for in-game knockback mechanics.
-     * The nature of being able to charge indefinitely causes many issues.
-     * Fix algorithm for checking if enemy is behind player or in front of player, currently the hitbox goes WAY too far behind the player.
-     */
+    [WeaponAbility("Reverberate", "Release the stored power of Moyai with <color=orange>Fire 2</color>", 0, RichTextColors.aqua)]
+    [WeaponAbility("Stockpile", "Excite Moyai by holding <color=orange>Fire 1</color>", 1, RichTextColors.aqua)]
+    [UFGWeapon("SonicReverberator", "Sonic Reverberator", 0, true, WeaponIconColor.Blue)]
     public class SonicReverberator : UltraFunGunBase
     {
-        public GameObject bang;
+        [UFGAsset("SonicBoom")] public static GameObject ReverbProjectile { get; private set; }
 
-        public AudioClip vB_standard, vB_loud, vB_loudest;
+        [UFGAsset("vB_standard")] public static AudioClip vineBoom_Standard { get; private set; }
+        [UFGAsset("vB_loud")] public static AudioClip vineBoom_Loud { get; private set; }
+        [UFGAsset("vB_loud")] public static AudioClip vineBoom_Loudest { get; private set; }
 
         private AudioSource chargeIncrease, chargeDecrease, chargeFinal;
 
@@ -33,18 +26,11 @@ namespace UltraFunGuns
         public bool skipConeCheck = true, enablePlayerKnockback = true;
 
         public float baseGyroRotationSpeed = 0.01f;
-        public float currentGyroRotationSpeed = 0.01f;
         public float gyroRotationSpeedModifier = 0.1f;
 
         public float chargeLevel = 0.0f;
         public float chargeSpeedMultiplier = 2.8f;
         public float chargeDecayMultiplier = 0.25f;
-
-        //TODO try to remove this.
-        private float blastForceMultiplier = 100.0f;
-        private float blastForceUpwardsMultiplier = 30.0f;
-        private float hitBoxRadiusMultiplier = 0.75f;
-        private float blastOriginZOffset = 0.49f;
 
         private float maxTargetAngle = 80.0f;
         private float minTargetAngle = 18.0f;
@@ -70,6 +56,10 @@ namespace UltraFunGuns
         private float maximumCooldown = 600.0f;
         private float lastKnownCooldownTime = 0.0f;
 
+        private ActionCooldown fireCooldown = new ActionCooldown(0.75f, true);
+
+        private GyroRotator[] rotators;
+
         public override void OnAwakeFinished()
         {
             pistons = transform.Find("viewModelWrapper/MoyaiGun/Animated/PistonBase").gameObject.AddComponent<VisualCounterAnimator>();
@@ -77,28 +67,45 @@ namespace UltraFunGuns
             chargeIncrease = transform.Find("viewModelWrapper/Audios/ChargeIncrease").GetComponent<AudioSource>();
             chargeDecrease = transform.Find("viewModelWrapper/Audios/ChargeDecrease").GetComponent<AudioSource>();
             chargeFinal = transform.Find("viewModelWrapper/Audios/ChargeFinal").GetComponent<AudioSource>();
+            rotators = GetComponentsInChildren<GyroRotator>();
+            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
         }
 
-        //TODO fix when moving to inheritance model
-        private void Start()
+        private void SetGyroSpeed(float newSpeed)
         {
-            LoadData();
-            HelpChildren();
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                if (rotators[i] == null)
+                    continue;
+                rotators[i].Speed = newSpeed;
+            }
         }
 
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
+        private void SetGyroEnable(bool newState)
         {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fire", new ActionCooldown(0.75f));
-            return cooldowns;
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                if (rotators[i] == null)
+                    continue;
+                rotators[i].Spin = newState;
+            }
+        }
+
+        private void AddGyroSpin(float velocity)
+        {
+            for (int i = 0; i < rotators.Length; i++)
+            {
+                rotators[i]?.AddAngularVelocity(velocity);
+            }
         }
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && actionCooldowns["fire"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && fireCooldown.CanFire() && !om.paused)
             {
                 charging = true;
                 chargeLevel += Time.deltaTime * chargeSpeedMultiplier;
+                CameraController.Instance.CameraShake((chargeLevel > chargeMilestones[0])? (chargeLevel > chargeMilestones[chargeMilestones.Count-1])? 0: chargeLevel*0.01f:0);
             }
             else
             {
@@ -106,44 +113,29 @@ namespace UltraFunGuns
                 chargeLevel = Mathf.Clamp((chargeLevel - (Time.deltaTime * chargeDecayMultiplier)), 0.0f, Mathf.Infinity);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["fire"].CanFire() && !om.paused && chargeLevel >= 2.0f)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && fireCooldown.CanFire() && !om.paused && chargeLevel >= 2.0f)
             {
                 Fire();
             }
+
+            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            {
+                SecretAnimation();
+            }
         }
 
-
-        private void HelpChildren()
+        private void SecretAnimation()
         {
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro").gameObject.AddComponent<GyroRotator>();
-            transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").gameObject.AddComponent<GyroRotator>();    
-            moyaiAnimator = transform.Find("viewModelWrapper/MoyaiGun/Animated/OuterGyroBearing/InnerGyroBearing/OuterGyro/MiddleGyro/InnerGyro/Moyai").GetComponent<Animator>();
+            //animator.Play("Inspect", 0, 0);
         }
 
-
-        private void LoadData()
+        protected override void DoAnimations()
         {
-
-            HydraLoader.dataRegistry.TryGetValue("vB_standard", out UnityEngine.Object vB_standard_obj);
-            vB_standard = (AudioClip)vB_standard_obj;
-
-            HydraLoader.dataRegistry.TryGetValue("vB_loud", out UnityEngine.Object vB_loud_obj);
-            vB_loud = (AudioClip)vB_loud_obj;
-
-            HydraLoader.dataRegistry.TryGetValue("vB_loudest", out UnityEngine.Object vB_loudest_obj);
-            vB_loudest = (AudioClip)vB_loudest_obj;
-
-            HydraLoader.prefabRegistry.TryGetValue("SonicReverberationExplosion", out bang);
-
-        }
-
-        public override void DoAnimations()
-        {
-            currentGyroRotationSpeed = baseGyroRotationSpeed * (chargeLevel*gyroRotationSpeedModifier);
-            animator.SetBool("CanShoot", actionCooldowns["fire"].CanFire());
+            SetGyroSpeed(baseGyroRotationSpeed * (chargeLevel * gyroRotationSpeedModifier));
+            SetGyroEnable(charging);
+            animator.SetBool("CanShoot", fireCooldown.CanFire());
             animator.SetBool("Charging", charging);
+            
             
             int chargeState = GetChargeState(chargeLevel);
             if (chargeState > lastChargeState)
@@ -171,111 +163,122 @@ namespace UltraFunGuns
             moyaiAnimator.SetFloat("ChargeLevel", chargeLevel + 0.5f);
         }
 
-        //RULES FOR HITREG
-        /*
-         * 1. Enemy must be within range.
-         * 1b. Enemy must be in line of sight.
-         * 2. Enemy must not be dead.
-         * 3. Enemy must be within target angle.
-         * - Zombie tags will get knockback
-         * - Drones will start to crash
-         * - Stone creatures will take damage
-         * - Fullcharge will instakill everything.
-         * - 
-         * 4. The closer the enemy is the stronger the force applied to them will be.
-         * 5. Any rigidbodies which aren't enemies should get knocked back if they aren't kinematic
-         * 6. Any Dodgeballs should be excited with the corresponding charge state
-         * 7. Any projectiles should be reflected using the player look direction as a normal
-         */
-        //Gets all enemies, dodgeballs, rigidbodies, etc. acts on them accordingly provided they are within range, los, and determined vision angle.
+        private float CalcDistance(float scalar)
+        {
+            //y = (x+((x*(x*0.45))/5))
+            float distance = scalar * 0.45f;
+            distance *= scalar;
+            distance /= scalar;
+            distance += scalar;
+            distance *= 2.0f;
+            return Mathf.Min(distance, maxRange);
+        }
+        
+        private float CalcRadius(float scalar)
+        {
+            //y = (x+((x*(x*0.45))/5))*0.15
+            float radius = scalar * 0.45f;
+            radius *= scalar;
+            radius /= scalar;
+            radius += scalar;
+            radius *= 0.8f;
+            return Mathf.Min(radius, maxRange);
+        }
+
         private void Fire()
         {
-            //TODO Reflect enemy projectiles detected, UPDATE: Yeah good luck moron...
+            float thickness = CalcRadius(chargeLevel);
+            float maxRange = CalcDistance(chargeLevel);
+
+            VineBoom(); // does the thing
+
+            //float currentAngle = Mathf.Clamp(chargeLevel, minTargetAngle, maxTargetAngle);
             int chargeState = GetChargeState();
-            
-            animator.Play("SonicReverberator_Shoot");
-            pistons.DisplayCount = chargeState;
-            SonicReverberatorExplosion BOOM = GameObject.Instantiate<GameObject>(bang, firePoint.position, Quaternion.identity).GetComponent<SonicReverberatorExplosion>();
-            BOOM.transform.forward = firePoint.TransformDirection(new Vector3(0,0,1));
-            BOOM.power = chargeLevel;
-            BOOM.powerState = chargeState;
 
-            Vector3 blastOrigin = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset + (chargeLevel * 0.1f))); //Origin of the blast basically next to the camera
-            Vector3 blastEye = mainCam.transform.TransformPoint(new Vector3(0, 0, (chargeState * blastOriginZOffset) + chargeLevel)); //End of the blast zone scales with charge
-            Vector3 visionVector = mainCam.transform.TransformPoint(new Vector3(0, 0, blastOriginZOffset)); //Player Vision vector based on camera
-
-            VineBoom(); // :)
             MonoSingleton<TimeController>.Instance.HitStop(0.25f * (chargeState - 1));
             MonoSingleton<CameraController>.Instance.CameraShake(1.5f * (chargeState - 1));
 
-            RaycastHit[] hits = Physics.CapsuleCastAll(blastOrigin, blastEye, 6.0f + (chargeLevel * hitBoxRadiusMultiplier), visionVector);
-            foreach (RaycastHit hit in hits)
-            {
-                if (Vector3.Dot((hit.collider.transform.position - visionVector).normalized, visionVector) > 0 || skipConeCheck) //Checks if target is in front of player.
-                {
-                    if (hit.collider.TryGetComponent<ThrownDodgeball>(out ThrownDodgeball dodgeBall))
-                    {
-                        dodgeBall.ExciteBall(chargeState);
-                    }
+            Visualizer.DrawSphereCast(mainCam.position, thickness, mainCam.forward, maxRange, 3.0f);
 
-                    if (hit.collider.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemy))
-                    {
-                        EffectEnemy(enemy, blastOrigin);
-                    }
-                    else if (hit.collider.TryGetComponent<Glass>(out Glass glass))
-                    {
-                        glass.Shatter();
-                    }
-                    else if (hit.collider.TryGetComponent<Breakable>(out Breakable breakable))
-                    {
-                        breakable.Break();
-                    }
-                    else if (hit.collider.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier bruh))
-                    {
-                        EffectEnemy(bruh.eid, blastOrigin);
-                    }
+            if (HydraUtils.SphereCastAllMacro(mainCam.position, thickness, mainCam.forward, maxRange, out RaycastHit[] hits))
+            {
+                foreach (RaycastHit hit in hits)
+                {
+                    ProcessHit(hit);
                 }
             }
+            
+            if(ReverbProjectile != null)
+            {
+                GameObject newReverb = Instantiate(ReverbProjectile, firePoint.position, Quaternion.identity);
+                newReverb.transform.forward = mainCam.forward;
+
+                SonicBoom sonicBoom = newReverb.GetComponent<SonicBoom>();
+
+                sonicBoom.Size = thickness;
+                sonicBoom.Range = maxRange;
+                sonicBoom.LifeTime = 0.36f;
+            }
+
+            //spawn fx
 
             KnockbackPlayer();
 
-            actionCooldowns["fire"].AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
+            animator.Play("SonicReverberator_Shoot");
+            pistons.DisplayCount = chargeState;
+            AddGyroSpin(chargeLevel);
+
+            fireCooldown.AddCooldown(Mathf.Clamp((chargeLevel * (cooldownRate + chargeLevel * (cooldownRate - (cooldownRate / 1.03f)))), minimumCooldown, maximumCooldown)); //Somewhat hyperbolic cooldown time based on charge level capped at 10 mins maximum.
             chargeLevel = 0;
             lastChargeState = 0;
             charging = false;
         }
 
-        private bool EffectTarget(TargetObject target, float angle)
+        private void ProcessHit(RaycastHit hit)
         {
-            Ray targetRay = new Ray();
-            targetRay.origin = mainCam.transform.position;
-            targetRay.direction = target.gameObject.transform.position - mainCam.transform.position;
-
-            if (!HydraUtils.LineOfSightCheck(targetRay.origin, target.gameObject.transform.position))
+            if (!HydraUtils.LineOfSightCheck(mainCam.position, hit.point) )
             {
-                return false;
+                //return;
             }
 
-            if(!HydraUtils.ConeCheck(mainCam.TransformDirection(0,0,1).normalized, targetRay.direction, angle))
+            Vector3 direction = hit.point - mainCam.position;
+
+            if ((Vector3.Dot((hit.collider.transform.position - mainCam.position), mainCam.forward) < 0) && !skipConeCheck)
             {
-                return false;
-            }
-            Debug.Log("UFG: SONIC GUN: Effect enemy called on " + target.gameObject.name + "|T: " + target.targetType.ToString());
-            switch (target.targetType)
-            {
-                case TargetObject.TargetType.Dodgeball:
-                    target.targetPoint.GetComponent<ThrownDodgeball>().ExciteBall(GetChargeState());
-                    break;
-                case TargetObject.TargetType.Zombie:
-                    target.targetPoint.GetComponent<Zombie>().KnockBack(targetRay.direction*chargeLevel);
-                    break;
-                default:
-                    break;
+                return;
             }
 
-            return false;
+            if (hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
+            {
+                EnemyOverride enemyOverride = eid.Override();
+                eid.DeliverDamage(eid.gameObject, direction.normalized * 2000.0f, hit.point, chargeLevel*0.1f, true, 0.0f, gameObject);
+                enemyOverride.Knockback(direction.normalized*chargeLevel * 20.0f);
+            }else if(hit.collider.attachedRigidbody != null)
+            {
+                hit.collider.attachedRigidbody.velocity = direction.normalized * chargeLevel;
+                HydraLogger.Log("Affected RB");
+            }
+
+            Vector3 reflect = Vector3.Reflect(mainCam.position - hit.collider.bounds.center, mainCam.forward);
+
+            ParryTool.TryParryProjectile(hit.collider, reflect, out Projectile _);
+            ParryTool.TryParryCannonball(hit.collider, reflect, out Cannonball __);
+
+            if (hit.collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
+            {
+                UFGInteractionEventData eventData = new UFGInteractionEventData()
+                {
+                    invokeType = typeof(SonicReverberator),
+                    interactorPosition = mainCam.position,
+                    direction = direction,
+                    tags = new string[] { "turn", "sonic", "shatter" },
+                    power = chargeLevel,
+                };
+
+                uFGInteractionReceiver.Interact(eventData);
+            }
+
         }
-
 
         public int GetChargeState(float charge) //gets charge state from provided charge level.
         {
@@ -294,180 +297,20 @@ namespace UltraFunGuns
             return GetChargeState(chargeLevel);
         }
 
-
         private void OnDisable()
         {
             lastKnownCooldownTime = Time.time;
         }
 
-        //TODO FIX THIS IT FORCES COOLDOWN VERY DUMB!!
         private void OnEnable()
         {
-            if ((actionCooldowns["fire"].timeToFire - Time.time) > 0.0f)
+            if ((fireCooldown.TimeToFire - Time.time) > 0.0f)
             {
-                actionCooldowns["fire"].timeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
+                fireCooldown.TimeToFire += Mathf.Clamp(lastKnownCooldownTime - Time.time, 0.0f, maximumCooldown);
             }
         }
 
-        //TODO FUCKING HELL FIX THIS AWFUL SHIT
-        //TODO FIX THIS 
-        //TODO STOP WRITING MORE TODO COMMENTS AND FUCKING DO IT TOFUCKINGDAY
-        private void EffectEnemy(EnemyIdentifier enemy, Vector3 blastOrigin) //TODO optimize this. Update: F*** optimization, redo this garbage entirely.
-        {
-            try
-            {
-                if (!enemy.dead)
-                { 
-                EnemyType enemyType = enemy.enemyType;
-                bool canKnockback = false;
-                bool boss = enemy.gameObject.TryGetComponent<BossIdentifier>(out BossIdentifier b);
-                switch (enemyType)
-                {
-                    case EnemyType.Drone:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Virtue:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Soldier:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Stray:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Stalker:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Swordsmachine:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Streetcleaner:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.V2:
-                        canKnockback = true;
-                        boss = true;
-                        break;
-                    case EnemyType.Filth:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Gabriel:
-                        canKnockback = true;
-                        boss = true;
-                        break;
-                    case EnemyType.Turret:
-                        if (!enemy.gameObject.GetComponent<Turret>().aiming)
-                        {
-                            canKnockback = true;
-                        }
-                        break;
-                    case EnemyType.Schism:
-                        canKnockback = true;
-                        break;
-                    case EnemyType.Minos:
-                        boss = true;
-                        break;
-                    case EnemyType.MinosPrime:
-                        boss = true;
-                        break;
-                    case EnemyType.V2Second:
-                        boss = true;
-                        break;
-                    case EnemyType.Wicked:
-                        boss = true;
-                        break;
-                    case EnemyType.Leviathan:
-                        boss = true;
-                        break;
-                    case EnemyType.GabrielSecond:
-                        boss = true;
-                        break;
-                    case EnemyType.HideousMass:
-                        boss = true;
-                        break;
-                    case EnemyType.Ferryman:
-                        boss = true;
-                        break;
-                    default:
-                        canKnockback = false;
-                        break;
-                }
-
-                int chargeState = GetChargeState();
-                if (canKnockback)
-                {
-                    DoKnockback(enemy.gameObject, blastOrigin);
-                    if (chargeState < chargeMilestones.Count && chargeState >= chargeMilestones.Count / 1.5f)
-                    {
-                        MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.vibecheck", this.gameObject, enemy, -1, "", "");
-                    }
-                }
-                    if (GetChargeState() >= chargeMilestones.Count)
-                    {
-                        if (boss || enemy.TryGetComponent<BossIdentifier>(out BossIdentifier bossId))
-                        {
-                            if (enemy.TryGetComponent<MinosPrime>(out MinosPrime mp) || enemy.TryGetComponent<MinosBoss>(out MinosBoss minosBoss)) //hehe style :)
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.minoskill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<Gabriel>(out Gabriel gaybe) || enemy.TryGetComponent<GabrielSecond>(out GabrielSecond gaybe2))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.gabrielkill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<Wicked>(out Wicked wicked))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(20000, "hydraxous.ultrafunguns.wickedkill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else if (enemy.TryGetComponent<V2>(out V2 v2))
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.v2kill", this.gameObject, enemy, -1, "", "");
-                            }
-                            else
-                            {
-                                MonoSingleton<StyleHUD>.Instance.AddPoints(500, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "<b>BOSS </b>", "");
-                            }
-                            enemy.health = 0;
-                        }
-                        else
-                        {
-                            enemy.Explode();
-                            MonoSingleton<StyleHUD>.Instance.AddPoints(100, "hydraxous.ultrafunguns.vaporized", this.gameObject, enemy, -1, "", "");
-                        }
-                    }
-                }
-            }catch(System.Exception e)
-            {
-                //TODO Remove this try catch and fix this properly you degenerate.
-            }
-        }
-
-        //TODO eat shit and die
-        private void DoKnockback(GameObject obj, Vector3 forceOrigin) //TODO Fix this algorithm so it actually works
-        {
-            int chargeState = GetChargeState();
-            EnemyIdentifier enemy;
-            float distanceFromBlast = Vector3.Distance(obj.transform.position, forceOrigin);
-            float distanceMultiplier = 10.0f / distanceFromBlast;
-            Vector3 forceVector = (obj.transform.position - forceOrigin).normalized * ((blastForceMultiplier * chargeState) + (chargeLevel * chargeState));
-            Vector3 upVector = new Vector3(0, blastForceUpwardsMultiplier * chargeState, 0);
-            forceVector *= distanceMultiplier;
-
-            if (obj.TryGetComponent<EnemyIdentifier>(out enemy))
-            {
-                enemy.gameObject.GetComponent<NavMeshAgent>().enabled = false;
-                Rigidbody body = enemy.gameObject.GetComponent<Rigidbody>();
-                body.isKinematic = false;
-                body.useGravity = false;
-                body.velocity += forceVector;
-                body.velocity += upVector;
-                Debug.Log(enemy.enemyType.ToString() + "  " + body.velocity);
-                SplatOnImpact splatt = enemy.gameObject.AddComponent<SplatOnImpact>();
-                //splatt.invincibilityTimer = splatTimer;
-                //splatt.velocityToSplatThreshold = splatThreshold;
-            }
-        }
-
-        private void KnockbackPlayer() //TODO IGBalancing PLEASE.... Update: no its fine. :^)
+        private void KnockbackPlayer()
         {
             if (enablePlayerKnockback) 
             {
@@ -496,7 +339,7 @@ namespace UltraFunGuns
             }
         }
 
-        //This is yucky but its fine.
+        //This is yucky but its fine. No, fix it.
         private void VineBoom()
         {
             GameObject vineBoomNoise = GameObject.Instantiate<GameObject>(new GameObject(),this.transform);
@@ -508,31 +351,31 @@ namespace UltraFunGuns
             switch (GetChargeState())
             {
                 case 1:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 0.75f;
                     break;
                 case 2:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 1.0f;
                     break;
                 case 3:
-                    vineBoomAudioSource.clip = vB_loud;
+                    vineBoomAudioSource.clip = vineBoom_Loud;
                     vineBoomAudioSource.volume = 0.8f;
                     break;
                 case 4:
-                    vineBoomAudioSource.clip = vB_loud;
+                    vineBoomAudioSource.clip = vineBoom_Loud;
                     vineBoomAudioSource.volume = 1.0f;
                     break;
                 case 5:
-                    vineBoomAudioSource.clip = vB_loudest;
+                    vineBoomAudioSource.clip = vineBoom_Loudest;
                     vineBoomAudioSource.volume = 1.2f;
                     break;
                 case 6:
-                    vineBoomAudioSource.clip = vB_loudest;
+                    vineBoomAudioSource.clip = vineBoom_Loudest;
                     vineBoomAudioSource.volume = 2.0f;
                     break;
                 default:
-                    vineBoomAudioSource.clip = vB_standard;
+                    vineBoomAudioSource.clip = vineBoom_Standard;
                     vineBoomAudioSource.volume = 0.75f;
                     break;
             }
@@ -542,5 +385,16 @@ namespace UltraFunGuns
             vineBoomAudioSource.dopplerLevel = 0.05f;
             vineBoomAudioSource.Play();
         }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"CHARGE: {chargeLevel}\n";
+            debug += $"MILESTONE: {GetChargeState(chargeLevel)}\n";
+            debug += $"CHARGING: {charging}\n";
+            debug += $"FIRE_CD: {fireCooldown}\n";
+            return debug;
+        }
+        
     }
 }

@@ -22,7 +22,7 @@ namespace UltraFunGuns.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace UltraFunGuns.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("UltraFunGuns.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace UltraFunGuns.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,20 +63,29 @@ namespace UltraFunGuns.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] MasterDataFile {
+        public static byte[] UltraFunGuns {
             get {
-                object obj = ResourceManager.GetObject("MasterDataFile", resourceCulture);
+                object obj = ResourceManager.GetObject("UltraFunGuns", resourceCulture);
                 return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized string similar to {
+        ///  &quot;unhardened-bundle-0&quot;: [
+        ///    &quot;Assets/Prefabs/Enemies/SisyphusPrime.prefab&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Mass.asset&quot;,
+        ///    &quot;Assets/Models/SisyphusPrime/T_SisyphusBody_Pattern5.tga&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Malicious Face.asset&quot;,
+        ///    &quot;Assets/Textures/Bloodsplatter_Atlas.tga&quot;,
+        ///    &quot;Assets/Models/SisyphusPrime/SisyHeart.mat&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Mindflayer.asset&quot;,
+        ///    &quot;Assets/Data/Sandbox/Enemies/Super Projectile Husk.asset&quot;,
+        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantescape.ogg&quot;, [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static byte[] UltraFunGuns {
+        public static string UnhardendedBundlesJson {
             get {
-                object obj = ResourceManager.GetObject("UltraFunGuns", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("UnhardendedBundlesJson", resourceCulture);
             }
         }
     }

@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {
 
     //Pylon of the focalyzer alternate. It will target what the player does.
-    public class FocalyzerPylonAlternate : MonoBehaviour
+    public class FocalyzerPylonAlternate : MonoBehaviour, ICleanable
     {
+        
+        [UFGAsset("FocalyzerPylonShatterFX_Blue")] public static GameObject PylonShatterFX { get; private set; }
+
         //public Animator animator;
         public Animator laserAnimator;
 
@@ -32,6 +36,8 @@ namespace UltraFunGuns
         private float lifeTimeLeft = 0.0f;
 
         private enum LaserHitType {enemy, nothing, solid, interactable}
+
+        private bool dying = false;
 
         void Start()
         {
@@ -69,7 +75,7 @@ namespace UltraFunGuns
 
             if (hit.collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
             {
-                egg.Explode(8.0f);
+                egg.Explode();
                 hitType = LaserHitType.interactable;
             }
 
@@ -148,6 +154,13 @@ namespace UltraFunGuns
         //TODO break animation
         void Shatter()
         {
+            if (dying)
+                return;
+
+            dying = true;
+
+            Instantiate(PylonShatterFX, transform.position, Quaternion.identity);
+            Prefabs.BonusBreakSound.Asset.PlayAudioClip(transform.position, 1.2f, 1.0f, 0.6f);
             Destroy(gameObject);
         }
 
@@ -157,6 +170,11 @@ namespace UltraFunGuns
             {
                 focalyzer.OnPylonDeath();
             }
+        }
+
+        public void Cleanup()
+        {
+            Shatter();
         }
     }
 }

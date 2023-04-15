@@ -5,28 +5,18 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    /* Eggplosion object is created when a thrown egg is shot, when an eggsplosions occurs it will attempt to find nearby enemies and throw less powerful eggs at them.
-     the explosion size scales the radius of the enemy check.
-     */
     public class EggSplosion : MonoBehaviour
     {
-        public GameObject thrownEggPrefab;
         public float explosionSize = 50.0f;
         public float eggSpeedModifier = 50.0f;
         public float sourceOffset = 1.45f;
 
         private List<EnemyIdentifier> targetedEnemies = new List<EnemyIdentifier>();
 
-        private void Awake()
-        {
-            HydraLoader.prefabRegistry.TryGetValue("ThrownEgg", out thrownEggPrefab);
-        }
-
-
         //Eggsplosion casts a sphere to try and find enemies nearby. It then spawns an egg and shoots it at the found enemy.
         private void Start()
         {
-            
+            int eggsSpawned = 0;
             
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, explosionSize, transform.position, Mathf.Infinity);
             if (hits.Length > 0)
@@ -72,13 +62,16 @@ namespace UltraFunGuns
 
                 foreach (Ray eggTrajectory in eggTrajectories)
                 {
-                    ThrownEgg newEgg = GameObject.Instantiate<GameObject>(thrownEggPrefab, eggTrajectory.origin, Quaternion.identity).GetComponent<ThrownEgg>();
+                    ThrownEgg newEgg = GameObject.Instantiate<GameObject>(EggToss.ThrownEggPrefab, eggTrajectory.origin, Quaternion.identity).GetComponent<ThrownEgg>();
                     newEgg.transform.forward = eggTrajectory.direction;
                     newEgg.gameObject.GetComponent<Rigidbody>().velocity = eggTrajectory.direction * eggSpeedModifier;
                     newEgg.oldVelocity = eggTrajectory.direction * eggSpeedModifier;
                     newEgg.isEggsplosionEgg = true;
+                    ++eggsSpawned;
                 }
             }
+            
+            HydraLogger.Log($"Eggsplosion spawned eggs: {eggsSpawned}");
         }
     }
 }

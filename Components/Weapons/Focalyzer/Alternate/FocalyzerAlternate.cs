@@ -8,11 +8,17 @@ namespace UltraFunGuns
 {
 
     //Laser rifle that does damage to enemies over time while it's hitting them, also can place pylons which will refract the laser at random or to another pylon.
+    [UFGWeapon("FocalyzerAlternate", "Focalyzer V2", 2, true, WeaponIconColor.Blue)]
+    [WeaponAbility("Cutter", "Hold <color=orange>Fire 1</color> to fire <color=aqua>Cutter</color> beam.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Deploy Pylon", "Press <color=orange>Fire 2</color> to deploy a laser pylon.", 1, RichTextColors.aqua)]
+    [WeaponAbility("Command", "Pylons will fire at your command.", 2, RichTextColors.yellow)]
     public class FocalyzerAlternate : UltraFunGunBase
     {
         public FocalyzerLaserControllerAlternate laser;
         public FocalyzerTubeControllerAlternate tubeController;
-        public GameObject pylonPrefab;
+        [UFGAsset("FocalyzerPylonAlternate")] public static GameObject pylonPrefab { get; private set; }
+        [UFGAsset("FocalyzerLaserAlternate")] public static GameObject laserPrefab { get; private set; }
+
         public Transform aimSpot;
 
         private StyleHUD style;
@@ -31,6 +37,10 @@ namespace UltraFunGuns
 
         private LayerMask laserHitMask;
 
+        private ActionCooldown fireCooldown = new ActionCooldown(0.16f, true);
+        private ActionCooldown damageTick = new ActionCooldown(0.2f);
+        private ActionCooldown throwPylonCooldown = new ActionCooldown(0.25f, true);
+
         public override void OnAwakeFinished()
         {
             style = MonoSingleton<StyleHUD>.Instance;
@@ -43,15 +53,13 @@ namespace UltraFunGuns
         private void Start()
         {
             laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default");
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerPylonAlternate", out pylonPrefab);
-            HydraLoader.prefabRegistry.TryGetValue("FocalyzerLaserAlternate", out GameObject laserPrefab);
             laser = GameObject.Instantiate<GameObject>(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<FocalyzerLaserControllerAlternate>();
             laser.focalyzer = this;
         }
 
         public override void GetInput()
         {
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !throwingPylon && actionCooldowns["fireLaser"].CanFire() && !om.paused)
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire1.IsPressed && !throwingPylon && fireCooldown.CanFire() && !om.paused)
             {
                 laserActive = true;
                 FireLaser();
@@ -60,7 +68,7 @@ namespace UltraFunGuns
             else if (laserActive)
             {
                 laserActive = false;
-                actionCooldowns["fireLaser"].AddCooldown();
+                fireCooldown.AddCooldown();
             }else
             {
                 //should make the laser follow the weapon even when it's turning off.
@@ -72,9 +80,9 @@ namespace UltraFunGuns
                 DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
             }
 
-            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && actionCooldowns["throwPylon"].CanFire())
+            if (MonoSingleton<InputManager>.Instance.InputSource.Fire2.WasPerformedThisFrame && throwPylonCooldown.CanFire())
             {
-                if (!om.paused && !throwingPylon && pylonsRemaining > 0)
+                if (!om.paused && !throwingPylon && (pylonsRemaining > 0 || ULTRAKILL.Cheats.NoWeaponCooldown.NoCooldown))
                 {
                     StartCoroutine(ThrowPylon());
                 }
@@ -83,10 +91,18 @@ namespace UltraFunGuns
             CheckPylonRecharge();
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
-            laser.laserActive = laserActive;
-            tubeController.crystalsRemaining = pylonsRemaining;
+            if(laser != null)
+            {
+                laser.laserActive = laserActive;
+            }
+
+            if (tubeController != null)
+            {
+                tubeController.crystalsRemaining = pylonsRemaining;
+            }
+            
             animator.SetBool("LaserActive", laserActive);
         }
 
@@ -114,18 +130,18 @@ namespace UltraFunGuns
 
                         if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
                         {
-                            if (actionCooldowns["damageTick"].CanFire())
+                            if (damageTick.CanFire())
                             {
-                                actionCooldowns["damageTick"].AddCooldown();
+                                damageTick.AddCooldown();
                                 enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                             }
                             break;
                         }
                         else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
                         {
-                            if (actionCooldowns["damageTick"].CanFire())
+                            if (damageTick.CanFire())
                             {
-                                actionCooldowns["damageTick"].AddCooldown();
+                                damageTick.AddCooldown();
                                 enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
                             }
                             break;
@@ -140,7 +156,7 @@ namespace UltraFunGuns
                         if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
                         {
 
-                            egg.Explode(10.0f);
+                            egg.Explode();
                             break;
                         }
 
@@ -191,13 +207,17 @@ namespace UltraFunGuns
         IEnumerator ThrowPylon()
         {
             throwingPylon = true;
-            actionCooldowns["throwPylon"].AddCooldown();
-            animator.Play("Focalyzer_ThrowPylon");
+            throwPylonCooldown.AddCooldown();
+            animator.Play("Focalyzer_ThrowPylon", 0, 0);
             yield return new WaitForSeconds(0.3f);
-            GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, mainCam.TransformPoint(0, 0, 1), Quaternion.identity);
+            GameObject newPylon = GameObject.Instantiate<GameObject>(pylonPrefab, firePoint.position, Quaternion.identity);
+            GameObject pylonFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint);
+            pylonFX.transform.position = firePoint.position;
+            pylonFX.transform.forward = firePoint.forward;
+            pylonFX.AddComponent<DestroyOnDisable>();
 
             pylonRechargeTimeRemaining = Time.time + pylonRechargeTime;
-            --pylonsRemaining;
+            pylonsRemaining = Mathf.Clamp(pylonsRemaining - 1, 0, maxStoredPylons);
 
             MonoSingleton<CameraController>.Instance.CameraShake(0.2f);
             FocalyzerPylonAlternate pylon = newPylon.GetComponent<FocalyzerPylonAlternate>();
@@ -209,14 +229,6 @@ namespace UltraFunGuns
             throwingPylon = false;
         }
 
-        public override Dictionary<string, ActionCooldown> SetActionCooldowns()
-        {
-            Dictionary<string, ActionCooldown> cooldowns = new Dictionary<string, ActionCooldown>();
-            cooldowns.Add("fireLaser", new ActionCooldown(0.16f));
-            cooldowns.Add("damageTick", new ActionCooldown(0.2f));
-            cooldowns.Add("throwPylon", new ActionCooldown(0.25f));
-            return cooldowns;
-        }
 
         private void OnDisable()
         {
@@ -228,7 +240,7 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator.Play("Focalyzer_Equip");
-            //TODO fix this algorithm it does not work.
+            //TODO URGENT fix this algorithm it does not work.
             return;
             while (pylonRechargeTimeRemaining + (pylonRechargeTime - style.rankIndex) < Time.time && pylonsRemaining < maxStoredPylons)
             {
@@ -240,6 +252,14 @@ namespace UltraFunGuns
         public void OnPylonDeath()
         {
             pylonsRemaining = Mathf.Clamp(pylonsRemaining + 1, 0, maxStoredPylons);
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"LASER: {laserActive}\n";
+            debug += $"PYLONS_LEFT: {pylonsRemaining}";
+            return debug;
         }
     }
 }

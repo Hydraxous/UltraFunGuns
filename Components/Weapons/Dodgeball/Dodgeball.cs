@@ -3,19 +3,24 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using UltraFunGuns.Datas;
 
 namespace UltraFunGuns
 {
     //Throwable projectile that bounces off of things, does damage to enemies and multiplies it's velocity every time it hits something. Should be really funny.
     //Also can force push/pull it with right click
-    //TODO add parry to make the thing home to an enemy.
+    [UFGWeapon("Dodgeball", "ULTRABALLER", 1, true, WeaponIconColor.Red)]
+    [WeaponAbility("Recall", "Pull the thrown ball back to you by holing <color=orange>Fire 2</color>", 2, RichTextColors.lime)]
+    [WeaponAbility("Soft-Ball", "Press <color=orange>Fire 2</color> while holding the ball to throw the ball softly.",1, RichTextColors.aqua)]
+    [WeaponAbility("Full-Ball", "Press <color=orange>Fire 1</color> to throw the ball. Holding the button will throw the ball faster and harder.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Excite", "Firing upon or punching the ball will send it into a fit of excitement.", 3, RichTextColors.red)]
     public class Dodgeball : UltraFunGunBase
     {
-        ActionCooldown pullCooldown = new ActionCooldown(0.25f);//TODO check this
+        ActionCooldown pullCooldown = new ActionCooldown(0.25f, true);
 
         public ThrownDodgeball activeDodgeball;
 
-        public GameObject thrownDodgeballPrefab;
+        [UFGAsset("ThrownDodgeball")] public static GameObject ThrownDodgeballPrefab { get; private set; }
 
         private GameObject catcherCollider;
 
@@ -39,15 +44,13 @@ namespace UltraFunGuns
 
         public bool basketBallMode = false;
         private Material standardSkin;
-        private Material basketballSkin;
+        [UFGAsset("BasketballMaterial")] private static Material basketballSkin;
 
+        //TODO optiminzation
         public override void OnAwakeFinished()
         {
-            basketBallMode = UltraFunGuns.USE_BASKETBALL_TEXTURE.Value;
-            HydraLoader.dataRegistry.TryGetValue("BasketballMaterial", out UnityEngine.Object obj);
-            basketballSkin = (Material) obj;
+            basketBallMode = Data.Config.Data.BasketBallMode;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
-            HydraLoader.prefabRegistry.TryGetValue("ThrownDodgeball", out thrownDodgeballPrefab);
             SetSkin(!basketBallMode);
             weaponIcon.variationColor = 2;
             catcherCollider = transform.Find("firePoint/DodgeballCatcher").gameObject;
@@ -57,8 +60,7 @@ namespace UltraFunGuns
 
         //press fire1 to throw, hold it to charge, hold right click to recall ball towards you.
         public override void GetInput()
-        {
-           
+        {   
             if (!om.paused)
             {
                 //primary Charge input
@@ -97,18 +99,28 @@ namespace UltraFunGuns
                     catcherCollider.SetActive(false);
                 }
 
-                if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive)
+
+                if(WeaponManager.SecretButton.WasPerformedThisFrame)
                 {
-                    activeDodgeball.ExciteBall(); //TODO REMOVE this is a debug key.
+                    DoSecret();
                 }
 
-                if(Input.GetKeyDown(KeyCode.K))
+                if(Input.GetKeyDown(KeyCode.Equals) && !chargingBall && !throwingBall && dodgeBallActive && UltraFunGuns.DebugMode)
                 {
-                    basketBallMode = !basketBallMode;
-                    SetSkin(basketBallMode);
+                    activeDodgeball.ExciteBall();
                 }
-
             }
+        }
+
+        public override void DoSecret()
+        {
+            if (Data.SaveInfo.Data.basketballHighScore < 100) //If its unlocked :)
+                return;
+
+            basketBallMode = !basketBallMode;
+            Data.Config.Data.BasketBallMode = basketBallMode;
+            Data.Config.Save();
+            SetSkin(basketBallMode);
         }
 
         private void SetSkin(bool standard)
@@ -117,10 +129,8 @@ namespace UltraFunGuns
             if (newSkin != null)
             {
                 transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
-                thrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
+                ThrownDodgeballPrefab.transform.Find("DodgeballMesh").GetComponent<MeshRenderer>().material = newSkin;
             }
-            UltraFunGuns.USE_BASKETBALL_TEXTURE.Value = !standard;
-            GameObject.FindObjectOfType<UltraFunGuns>().SaveConfig();
         }
 
         private void FixedUpdate()
@@ -143,6 +153,7 @@ namespace UltraFunGuns
         }
 
         //Secondary fire action when the ball is in play
+
         private void ForceDodgeball(bool pull)
         {
             if (activeDodgeball != null)
@@ -169,25 +180,20 @@ namespace UltraFunGuns
             throwingBall = true;
             chargingBall = false;
             animator.Play("DodgeballThrow");
+
             if(!skipTiming) //Lines up the thrown ball with the animation, looks nice.
             {
                 yield return new WaitForSeconds(0.15f);
             }
+
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
+
             dodgeBallActive = true;
-            activeDodgeball = GameObject.Instantiate<GameObject>(thrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
+            activeDodgeball = GameObject.Instantiate<GameObject>(ThrownDodgeballPrefab, firePoint.position, Quaternion.identity).GetComponent<ThrownDodgeball>();
             activeDodgeball.dodgeballWeapon = this;
-            Ray ballDirection = new Ray();
-            activeDodgeball.gameObject.transform.forward = mainCam.transform.forward;
-            if (Physics.Raycast(mainCam.transform.position, mainCam.TransformDirection(0, 0, 1), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default")) && hit.collider.name != "CameraCollisionChecker")
-            {
-                ballDirection.origin = firePoint.position;
-                ballDirection.direction = hit.point - firePoint.position;
-            }else
-            {
-                ballDirection.origin = firePoint.position;
-                ballDirection.direction = firePoint.forward;
-            }
+
+            Ray ballDirection = HydraUtils.GetProjectileAimVector(mainCam, firePoint);
+            activeDodgeball.gameObject.transform.forward = mainCam.forward;
 
             float currentThrowForce = throwForce;
             if (softThrow)
@@ -211,13 +217,13 @@ namespace UltraFunGuns
         {
             MonoSingleton<CameraController>.Instance.CameraShake(0.35f);
             pullingBall = false;
-            pullCooldown.timeToFire = 0;
+            pullCooldown.TimeToFire = 0;
             pullTimer = 0.0f;
             animator.Play("DodgeballCatchball");
             transform.Find("Audios/CatchSound").GetComponent<AudioSource>().Play();
         }
 
-        public override void DoAnimations()
+        protected override void DoAnimations()
         {
             animator.SetBool("ChargingBall", chargingBall);
             animator.SetBool("PullingBall", pullingBall);
@@ -226,7 +232,7 @@ namespace UltraFunGuns
 
         private void OnDisable()
         {
-            if (chargingBall && !throwingBall && !pullingBall) //TODO Does not work.
+            if (chargingBall && !throwingBall && !pullingBall) //Does not work since coroutine cant run on disabled obj too bad! WONTFIX
             {
                 StartCoroutine(ThrowDodgeball(false,true));
             }
@@ -247,6 +253,19 @@ namespace UltraFunGuns
             {
                 activeDodgeball.Pop();
             }
+        }
+
+        public override string GetDebuggingText()
+        {
+            string debug = base.GetDebuggingText();
+            debug += $"BALL_OUT: {dodgeBallActive}\n";
+            if (dodgeBallActive)
+                debug += $"BALL_LEVEL: {activeDodgeball.timesExcited}\n";
+            debug += $"THROW_CHARGE: {currentCharge}\n";
+            debug += $"PULL_TIMER: {pullTimer}\n";
+            debug += $"PULL_CD: {pullCooldown}\n";
+            debug += $"BBALL: {basketBallMode}\n";
+            return debug;
         }
     }
 }

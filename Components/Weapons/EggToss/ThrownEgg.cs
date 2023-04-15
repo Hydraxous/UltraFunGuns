@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
     //Egg projectile script created by EggToss and EggSplosion.
-    public class ThrownEgg : MonoBehaviour
+    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver
     {
-        public GameObject impactFX;
-        public GameObject eggsplosionPrefab;
+        [UFGAsset("EggImpactFX")] private static GameObject impactFX;
+        [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
 
         private Rigidbody rb;
         private CapsuleCollider eggCollider;
@@ -52,26 +54,17 @@ namespace UltraFunGuns
             oldVelocity = rb.velocity;
         }
 
-        //TODO call when egg is shot eggsplosion hehe
-        public void Explode(float explosionSize = 10.0f)
+        public void Explode()
         {
             if(!isEggsplosionEgg && !impacted)
             {
                 MonoSingleton<StyleHUD>.Instance.AddPoints(50, "hydraxous.ultrafunguns.eggsplosion");
                 MonoSingleton<TimeController>.Instance.ParryFlash();
-                EggSplosion newEggSplosion = Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
-                //newEggSplosion.explosionSize = explosionSize;
+                Instantiate<GameObject>(eggsplosionPrefab, transform.position, Quaternion.identity).GetComponent<EggSplosion>();
                 Destroy(gameObject);
             }  
         }
 
-        //TODO Call when player grapples the egg should heal player for 10 hp or something cringe idk
-        private void Cracked()
-        {
-            
-        }
-
-        //TODO add code for shooting it and habving it explode and also grapple thing do the overload too.
         private void Collide(Collision col)
         {
 
@@ -207,6 +200,37 @@ namespace UltraFunGuns
             {
                 Collide(col);
             }
+        }
+
+        public void Shot(BeamType beamType)
+        {
+            Explode();
+        }
+
+        public bool Parried(Vector3 aimVector)
+        {
+            return false;
+        }
+
+        public bool Interact(UFGInteractionEventData interaction)
+        {
+            if (interaction.ContainsTag("shot"))
+            {
+                Explode();
+                return true;
+            }
+
+            return false;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
+        public bool Targetable(TargetQuery targetQuery)
+        {
+            return targetQuery.CheckTargetable(transform.position);
         }
     }
 }
