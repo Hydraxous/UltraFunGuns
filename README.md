@@ -31,6 +31,7 @@ New Additions
 - Added weapon inspector
 - Added weapon info
 - Added UI sound effects
+- Added functional basketball hoop in sandbox
 - Added Dev easter egg :)
 
 Frontend Changes
@@ -274,7 +275,7 @@ ________________________________________________________________________________
 
 # Miscellaneous additions
 ______________________________________________________________________________________________
-Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button can be rebound in the config.
+Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button, along with every other bind can be rebound by opening the Keybind menu. The Keybind menu can be opened by clicking at the top of the Inventory screen.
 
 ![newWeaponManager](https://user-images.githubusercontent.com/8602389/194091030-5b16e8b8-a0fc-4bf0-ae4a-cd8d3c7305f0.png)
 
