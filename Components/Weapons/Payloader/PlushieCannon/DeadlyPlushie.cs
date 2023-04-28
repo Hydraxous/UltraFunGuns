@@ -117,7 +117,7 @@ namespace UltraFunGuns
             for (int i = 0; i < positions.Length; i++)
             {
                 GameObject newExplosionFX = Instantiate(Prefabs.ShittyExplosionFX, positions[i], Quaternion.identity);
-                Prefabs.ShittyExplosionSound.Asset.PlayAudioClip(positions[i], 1, 1, 0.6f);
+                Prefabs.ShittyExplosionSound?.PlayAudioClip(positions[i], 1, 1, 0.6f);
             }
 
             Destroy(gameObject);

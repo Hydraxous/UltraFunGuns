@@ -42,8 +42,11 @@ namespace UltraFunGuns
             om = MonoSingleton<OptionsManager>.Instance;
             player = MonoSingleton<NewMovement>.Instance;
             animator = GetComponent<Animator>();
-            weaponIcon = GetComponent<WeaponIcon>();
-            weaponIdentifier = GetComponent<WeaponIdentifier>();
+            Debug.LogWarning("Added wep icon");
+            weaponIcon = gameObject.AddComponent<WeaponIcon>();
+            weaponIdentifier = gameObject.AddComponent<WeaponIdentifier>();
+
+
             foreach (Transform transf in gameObject.GetComponentsInChildren<Transform>(true))
             {
                 if (transf.name == "firePoint")
@@ -59,27 +62,29 @@ namespace UltraFunGuns
                 HydraLogger.Log("FirePoint setup incorrectly for weapon: " + gameObject.name, DebugChannel.Warning);
             }
 
-            HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_weaponIcon", out UnityEngine.Object weapon_weaponIcon);
-            weaponIcon.weaponIcon = (Sprite) weapon_weaponIcon;
-
-            HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_glowIcon", out UnityEngine.Object weapon_glowIcon);
-            weaponIcon.glowIcon = (Sprite) weapon_glowIcon;
-
-            weaponIcon.variationColor = (int) weaponInfo.IconColor;
-             
-            if (weaponIcon.weaponIcon == null)
+            if (weaponIcon.weaponDescriptor == null)
             {
-                HydraLoader.dataRegistry.TryGetValue("debug_weaponIcon", out UnityEngine.Object debug_weaponIcon);
-                weaponIcon.weaponIcon = (Sprite)debug_weaponIcon;
-            }
+                weaponIcon.weaponDescriptor = ScriptableObject.CreateInstance<WeaponDescriptor>();
+                HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_weaponIcon", out UnityEngine.Object weapon_weaponIcon);
+                weaponIcon.weaponDescriptor.icon = (Sprite)weapon_weaponIcon;
 
-            if(weaponIcon.glowIcon == null)
-            {
-                HydraLoader.dataRegistry.TryGetValue("debug_glowIcon", out UnityEngine.Object debug_glowIcon);
-                weaponIcon.glowIcon = (Sprite)debug_glowIcon;
-            }
+                HydraLoader.dataRegistry.TryGetValue($"{weaponInfo.WeaponKey}_glowIcon", out UnityEngine.Object weapon_glowIcon);
+                weaponIcon.weaponDescriptor.glowIcon = (Sprite)weapon_glowIcon;
 
-            weaponIcon.UpdateIcon();
+                weaponIcon.weaponDescriptor.variationColor = (WeaponVariant)weaponInfo.IconColor;
+
+                if (weaponIcon.weaponDescriptor.icon == null)
+                {
+                    HydraLoader.dataRegistry.TryGetValue("debug_weaponIcon", out UnityEngine.Object debug_weaponIcon);
+                    weaponIcon.weaponDescriptor.icon = (Sprite)debug_weaponIcon;
+                }
+
+                if (weaponIcon.weaponDescriptor.glowIcon == null)
+                {
+                    HydraLoader.dataRegistry.TryGetValue("debug_glowIcon", out UnityEngine.Object debug_glowIcon);
+                    weaponIcon.weaponDescriptor.glowIcon = (Sprite)debug_glowIcon;
+                }
+            }
 
             OnAwakeFinished();
         }
@@ -137,6 +142,15 @@ namespace UltraFunGuns
         public virtual void DebugAction()
         {
             HydraLogger.Log($"{gameObject.name} Used Debug Action! (not implemented)");
+        }
+
+        public UFGWeapon GetWeaponInfo()
+        {
+            if(weaponInfo == null)
+            {
+                weaponInfo = WeaponManager.GetWeaponInfo(this.GetType());
+            }
+            return weaponInfo;
         }
 
         public virtual string GetDebuggingText()

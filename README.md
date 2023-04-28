@@ -4,7 +4,7 @@ An ULTRAKILL mod with fun weapons!!
 ### Disclaimer
 Almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when most of the weapons are done. For now it's just for fun so try not to take it too seriously.
 
-# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.0/UFG-1.2.0-Release.zip)
+# [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.1/UFG-1.2.1-Release.zip)
 
 ![MoreGunUpdate](https://user-images.githubusercontent.com/8602389/231882267-9cb30748-3093-4778-b154-c20336ca7a78.png)
 
@@ -14,44 +14,22 @@ ________________________________________________________________________________
 [![Kofi](https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11d503cc13747866d338b_Button-2.png)](https://ko-fi.com/hydraxous)
 
 <details>
-  <summary>Changelog 1.2.0</summary>
-  UPDATE 1.2.0: MORE GUN
+  <summary>Changelog 1.2.1</summary>
 
 New Additions
-- Added new weapon Remote Explosive
-- Added new weapon CANnon
-- Added new weapon dev_cannon
-- Added new weapon Ultra***
-- Added new weapon Brick
-- Added new weapon Tricksniper
-- Added new wepaon Grabbity Gun
-- Added new weapon Fisix Applicator
-- Added new weapon ULTRAGUN
-- Added in-game key rebinding
-- Added weapon inspector
-- Added weapon info
-- Added UI sound effects
-- Added functional basketball hoop in sandbox
-- Added Dev easter egg :)
+- Added Tricksniper secret animation
+- Added interaction with sharpshooter revolver
+- Added better feedback for shooting a coin with Tricksniper
 
-Frontend Changes
-- Sonic Reverberator has been reworked from the ground up
-- Reworked interactions with vanilla content
-- You can now parry red focalyzer pylons to push them away from you
-- Updated focalyzer weapons visuals and fx
-- Weapons now support weapon position option
-- Fixed duel wield powerup breaking targeting of some weapons
-- Fixed weapons being deployed in levels which do not support weapons
-- Fixed bug with slab revolver
-- Slab revolver and electric railgun can now interact with some UFG objects
-- Objects that should be cleaned up when the player dies now get cleaned up when the player dies
-- Removed unintended debugging binds present in release
+Tricksniper changes
+- Unscoped damage now scales with distance from hit
+- Changed base scoped damage to 1.4
+- Changed bank shot damage to deal a percentage of base damager per bank rather than a direct multiplier
+- Added fun sounds when something cool happens
+- Tricksniper now breaks glass.
 
 Backend Changes
-- Complete rewrite of asset loader
-- Complete rewrite of data persistence manager
-- Enhanced debugging tools
-- Overall cleanup of code
+- Using UFG weapons prevents both CyberGrind and Level scores from being submitted to the online leaderboards.
 </details>
 
 ______________________________________________________________________________________________
@@ -275,7 +253,7 @@ ________________________________________________________________________________
 
 # Miscellaneous additions
 ______________________________________________________________________________________________
-Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button, along with every other bind can be rebound by opening the Keybind menu. The Keybind menu can be opened by clicking at the top of the Inventory screen.
+Weapon manager available in the pause menu in-game for easy UFG weapon management. You can also press the I key to open it at any time and the button, along with every other bind can be rebound by opening the Keybind menu. The Keybind menu can be opened by clicking at the top of the Inventory screen..
 
 ![newWeaponManager](https://user-images.githubusercontent.com/8602389/194091030-5b16e8b8-a0fc-4bf0-ae4a-cd8d3c7305f0.png)
 

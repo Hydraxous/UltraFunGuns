@@ -33,7 +33,7 @@ namespace UltraFunGuns
 
             for(int i=0;i < weaponInfos.Length;i++)
             {
-                new HydraLoader.CustomAssetPrefab(weaponInfos[i].WeaponKey, new Component[] { new WeaponIcon() { variationColor=(int) weaponInfos[i].IconColor }, new WeaponIdentifier() });
+                new HydraLoader.CustomAssetPrefab(weaponInfos[i].WeaponKey);
                 new HydraLoader.CustomAssetData($"{weaponInfos[i].WeaponKey}_glowIcon", typeof(Sprite));
                 new HydraLoader.CustomAssetData($"{weaponInfos[i].WeaponKey}_weaponIcon", typeof(Sprite));
             }

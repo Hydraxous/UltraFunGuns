@@ -52,7 +52,6 @@ namespace UltraFunGuns
             basketBallMode = Data.Config.Data.BasketBallMode;
             standardSkin = transform.Find("viewModelWrapper/Armature/Upper_Arm/Forearm/Hand/DodgeballMesh").GetComponent<MeshRenderer>().material;
             SetSkin(!basketBallMode);
-            weaponIcon.variationColor = 2;
             catcherCollider = transform.Find("firePoint/DodgeballCatcher").gameObject;
             catcherCollider.SetActive(false);
             catcherCollider.gameObject.layer = 14;

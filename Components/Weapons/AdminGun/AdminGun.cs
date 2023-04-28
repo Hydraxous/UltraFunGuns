@@ -146,7 +146,7 @@ namespace UltraFunGuns
                     }
                     else
                     {
-                        Action styleCallback = new Action(() => { WeaponManager.AddStyle((gamerMode) ? 1 : 5, "admingunkill", gameObject, enemy); });
+                        Action styleCallback = new Action(() => { WeaponManager.AddStyle((gamerMode) ? -500 : 0, "admingunkill", gameObject, enemy); });
                         enemy.gameObject.EnsureComponent<EnemyOverride>().AddDeathCallback(styleCallback);
                         enemy.DeliverDamage(hits[x].collider.gameObject, newShot.direction.normalized * 10000.0f, hits[x].point, 2.0f, false, 1.0f, gameObject);
                     }
@@ -190,7 +190,7 @@ namespace UltraFunGuns
             EnemyIdentifier[] enemies = EnemyTracker.Instance.GetCurrentEnemies().Where(x=>(!x.dead && !x.blessed)).ToArray();
 
             Instantiate(Prefabs.ShittyExplosionFX, coinPosition, Quaternion.identity);
-            Prefabs.ShittyExplosionSound.Asset.PlayAudioClip(coinPosition, 1.3f, 1.0f, 0.7f);
+            Prefabs.ShittyExplosionSound?.PlayAudioClip(coinPosition, 1.3f, 1.0f, 0.7f);
 
             for (int i=0; i<enemies.Length; i++)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using UnityEngine.InputSystem;
+using UnityEngine.AddressableAssets;
 
 namespace UltraFunGuns.Datas
 {
@@ -24,30 +25,16 @@ namespace UltraFunGuns.Datas
         private string path;
         public string AssetName => Path.GetFileName(path);
 
-        //Literally just does what AssetHelper.LoadPrefab does but for every type.
         private T LoadAsset<T>() where T : UnityEngine.Object
         {
-            string lolLmao = AssetManager.Instance.gameObject.name; //Make sure the assetmanager gets instanced so we do not get NRE's
-
-            if(!AssetManager.Instance.assetDependencies.ContainsKey(path))
-            {
-                HydraLogger.Log($"UKAsset: {path} does not exist.",DebugChannel.Fatal);
-                return null;
-            }
-
-            string text = MonoSingleton<AssetManager>.Instance.assetDependencies[path];
-            MonoSingleton<AssetManager>.Instance.LoadBundles(new string[]
-            {
-                text
-            });
-            UnityEngine.Object outputObject = MonoSingleton<AssetManager>.Instance.loadedBundles[text].LoadAsset<T>(AssetName);
+            UnityEngine.Object outputObject = Addressables.LoadAssetAsync<T>(path).WaitForCompletion();
 
             return (T) outputObject;
         }
 
         public UKAsset(string key) 
         {
-            path= key;
+            path = key;
         }
     }
 }

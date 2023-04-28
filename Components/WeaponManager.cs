@@ -34,7 +34,7 @@ namespace UltraFunGuns
         public static void Init()
         {
             RegisterWeapons();
-            UKAPIP.OnLevelChanged += OnLevelChanged;
+            InGameCheck.OnLevelChanged += OnLevelChanged;
             CrossModEvents.SubscribeToModEvents(CheckEvent, "WeaponDeployer");
         }
 
@@ -56,7 +56,7 @@ namespace UltraFunGuns
 
         private static void DeInit()
         {
-            UKAPIP.OnLevelChanged -= OnLevelChanged;
+            InGameCheck.OnLevelChanged -= OnLevelChanged;
             weapons.Clear();
             WeaponsRegistered = false;
         }
@@ -68,7 +68,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Deploy Weapons", "Redeploy weapons")]
         public static void DeployWeapons(bool firstTime = false, bool force = false)
         {
-            if(!UKAPIP.InLevel() && !force && !inventoryMade)
+            if(!InGameCheck.InLevel() && !force && !inventoryMade)
             {
                 return;
             }
@@ -89,11 +89,11 @@ namespace UltraFunGuns
             deployer.DeployWeapons(firstTime);
         }
 
-        private static void OnLevelChanged(UKAPIP.UKLevelType levType)
+        private static void OnLevelChanged(InGameCheck.UKLevelType levType)
         {
             inventoryMade = false;
 
-            if (!UKAPIP.InLevel())
+            if (!InGameCheck.InLevel())
             {
                 return;
             }
@@ -383,7 +383,7 @@ namespace UltraFunGuns
 
         public static void AddStyle(int points, string key, GameObject sourceWeapon = null, EnemyIdentifier eid = null, int count = -1, string prefix = "", string postfix ="")
         {
-            if(!UKAPIP.InLevel())
+            if(!InGameCheck.InLevel())
             {
                 return;
             }
@@ -393,7 +393,7 @@ namespace UltraFunGuns
 
         public static void AddStyle(StyleEntry entry)
         {
-            if (!UKAPIP.InLevel())
+            if (!InGameCheck.InLevel())
             {
                 return;
             }
@@ -418,7 +418,7 @@ namespace UltraFunGuns
             Data.Loadout.Data.SetUnlocked(weaponKey, unlocked);
             Data.Loadout.Save();
 
-            if(unlocked && UKAPIP.InLevel())
+            if(unlocked && InGameCheck.InLevel())
             {
                 HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.KeyCode}</color>] to open UFG Inventory.");
             }

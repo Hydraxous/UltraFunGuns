@@ -37,7 +37,7 @@ namespace UltraFunGuns
         public static void ResetLoadout()
         {
             Loadout.New();
-            if (UKAPIP.InLevel())
+            if (InGameCheck.InLevel())
             {
                 WeaponManager.DeployWeapons();
             }
@@ -66,7 +66,7 @@ namespace UltraFunGuns
 
         public static void CheckSetup()
         {
-            UKAPIP.OnLevelChanged += (_) => SaveAll();
+            InGameCheck.OnLevelChanged += (_) => SaveAll();
             DirectoryInfo dataFolderInfo = new DirectoryInfo(DataManager.GetDataPath());
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
@@ -237,6 +237,7 @@ namespace UltraFunGuns
 
         //Weapon values
         public bool BasketBallMode;
+        public bool TricksniperReactionsEnabled;
 
         //UI
         public float MouseOverNodeTime;
@@ -251,6 +252,7 @@ namespace UltraFunGuns
             this.InventoryInfoCardScale = 1.0f;
             this.EnableAutosave = true;
             this.EnableBasketballHoop = true;
+            this.TricksniperReactionsEnabled = true;
         }
 
         public override bool Validate()

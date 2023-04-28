@@ -23,14 +23,14 @@ namespace UltraFunGuns.Util
         {
             if (!initialized)
             {
-                UKAPIP.OnLevelChanged += OnLevelChanged;
+                InGameCheck.OnLevelChanged += OnLevelChanged;
                 initialized = true;
             }
         }
 
-        private static void OnLevelChanged(UKAPIP.UKLevelType ltype)
+        private static void OnLevelChanged(InGameCheck.UKLevelType ltype)
         {
-            if (UKAPIP.InLevel())
+            if (InGameCheck.InLevel())
             {
                 RefreshTextures();
             }

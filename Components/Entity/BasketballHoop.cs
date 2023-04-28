@@ -54,8 +54,8 @@ namespace UltraFunGuns.Components.Entity
                 Data.SaveInfo.Data.basketballHighScore = currentScore;
             }
 
-            highScoreText.text = highScore.ToString("000");
-            scoreText.text = currentScore.ToString("000");
+            highScoreText.text = (highScore > 99999999) ? "ERROR" : highScore.ToString("000");
+            scoreText.text = (currentScore > 99999999) ? "ERROR" : currentScore.ToString("000");
         }
 
         private void Start()

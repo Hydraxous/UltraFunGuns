@@ -41,7 +41,6 @@ namespace UltraFunGuns
         private IEnumerator Startup()
         {
             //HydraLogger.StartMessage();
-            MagentaAssist.CheckBundles();
             WeaponManager.Init();
 
             HydraLoader.LoadAssets((loaded) =>
@@ -52,9 +51,9 @@ namespace UltraFunGuns
                     UltraLoader.LoadAll();
                     VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
-                    UKAPIP.Init();
+                    InGameCheck.Init();
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
-                    CheatsPatch.CyberGrindPreventer.Init();
+                    CheatsPatch.NoHighScorePatch.Init();
                     Commands.Register();
                     FreecamAssist.Init();
                     TextureLoader.Init();

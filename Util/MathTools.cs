@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UltraFunGuns.Datas;
 using UnityEngine;
@@ -117,6 +118,25 @@ namespace UltraFunGuns
             float ratio = percentage / 100.0f;
 
             return UnityEngine.Random.value < ratio;
+        }
+
+        public static float GetLineDistance(this List<Vector3> vector3List)
+        {
+            float total = 0.0f;
+
+            if (vector3List == null)
+                return 0.0f;
+
+            if (vector3List.Count <= 1)
+                return 0.0f;
+
+            for (int i = 0; i < vector3List.Count-1; i++)
+            {
+                float dist = (vector3List[i+1] - vector3List[i]).magnitude;
+                total += dist;
+            }
+
+            return total;
         }
 
     }
