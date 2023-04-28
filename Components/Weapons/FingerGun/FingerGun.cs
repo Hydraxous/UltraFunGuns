@@ -49,7 +49,6 @@ namespace UltraFunGuns
 
         public override void OnAwakeFinished()
         {
-            weaponIcon.variationColor = (int) weaponInfo.IconColor;
             AddSFX("BangSound", "GunReady", "Reload", "Kabooma");
             ammoCounter = transform.GetComponentInChildren<Text>();
 

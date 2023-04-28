@@ -13,7 +13,7 @@ namespace UltraFunGuns.CustomPlacedObjects
         public static void Init()
         {
             RegisterAllCustomPlacementObjects();
-            UKAPIP.OnLevelChanged += (_) => OnLevelChanged();
+            InGameCheck.OnLevelChanged += (_) => OnLevelChanged();
         }
 
 
@@ -32,7 +32,7 @@ namespace UltraFunGuns.CustomPlacedObjects
 
         private static void OnLevelChanged()
         {
-            string sceneName = UKAPIP.CurrentSceneName;
+            string sceneName = InGameCheck.CurrentSceneName;
 
             if (!objectsForScenes.ContainsKey(sceneName))
                 return;

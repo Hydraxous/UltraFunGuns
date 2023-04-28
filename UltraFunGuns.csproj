@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>UltraFunGuns</AssemblyName>
     <Description>A mod with fun guns!</Description>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -100,6 +100,12 @@
 	<Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
+	<Reference Include="UnityEngine.Addressables">
+	  <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.Addressables.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEngine.ResourceManager">
+	  <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.ResourceManager.dll</HintPath>
+	</Reference>
 	<Reference Include="BepInEx">
 		<HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
 	</Reference>

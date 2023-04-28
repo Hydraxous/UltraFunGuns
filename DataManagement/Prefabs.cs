@@ -12,14 +12,15 @@ namespace UltraFunGuns
         [UFGAsset("HydraDevPlushie")] public static GameObject HydraPlushie { get; private set; }
         [UFGAsset("ForceDeployPickup")] public static GameObject ForceDeployPickup { get; private set; }
 
-        public static UKAsset<GameObject> UK_Explosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Explosion.prefab");
-        public static UKAsset<GameObject> UK_ExplosionMalicious { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionMaliciousRail.prefab");
-        public static UKAsset<GameObject> UK_ExplosionSuper { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionSuper.prefab");
-        public static UKAsset<GameObject> UK_ExplosionBig { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionBig.prefab");
-        public static UKAsset<GameObject> UK_ExplosionPrime { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionPrime.prefab");
-        public static UKAsset<GameObject> UK_ExplosionLightning { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionLightning Variant.prefab");
-        public static UKAsset<GameObject> UK_ExplosionSand { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/ExplosionSand.prefab");
-        public static UKAsset<GameObject> UK_MindflayerExplosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/MindflayerExplosion.prefab");
+        public static UKAsset<GameObject> UK_Explosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion.prefab");
+        public static UKAsset<GameObject> UK_ExplosionMalicious { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Malicious Railcannon.prefab");
+        public static UKAsset<GameObject> UK_ExplosionSuper { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Super.prefab");
+        public static UKAsset<GameObject> UK_ExplosionBig { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Big.prefab");
+        public static UKAsset<GameObject> UK_ExplosionPrime { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Minos Prime.prefab");
+        public static UKAsset<GameObject> UK_ExplosionLightning { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Lightning.prefab");
+        public static UKAsset<GameObject> UK_ExplosionFerryman{ get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Ferryman.prefab");
+        public static UKAsset<GameObject> UK_ExplosionSand { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Sand.prefab");
+        public static UKAsset<GameObject> UK_MindflayerExplosion { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Attacks and Projectiles/Explosions/Explosion Mindflayer.prefab");
         
 
         public static UKAsset<Font> VCR_Font { get; private set; } = new UKAsset<Font>("Assets/Fonts/VCR_OSD_MONO_1.001.ttf");
@@ -43,16 +44,25 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> GianniPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Gianni).prefab");
         public static UKAsset<GameObject> BigRockPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (BigRock).prefab");
         public static UKAsset<GameObject> ScottPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Scott).prefab");
+        public static UKAsset<GameObject> JacobPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Jacob).prefab");
+        public static UKAsset<GameObject> HealthJakePlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (HEALTH - Jake).prefab");
+        public static UKAsset<GameObject> HealthJohnPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (HEALTH - John).prefab");
+        public static UKAsset<GameObject> HealthBJPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (HEALTH - BJ).prefab");
+        public static UKAsset<GameObject> WeytePlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Weyte).prefab");
+        public static UKAsset<GameObject> LenvalPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Lenval).prefab");
+        public static UKAsset<GameObject> CabalCrowPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (CabalCrow) Variant.prefab");
+        public static UKAsset<GameObject> QuetzalPlush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie (Quetzal).prefab");
         public static UKAsset<GameObject> V1Plush { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Items/DevPlushies/DevPlushie.prefab");
         public static UKAsset<GameObject> FishingRod { get; private set; } = new UKAsset<GameObject>("Assets/Prefabs/Fishing/Fishing Rod Weapon.prefab");
 
 
         [UFGAsset("ShittyExplosion")] public static GameObject ShittyExplosionFX { get; private set; }
 
-        public static UKAsset<AudioClip> ShittyExplosionSound { get; private set; } = new UKAsset<AudioClip>("Assets/Sounds/Credits/ThatExplosionSound.wav");
+        [UFGAsset("ThatExplosionSound")] public static AudioClip ShittyExplosionSound { get; private set; }
         public static UKAsset<AudioClip> BonusBreakSound { get; private set; } = new UKAsset<AudioClip>("Assets/Sounds/Environment/bonusbreak.wav");
 
         [UFGAsset("SmackFX")] public static GameObject SmackFX { get; private set; }
+        [UFGAsset("SparkBurst")] public static GameObject SparkBurst { get; private set; }
 
         [UFGAsset("BlackSmokeShockwave")] public static GameObject BlackSmokeShockwave { get; private set; }
 

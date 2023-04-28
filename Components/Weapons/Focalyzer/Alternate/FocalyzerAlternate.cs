@@ -44,7 +44,6 @@ namespace UltraFunGuns
         public override void OnAwakeFinished()
         {
             style = MonoSingleton<StyleHUD>.Instance;
-            weaponIcon.variationColor = 0;
             tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeControllerAlternate>();
             aimSpot = GameObject.Instantiate<GameObject>(new GameObject(), Vector3.zero, Quaternion.identity).transform;
             aimSpot.name = "PylonTarget";

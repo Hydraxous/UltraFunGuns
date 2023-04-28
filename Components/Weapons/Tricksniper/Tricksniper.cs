@@ -12,12 +12,10 @@ namespace UltraFunGuns
     //TODO optimization
     public class Tricksniper : UltraFunGunBase
     {
-        [UFGAsset("TrickshotReaction_0")] public static AudioClip trickshotReaction0 { get; private set; }
-        [UFGAsset("TrickshotReaction_1")] private static AudioClip trickshotReaction1;
-        [UFGAsset("TrickshotReaction_2")] private static AudioClip trickshotReaction2;
-        [UFGAsset("TrickshotReaction_3")] private static AudioClip trickshotReaction3;
+        [UFGAsset("TricksniperRicochet")] public static AudioClip TricksniperRicochetSound { get; private set; }
+        [UFGAsset("TricksniperCoinRicochet")] public static AudioClip TricksniperCoinRicochetSound { get; private set; }
 
-        private static AudioClip[] trickshotReactions = new AudioClip[] { trickshotReaction0, trickshotReaction1, trickshotReaction2, trickshotReaction3 };
+
         [UFGAsset("TricksniperMuzzleFX")] public static GameObject muzzleFX { get; private set; }
         [UFGAsset("ReflectedSniperShot")] private static GameObject reflectedSniperShot;
         public GameObject scopeUI;
@@ -44,12 +42,21 @@ namespace UltraFunGuns
         public float scopeInTime = 0.25f;
         public float scopeTime = 0.0f;
 
+        public float scopedInBaseDamage = 1.6f;
+        public float noscopeBaseDamage = 0.4f;
+        public float noscopeMaxDistanceDamage = 15.0f;
+        public float noscopeDistanceDamageMultiplier = 0.15f;
+        public float noscopeDistanceDamageMaxDistance = 35.0f;
+        public float bankshotDamageMultiplier = 0.40f;
+
         private float timeScopedIn = 0.0f;
 
         public float spinCooldownMinThreshold = 5.0f;
 
         private ActionCooldown fireCooldown = new ActionCooldown(0.65f, true);
         private ActionCooldown turnExpiry = new ActionCooldown(0.35f);
+
+        private TricksniperReactions reactions;
 
         private bool playReloadAnimWhenUnscoped;
 
@@ -58,6 +65,7 @@ namespace UltraFunGuns
             scopeUI = transform.Find("ScopeUI").gameObject;
             viewModelWrapper = transform.Find("viewModelWrapper").gameObject;
             scopeUI.SetActive(false);
+            reactions = GetComponent<TricksniperReactions>();
         }
 
         public override void GetInput()
@@ -94,6 +102,11 @@ namespace UltraFunGuns
             CheckSpin();
 
             timeScopedIn = (scopedIn) ? timeScopedIn + Time.deltaTime: 0.0f;
+
+            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            {
+                animator?.Play("Secret");
+            }
         }
 
         private Vector3 lastLook = Vector3.forward;
@@ -276,7 +289,7 @@ namespace UltraFunGuns
 
         private List<Vector3> ExecuteHit(Ray hitRay, bool penetration, List<Vector3> pointsOfContact, ref Vector3 lastNormal)
         {
-            float damageAmount = (scopedIn) ? 1.5f : 3.0f;
+            float damageAmount = (scopedIn) ? scopedInBaseDamage : noscopeBaseDamage;
 
             RaycastHit[] hits = Physics.RaycastAll(hitRay, maxRange, LayerMask.GetMask("Limb", "BigCorpse", "Outdoors", "Environment", "Default"));
             if (hits.Length <= 0 || (hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
@@ -293,25 +306,50 @@ namespace UltraFunGuns
 
                 if ((hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8))
                 {
-                    bool ricochet = UnityEngine.Random.value < (1-Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal))); //The greater angle, the greater the chance to ricochet
-
-                    if (ricochet && pointsOfContact.Count < maxRicochet)
+                    if (hits[i].collider.gameObject.TryFindComponent<Glass>(out Glass glass))
                     {
-                        GameObject.Instantiate(Prefabs.BulletImpactFX, hits[i].point, Quaternion.identity).transform.up = hits[i].normal;
-                        return ExecuteHit(new Ray(hits[i].point, Vector3.Reflect(hitRay.direction, hits[i].normal)), penetration, pointsOfContact, ref lastNormal); //Ricochet
+                        glass.Shatter();
                     }
-                    break;
+                    else if (hits[i].collider.gameObject.TryFindComponent<Breakable>(out Breakable breakable))
+                    {
+                        breakable.Break();
+                    }
+                    else
+                    {
+                        bool ricochet = UnityEngine.Random.value < (1 - Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal))); //The greater angle, the greater the chance to ricochet
+
+                        if (ricochet && pointsOfContact.Count < maxRicochet)
+                        {
+                            TricksniperRicochetSound.PlayAudioClip(hits[i].point, 0, 1, 0.8f);
+                            GameObject.Instantiate(Prefabs.BulletImpactFX, hits[i].point, Quaternion.identity).transform.up = hits[i].normal;
+                            GameObject.Instantiate(Prefabs.SparkBurst, hits[i].point, Quaternion.identity);
+                            return ExecuteHit(new Ray(hits[i].point, Vector3.Reflect(hitRay.direction, hits[i].normal)), penetration, pointsOfContact, ref lastNormal); //Ricochet
+                        }
+                        break;
+                    }
                 }
 
                 if (hits[i].collider.IsColliderEnemy(out EnemyIdentifier eid))
                 {
-                    if(pointsOfContact.Count > 1)
+                    if (!scopedIn)
                     {
-                        damageAmount = damageAmount * pointsOfContact.Count;
-                        eid.Override().AddStyleEntryOnDeath(new StyleEntry(100, "tricksniperbankshot", 1.4f, gameObject), false);
-
+                        float distanceToHit = pointsOfContact.GetLineDistance();
+                        float addedDistanceDamage = Mathf.Min(noscopeMaxDistanceDamage,(noscopeDistanceDamageMultiplier * Mathf.Max(distanceToHit,1.0f)));
+                        if(distanceToHit > noscopeDistanceDamageMaxDistance)
+                        {
+                            reactions?.PlayReaction();
+                        }
+                        damageAmount += addedDistanceDamage;
                     }
+
+                    if (pointsOfContact.Count > 1)
+                    {
+                        damageAmount = damageAmount + ((damageAmount * bankshotDamageMultiplier) * pointsOfContact.Count - 1);
+                        eid.Override().AddStyleEntryOnDeath(new StyleEntry(100, "tricksniperbankshot", 1.4f, gameObject), false);
+                    }
+
                     eid.DeliverDamage(eid.gameObject, hitRay.direction, hits[i].point, damageAmount, true, damageAmount, gameObject);
+                    
                     if (scopedIn)
                     {
                         if (timeScopedIn < 0.09f)
@@ -320,18 +358,13 @@ namespace UltraFunGuns
                     else
                     {
                         bool trick = revolutions > 0;
-                        if (trick && trickshotReactions != null)
+                        if (trick)
                         {
-                            trickshotReactions[UnityEngine.Random.Range(0, trickshotReactions.Length)].PlayAudioClip();
+                            //trickshotReactions[UnityEngine.Random.Range(0, trickshotReactions.Length)].PlayAudioClip();
                         }
 
                         WeaponManager.AddStyle((trick) ? 100 : 30, (trick) ? "tricksniper360" : "tricksnipernoscope", gameObject, eid);
                     }
-                }
-
-                if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
-                {
-                    breakable.Break();
                 }
 
                 if (hits[i].collider.gameObject.TryFindComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver uFGInteractionReceiver))
@@ -363,6 +396,10 @@ namespace UltraFunGuns
                     penetration = true;
                     Vector3 coinPos = coin.transform.position;
                     Vector3 newTargetDirection = UnityEngine.Random.insideUnitSphere;
+
+                    Instantiate<GameObject>(Prefabs.SparkBurst, coinPos, Quaternion.identity);
+                    TricksniperCoinRicochetSound?.PlayAudioClip();
+
                     if(EnemyTools.TryGetHomingTarget(coinPos, out Transform homingTarget, out EnemyIdentifier enemy))
                     {
                         newTargetDirection = homingTarget.transform.position - coinPos;
@@ -464,9 +501,9 @@ namespace UltraFunGuns
                             }else
                             {
                                 bool trick = revolutions > 0;
-                                if(trick && trickshotReactions != null)
+                                if(trick && reactions != null)
                                 {
-                                    trickshotReactions[UnityEngine.Random.Range(0, trickshotReactions.Length)].PlayAudioClip();
+                                    reactions.PlayReaction();
                                 }
 
                                 WeaponManager.AddStyle((trick) ? 100 : 30, (trick) ? "tricksniper360" : "tricksnipernoscope", gameObject, eid);

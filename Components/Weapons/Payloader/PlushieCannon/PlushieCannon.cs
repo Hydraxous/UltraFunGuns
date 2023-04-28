@@ -33,6 +33,13 @@ namespace UltraFunGuns
             Prefabs.MandyPlush.Asset,
             Prefabs.V1Plush.Asset,
             Prefabs.ScottPlush.Asset,
+            Prefabs.CabalCrowPlush.Asset,
+            Prefabs.QuetzalPlush.Asset,
+            Prefabs.HealthBJPlush.Asset,
+            Prefabs.HealthJakePlush.Asset,
+            Prefabs.HealthJohnPlush.Asset,
+            Prefabs.LenvalPlush.Asset,
+            Prefabs.WeytePlush.Asset,
             Prefabs.HydraPlushie
         };
 
