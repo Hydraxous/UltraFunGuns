@@ -266,7 +266,7 @@ ________________________________________________________________________________
 # Installation
 _______________________________________________________________________________________________________________________________________
 1. Download and install **BepinEx**, Tutorial [here](https://www.youtube.com/watch?v=meNiXcbPh_s)
-2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.0/UFG-1.2.0-Release.zip), then extract the archive and place both the UFG and HydraDynamics folder into **BepinEx/plugins**
+2. Download the UltraFunGuns ZIP file [here](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.1/UFG-1.2.1-Release.zip), then extract the archive and place both the UFG and HydraDynamics folder into **BepinEx/plugins**
 Your BepInEx plugins folder should look something like this if you have other mods installed too.
 
 ![installlocation](https://user-images.githubusercontent.com/8602389/231890434-b75de691-d24a-4094-9dc3-a8fa336a0983.PNG)
