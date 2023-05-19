@@ -139,5 +139,15 @@ namespace UltraFunGuns
             return total;
         }
 
+        public static Vector3 GetProjectileSpreadVector(float spread)
+        {
+
+            Vector2 randomSpread = UnityEngine.Random.insideUnitCircle;
+
+            randomSpread *= spread;
+
+            return new Vector3(randomSpread.x,randomSpread.y,1-spread).normalized;
+        }
+
     }
 }
