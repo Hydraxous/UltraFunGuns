@@ -234,6 +234,7 @@ namespace UltraFunGuns
         public bool EnableVisualizer;
         public bool EnableAutosave;
         public bool EnableBasketballHoop;
+        public bool EnableWeaponsInAllScenes;
 
         //Weapon values
         public bool BasketBallMode;

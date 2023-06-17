@@ -13,8 +13,9 @@ namespace UltraFunGuns
 {
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
-        
-        [SerializeField] private Transform thrustFX, fallFX, fxParryThrustThing;
+        [SerializeField] private Transform thrustFX;
+        [SerializeField] private Transform fallFX;
+        [SerializeField] private Transform getParriedShowPlayerThis;
         [SerializeField] private MeshRenderer bulletMesh;
         [SerializeField] private Material easterEggMaterial;
 
@@ -136,8 +137,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (fxParryThrustThing != null)
-                fxParryThrustThing.gameObject.SetActive(false);
+            if (getParriedShowPlayerThis != null)
+                getParriedShowPlayerThis.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
@@ -290,8 +291,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (fxParryThrustThing != null)
-                fxParryThrustThing.gameObject.SetActive(true);
+            if (getParriedShowPlayerThis.gameObject != null)
+                getParriedShowPlayerThis.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);
