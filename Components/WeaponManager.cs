@@ -68,7 +68,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Deploy Weapons", "Redeploy weapons")]
         public static void DeployWeapons(bool firstTime = false, bool force = false)
         {
-            if(!InGameCheck.InLevel() && !force && !inventoryMade)
+            if(!InGameCheck.InLevel() && !force && !inventoryMade && !Data.Config.Data.EnableWeaponsInAllScenes)
             {
                 return;
             }

@@ -40,14 +40,12 @@ namespace UltraFunGuns
         private ActionCooldown throwCooldown = new ActionCooldown(0.53f, true);
         private ActionCooldown stormCooldown = new ActionCooldown(0.45f, true);
 
-        private WeaponIdentifier wid;
 
         public bool StormActive { get; private set; }
 
         public override void OnAwakeFinished()
         {
             ready = thrownBrickPrefab != null;
-            wid = GetComponent<WeaponIdentifier>();
         }
 
         public Vector3 PlayerVelocity { get; private set; }
