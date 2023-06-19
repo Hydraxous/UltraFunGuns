@@ -133,6 +133,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\Silly\" />
     <Folder Include="Components\UI\Terminal\" />
     <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
     <Folder Include="Components\Weapons\Redynamo\" />

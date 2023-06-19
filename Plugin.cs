@@ -57,6 +57,7 @@ namespace UltraFunGuns
                     Commands.Register();
                     FreecamAssist.Init();
                     TextureLoader.Init();
+                    CompatibilityCheck.DoCheck();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
                 }
