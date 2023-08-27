@@ -11,7 +11,6 @@ public static class CompatibilityCheck
     public static string IncompatibleOffender = "NONE";
 
     public static bool Incompatible { get; private set; }
-    public static bool ThiefDetected { get; private set; }
 
     public static void DoCheck()
     {
@@ -21,7 +20,6 @@ public static class CompatibilityCheck
 
     public static void CheckCompatibility(Action onCheckComplete = null)
     {
-        ThiefDetected = CheckLocal();
 
         if (!Incompatible)
         {
@@ -71,20 +69,6 @@ public static class CompatibilityCheck
         catch (Exception e)
         {
             Debug.LogException(e);
-        }
-
-        return false;
-    }
-
-    private static bool CheckLocal()
-    {
-        if (SystemInfo.deviceName == "PIMENTA")
-        {
-            if (SystemInfo.deviceModel.Contains("Nitro"))
-            {
-                Incompatible = true;
-                return true;
-            }
         }
 
         return false;

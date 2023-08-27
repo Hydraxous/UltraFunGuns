@@ -13,11 +13,33 @@ namespace UltraFunGuns
 {
     public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
     {
-        [SerializeField] private Transform thrustFX;
-        [SerializeField] private Transform fallFX;
-        [SerializeField] private Transform getParriedShowPlayerThis;
-        [SerializeField] private MeshRenderer bulletMesh;
-        [SerializeField] private Material easterEggMaterial;
+        //I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity 
+        private Transform thrustFX => ubrf.thrustFX;
+        private Transform fallFX => ubrf.fallFX;
+        private Transform parryThrustFX => ubrf.parryThrustFX;
+        private MeshRenderer bulletMesh => ubrf.bulletMesh;
+        private Material easterEggMaterial => ubrf.easterEggMaterial;
+
+        /*
+        * Literally the most annoying bug I've ever experienced with Unity. It cost me hours of my sanity, so grab some popcorn and read my story.
+        * For some reason, Unity DLL reference serialization completely sucks. It's the worst. I have no idea why, but for some reason Unity REFUSES to serialize
+        * the parryThrustFX field for this component. This issue is not present for any other components in the entire mod. The only solution I have found to fixing it
+        * is to rename the field to something completely random, then roll a d20 and pray for a Nat 20. Only then, will the reference serialize and I will
+        * actually be able to build the assetbundle and use the reference in-game. Otherwise, it just breaks! So... Thanks Unity. <3
+        */
+
+        [SerializeField] private UltraBulletReferenceFix _ubrf;
+
+        private UltraBulletReferenceFix ubrf
+        {
+            get
+            {
+                if(_ubrf == null)
+                    _ubrf = GetComponent<UltraBulletReferenceFix>();
+
+                return _ubrf;
+            }
+        }
 
         private float maxPower;
         public float Power { get; private set; }
@@ -137,8 +159,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (getParriedShowPlayerThis != null)
-                getParriedShowPlayerThis.gameObject.SetActive(false);
+            if (parryThrustFX != null)
+                parryThrustFX.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
@@ -291,8 +313,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (getParriedShowPlayerThis.gameObject != null)
-                getParriedShowPlayerThis.gameObject.SetActive(true);
+            if (parryThrustFX.gameObject != null)
+                parryThrustFX.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);

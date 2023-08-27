@@ -232,7 +232,7 @@ namespace UltraFunGuns
                     continue;
                 }
 
-                if (attribute.WeaponKey == "NULL")
+                if (attribute.WeaponKey == "NULL")//???????
                 {
                     continue;
                 }
