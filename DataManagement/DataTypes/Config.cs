@@ -25,6 +25,9 @@ namespace UltraFunGuns
         //UI
         public float MouseOverNodeTime;
         public float InventoryInfoCardScale;
+
+        public Dictionary<string, object> Configgables;
+
         public Config()
         {
             this.DisableVersionMessages = false;
@@ -36,10 +39,14 @@ namespace UltraFunGuns
             this.EnableAutosave = true;
             this.EnableBasketballHoop = true;
             this.TricksniperReactionsEnabled = true;
+            Configgables = new Dictionary<string, object>();
         }
 
         public override bool Validate()
         {
+            if (Configgables == null)
+                return false;
+
             return true;
         }
     }
