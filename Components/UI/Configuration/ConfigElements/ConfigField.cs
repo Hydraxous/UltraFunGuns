@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Mono.CompilerServices.SymbolWriter;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using UltraFunGuns.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
@@ -14,7 +17,10 @@ namespace UltraFunGuns
         public ConfigField(T defaultValue, Func<T, bool> inputValidator = null)  : base (defaultValue)
         {
             this.inputValidator = inputValidator ?? ((v) => { return true; });
+            OnValueChanged += (_) => UpdateInputField();
         }
+
+        protected InputField instancedField;
 
         private bool ValidateInputSyntax(string inputValue, out T converted)
         {
@@ -40,26 +46,58 @@ namespace UltraFunGuns
             return inputValidator(value);
         }
 
-        private void SetValueFromString(string input)
+        private void SetValueFromString(InputField source, string input)
         {
+            if (source != instancedField) //prevent old non-null instance from calling this method.
+                return;
+
             if (!ValidateInputSyntax(input, out T converted))
             {
                 Debug.LogError("Syntax for field invalid! Conversion failed!");
+                UpdateInputField();
                 return;
             }
 
             if(!ValidateValue(converted))
             {
                 Debug.LogError("Value validation failure. Rejected.");
+                UpdateInputField();
                 return;
             }
 
             base.SetValue(converted);
         }
 
+        protected void SetInputField(InputField inputField)
+        {
+            inputField.onEndEdit.AddListener((s) => SetValueFromString(inputField, s));
+            instancedField = inputField;
+            UpdateInputField();
+        }
+
+        protected void UpdateInputField()
+        {
+            if (instancedField == null)
+                return;
+
+            instancedField.text = GetValue().ToString();
+        }
+
         protected override void BuildElementCore(Configgable configgable, RectTransform rect)
         {
-
+            DynUI.ConfigUI.CreateElementSlot(rect, configgable.DisplayName, (r) =>
+            {
+                DynUI.InputField(r, SetInputField);
+            },
+            (rBS) =>
+            {
+                DynUI.ImageButton(rBS, (button, icon) =>
+                {
+                    RectTransform rt = button.GetComponent<RectTransform>();
+                    rt.sizeDelta = new Vector2(55f,55f);
+                    button.onClick.AddListener(ResetValue);
+                });
+            });
         }
     }
 }

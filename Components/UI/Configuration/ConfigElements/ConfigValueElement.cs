@@ -134,5 +134,10 @@ namespace UltraFunGuns
         }
 
         protected abstract void BuildElementCore(Configgable descriptor, RectTransform rect);
+
+        public override string ToString()
+        {
+            return GetValue().ToString();
+        }
     }
 }

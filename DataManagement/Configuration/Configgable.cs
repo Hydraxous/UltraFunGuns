@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace UltraFunGuns
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Method)]
     public class Configgable : Attribute
     {
         public string Path { get; }

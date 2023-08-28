@@ -6,58 +6,76 @@ namespace UltraFunGuns.Components.UI.Configuration
 {
     public static class CfgTestCase
     {
-        [Configgable(displayName: "Quit The Game?", path: "Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!/Click Me!")]
-        private static ConfigCustomElement superNestedButton = new ConfigCustomElement(Dingus2);
+        [Configgable("Value Testing")]
+        private static float configurableFloat = 12f;
 
-        [Configgable("Exit Game")]
-        private static ConfigButton badButton = new ConfigButton(() => Application.Quit(), "Yes");
+        [Configgable("Value Testing")]
+        [Range(0,10)]
+        private static float rangedFloat = 0f;
 
-        [Configgable("Exit Game")]
-        private static ConfigCustomElement badButton2 = new ConfigCustomElement((c,r) =>
+        [Configgable("Value Testing")]
+        private static int changableInteger = 45;
+
+        [Configgable("Value Testing")]
+        [Range(-5,5)]
+        private static int rangedInteger = 1;
+
+        [Configgable(path:"Value Testing")]
+        private static void PrintOutFloats()
         {
-            DynUI.Frame(r, (f) =>
-            {
-                DynUI.Button(f.RectTransform, (b) =>
-                {
-                    DynUI.Layout.FillParent(b.GetComponent<RectTransform>());
+            Debug.Log($"Your first float is {configurableFloat}");
+            Debug.Log($"Your second float is {rangedFloat}");
+            Debug.Log($"Your changable int is {changableInteger}");
+            Debug.Log($"Your ranged int is {rangedInteger}");
+        }
 
-                    b.GetComponentInChildren<Text>().text = "No";
+        [Configgable(path: "Value Testing")]
+        private static void PrintOutString()
+        {
+            Debug.Log($"Your string is {noSpacesString.Value}");
+        }
 
-                    b.onClick.AddListener(() =>
-                    {
-                        r.GetComponentInParent<ConfigurationPage>()?.Back();
-                    });
-                });
-            });
+        [Configgable(path: "Value Testing", displayName:"Print Strict String")]
+        private static void PrintOutStringStrict()
+        {
+            Debug.Log($"Your strict string is {strictString2.Value}");
+        }
+
+
+        [Configgable("Value Testing")]
+        private static ConfigField<string> noSpacesString = new ConfigField<string>("Hello!", (s) =>
+        {
+            return !s.Contains(" ");
         });
 
-
-        public static void Bruh(string lol)
+        [Configgable("Value Testing", displayName:"Cant contain the number 4 or the letter a, and must be less than 6 characters long and greater than 2 characters.")]
+        private static ConfigField<string> strictString2 = new ConfigField<string>("Hello!", (s) =>
         {
-            Debug.Log(lol);   
+
+            if (s.Contains("4"))
+                return false;
+
+            if(s.Contains("a") || s.Contains("A"))
+                return false;
+
+            if(s.Length > 6)
+                return false;
+
+            if(s.Length < 2)
+                return false;
+
+            return true;
+
+        });
+
+        [Configgable("Value Testing", displayName: "Serialized String")]
+        private static string simpleString = "Default string!";
+
+        [Configgable(path: "Value Testing", displayName: "Print Simple String")]
+        private static void PrintSimpleString()
+        {
+            Debug.Log($"Your string is {simpleString}");
         }
 
-        private static void Dingus2(Configgable descriptor, RectTransform rect)
-        {
-            DynUI.Frame(rect, (f) =>
-            {
-                f.SetBorderColor(Color.red);
-                f.SetBackgroundColor(Color.blue);
-
-                Vector2 size = f.RectTransform.sizeDelta;
-                size.y *= 3;
-                f.RectTransform.sizeDelta = size;
-
-                DynUI.Label(f.Content, (t) =>
-                {
-                    DynUI.Layout.FillParent(t.GetComponent<RectTransform>());
-
-                    t.text = $"Do you get to the Lust District very often? Oh what am I saying... Of course you don't.";
-                    t.color = Color.red;
-                });
-
-            });
-
-        }
     }
 }
