@@ -73,13 +73,6 @@ namespace UltraFunGuns
                     data += FormatResourceLocation(rlocation);
                 }
 
-
-                System.IO.File.WriteAllText("Z:/QuickThings/iodump/rlocation.txt", data);
-            }
-
-            if(Input.GetKeyDown(KeyCode.Keypad6))
-            {
-                GameObject.FindObjectOfType<ConfigurationMenu>()?.OpenMenu();
             }
         }
 
