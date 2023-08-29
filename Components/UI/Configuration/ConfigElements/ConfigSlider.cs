@@ -38,10 +38,10 @@ namespace UltraFunGuns
             slider.onValueChanged.AddListener((v) => SetValueFromSlider(slider, v));
             ConfigureSliderRange(slider);
             this.instancedSlider = slider;
-            UpdateSliderValue();
+            RefreshElementValue();
         }
 
-        protected virtual void UpdateSliderValue()
+        protected override void RefreshElementValueCore()
         {
             if (instancedSlider == null)
                 return;
@@ -52,7 +52,7 @@ namespace UltraFunGuns
 
         protected override void BuildElementCore(Configgable descriptor, RectTransform rect)
         {
-            DynUI.ConfigUI.CreateElementSlot(rect, descriptor.DisplayName, (r) =>
+            DynUI.ConfigUI.CreateElementSlot(rect, this, (r) =>
             {
                 DynUI.Label(r, (t) =>
                 {
@@ -62,12 +62,7 @@ namespace UltraFunGuns
             },
             (rBS) =>
             {
-                DynUI.ImageButton(rBS, (button, icon) =>
-                {
-                    RectTransform rt = button.GetComponent<RectTransform>();
-                    rt.sizeDelta = new Vector2(55f, 55f);
-                    button.onClick.AddListener(ResetValue);
-                });
+
             });
         }
     }

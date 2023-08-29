@@ -6,6 +6,7 @@ namespace UltraFunGuns.Components.UI.Configuration
 {
     public static class CfgTestCase
     {
+        /*
         [Configgable("Value Testing")]
         private static float configurableFloat = 12f;
 
@@ -76,6 +77,66 @@ namespace UltraFunGuns.Components.UI.Configuration
         {
             Debug.Log($"Your string is {simpleString}");
         }
+        */
+
+        [Configgable("Value Testing")]
+        private static void PrintDropdownOption()
+        {
+            Debug.Log($"Your current dropdown has values of {configDropdown.GetSelectedIndexName()}:{configDropdown.Value}");
+        }
+
+        [Configgable("Value Testing", displayName:"Numbers In Dropdown")]
+        private static ConfigField<int> numberOfNumbersInDropdown = new ConfigField<int>(2, (n) =>
+        {
+            if (n < 0)
+                return false;
+
+            return true;
+        });
+
+        [Configgable("Value Testing", displayName: "DDN Index")]
+        private static ConfigField<int> startIndex = new ConfigField<int>(2, (n) =>
+        {
+            if (n < 0)
+                return false;
+
+            if(n >= numberOfNumbersInDropdown.Value)
+                return false;
+
+            return true;
+        });
+
+
+        [Configgable("Value Testing", displayName: "Change dropdown values entirely")]
+        private static void CompletelyChangeDropdown()
+        {
+            int[] newInts = new int[numberOfNumbersInDropdown.Value];
+            string[] newNames = new string[numberOfNumbersInDropdown.Value];
+
+            for(int i=0;i<newInts.Length;i++)
+            {
+                newInts[i] = UnityEngine.Random.Range(0,100);
+                newNames[i] = $"{i + 1}. ({newInts[i]})";
+            }
+
+            configDropdown.SetOptions(newInts, newNames, startIndex.Value);
+        }
+
+        [Configgable("Value Testing", displayName:"Bruh-o-meter")]
+        private static ConfigDropdown<int> configDropdown = new ConfigDropdown<int>(new int[]
+        {
+            0,
+            69,
+            0,
+            2
+        }, new string[]
+        {
+            "Glitchy",
+            "Hydra",
+            "Zel",
+            "TeamDOODZ"
+        }, 2);
+
 
     }
 }

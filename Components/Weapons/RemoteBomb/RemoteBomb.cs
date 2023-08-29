@@ -14,17 +14,28 @@ namespace UltraFunGuns
     public class RemoteBomb : UltraFunGunBase
     {
         [UFGAsset("RemoteBomb_Explosive")] public static GameObject RemoteExplosivePrefab { get; private set; }
-        public float bombDetonationDelay = 0.035f;
-        public float throwForce = 50.0f;
+
+
+        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        private static float bombDetonationDelay = 0.035f;
+
+        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        private static float throwForce = 50.0f;
+
+        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        private static float primaryFireCooldown = 0.45f;
+
+        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        private static float secondaryFireCooldown = 0.25f;
 
         private List<RemoteBombExplosive> thrownExplosives = new List<RemoteBombExplosive>();
         private bool throwingExplosive = false;
 
-        private ActionCooldown throwBombCD = new ActionCooldown(0.45f, true), detonateBombCD = new ActionCooldown(0.25f, true);
+        private ActionCooldown throwBombCD = new ActionCooldown(primaryFireCooldown, true), detonateBombCD = new ActionCooldown(secondaryFireCooldown, true);
 
         public override void OnAwakeFinished()
         {
-            AddSFX("Throw", "Detonate");
+            AddSFX("Throw", "Detonate"); //yikes
         }
 
         public override void GetInput()

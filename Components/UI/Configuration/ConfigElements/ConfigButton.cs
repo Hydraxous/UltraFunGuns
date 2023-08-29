@@ -55,5 +55,8 @@ namespace UltraFunGuns
                 });
             });
         }
+
+        public void OnMenuOpen() { }
+        public void OnMenuClose() { }
     }
 }

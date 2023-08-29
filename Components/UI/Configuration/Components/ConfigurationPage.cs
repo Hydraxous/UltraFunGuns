@@ -88,6 +88,18 @@ namespace UltraFunGuns.UI
         private void OnEnable()
         {
             backButton.gameObject.SetActive(Parent != null);
+            foreach (IConfigElement configElement in elements.OrderBy(x => x.GetDescriptor()?.OrderInList))
+            {
+                configElement.OnMenuOpen();
+            }
+        }
+
+        private void OnDisable()
+        {
+            foreach (IConfigElement configElement in elements.OrderBy(x => x.GetDescriptor()?.OrderInList))
+            {
+                configElement.OnMenuClose();
+            }
         }
     }
 }

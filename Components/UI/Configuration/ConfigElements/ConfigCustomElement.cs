@@ -11,6 +11,9 @@ namespace UltraFunGuns
 
         private Configgable configgable;
 
+        public Action OnMenuClosed;
+        public Action OnMenuOpened;
+
         public ConfigCustomElement(Action<Configgable, RectTransform> onBuild)
         {
             this.onBuild = onBuild;
@@ -29,6 +32,17 @@ namespace UltraFunGuns
         public Configgable GetDescriptor()
         {
             return configgable;
+        }
+
+        public void OnMenuOpen()
+        {
+            OnMenuOpened?.Invoke();
+
+        }
+
+        public void OnMenuClose()
+        {
+            OnMenuClosed?.Invoke();
         }
     }
 }

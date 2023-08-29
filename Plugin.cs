@@ -4,6 +4,7 @@ using HydraDynamics;
 using HydraDynamics.Debugging;
 using System;
 using System.Collections;
+using UltraFunGuns.Configuration;
 using UltraFunGuns.Datas;
 using UltraFunGuns.Patches;
 using UltraFunGuns.Util;
@@ -16,7 +17,8 @@ namespace UltraFunGuns
     [BepInProcess("ULTRAKILL.exe")]
     public class UltraFunGuns : BaseUnityPlugin
     {
-        Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
+        Harmony harmony = new Harmony(ConstInfo.GUID);
+        ConfiggableMenu configurables = new ConfiggableMenu(ConstInfo.GUID, ConstInfo.NAME);
 
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
@@ -49,6 +51,7 @@ namespace UltraFunGuns
                 {
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
+                    configurables.Build();
                     VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();
@@ -86,6 +89,7 @@ namespace UltraFunGuns
         }
 
         [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
+        [Configgable("Commands", displayName:"Toggle Debug Mode")]
         public static void ToggleDebugMode()
         {
             bool debugMode = !DebugMode;

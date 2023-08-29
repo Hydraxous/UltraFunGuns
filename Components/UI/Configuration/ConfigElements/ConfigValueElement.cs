@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UltraFunGuns.Configuration;
+
 
 namespace UltraFunGuns
 {
@@ -17,6 +19,9 @@ namespace UltraFunGuns
         protected Configgable descriptor;
 
         private bool initialized => descriptor != null;
+        protected bool firstLoadDone = false;
+
+        public bool IsDirty { get; protected set; }
 
         public T Value
         {
@@ -35,15 +40,19 @@ namespace UltraFunGuns
         public void LoadValue()
         {
             if (!initialized)
-                ConfigurationManager.Initialize();
+                return;
 
             LoadValueCore();
+            firstLoadDone = true; //just to be safe.
         }
 
         protected virtual void LoadValueCore()
         {
             //Get value from data manager.
-            object obj = ConfigurationManager.GetValueAtAddress(descriptor.SerializationAddress);
+            //This should probably be changed to something more reliable and not static.
+            object obj = ConfigurationManager.GetObjectAtAddress(descriptor.SerializationAddress);
+
+            firstLoadDone = true; //nullable values apparently can just randomly have values so this annoying bool is needed
 
             if (obj != null)
             {
@@ -57,7 +66,7 @@ namespace UltraFunGuns
                 }
             }
 
-            SetValue(DefaultValue);
+            ResetValue();
             SaveValue();
         }
 
@@ -70,8 +79,9 @@ namespace UltraFunGuns
         protected virtual void SaveValueCore()
         {
             object obj = GetValue();
-            ConfigurationManager.SetValueAtAddress(descriptor.SerializationAddress, obj);
+            ConfigurationManager.SetObjectAtAddress(descriptor.SerializationAddress, obj);
             ConfigurationManager.Save();
+            IsDirty = false;
         }
 
 
@@ -82,7 +92,7 @@ namespace UltraFunGuns
 
         protected virtual T GetValueCore()
         {
-            if (value == null)
+            if (value == null || !firstLoadDone)
             {
                 LoadValue();
             }
@@ -91,10 +101,10 @@ namespace UltraFunGuns
         }
 
 
-
         public void SetValue(T value)
         {
             SetValueCore(value);
+            IsDirty = true;
         }
 
         protected virtual void SetValueCore(T value)
@@ -102,7 +112,6 @@ namespace UltraFunGuns
             this.value = value;
             OnValueChanged?.Invoke(value);
         }
-
 
         public void ResetValue()
         {
@@ -113,7 +122,6 @@ namespace UltraFunGuns
         {
             SetValue(DefaultValue);
         }
-
 
         public void BindDescriptor(Configgable configgable)
         {
@@ -128,7 +136,7 @@ namespace UltraFunGuns
         public void BuildElement(RectTransform rect)
         {
             if (!initialized)
-                ConfigurationManager.Initialize();
+                return;
 
             BuildElementCore(descriptor, rect);
         }
@@ -138,6 +146,24 @@ namespace UltraFunGuns
         public override string ToString()
         {
             return GetValue().ToString();
+        }
+
+        public void RefreshElementValue()
+        {
+            RefreshElementValueCore();
+        }
+
+        protected abstract void RefreshElementValueCore();
+
+        public void OnMenuOpen()
+        {
+            RefreshElementValue();
+        }
+
+        public void OnMenuClose()
+        {
+            if(IsDirty)
+                SaveValue();
         }
     }
 }

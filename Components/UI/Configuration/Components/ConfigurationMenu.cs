@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UltraFunGuns.Configuration;
 using UnityEngine;
 
 namespace UltraFunGuns.UI
@@ -17,19 +18,20 @@ namespace UltraFunGuns.UI
 
         private bool menuBuilt = false;
 
-        
         private static Keybinding cfgKey = Hydynamics.GetKeybinding("Open Configuration Menu", KeyCode.Keypad6);
 
         private GameObject[] menus;
+
+        ConfigurationPage lastOpenPage;
 
         private bool menuOpen = false;
 
         private void Awake()
         {
             if (!menuBuilt)
-                BuildMenu(ConfigurationManager.GetConfigElements());
+                BuildMenus(ConfigurationManager.GetMenus());
 
-            ConfigurationManager.OnConfigElementsChanged += BuildMenu;
+            ConfigurationManager.OnMenusChanged += BuildMenus;
         }
 
         private void Update()
@@ -78,7 +80,7 @@ namespace UltraFunGuns.UI
             menuBuilt = false;
         }
 
-        private void BuildMenu(IConfigElement[] configElements)
+        private void BuildMenus(ConfiggableMenu[] menus)
         {
             DestroyPages();
 
@@ -91,6 +93,14 @@ namespace UltraFunGuns.UI
                 pageManifest.Add("", rootPage);
             });
 
+            for (int i=0;i<menus.Length;i++)
+            {
+                BuildMenu(menus[i].GetConfigElements());
+            }
+        }
+
+        private void BuildMenu(IConfigElement[] configElements)
+        {
             if(pageManifest.ContainsKey(""))
             {
                 Debug.LogWarning("Empty key is there");
@@ -167,8 +177,14 @@ namespace UltraFunGuns.UI
             
             string path = "";
 
-            if (descriptor != null)
+            if (descriptor != null && descriptor.Owner != null)
+            {
                 path = descriptor.Path;
+                path = $"{descriptor.Owner.OwnerDisplayName}/"+path;
+            }else
+            {
+                path = "/Other";
+            }
 
             BuildMenuTreeFromPath(path);
 
@@ -178,14 +194,15 @@ namespace UltraFunGuns.UI
         private void NewPage(Action<ConfigurationPage> onInstance)
         {
             GameObject newPage = GameObject.Instantiate(ConfigurationAssets.ConfigurationPage, contentbody);
-            onInstance?.Invoke(newPage.GetComponent<ConfigurationPage>());
+            ConfigurationPage page = newPage.GetComponent<ConfigurationPage>();
+            newPage.AddComponent<BehaviourRelay>().OnOnEnable += (g) => lastOpenPage = page;
+            onInstance?.Invoke(page);
         }
 
         public void OpenMenu()
         {
             menus = transform.GetChildren().Select(x=>x.gameObject).ToArray();
          
-            
             GameState ufgInvState = new GameState("cfg_menu", menus);
             
             ufgInvState.cursorLock = LockMode.Unlock;
@@ -196,7 +213,11 @@ namespace UltraFunGuns.UI
             OptionsManager.Instance.paused = true;
             GameStateManager.Instance.RegisterState(ufgInvState);
 
-            rootPage.Open();
+            if (lastOpenPage != null)
+                lastOpenPage.Open();
+            else
+                rootPage.Open();
+            
             menuOpen = true;
         }
 
@@ -209,7 +230,7 @@ namespace UltraFunGuns.UI
 
         private void OnDestroy()
         {
-            ConfigurationManager.OnConfigElementsChanged -= BuildMenu;
+            ConfigurationManager.OnMenusChanged -= BuildMenus;
         }
     }
 }

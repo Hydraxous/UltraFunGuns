@@ -18,12 +18,22 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> somethingWicked = new UKAsset<GameObject>("Assets/Prefabs/Enemies/Wicked.prefab");
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
 
-        public int hitscans = 16;
-        public float spread = 0.06f;
+        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        private static int hitscans = 16;
+        
+        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        private static float bulletSpread = 0.06f;
 
-        private bool gamerMode;
+        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        private static bool gamerMode;
 
-        private ActionCooldown primaryFire = new ActionCooldown(0.05f), secondaryFire = new ActionCooldown(0.05f);
+        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        private static float primaryFireCooldown = 0.05f;
+        
+        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        private static float secondaryFireCooldown = 0.05f;
+
+        private ActionCooldown primaryFire = new ActionCooldown(primaryFireCooldown), secondaryFire = new ActionCooldown(secondaryFireCooldown);
 
         public override void GetInput()
         {
@@ -213,7 +223,7 @@ namespace UltraFunGuns
         {
             Ray ray = new Ray();
 
-            Vector3 randomDirection = UnityEngine.Random.insideUnitCircle*spread;
+            Vector3 randomDirection = UnityEngine.Random.insideUnitCircle*bulletSpread;
             randomDirection.z = 1;
 
             ray.origin = mainCam.position;

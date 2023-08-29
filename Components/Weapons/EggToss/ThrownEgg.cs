@@ -13,6 +13,15 @@ namespace UltraFunGuns
         [UFGAsset("EggImpactFX")] private static GameObject impactFX;
         [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
 
+        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg")]
+        private static float velocityDamageMultiplier = 0.035f;
+
+        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Damage Multiplier")]
+        private static float eggsplosionEggDamageMultiplier = 0.75f;
+
+        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Velocity Damage Multiplier")]
+        private static float eggsplosionEggDamageVelocityMultiplier = 0.25f;
+
         private Rigidbody rb;
         private CapsuleCollider eggCollider;
         public Vector3 oldVelocity;
@@ -76,7 +85,7 @@ namespace UltraFunGuns
                 GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
                 impact.transform.up = col.GetContact(0).normal;
                 impact.transform.parent = col.transform;
-                float damage = rb.velocity.magnitude * 0.035f; //Scales damage from speed of egg
+                float damage = rb.velocity.magnitude * velocityDamageMultiplier; //Scales damage from speed of egg
 
                 if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
                 {
@@ -101,7 +110,7 @@ namespace UltraFunGuns
                         }
                         else
                         {
-                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*0.25f, col.GetContact(0).point, damage*0.75f, false);
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*eggsplosionEggDamageVelocityMultiplier, col.GetContact(0).point, damage*eggsplosionEggDamageMultiplier, false);
                             MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
                         }
                     }
@@ -133,7 +142,7 @@ namespace UltraFunGuns
                 Vector3 collisionNormalGuess = MonoSingleton<NewMovement>.Instance.transform.position - transform.position;
                 impact.transform.up = collisionNormalGuess;
                 impact.transform.parent = col.transform;
-                float damage = rb.velocity.magnitude * 0.018f; //Scales damage from speed of egg :)
+                float damage = rb.velocity.magnitude * velocityDamageMultiplier; //Scales damage from speed of egg :)
 
                 if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
                 {
@@ -161,7 +170,7 @@ namespace UltraFunGuns
                         }
                         else
                         {
-                            enemy.DeliverDamage(enemy.gameObject, oldVelocity * 0.25f, transform.position, damage * 0.25f, false);
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity * eggsplosionEggDamageVelocityMultiplier, transform.position, damage * eggsplosionEggDamageMultiplier, false);
                             MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
                         }
                     }

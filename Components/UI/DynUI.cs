@@ -32,6 +32,12 @@ namespace UltraFunGuns.UI
         [UFGAsset("UI_InputField")]
         private static GameObject InputFieldPrefab;
 
+        [UFGAsset("UI_Toggle")]
+        private static GameObject TogglePrefab;
+
+        [UFGAsset("UI_Dropdown")]
+        private static GameObject DropdownPrefab;
+
         public static void Frame(RectTransform rect, Action<Frame> onInstance)
         {
             Instantiate<Frame>(rect, FramePrefab, onInstance);
@@ -74,6 +80,16 @@ namespace UltraFunGuns.UI
             Instantiate<Slider>(rect, SliderPrefab, onInstance);
         }
 
+        public static void Toggle(RectTransform rect, Action<Toggle> onInstance)
+        {
+            Instantiate<Toggle>(rect, TogglePrefab, onInstance);
+        }
+
+        public static void Dropdown(RectTransform rect, Action<Dropdown> onInstance)
+        {
+            Instantiate<Dropdown>(rect, DropdownPrefab, onInstance);
+        }
+
         public static void Div(RectTransform rect, Action<RectTransform> onInstance)
         {
             GameObject div = new GameObject("div");
@@ -97,10 +113,18 @@ namespace UltraFunGuns.UI
             rect.anchorMin = new Vector2(minX, minY);
         }
 
+        public static ColorBlock SetFirstColor(this ColorBlock colorBlock, Color color)
+        {
+            colorBlock.normalColor = color;
+            return colorBlock;
+        }
+
         public static class ConfigUI
         {
-            public static void CreateElementSlot(RectTransform rect, string label, Action<RectTransform> onInstance, Action<RectTransform> onButtonSlots = null)
+            public static void CreateElementSlot<T>(RectTransform rect, ConfigValueElement<T> valueElement, Action<RectTransform> onInstance, Action<RectTransform> onButtonSlots = null)
             {
+                Configgable configgable = valueElement.GetDescriptor();
+
                 DynUI.Frame(rect, (f) =>
                 {
                     DynUI.Div(f.Content, (operatorsDiv) =>
@@ -113,11 +137,66 @@ namespace UltraFunGuns.UI
                             hlg.childForceExpandHeight = true;
                             hlg.childForceExpandWidth = true;
 
-                            hlg.childControlHeight = true;
-                            hlg.childControlWidth = true;
+                            hlg.childControlHeight = false;
+                            hlg.childControlWidth = false;
                             hlg.childAlignment = TextAnchor.MiddleLeft;
                         });
 
+                        DynUI.ImageButton(operatorsDiv, (button, icon) =>
+                        {
+                            RectTransform rt = button.GetComponent<RectTransform>();
+                            rt.sizeDelta = new Vector2(55f, 55f);
+                            button.onClick.AddListener(valueElement.ResetValue);
+                        });
+
+                        if (!string.IsNullOrEmpty(configgable.Description))
+                        {
+                            GameObject newDescriptionBox = null;
+
+                            DynUI.Frame(rect, (f) =>
+                            {
+                                newDescriptionBox = f.gameObject;
+
+                                DynUI.Component<ContentSizeFitter>(f.RectTransform, (csf) =>
+                                {
+                                    csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                                });
+
+                                DynUI.Label(f.Content, (t) =>
+                                {
+                                    var trt = t.GetComponent<RectTransform>();
+                                    DynUI.Layout.FillParent(f.Content);
+                                    t.text = configgable.Description;
+                                    t.resizeTextForBestFit = false;
+                                    t.fontSize = 16;
+                                    t.alignment = TextAnchor.MiddleLeft;
+                                });
+                            });
+
+                            DynUI.ImageButton(operatorsDiv, (button, icon) =>
+                            {
+                                RectTransform rt = button.GetComponent<RectTransform>();
+                                rt.sizeDelta = new Vector2(55f, 55f);
+                                button.onClick.AddListener(() => newDescriptionBox.SetActive(!newDescriptionBox.activeInHierarchy));
+                            });
+                        }
+
+                        //Debug 
+                        /*
+                        DynUI.ImageButton(operatorsDiv, (button, icon) =>
+                        {
+                            RectTransform rt = button.GetComponent<RectTransform>();
+                            rt.sizeDelta = new Vector2(55f, 55f);
+                            button.onClick.AddListener(() => { Debug.Log(valueElement.Value); });
+                        });
+
+                        DynUI.ImageButton(operatorsDiv, (button, icon) =>
+                        {
+                            RectTransform rt = button.GetComponent<RectTransform>();
+                            rt.sizeDelta = new Vector2(55f, 55f);
+                            button.onClick.AddListener(() => { Debug.Log(valueElement.DefaultValue); });
+                        });
+                        */
                         onButtonSlots?.Invoke(operatorsDiv);
                     });
 
@@ -140,7 +219,7 @@ namespace UltraFunGuns.UI
 
                         DynUI.Label(elementsDiv, (t) =>
                         {
-                            t.text = label;
+                            t.text = configgable.DisplayName;
                             t.fontSize = 4;
                             t.resizeTextMaxSize = 26;
                         });

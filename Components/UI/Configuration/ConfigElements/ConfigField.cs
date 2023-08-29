@@ -17,7 +17,8 @@ namespace UltraFunGuns
         public ConfigField(T defaultValue, Func<T, bool> inputValidator = null)  : base (defaultValue)
         {
             this.inputValidator = inputValidator ?? ((v) => { return true; });
-            OnValueChanged += (_) => UpdateInputField();
+            OnValueChanged += (_) => RefreshElementValue();
+            RefreshElementValue();
         }
 
         protected InputField instancedField;
@@ -54,14 +55,14 @@ namespace UltraFunGuns
             if (!ValidateInputSyntax(input, out T converted))
             {
                 Debug.LogError("Syntax for field invalid! Conversion failed!");
-                UpdateInputField();
+                RefreshElementValue();
                 return;
             }
 
             if(!ValidateValue(converted))
             {
                 Debug.LogError("Value validation failure. Rejected.");
-                UpdateInputField();
+                RefreshElementValue();
                 return;
             }
 
@@ -72,20 +73,20 @@ namespace UltraFunGuns
         {
             inputField.onEndEdit.AddListener((s) => SetValueFromString(inputField, s));
             instancedField = inputField;
-            UpdateInputField();
+            RefreshElementValue();
         }
 
-        protected void UpdateInputField()
+        protected override void RefreshElementValueCore()
         {
             if (instancedField == null)
                 return;
 
-            instancedField.text = GetValue().ToString();
+            instancedField.SetTextWithoutNotify(GetValue().ToString());
         }
 
         protected override void BuildElementCore(Configgable configgable, RectTransform rect)
         {
-            DynUI.ConfigUI.CreateElementSlot(rect, configgable.DisplayName, (r) =>
+            DynUI.ConfigUI.CreateElementSlot(rect, this, (r) =>
             {
                 DynUI.InputField(r, SetInputField);
             },
@@ -93,9 +94,18 @@ namespace UltraFunGuns
             {
                 DynUI.ImageButton(rBS, (button, icon) =>
                 {
+                    button.colors.SetFirstColor(Color.red);
                     RectTransform rt = button.GetComponent<RectTransform>();
-                    rt.sizeDelta = new Vector2(55f,55f);
-                    button.onClick.AddListener(ResetValue);
+                    rt.sizeDelta = new Vector2(55f, 55f);
+                    button.onClick.AddListener(() => { Debug.Log(GetValue()); });
+                });
+
+                DynUI.ImageButton(rBS, (button, icon) =>
+                {
+                    button.colors.SetFirstColor(Color.red);
+                    RectTransform rt = button.GetComponent<RectTransform>();
+                    rt.sizeDelta = new Vector2(55f, 55f);
+                    button.onClick.AddListener(() => { Debug.Log(DefaultValue); });
                 });
             });
         }

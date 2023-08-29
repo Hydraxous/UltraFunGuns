@@ -14,7 +14,8 @@ namespace UltraFunGuns
         {
             base.BuildElementCore(configgable, rect);
             instancedSlider.wholeNumbers = false;
-            OnValueChanged += (v) => UpdateSliderValue();
+            OnValueChanged += (v) => RefreshElementValue();
+            RefreshElementValue();
         }
 
         protected override void ConfigureSliderRange(Slider slider)
@@ -26,7 +27,7 @@ namespace UltraFunGuns
         protected override void LoadValueCore()
         {
             base.LoadValueCore();
-            UpdateSliderValue();
+            RefreshElementValue();
         }
 
         protected override void SetValueFromSlider(float value)
@@ -34,13 +35,13 @@ namespace UltraFunGuns
             SetValue(value);
         }
 
-        protected override void UpdateSliderValue()
+        protected override void RefreshElementValueCore()
         {
-            base.UpdateSliderValue();
+            base.RefreshElementValueCore();
             if (instancedSlider == null)
                 return;
 
-            instancedSlider.value = GetValue();
+            instancedSlider.SetValueWithoutNotify(GetValue());
         }
     }
 }
