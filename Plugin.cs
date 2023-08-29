@@ -18,7 +18,7 @@ namespace UltraFunGuns
     public class UltraFunGuns : BaseUnityPlugin
     {
         Harmony harmony = new Harmony(ConstInfo.GUID);
-        ConfiggableMenu configurables = new ConfiggableMenu(ConstInfo.GUID, ConstInfo.NAME);
+        ConfigBuilder config = new ConfigBuilder(ConstInfo.GUID, ConstInfo.NAME);
 
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
@@ -51,7 +51,7 @@ namespace UltraFunGuns
                 {
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
-                    configurables.Build();
+                    config.Build();
                     VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();

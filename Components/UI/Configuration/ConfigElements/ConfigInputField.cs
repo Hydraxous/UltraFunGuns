@@ -1,4 +1,5 @@
-﻿using Mono.CompilerServices.SymbolWriter;
+﻿using Mono.Cecil;
+using Mono.CompilerServices.SymbolWriter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,41 +11,42 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class ConfigField<T> : ConfigValueElement<T>, IConfigElement
+    public class ConfigInputField<T> : ConfigValueElement<T>
     {
         private Func<T, bool> inputValidator;
+        private Func<string, ValueTuple<bool, T>> valueConverter;
 
-        public ConfigField(T defaultValue, Func<T, bool> inputValidator = null)  : base (defaultValue)
+        public ConfigInputField(T defaultValue, Func<T, bool> inputValidator = null, Func<string, ValueTuple<bool, T>> typeConverter = null)  : base (defaultValue)
         {
+            this.valueConverter = typeConverter ?? ValidateInputSyntax;
             this.inputValidator = inputValidator ?? ((v) => { return true; });
+
             OnValueChanged += (_) => RefreshElementValue();
             RefreshElementValue();
         }
 
         protected InputField instancedField;
 
-        private bool ValidateInputSyntax(string inputValue, out T converted)
+        private ValueTuple<bool, T> ValidateInputSyntax(string inputValue)
         {
-            converted = default(T);
+            ValueTuple<bool, T> result = new ValueTuple<bool, T>();
+            
+            result.Item1 = false;
+            result.Item2 = default(T);
 
             try
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(T));
                 object convertedValue = typeConverter.ConvertFromString(inputValue);
-                converted = (T) convertedValue;
-                return converted != null;
+                result.Item2 = (T) convertedValue;
+                result.Item1 = result.Item2 != null;
             }
             catch (Exception ex)
             {
                 Debug.LogException(ex);
             }
 
-            return false;
-        }
-
-        public bool ValidateValue(T value)
-        {
-            return inputValidator(value);
+            return result;
         }
 
         private void SetValueFromString(InputField source, string input)
@@ -52,21 +54,33 @@ namespace UltraFunGuns
             if (source != instancedField) //prevent old non-null instance from calling this method.
                 return;
 
-            if (!ValidateInputSyntax(input, out T converted))
+            ValueTuple<bool, T> conversionResult;
+            
+            try
             {
-                Debug.LogError("Syntax for field invalid! Conversion failed!");
+                conversionResult = valueConverter.Invoke(input);
+                if (!conversionResult.Item1)
+                {
+                    Debug.LogError("Syntax for field invalid! Conversion failed!");
+                    RefreshElementValue();
+                    return;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
                 RefreshElementValue();
                 return;
             }
 
-            if(!ValidateValue(converted))
+            if(!inputValidator.Invoke(conversionResult.Item2))
             {
                 Debug.LogError("Value validation failure. Rejected.");
                 RefreshElementValue();
                 return;
             }
 
-            base.SetValue(converted);
+            base.SetValue(conversionResult.Item2);
         }
 
         protected void SetInputField(InputField inputField)

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UltraFunGuns.Configuration
 {
-    public class ConfiggableMenu
+    public class ConfigBuilder
     {
         public string GUID { get; }
         public string OwnerDisplayName { get; }
@@ -27,7 +27,7 @@ namespace UltraFunGuns.Configuration
             }
         }
 
-        public ConfiggableMenu(string guid = null, string menuDisplayName = null) 
+        public ConfigBuilder(string guid = null, string menuDisplayName = null) 
         {
             this.owner = Assembly.GetCallingAssembly();
             this.GUID = (string.IsNullOrEmpty(guid) ? owner.GetName().Name : guid);
@@ -77,7 +77,6 @@ namespace UltraFunGuns.Configuration
 
         private Assembly currentAssembly;
         private Type currentType;
-
 
 
         private void ProcessMethod(MethodInfo method)
@@ -199,7 +198,7 @@ namespace UltraFunGuns.Configuration
                 if (range == null)
                 {
                     float baseValue = (float)field.GetValue(null);
-                    floatElement = new ConfigField<float>(baseValue);
+                    floatElement = new ConfigInputField<float>(baseValue);
 
                 }
                 else
@@ -224,7 +223,7 @@ namespace UltraFunGuns.Configuration
 
                 if (range == null)
                 {
-                    intElement = new ConfigField<int>(baseValue);
+                    intElement = new ConfigInputField<int>(baseValue);
                 }
                 else
                 {
@@ -249,7 +248,7 @@ namespace UltraFunGuns.Configuration
             if (field.FieldType == typeof(string))
             {
                 string baseValue = (string)field.GetValue(null);
-                ConfigField<string> stringElement = new ConfigField<string>(baseValue);
+                ConfigInputField<string> stringElement = new ConfigInputField<string>(baseValue);
                 stringElement.OnValueChanged += (v) => field.SetValue(null, v);
                 stringElement.BindDescriptor(descriptor);
                 RegisterElementCore(descriptor, stringElement);

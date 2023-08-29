@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,17 +13,20 @@ namespace UltraFunGuns.Configuration
 {
     public static class ConfigurationManager
     {
-        internal static void RegisterConfiguraitonMenu(ConfiggableMenu menu)
+        internal static void RegisterConfiguraitonMenu(ConfigBuilder menu)
         {
+            if (menus.Select(x => x.GUID).Contains(menu.GUID))
+                throw new DuplicateNameException($"{nameof(ConfigBuilder)} GUID ({menu.GUID}) already exists! Using two ConfiggableMenus with the same GUID is not allowed.");
+
             menus.Add(menu);
             OnMenusChanged?.Invoke(GetMenus());
         }
 
-        internal static List<ConfiggableMenu> menus = new List<ConfiggableMenu>();
+        private static List<ConfigBuilder> menus = new List<ConfigBuilder>();
 
-        internal static Action<ConfiggableMenu[]> OnMenusChanged;
+        internal static Action<ConfigBuilder[]> OnMenusChanged;
 
-        internal static ConfiggableMenu[] GetMenus()
+        internal static ConfigBuilder[] GetMenus()
         {
             return menus.ToArray();
         }

@@ -14,7 +14,7 @@ namespace UltraFunGuns
         public int OrderInList { get; }
         public string SerializationAddress { get; private set; }
 
-        public ConfiggableMenu Owner { get; private set; }
+        public ConfigBuilder Owner { get; private set; }
 
 
         public Configgable(string path = "", string displayName = null, int orderInList = 0, string description = null) 
@@ -42,7 +42,7 @@ namespace UltraFunGuns
             this.Description = description;
         }
 
-        public void SetOwner(ConfiggableMenu owner)
+        public void SetOwner(ConfigBuilder owner)
         {
             if (Owner != null)
                 return;

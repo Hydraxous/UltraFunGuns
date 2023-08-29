@@ -80,7 +80,7 @@ namespace UltraFunGuns.UI
             menuBuilt = false;
         }
 
-        private void BuildMenus(ConfiggableMenu[] menus)
+        private void BuildMenus(ConfigBuilder[] menus)
         {
             DestroyPages();
 
@@ -93,9 +93,9 @@ namespace UltraFunGuns.UI
                 pageManifest.Add("", rootPage);
             });
 
-            for (int i=0;i<menus.Length;i++)
+            foreach(var menu in menus.OrderBy(x => x.OwnerDisplayName))
             {
-                BuildMenu(menus[i].GetConfigElements());
+                BuildMenu(menu.GetConfigElements());
             }
         }
 
