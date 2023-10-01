@@ -25,6 +25,7 @@ namespace UltraFunGuns
         public float spreadTightness = 3.0f;
 
         [Configgable("UltraFunGuns/Weapons/Tricksniper")]
+
         [Range(0,100)]
         private static float bulletPenetrationChance = 20.0f; // 100 Percentage
 

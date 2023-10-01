@@ -136,6 +136,7 @@
     <Folder Include="Components\Silly\" />
     <Folder Include="Components\UI\Terminal\" />
     <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
+    <Folder Include="Components\Weapons\NetResearchWeapons\" />
     <Folder Include="Components\Weapons\Redynamo\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
     <Folder Include="Components\Weapons\Slasher\" />

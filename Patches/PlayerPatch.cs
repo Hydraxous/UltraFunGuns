@@ -39,8 +39,10 @@ namespace UltraFunGuns
             return true;
         }
 
-        public static void PostFix(NewMovement __instance)
+        public static void PostFix(NewMovement __instance, int damage)
         {
+            Events.PlayerHurt(__instance, damage);
+
             if(!PlayerDead && (__instance.dead || __instance.hp <= 0))
             {
                 PlayerDead = true;

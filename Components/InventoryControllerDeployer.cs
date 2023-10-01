@@ -91,8 +91,9 @@ namespace UltraFunGuns
                     Data.SaveInfo.Save();
                 }
             }
-            
-            invControllerButton.gameObject.SetActive(om.paused && !inventoryManagerOpen);
+
+            bool paused = GameStateManager.Instance.IsStateActive("pause");
+            invControllerButton.gameObject.SetActive(paused && !inventoryManagerOpen);
 
             if (inventoryKey.WasPerformedThisFrame)
             {

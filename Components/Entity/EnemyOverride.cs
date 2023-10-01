@@ -38,8 +38,21 @@ namespace UltraFunGuns
 
         public bool Frozen { get; private set; }
 
+        private bool initialized;
+
         private void Awake()
         {
+            if (!initialized)
+                ForceInitialize();
+        }
+
+        public void ForceInitialize()
+        {
+            if (initialized)
+                return;
+
+            initialized = true;
+
             Enemy = GetComponent<EnemyIdentifier>();
             navMeshAgent = GetComponent<NavMeshAgent>();
             animator = GetComponent<Animator>();
@@ -59,7 +72,6 @@ namespace UltraFunGuns
         private void GetPhysicsComponents()
         {
             primaryCollider = GetComponent<Collider>();
-
             childRigidbodies = GetComponentsInChildren<Rigidbody>();
         }
 
@@ -232,58 +244,38 @@ namespace UltraFunGuns
         public void SetComponents(bool active)
         {
             if (Enemy == null)
-            {
                 return;
-            }
 
             if (Enemy.dead)
-            {
                 return;
-            }
 
             if (navMeshAgent != null)
-            {
                 navMeshAgent.enabled = active;
-            }
 
             if (drone != null)
-            {
                 drone.enabled = active;
-            }
 
             if (machine != null)
-            {
                 machine.enabled = active;
-            }
 
             if (spiderBody != null)
-            {
                 spiderBody.enabled = active;
-            }
 
-            if(statue != null)
-            {
+            if (statue != null)
                 statue.enabled = active;
-            }
 
-            if(zombie != null)
-            {
+            if (zombie != null)
                 zombie.enabled = active;
-            }
 
-            if(animator != null)
-            {
+            if (animator != null)
                 animator.enabled = active;
-            }
         }
 
         public void SetKinematic(bool active)
         {
 
             if (primaryCollider != null)
-            {
                 primaryCollider.enabled = active;
-            }
 
             foreach(Rigidbody childRB in childRigidbodies)
             {
@@ -299,9 +291,8 @@ namespace UltraFunGuns
         public bool AddCollisionEvent(Action<Collision> collisionCallback)
         {
             if (collisionCallback == null || onCollisionEvents.Contains(collisionCallback))
-            {
                 return false;
-            }
+
             onCollisionEvents.Add(collisionCallback);
             return true;
         }
@@ -313,13 +304,37 @@ namespace UltraFunGuns
                 action?.Invoke(col);
             }
         }
+
+
+        public float GetHealth()
+        {
+            if (spiderBody != null)
+                return spiderBody.health;
+
+            if (drone != null)
+                return drone.health;
+
+            if (zombie != null)
+                return zombie.health;
+
+            if (machine != null)
+                return machine.health;
+
+            if (statue != null)
+                return statue.health;
+
+            return Enemy.health;
+        }
+
     }
 
     public static class EnemyUtil
     {
         public static EnemyOverride Override(this EnemyIdentifier eid)
         {
-            return eid.gameObject.EnsureComponent<EnemyOverride>();
+            EnemyOverride enemyOverride = eid.gameObject.EnsureComponent<EnemyOverride>();
+            enemyOverride.ForceInitialize();
+            return enemyOverride;
         }
     }
 

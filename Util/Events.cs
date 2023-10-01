@@ -19,5 +19,13 @@ namespace UltraFunGuns
         public static EventHandler OnPlayerRespawn;
 
 
+        public static event Action<NewMovement, int> OnPlayerHurt;
+
+        public static void PlayerHurt(NewMovement player, int damage)
+        {
+            OnPlayerHurt?.Invoke(player, damage);
+        }
+
+
     }
 }

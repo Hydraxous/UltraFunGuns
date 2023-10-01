@@ -43,14 +43,28 @@ namespace UltraFunGuns
          */
 
         #region Configurable
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
         private static int shotBurstCount = 3;
-        
-        private static float maxShotWindowTime;
-        private static float minShotWindowTime;
+
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        private static float maxShotWindowTime = 0.75f;
+
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        private static float minShotWindowTime = 0.25f;
 
         //Max cooldown is 3 seconds, minimum is 0.5
+
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
         private static float ventCooldownPerShot = 1.25f;
+        
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
         private static float minimumBurstCooldown = 0.5f;
+
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        private static float maxRange = 2000f;
+
+        [Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        private static float projectileSpeed = 14f;
         #endregion
 
         private float lastFireTime;
@@ -60,10 +74,13 @@ namespace UltraFunGuns
 
         private int burstShotsRemaining = 0;
 
+        private LayerMask hitMask => LayerMaskDefaults.Get(LMD.EnemiesAndEnvironment);
+
         private static GameObject plutonProjectilePrefab; //Logic projectile
         [UFGAsset("PlutonShot")] private static GameObject plutonProjectileVisualPrefab; //fake visual
+        //[UFGAsset("PlutonShot_ImpactFX")] private static GameObject plutonShotImpactFX; 
 
-        private bool firePressedThisFrame => InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame;
+        private bool firePressedThisFrame => InputManager.Instance.InputSource.Fire1.WasPerformedThisFrame && !om.paused;
 
 
         private void Update()
@@ -116,12 +133,28 @@ namespace UltraFunGuns
         {
             if (timeSinceLastFire < minShotWindowTime)
                 return;
-            /*
+
             FireProjectile((p,v) =>
             {
+                RayProjectile projectile = p.AddComponent<RayProjectile>();
+                projectile.StepDistance = projectileSpeed;
+                projectile.Hitmask = hitMask;
+                projectile.OnHit += LogicHit;
 
+                RayProjectile fakeProj = v.AddComponent<RayProjectile>();
+                fakeProj.StepDistance = projectileSpeed;
+                fakeProj.Hitmask = hitMask;
+                fakeProj.OnHit += VisualHit;
+
+                Vector3 fakeProjVector = firePoint.forward;
+
+                if (Physics.Raycast(mainCam.position, mainCam.forward, out RaycastHit hit, maxRange, hitMask))
+                    fakeProjVector = (hit.point - firePoint.position).normalized;
+
+                v.transform.position = firePoint.position;
+                v.transform.forward = fakeProjVector;
             });
-            */
+
             HydraLogger.Log("Pluton: Bang!");
 
             lastFireTime = Time.time;
@@ -139,6 +172,22 @@ namespace UltraFunGuns
             GameObject logicProjectile = GameObject.Instantiate(plutonProjectilePrefab, mainCam.position, Quaternion.LookRotation(mainCam.forward));
             GameObject visualProjectile = GameObject.Instantiate(plutonProjectileVisualPrefab, firePoint.position, Quaternion.LookRotation(mainCam.forward));
             onIntance?.Invoke(logicProjectile, visualProjectile);
+        }
+
+        private void LogicHit(RaycastHit hit, RayProjectile projectile)
+        {
+            if(hit.collider.IsColliderEnemy(out EnemyIdentifier eid))
+            {
+                
+            }
+        }
+
+        //Destroy visual projectile. We no longer need it.
+        private void VisualHit(RaycastHit hit, RayProjectile projectile)
+        {
+            projectile.transform.position = hit.point;
+            //GameObject.Instantiate(plutonShotImpactFX, hit.point, Quaternion.LookRotation(hit.normal));
+            Destroy(projectile.gameObject);
         }
 
 
