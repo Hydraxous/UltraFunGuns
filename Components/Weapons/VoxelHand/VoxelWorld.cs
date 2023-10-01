@@ -162,7 +162,8 @@ namespace UltraFunGuns
             if (worldData == null)
                 throw new NullReferenceException("World data is null!");
 
-            Debug.LogWarning($"block count: {worldData.VoxelData.Length}");
+            worldScale = worldData.WorldScale;
+
             int index = 0;
             foreach (SerializedVoxel voxel in worldData.VoxelData)
             {
@@ -183,7 +184,7 @@ namespace UltraFunGuns
                     voxelState.SetStateData(voxel.stateData);
                 }
 
-                Debug.LogWarning($"[{index+1}] - - -\nID:{voxelData.ID}\nDN:{voxelData.DisplayName}\nC:{voxelLocation.Coordinate}\nP:{voxelLocation.Position}");
+                //Debug.LogWarning($"[{index+1}] - - -\nID:{voxelData.ID}\nDN:{voxelData.DisplayName}\nC:{voxelLocation.Coordinate}\nP:{voxelLocation.Position}");
 
                 Voxel.Create(voxelLocation, voxelData, voxelState);
                 ++index;
@@ -209,7 +210,7 @@ namespace UltraFunGuns
 
             string sceneName = SceneHelper.CurrentScene;
 
-            VoxelWorldData worldData = new VoxelWorldData(sceneName, "World", serializedVoxels);
+            VoxelWorldData worldData = new VoxelWorldData(sceneName, "World", worldScale, serializedVoxels);
 
             string folder = HydraDynamics.DataPersistence.DataManager.GetDataPath("Voxel", "Saves");
             string filePath = Path.Combine(folder, sceneName + worldFileExtension);

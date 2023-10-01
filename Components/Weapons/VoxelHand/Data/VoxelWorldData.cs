@@ -11,12 +11,14 @@ namespace UltraFunGuns
     {
         public string SceneName { get; }
         public string DisplayName { get; }
+        public float WorldScale { get; }
         public SerializedVoxel[] VoxelData { get; }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Scene", SceneName);
             info.AddValue("Name", DisplayName);
+            info.AddValue("WorldScale", WorldScale);
             info.AddValue("Data", VoxelData);
         }
 
@@ -24,13 +26,15 @@ namespace UltraFunGuns
         {
             SceneName = info.GetString("Scene");
             DisplayName = info.GetString("Name");
+            WorldScale = info.GetSingle("WorldScale");
             VoxelData = (SerializedVoxel[]) info.GetValue("Data", typeof(SerializedVoxel[]));
         }
 
-        public VoxelWorldData(string sceneName, string displayName, SerializedVoxel[] voxelData) 
+        public VoxelWorldData(string sceneName, string displayName, float worldScale, SerializedVoxel[] voxelData) 
         {
             SceneName = sceneName;
             DisplayName = displayName;
+            WorldScale = worldScale;
             VoxelData = voxelData;
         }
     }
