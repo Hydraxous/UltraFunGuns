@@ -9,23 +9,7 @@ namespace UltraFunGuns
     [Serializable]
     public class VoxelGlass : IVoxelState
     {
-        string testString = "defaultString";
-        string  onInteractChangeTo = "Changed String!";
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("test", testString);
-        }
-
-        public VoxelGlass()
-        {
-
-        }
-
-        protected VoxelGlass(SerializationInfo info, StreamingContext context)
-        {
-            testString = info.GetString("test");
-        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {}
 
         public object GetStateData()
         {
@@ -51,6 +35,15 @@ namespace UltraFunGuns
 
         public void OnVoxelPlaced(Voxel voxel)
         {
+            voxel.gameObject.AddComponent<Explodable>().OnExplode += (e) =>
+            {
+                if(e == null)
+                    if (e.harmless)
+                        return;
+
+                voxel.Break();
+            };
+
             voxel.gameObject.AddComponent<SimpleBreakable>().OnBreak += voxel.Break;
         }
 
@@ -59,18 +52,9 @@ namespace UltraFunGuns
 
         }
 
-        public void PrintState(Voxel voxel)
-        {
-            Debug.Log(testString);
-        }
+        public void PrintState(Voxel voxel) {}
 
-        public void SetStateData(object stateData)
-        {
-            VoxelGlass vglass = (VoxelGlass)stateData;
-            testString = vglass.testString;
-            Debug.LogWarning($"STATE DATA SET ON GLASS: ({testString})");
-            //No clue if this works at all.
-        }
+        public void SetStateData(object stateData) {}
 
         public void OnVoxelBreak(Voxel voxel)
         {

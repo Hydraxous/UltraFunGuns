@@ -9,7 +9,6 @@ namespace UltraFunGuns
     public interface IUFGInteractionReceiver
     {
         void Shot(BeamType beamType);
-        bool Parried(Vector3 aimVector);
         bool Interact(UFGInteractionEventData interaction);
         bool Targetable(TargetQuery query);
         Vector3 GetPosition();

@@ -11,7 +11,13 @@ namespace UltraFunGuns
     {
         public Action OnBreak;
         public UnityEvent OnBreakEvent;
+
         public void Break()
+        {
+            BreakCore();
+        }
+
+        protected virtual void BreakCore()
         {
             OnBreak?.Invoke();
             OnBreakEvent?.Invoke();

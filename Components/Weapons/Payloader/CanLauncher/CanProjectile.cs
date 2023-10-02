@@ -222,7 +222,7 @@ namespace UltraFunGuns
             AlterVelocity(bounceForce, false);
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             if (dead || !canBeParried || sleeping)
             {

@@ -142,10 +142,6 @@ namespace UltraFunGuns
             Explode(positions.ToArray());
         }
 
-        public bool Parried(Vector3 aimVector)
-        {
-            return false;
-        }
 
         public bool Interact(UFGInteractionEventData interaction)
         {

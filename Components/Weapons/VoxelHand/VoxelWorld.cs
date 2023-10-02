@@ -74,28 +74,42 @@ namespace UltraFunGuns
             voxel = instance.voxelData[location.Coordinate];
             return voxel != null;
         }
-
+        
         public static void SetVoxel(VoxelLocation position, Voxel voxel)
         {
-            ClearVoxel(position.Coordinate);
+            if (voxel == null)
+            {
+                if (instance.voxelData.ContainsKey(position.Coordinate))
+                    instance.voxelData.Remove(position.Coordinate);
+                return;
+            }
+                
+            instance.voxelData[position.Coordinate] = voxel;
+        }
+
+        public static void ReplaceVoxel(VoxelLocation position, Voxel voxel)
+        {
+            DeleteVoxel(position);
 
             if (voxel == null)
                 return;
 
-            instance.voxelData[position.Coordinate] = voxel;
+            SetVoxel(position, voxel);
         }
 
-        private static void ClearVoxel(Vector3Int coordinate)
+        public static void DeleteVoxel(VoxelLocation location)
         {
-            if (!instance.voxelData.ContainsKey(coordinate))
+            Vector3Int coord = location.Coordinate;
+
+            if (!instance.voxelData.ContainsKey(coord))
                 return;
 
-            Voxel v = instance.voxelData[coordinate];
+            Voxel v = instance.voxelData[coord];
             
             if (v != null)
                 GameObject.Destroy(v.gameObject);
 
-            instance.voxelData.Remove(coordinate);
+            instance.voxelData.Remove(coord);
         }
 
         public static Voxel GetVoxelAtCoordinate(Vector3Int coordinate)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using UltraFunGuns.UI;
@@ -16,6 +17,9 @@ namespace UltraFunGuns
         [SerializeField] private GameObject container;
         [SerializeField] private RectTransform contentBody;
         [SerializeField] private GameObject selectionButtonPrefab;
+
+        [SerializeField] private Button importButton;
+        [SerializeField] private Text importButtonText;
 
         public bool IsOpen => container.activeInHierarchy;
 
@@ -122,8 +126,26 @@ namespace UltraFunGuns
 
         public void Button_RefreshVoxels()
         {
-            VoxelDatabase.ImportCustomBlocks();
-            RebuildMenu();
+            if (VoxelDatabase.IsImportingTextures)
+                return;
+
+            StartCoroutine(ImportCustomVoxel());
+        }
+
+        private IEnumerator ImportCustomVoxel()
+        {
+            string buttonText = importButtonText.text;
+            importButton.interactable = false;
+            
+            VoxelDatabase.ImportCustomBlocksAsync(null);
+            while(VoxelDatabase.IsImportingTextures)
+            {
+                importButtonText.text =$"{Mathf.CeilToInt(VoxelDatabase.TextureImportProgress*100f)}%";
+                yield return new WaitForEndOfFrame();
+            }
+
+            importButtonText.text = buttonText;
+            importButton.interactable = true;
         }
 
         public void Button_OpenCustomVoxelFolder()

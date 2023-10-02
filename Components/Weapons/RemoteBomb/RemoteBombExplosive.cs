@@ -96,7 +96,7 @@ namespace UltraFunGuns
             return (!landed && !armed);
         }
 
-        public bool Parried(Vector3 direction)
+        public bool Parry(Vector3 origin, Vector3 direction)
         {
             if(!landed && !armed)
             {

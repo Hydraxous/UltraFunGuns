@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using HarmonyLib;
+using UltraFunGuns.InterfaceTypes;
 
 namespace UltraFunGuns
 {
@@ -11,29 +12,17 @@ namespace UltraFunGuns
     {
         public static bool Prefix(Punch __instance, Transform target, bool __result, ref bool ___hitSomething)
         {
+            if (!target.TryFindComponent<IParriable>(out IParriable parriable))
+                return true;
 
-            if(!target.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgObject))
-            {
-                ufgObject = target.GetComponentInParent<IUFGInteractionReceiver>();
-                if(ufgObject == null)
-                {
-                    ufgObject = target.GetComponentInChildren<IUFGInteractionReceiver>();
-                }
-            }
+            if (!parriable.Parry(CameraController.Instance.transform.position, CameraController.Instance.transform.forward))
+                return true;
 
-            if(ufgObject != null)
-            {
-                if(ufgObject.Parried(MonoSingleton<CameraController>.Instance.cam.transform.forward))
-                {
-                    __instance.anim.Play("Hook", 0, 0.065f);
-                    MonoSingleton<TimeController>.Instance.ParryFlash();
-                    ___hitSomething = true;
-                    __result = true;
-                    return false;
-                }
-            }
-
-            return true;
+            __instance.anim.Play("Hook", 0, 0.065f);
+            MonoSingleton<TimeController>.Instance.ParryFlash();
+            ___hitSomething = true;
+            __result = true;
+            return false;
         }
     }
 }

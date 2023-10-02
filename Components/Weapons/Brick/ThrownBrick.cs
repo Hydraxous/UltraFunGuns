@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections;
+using UltraFunGuns.InterfaceTypes;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {
-    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IParriable
     {
         [UFGAsset("BrickBreakFX")] private static GameObject brickBreakFX;
         [UFGAsset("TennisHit")] private static AudioClip tennisHit;
@@ -450,7 +451,7 @@ namespace UltraFunGuns
             enemyParries = 0;
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             if (rb == null || brickShooter == null || parried)
             {

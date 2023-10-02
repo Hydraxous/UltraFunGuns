@@ -24,6 +24,7 @@ namespace UltraFunGuns
         {
             stateRegistry = new Dictionary<string, Type>();
             stateRegistry.Add("glass", typeof(VoxelGlass));
+            stateRegistry.Add("tnt", typeof(ExplosiveVoxel));
         }
 
     }

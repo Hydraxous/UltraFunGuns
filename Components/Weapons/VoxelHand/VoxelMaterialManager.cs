@@ -30,6 +30,14 @@ namespace UltraFunGuns
             return newMaterial;
         }
 
+        [UFGAsset("cobblestone")]
+        private static Texture2D defaultTexture;
+
+        public static Material GetDefaultMaterial()
+        {
+            return GetMaterial(defaultTexture);
+        }
+
 
         public static Sprite GetSprite(Texture2D texture)
         {

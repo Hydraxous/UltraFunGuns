@@ -355,7 +355,7 @@ namespace UltraFunGuns
 
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             SetDirection(aimVector);
             if(Falling)

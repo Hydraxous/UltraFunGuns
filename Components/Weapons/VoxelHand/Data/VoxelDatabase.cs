@@ -1,5 +1,6 @@
 ﻿using MonoMod.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -53,10 +54,6 @@ namespace UltraFunGuns
         [UFGAsset("boulder_impact_on_stones_14 fast")]
         private static AudioClip defaultClip;
 
-        [UFGAsset("cobblestone")]
-        private static Texture2D defaultTexture;
-
-
         private static string customVoxelsFolder => HydraDynamics.DataPersistence.DataManager.GetDataPath("Voxel", "CustomVoxels");
 
         private static Dictionary<string, Texture2D> loadedTextures = new Dictionary<string,Texture2D>();
@@ -66,39 +63,79 @@ namespace UltraFunGuns
             Application.OpenURL($"file://{customVoxelsFolder}");
         }
 
-        public static void ImportCustomBlocks()
+        public static void ImportCustomBlocksAsync(Action onComplete)
         {
+            if (IsImportingTextures)
+                return;
+
+            StaticCoroutine.RunCoroutine(ImportCustomTexturesAsync(() => { OnCustomBlocksUpdated?.Invoke(); }));
+        }
+
+        public static bool IsImportingTextures { get; private set; }
+        public static float TextureImportProgress { get; private set; }
+
+        private static IEnumerator ImportCustomTexturesAsync(Action onComplete)
+        {
+            IsImportingTextures = true;
+
             List<string> pathes = new List<string>();
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png"));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg"));
 
+            int totalCount = pathes.Count+1; //stop dividebyzero exception
+            int indexProcessed = 1;
+
             foreach (string path in pathes)
             {
+                TextureImportProgress = (float)indexProcessed / ((float)totalCount*2);
+                ++indexProcessed;
+
                 if (loadedTextures.ContainsKey(path))
                     continue;
+
+                yield return new WaitForEndOfFrame();
 
                 if (!TextureLoader.TryLoadTexture(path, out Texture2D tex))
                     continue;
 
                 tex.name = Path.GetFileNameWithoutExtension(path);
                 loadedTextures.Add(path, tex);
+
+                yield return new WaitForEndOfFrame();
             }
+
+            Material defaultMaterial = VoxelMaterialManager.GetDefaultMaterial();
 
             foreach (Texture2D texture in loadedTextures.Values)
             {
+                TextureImportProgress = (float)indexProcessed / ((float)totalCount * 2);
+                ++indexProcessed;
+
                 if (texture == null)
                     continue;
 
-                if(customBlocks.ContainsKey(texture.name))
+                if (customBlocks.ContainsKey(texture.name))
                 {
-                    Debug.LogWarning($"Duplicate texture found of name {texture.name}");
-                    continue;
+                    if (customBlocks[texture.name].Material != defaultMaterial)
+                    {
+                        Debug.LogWarning($"Duplicate texture found of name {texture.name}");
+                        continue;
+                    }
+
+                    customBlocks.Remove(texture.name);
                 }
 
                 VoxelData customVoxelData = CreateCustomBlock(texture);
                 customBlocks.Add(texture.name, customVoxelData);
             }
+
+            indexProcessed = totalCount;
+            TextureImportProgress = 1f;
+            IsImportingTextures = false;
+            onComplete?.Invoke();
         }
+
+        public static event Action OnCustomBlocksUpdated;
 
         private static void ImportPackagedVoxels()
         {
@@ -134,14 +171,14 @@ namespace UltraFunGuns
         private static void InitializeVoxelDatabase()
         {
             ImportPackagedVoxels();
-            ImportCustomBlocks();
+            ImportCustomBlocksAsync(null);
 
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
         }
 
         private static void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
-            ImportCustomBlocks();
+            ImportCustomBlocksAsync(null);
         }
 
         public static VoxelData GetVoxelData(string id)
@@ -161,7 +198,7 @@ namespace UltraFunGuns
         //Used for custom blocks, fe they dont exist anymore.
         public static VoxelData GetPlaceholderVoxelData(string id)
         {
-            return new VoxelData(id, id, VoxelMaterialManager.GetMaterial(defaultTexture), defaultClip);
+            return new VoxelData(id, id, VoxelMaterialManager.GetDefaultMaterial(), defaultClip);
         }
     }
 }

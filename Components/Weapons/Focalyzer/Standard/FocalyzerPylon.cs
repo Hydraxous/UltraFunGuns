@@ -343,7 +343,7 @@ namespace UltraFunGuns
             return false;
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             rb.AddForce(aimVector.normalized * parryForce, ForceMode.Impulse);
             return true;

@@ -33,7 +33,7 @@ namespace UltraFunGuns
             //Spawn break particle 
             BreakVFX();
             VoxelState?.OnVoxelBreak(this);
-            VoxelWorld.SetVoxel(GetLocation(), null);
+            VoxelWorld.DeleteVoxel(GetLocation());
         }
 
         public void Interact()
@@ -77,7 +77,7 @@ namespace UltraFunGuns
             newBlock.transform.localScale = Vector3.one * VoxelWorld.WorldScale;
 
             Voxel newVoxel = newBlock.AddComponent<Voxel>();
-            VoxelWorld.SetVoxel(position, newVoxel);
+            VoxelWorld.ReplaceVoxel(position, newVoxel);
 
             newVoxel.SetVoxelData(data);
             newVoxel.SetVoxelState(state);
