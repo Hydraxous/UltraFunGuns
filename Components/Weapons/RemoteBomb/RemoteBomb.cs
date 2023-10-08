@@ -16,16 +16,16 @@ namespace UltraFunGuns
         [UFGAsset("RemoteBomb_Explosive")] public static GameObject RemoteExplosivePrefab { get; private set; }
 
 
-        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive")]
         private static float bombDetonationDelay = 0.035f;
 
-        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive")]
         private static float throwForce = 50.0f;
 
-        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive")]
         private static float primaryFireCooldown = 0.45f;
 
-        [Configgable("UltraFunGuns/Weapons/Radio Explosive")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive")]
         private static float secondaryFireCooldown = 0.25f;
 
         private List<RemoteBombExplosive> thrownExplosives = new List<RemoteBombExplosive>();

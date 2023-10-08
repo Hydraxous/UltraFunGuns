@@ -18,19 +18,19 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> somethingWicked = new UKAsset<GameObject>("Assets/Prefabs/Enemies/Wicked.prefab");
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
 
-        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Ultra***")]
         private static int hitscans = 16;
         
-        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Ultra***")]
         private static float bulletSpread = 0.06f;
 
-        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Ultra***")]
         private static bool gamerMode;
 
-        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Ultra***")]
         private static float primaryFireCooldown = 0.05f;
         
-        [Configgable("UltraFunGuns/Weapons/Ultra***")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Ultra***")]
         private static float secondaryFireCooldown = 0.05f;
 
         private ActionCooldown primaryFire = new ActionCooldown(primaryFireCooldown), secondaryFire = new ActionCooldown(secondaryFireCooldown);

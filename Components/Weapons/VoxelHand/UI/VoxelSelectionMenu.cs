@@ -76,7 +76,7 @@ namespace UltraFunGuns
 
         private bool rebuilding;
 
-        [Configgable("UltraFunGuns/Voxel/Palette")]
+        [Configgy.Configgable("UltraFunGuns/Voxel/Palette")]
         private static int maxIconsPerFrame = 10;
 
         private IEnumerator RebuildAsync()

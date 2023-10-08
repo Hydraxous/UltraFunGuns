@@ -13,13 +13,13 @@ namespace UltraFunGuns
         [UFGAsset("EggImpactFX")] private static GameObject impactFX;
         [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
 
-        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg")]
         private static float velocityDamageMultiplier = 0.035f;
 
-        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Damage Multiplier")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Damage Multiplier")]
         private static float eggsplosionEggDamageMultiplier = 0.75f;
 
-        [Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Velocity Damage Multiplier")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Velocity Damage Multiplier")]
         private static float eggsplosionEggDamageVelocityMultiplier = 0.25f;
 
         private Rigidbody rb;

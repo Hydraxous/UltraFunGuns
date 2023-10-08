@@ -4,7 +4,7 @@ using HydraDynamics;
 using HydraDynamics.Debugging;
 using System;
 using System.Collections;
-using UltraFunGuns.Configuration;
+using Configgy;
 using UltraFunGuns.Datas;
 using UltraFunGuns.Patches;
 using UltraFunGuns.Util;
@@ -89,7 +89,7 @@ namespace UltraFunGuns
         }
 
         [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
-        [Configgable("Commands", displayName:"Toggle Debug Mode")]
+        [Configgy.Configgable("Commands", displayName:"Toggle Debug Mode")]
         public static void ToggleDebugMode()
         {
             bool debugMode = !DebugMode;

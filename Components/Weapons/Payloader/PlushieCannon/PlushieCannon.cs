@@ -45,13 +45,13 @@ namespace UltraFunGuns
 
         private float targetBeamThickness = 0.5f, maxBeamDistance = 50.0f;
 
-        [Configgable("UltraFunGuns/Weapons/dev_cannon")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/dev_cannon")]
         private static float shootForce = 130.0f;
 
-        [Configgable("UltraFunGuns/Weapons/dev_cannon")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/dev_cannon")]
         private static float plushieSpinSpeed = 90.0f;
 
-        [Configgable("UltraFunGuns/Weapons/dev_cannon")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/dev_cannon")]
         private static float damage = 1.0f;
 
         //[UFGAsset("HydraPlushie")] public static GameObject HydraPlushie { get; private set; }

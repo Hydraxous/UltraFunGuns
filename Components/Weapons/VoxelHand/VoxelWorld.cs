@@ -13,10 +13,10 @@ namespace UltraFunGuns
     {
         private static VoxelWorld _instance;
 
-        [Configgable("UltraFunGuns/Voxel/World")]
+        [Configgy.Configgable("UltraFunGuns/Voxel/World")]
         private static float worldScale = 2f;
 
-        [Configgable("UltraFunGuns/Voxel/World")]
+        [Configgy.Configgable("UltraFunGuns/Voxel/World")]
         private static int maxBlocks = 10000;
 
         public static float WorldScale => worldScale;

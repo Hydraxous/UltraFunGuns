@@ -15,16 +15,16 @@ namespace UltraFunGuns
     [UFGWeapon("VoxelHand", "Architect's Hand", 0, true, WeaponIconColor.Green, true)]
     public class VoxelHand : UltraFunGunBase
     {
-        [Configgable("UltraFunGuns/Weapons/Architects Hand")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Architects Hand")]
         private static float interactRange = 9.5f;
 
-        [Configgable("UltraFunGuns/Weapons/Architects Hand")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Architects Hand")]
         private static float placeBlockFaceOffset = 0.5f;
 
-        [Configgable("UltraFunGuns/Weapons/Architects Hand")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Architects Hand")]
         private static float inputHoldDelay = 0.3f;
 
-        [Configgable("UltraFunGuns/Weapons/Architects Hand")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Architects Hand")]
         private static float autoInteractInterval = 0.175f;
 
         private bool primaryPressed => InputManager.Instance.InputSource.Fire1.IsPressed && !om.paused;

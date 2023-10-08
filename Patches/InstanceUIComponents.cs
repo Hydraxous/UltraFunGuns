@@ -16,9 +16,6 @@ namespace UltraFunGuns.Patches
         {
             Rect = __instance.GetComponent<RectTransform>();
             RectTransform rt = __instance.GetComponent<RectTransform>();
-
-            GameObject configMenuPrefab = HydraLoader.LoadAssetOfType<GameObject>("ConfigurationMenu");
-            GameObject.Instantiate(configMenuPrefab, rt);
         }
     }
 }

@@ -14,13 +14,13 @@ namespace UltraFunGuns
         //[UFGAsset("DisintigrateHitFX")] private static GameObject p_disintigrateHit;
         //[UFGAsset("DisintigrateVaporizeFX")] private static GameObject p_disintigrateVaporize;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
         private static float maxRange = 1000f;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
         private static float damagePerLevel = 0.25f;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Outcomes/Disintigrate")]
         private static float powerDivisor = 38.5f;
         protected override void ExecuteSpellCore(DiceGun diceGun)
         {

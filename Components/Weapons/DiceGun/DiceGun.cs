@@ -3,25 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using Configgy;
 
 namespace UltraFunGuns
 {
     [UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue)]
     public class DiceGun : UltraFunGunBase
     {
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
         private static int startingDice = 3;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
         private static int maxDice = 12;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
         private static float diceSpawnFloorOffset = 4f;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
         private static int diceDropCount = 1;
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"debug_all_spells")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"debug_all_spells")]
         private static bool addSpellsOnEnable = false;
 
         private int diceLeft;
@@ -109,7 +110,7 @@ namespace UltraFunGuns
             spell.OnSpellAddedToPool(this);
         }
 
-        [Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"Add random spell to pool")]
+        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"Add random spell to pool")]
         public static void PickupRandomSpellStatic()
         {
             //Debug
