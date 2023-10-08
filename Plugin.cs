@@ -11,6 +11,7 @@ using UltraFunGuns.Util;
 
 namespace UltraFunGuns
 {
+    [BepInDependency("Hydraxous.ULTRAKILL.Configgy", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Hydraxous.HydraDynamics", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(ConstInfo.GUID, ConstInfo.NAME, ConstInfo.VERSION)]
     [HydynamicsInfo(ConstInfo.NAME, ConstInfo.GUID, ConstInfo.VERSION)]

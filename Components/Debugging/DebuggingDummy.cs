@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UltraFunGuns.UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;

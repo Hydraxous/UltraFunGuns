@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Text;
-using UltraFunGuns.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
