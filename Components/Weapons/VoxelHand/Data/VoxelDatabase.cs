@@ -33,21 +33,19 @@ namespace UltraFunGuns
             "vh_selection"
         };
 
-        public static VoxelData[] GetPlaceableVoxels()
+        public static IEnumerable<VoxelData> GetPlaceableVoxels()
         {
-            if(voxelRegistry == null)
+            if (voxelRegistry == null)
             {
                 InitializeVoxelDatabase();
             }
 
-            List<VoxelData> voxels = voxelRegistry.Values.ToList();
+            IEnumerable<VoxelData> data = voxelRegistry.Values;
 
             if(customBlocks != null)
-            {
-                voxels.AddRange(customBlocks.Values);
-            }
+                data = data.Concat(customBlocks.Values);
 
-            return voxels.ToArray();
+            return data;
         }
 
 
@@ -74,13 +72,20 @@ namespace UltraFunGuns
         public static bool IsImportingTextures { get; private set; }
         public static float TextureImportProgress { get; private set; }
 
+        private static string cyberGrindTextureFolder => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Textures");
+
         private static IEnumerator ImportCustomTexturesAsync(Action onComplete)
         {
             IsImportingTextures = true;
 
             List<string> pathes = new List<string>();
-            pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png"));
-            pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg"));
+
+            pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png", SearchOption.AllDirectories));
+            pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg", SearchOption.AllDirectories));
+            pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpeg", SearchOption.AllDirectories));
+            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.png", SearchOption.AllDirectories));
+            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpg", SearchOption.AllDirectories));
+            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpeg", SearchOption.AllDirectories));
 
             int totalCount = pathes.Count+1; //stop dividebyzero exception
             int indexProcessed = 1;
@@ -116,12 +121,10 @@ namespace UltraFunGuns
 
                 if (customBlocks.ContainsKey(texture.name))
                 {
+                    //block is loaded, so skip it.
                     if (customBlocks[texture.name].Material != defaultMaterial)
-                    {
-                        Debug.LogWarning($"Duplicate texture found of name {texture.name}");
                         continue;
-                    }
-
+                    
                     customBlocks.Remove(texture.name);
                 }
 

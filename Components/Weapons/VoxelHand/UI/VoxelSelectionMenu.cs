@@ -23,8 +23,9 @@ namespace UltraFunGuns
 
         public bool IsOpen => container.activeInHierarchy;
 
-        private List<VoxelMenuButton> instancedButtons = new List<VoxelMenuButton>();
-        
+        private Dictionary<VoxelData, VoxelMenuButton> instancedButtons = new Dictionary<VoxelData, VoxelMenuButton>();
+
+
         private VoxelHand voxelHand;
 
         public void SetVoxelHand(VoxelHand voxelHand)
@@ -43,33 +44,92 @@ namespace UltraFunGuns
             container.SetActive(false);
         }
 
+        private void Start()
+        {
+            StartCoroutine(ButtonUpdate());
+        }
+
+        private IEnumerator ButtonUpdate()
+        {
+            string buttonText = importButtonText.text;
+            bool importingLastCheck = false;
+
+            while (true)
+            {
+                bool importing = VoxelDatabase.IsImportingTextures;
+
+                if(importing)
+                {
+                    importButtonText.text = $"{Mathf.CeilToInt(VoxelDatabase.TextureImportProgress * 100f)}%";
+                    importButton.interactable = false;
+                }
+                else if(importingLastCheck)
+                {
+                    importButtonText.text = buttonText;
+                    importButton.interactable = true;
+                }
+
+                importingLastCheck = importing;
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+
+        private bool rebuilding;
+
+        [Configgable("UltraFunGuns/Voxel/Palette")]
+        private static int maxIconsPerFrame = 10;
+
+        private IEnumerator RebuildAsync()
+        {
+            rebuilding = true;
+            int counter = 0;
+
+            foreach (VoxelData voxel in VoxelDatabase.GetPlaceableVoxels().OrderBy(x => x.DisplayName))
+            {
+                //Already built the button, so skip it.
+                if (instancedButtons.ContainsKey(voxel))
+                    continue;
+
+                instancedButtons.Add(voxel, BuildButton(voxel));
+
+                if (counter % maxIconsPerFrame == 0)
+                    yield return new WaitForEndOfFrame();
+
+                counter++;
+            }
+
+            rebuilding = false;
+        }
+
+
+        private VoxelMenuButton BuildButton(VoxelData voxelData)
+        {
+            GameObject newButton = GameObject.Instantiate(selectionButtonPrefab, contentBody);
+            VoxelMenuButton button = newButton.GetComponent<VoxelMenuButton>();
+            button.SetVoxelData(voxelData);
+            button.SetSelected(false);
+
+            if (voxelHand != null)
+                if (voxelHand.CurrentVoxelData == voxelData)
+                    button.SetSelected(true);
+
+            button.SetButtonAction(ButtonPressed);
+            return button;
+        }
+
+
         private void RebuildMenu()
         {
-            ClearMenu();
+            if(rebuilding)
+                StopCoroutine(RebuildAsync());
 
-            VoxelData[] placeable = VoxelDatabase.GetPlaceableVoxels();
-            foreach (VoxelData voxel in placeable.OrderBy(x=>x.DisplayName))
-            {
-                GameObject newButton = GameObject.Instantiate(selectionButtonPrefab, contentBody);
-                VoxelMenuButton button = newButton.GetComponent<VoxelMenuButton>();
-                button.SetVoxelData(voxel);
-                button.SetSelected(false);
-
-                if (voxelHand != null)
-                    if (voxelHand.CurrentVoxelData == voxel)
-                        button.SetSelected(true);
-                
-                button.SetButtonAction(ButtonPressed);
-                instancedButtons.Add(button);
-            }
+            StartCoroutine(RebuildAsync());
         }
 
         private void ButtonPressed(VoxelMenuButton button, VoxelData data)
         {
-            instancedButtons.ForEach(x =>
-            {
-                x?.SetSelected(x == button);
-            });
+            foreach (VoxelMenuButton vmb in instancedButtons.Values)
+                vmb?.SetSelected(vmb == button);
 
             voxelHand?.SetHeldVoxel(data);
         }
@@ -104,15 +164,13 @@ namespace UltraFunGuns
 
         private void ClearMenu()
         {
-            for(int i=0;i< instancedButtons.Count;i++)
+            foreach (KeyValuePair<VoxelData, VoxelMenuButton> btn in instancedButtons)
             {
-                if (instancedButtons[i] == null)
+                if (btn.Value == null)
                     continue;
 
-                VoxelMenuButton vmb = instancedButtons[i];
-                instancedButtons[i] = null;
-
-                Destroy(vmb.gameObject);
+                VoxelMenuButton vmb = btn.Value;
+                GameObject.Destroy(vmb.gameObject);
             }
 
             instancedButtons.Clear();
@@ -129,24 +187,9 @@ namespace UltraFunGuns
             if (VoxelDatabase.IsImportingTextures)
                 return;
 
-            StartCoroutine(ImportCustomVoxel());
-        }
-
-        private IEnumerator ImportCustomVoxel()
-        {
-            string buttonText = importButtonText.text;
-            importButton.interactable = false;
-            
             VoxelDatabase.ImportCustomBlocksAsync(null);
-            while(VoxelDatabase.IsImportingTextures)
-            {
-                importButtonText.text =$"{Mathf.CeilToInt(VoxelDatabase.TextureImportProgress*100f)}%";
-                yield return new WaitForEndOfFrame();
-            }
-
-            importButtonText.text = buttonText;
-            importButton.interactable = true;
         }
+
 
         public void Button_OpenCustomVoxelFolder()
         {

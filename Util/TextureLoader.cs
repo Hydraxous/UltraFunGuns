@@ -75,6 +75,7 @@ namespace UltraFunGuns.Util
             }
 
             tex = new Texture2D(16, 16);
+
             if (!tex.LoadImage(byteArray))
             {
                 HydraLogger.Log("texture loading failed!");
