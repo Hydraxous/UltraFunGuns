@@ -31,7 +31,7 @@ namespace UltraFunGuns
         private bool secondaryPressed => InputManager.Instance.InputSource.Fire2.IsPressed && !om.paused;
         private bool middleClickPerformed => Input.GetKeyDown(KeyCode.Mouse2);
 
-
+        private VoxelData lastVoxelData;
         private VoxelData currentVoxelData;
         public VoxelData CurrentVoxelData => currentVoxelData;
 
@@ -202,6 +202,31 @@ namespace UltraFunGuns
                 Debug.Log("Saved.");
             }
 
+            if(Input.GetKeyDown(KeyCode.N))
+            {
+                BuildStructure();
+            }
+
+        }
+
+        private void BuildStructure()
+        {
+            if (!TryGetLookLocation(out VoxelLocation location))
+                return;
+
+            MyVoxelHouse myHouse = new MyVoxelHouse();
+            myHouse.Build(location.Coordinate, UnityEngine.Random.Range(0,260));
+        }
+
+        private bool TryGetLookLocation(out VoxelLocation location, bool invertNormal = false)
+        {
+            location = new VoxelLocation();
+
+            if (!Physics.Raycast(mainCam.position, mainCam.forward, out RaycastHit hit, interactRange, LayerMaskDefaults.Get(LMD.EnemiesAndEnvironment)))
+                return false;
+
+            location.Position = hit.point + ((hit.normal * placeBlockFaceOffset) * ((invertNormal) ? 1 : -1));
+            return true;
         }
 
         private void HandlePickBlock()
@@ -222,7 +247,7 @@ namespace UltraFunGuns
         private void HandleSwitchVoxel()
         {
             if (Input.GetKeyDown(KeyCode.X))
-                SetHeldVoxel(null);
+                ToggleHand();
 
             if (!WeaponManager.SecretButton.WasPerformedThisFrame)
                 return;
@@ -242,9 +267,17 @@ namespace UltraFunGuns
             palette.OpenMenu();
         }
 
+        private void ToggleHand()
+        {
+            if (currentVoxelData != null)
+                SetHeldVoxel(null);
+            else if (lastVoxelData != null)
+                SetHeldVoxel(lastVoxelData);
+        }
+
         public void SetHeldVoxel(VoxelData voxel)
         {
-            VoxelData lastVoxel = currentVoxelData;
+            lastVoxelData = currentVoxelData;
             currentVoxelData = voxel;
             bool voxelNull = currentVoxelData == null;
 
@@ -254,7 +287,7 @@ namespace UltraFunGuns
             if(!voxelNull)
                 parts.DisplayCubeRenderer.sharedMaterial = voxel.Material;
 
-            if(lastVoxel != voxel)
+            if(lastVoxelData != voxel)
                 animator?.Play(anim_Equip, 0, 0);
         }
 
@@ -274,18 +307,7 @@ namespace UltraFunGuns
             if (VoxelWorld.CheckVoxelCollision(gridPosition))
                 return;
 
-            IVoxelState voxelState = null;
-
-            Type stateType = VoxelStateDatabase.GetStateType(currentVoxelData.ID);
-            if(stateType != null)
-            {
-                if(typeof(IVoxelState).IsAssignableFrom(stateType))
-                {
-                    voxelState = (IVoxelState) Activator.CreateInstance(stateType);
-                }
-            }
-
-            Voxel placedVoxel = Voxel.Create(location, currentVoxelData, voxelState);
+            Voxel placedVoxel = Voxel.Create(location, currentVoxelData);
 
             if (currentVoxelData.Sound != null)
                 AudioSource.PlayClipAtPoint(currentVoxelData.Sound, gridPosition);

@@ -29,9 +29,7 @@ namespace UltraFunGuns
             get
             {
                 if(_instance == null)
-                {
                     _instance = new GameObject("VoxelWorld").AddComponent<VoxelWorld>();
-                }
                 return _instance;
             }
         }
@@ -43,7 +41,6 @@ namespace UltraFunGuns
                 voxelData = new Dictionary<Vector3Int, Voxel>();
                 return;
             }
-
 
             foreach (KeyValuePair<Vector3Int, Voxel> voxel in voxelData)
             {
@@ -194,7 +191,7 @@ namespace UltraFunGuns
 
                 if (voxel.stateType != null)
                 {
-                    voxelState = (IVoxelState)Activator.CreateInstance(voxel.stateType);
+                    voxelState = (IVoxelState) Activator.CreateInstance(voxel.stateType);
                     voxelState.SetStateData(voxel.stateData);
                 }
 

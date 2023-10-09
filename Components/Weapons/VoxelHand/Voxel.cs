@@ -79,6 +79,16 @@ namespace UltraFunGuns
             Voxel newVoxel = newBlock.AddComponent<Voxel>();
             VoxelWorld.ReplaceVoxel(position, newVoxel);
 
+
+
+            if(state == null)
+            {
+                Type stateType = VoxelStateDatabase.GetStateType(data.ID);
+                if (stateType != null)
+                    if (typeof(IVoxelState).IsAssignableFrom(stateType))
+                        state = (IVoxelState)Activator.CreateInstance(stateType);
+            }
+
             newVoxel.SetVoxelData(data);
             newVoxel.SetVoxelState(state);
             return newVoxel;
