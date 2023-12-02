@@ -214,8 +214,30 @@ namespace UltraFunGuns
             Ray ray = mainCam.ToRay();
             if (HydraUtils.SphereCastMacro(ray.origin, 0.15f, ray.direction, Mathf.Infinity, out RaycastHit hit))
             {
-                GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
+                if (CheckCoin(hit))
+                {
+                    EnemyIdentifier[] enemies = EnemyTracker.Instance.GetCurrentEnemies().Where(x => (!x.dead && !x.blessed)).ToArray();
+
+                    Vector3 coinPosition = hit.collider.transform.position;
+                    Instantiate(Prefabs.ShittyExplosionFX, coinPosition, Quaternion.identity);
+                    Prefabs.ShittyExplosionSound?.PlayAudioClip(coinPosition, 1.3f, 1.0f, 0.7f);
+
+                    for (int i = 0; i < enemies.Length; i++)
+                    {
+                        Vector3 enemyPos = enemies[i].GetTargetPoint();
+                        Vector3 direction = enemyPos - coinPosition;
+                        if (!Physics.Raycast(coinPosition, direction, out RaycastHit explosionHit, Mathf.Infinity, LayerMaskDefaults.Get(LMD.EnemiesAndEnvironment)))
+                            continue;
+
+                        GameObject.Instantiate(Prefabs.UK_Explosion.Asset, explosionHit.point, Quaternion.identity);
+                    }
+                }
+                else
+                {
+                    GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
+                }
             }
+
             AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.6f, 1.0f), 1.0f, 0.0f);
         }
 

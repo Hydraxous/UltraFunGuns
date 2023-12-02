@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using JetBrains.Annotations;
 
 namespace UltraFunGuns
 {
@@ -13,12 +14,19 @@ namespace UltraFunGuns
         [UFGAsset("VoxelSelectionMenu")] private static GameObject prefab;
         public static GameObject VoxelSelectionMenuPrefab => prefab;
 
-        [SerializeField] private GameObject container;
-        [SerializeField] private RectTransform contentBody;
-        [SerializeField] private GameObject selectionButtonPrefab;
+        private VoxelSelectionMenuReferences references;
+        private GameObject container;
+        private RectTransform contentBody;
+        private GameObject selectionButtonPrefab;
 
-        [SerializeField] private Button importButton;
-        [SerializeField] private Text importButtonText;
+        private Button importButton;
+        private Text importButtonText;
+        private Text pageNumberLabel;
+
+
+        private int currentPage = 0;
+
+        private List<List<GameObject>> pages = new List<List<GameObject>>();
 
         public bool IsOpen => container.activeInHierarchy;
 
@@ -35,6 +43,15 @@ namespace UltraFunGuns
         GameState voxelSelectGameState;
         private void Awake()
         {
+            //GUH
+            references = GetComponent<VoxelSelectionMenuReferences>();
+            container = references.Container;
+            contentBody = references.ContentBody;
+            selectionButtonPrefab = references.SelectionButtonPrefab;
+            importButton = references.ImportButton;
+            importButtonText = references.ImportButtonText;
+            pageNumberLabel = references.PageNumberLabel;
+
             voxelSelectGameState = new GameState("VoxelSelect", container);
             voxelSelectGameState.cursorLock = LockMode.Unlock;
             voxelSelectGameState.cameraInputLock = LockMode.Unlock;
@@ -69,7 +86,7 @@ namespace UltraFunGuns
                 }
 
                 importingLastCheck = importing;
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSecondsRealtime(0.5f);
             }
         }
 
@@ -78,10 +95,16 @@ namespace UltraFunGuns
         [Configgy.Configgable("UltraFunGuns/Voxel/Palette")]
         private static int maxIconsPerFrame = 10;
 
+        [Configgy.Configgable("UltraFunGuns/Voxel/Palette")]
+        private static int maxIconsPerPage = 128;
+
+
         private IEnumerator RebuildAsync()
         {
             rebuilding = true;
             int counter = 0;
+
+            List<GameObject> currentPage = null;
 
             foreach (VoxelData voxel in VoxelDatabase.GetPlaceableVoxels().OrderBy(x => x.DisplayName))
             {
@@ -89,7 +112,19 @@ namespace UltraFunGuns
                 if (instancedButtons.ContainsKey(voxel))
                     continue;
 
-                instancedButtons.Add(voxel, BuildButton(voxel));
+                List<GameObject> page = currentPage;
+
+                if (counter % maxIconsPerPage == 0)
+                {
+                    page = new List<GameObject>();
+                    pages.Add(page);
+                    currentPage = page;
+                }
+
+                VoxelMenuButton b = BuildButton(voxel);
+                page.Add(b.gameObject);
+                b.gameObject.SetActive(this.currentPage == pages.Count-1);
+                instancedButtons.Add(voxel, b);
 
                 if (counter % maxIconsPerFrame == 0)
                     yield return new WaitForEndOfFrame();
@@ -140,16 +175,41 @@ namespace UltraFunGuns
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 CloseMenu();
+
+            if (Input.GetKeyDown(KeyCode.F5))
+                RebuildMenu();
         }
 
         public void OpenMenu() 
         {
             RebuildMenu();
             container.SetActive(true);
+            SetPage(currentPage);
             Time.timeScale = 0f;
             OptionsManager.Instance.paused = true;
             CameraController.Instance.enabled = false;
             GameStateManager.Instance.RegisterState(voxelSelectGameState);
+        }
+
+        public void SetPage(int index)
+        {
+            index = Mathf.Clamp(index, 0, pages.Count-1);
+            currentPage = index;
+
+            for(int i = 0; i < pages.Count; i++)
+            {
+                for(int j = 0; j < pages[i].Count; j++)
+                {
+                    pages[i][j].SetActive(i == currentPage);
+                }
+            }
+
+            pageNumberLabel.text = $"{currentPage+1}/{(pages.Count)}";
+        }
+
+        public void NextPage(int index = 1)
+        {
+            SetPage(currentPage + index);
         }
 
         public void CloseMenu()
@@ -172,6 +232,7 @@ namespace UltraFunGuns
                 GameObject.Destroy(vmb.gameObject);
             }
 
+            pages.Clear();
             instancedButtons.Clear();
         }
 

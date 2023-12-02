@@ -103,6 +103,9 @@ namespace UltraFunGuns
                 if (!TextureLoader.TryLoadTexture(path, out Texture2D tex))
                     continue;
 
+                if (tex.width != tex.height) //Squares only.
+                    continue;
+
                 tex.name = Path.GetFileNameWithoutExtension(path);
                 loadedTextures.Add(path, tex);
 
