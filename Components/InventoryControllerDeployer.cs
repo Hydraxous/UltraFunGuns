@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UltraFunGuns.Datas;
 using HydraDynamics.Keybinds;
 using HydraDynamics;
+using Configgy;
 
 namespace UltraFunGuns
 {
@@ -21,7 +22,9 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        public static Keybinding inventoryKey { get; private set; } = Hydynamics.GetKeybinding("Inventory", KeyCode.I);
+
+        [Configgable("Binds", "Open UFG Inventory")]
+        public static ConfigKeybind inventoryKey = new ConfigKeybind(KeyCode.I);
 
         private static bool sentVersionMessage = false;
 
@@ -86,7 +89,7 @@ namespace UltraFunGuns
                 displayingHelpMessage = false;
                 if (Data.SaveInfo.Data.firstTimeModLoaded)
                 {
-                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.KeyCode.ToString()), "", "", 2);
+                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.Value.ToString()), "", "", 2);
                     Data.SaveInfo.Data.firstTimeModLoaded = false;
                     Data.SaveInfo.Save();
                 }
@@ -95,7 +98,7 @@ namespace UltraFunGuns
             bool paused = GameStateManager.Instance.IsStateActive("pause");
             invControllerButton.gameObject.SetActive(paused && !inventoryManagerOpen);
 
-            if (inventoryKey.WasPerformedThisFrame)
+            if (inventoryKey.WasPeformed())
             {
                 OpenInventory();
             }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("Nikita", "Nikita", 0, true, WeaponIconColor.Green, false)]
+    [UFGWeapon("Nikita", "GuidedMissle", 0, true, WeaponIconColor.Green, true)]
     public class Nikita : UltraFunGunBase
     {
         [UFGAsset("NikitaRocket")] private static GameObject rocketPrefab;

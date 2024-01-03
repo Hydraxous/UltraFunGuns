@@ -53,7 +53,7 @@ namespace UltraFunGuns
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
                     config.Build();
-                    VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
+                    Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
@@ -61,7 +61,6 @@ namespace UltraFunGuns
                     Commands.Register();
                     FreecamAssist.Init();
                     TextureLoader.Init();
-                    CompatibilityCheck.DoCheck();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
                 }

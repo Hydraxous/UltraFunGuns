@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -146,11 +147,16 @@ namespace UltraFunGuns
             for (int i = 0; i < customSlots.Count; i++)
             {
                 gc.slots.Add(customSlots[i]);
+                int slot = gc.slots.Count - 1;
                 foreach (GameObject wep in customSlots[i])
                 {
                     if (!gc.allWeapons.Contains(wep))
                     {
+                        if (gc.slotDict.ContainsKey(wep))
+                            gc.slotDict.Remove(wep);
+
                         gc.allWeapons.Add(wep);
+                        gc.slotDict.Add(wep, slot);
                     }
                 }
             }
@@ -169,22 +175,6 @@ namespace UltraFunGuns
                     }
                 }
             }
-
-            if (Input.GetKeyDown(KeyCode.Keypad4))
-            {
-                if (spawnedRod != null)
-                {
-                    return;
-                }
-
-                spawnedRod = GameObject.Instantiate<GameObject>(Prefabs.FishingRod.Asset, this.transform);
-                spawnedRod.SetActive(false);
-                customSlots[0].Add(spawnedRod);
-                WeaponManager.AddWeaponToFreshnessDict(spawnedRod);
-                gc.allWeapons.Add(spawnedRod);
-            }
         }
-
-        private GameObject spawnedRod;
     }
 }

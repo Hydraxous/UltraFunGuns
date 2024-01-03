@@ -1,4 +1,5 @@
-﻿using MonoMod.Utils;
+﻿using Configgy;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,6 +73,8 @@ namespace UltraFunGuns
         public static bool IsImportingTextures { get; private set; }
         public static float TextureImportProgress { get; private set; }
 
+        [Configgable("TEST")]
+        private static ConfigToggle useCyberGrindTextures = new ConfigToggle(false);
         private static string cyberGrindTextureFolder => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Textures");
 
         private static IEnumerator ImportCustomTexturesAsync(Action onComplete)
@@ -83,9 +86,12 @@ namespace UltraFunGuns
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png", SearchOption.AllDirectories));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg", SearchOption.AllDirectories));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpeg", SearchOption.AllDirectories));
-            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.png", SearchOption.AllDirectories));
-            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpg", SearchOption.AllDirectories));
-            pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpeg", SearchOption.AllDirectories));
+            if (useCyberGrindTextures.Value)
+            {
+                pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.png", SearchOption.AllDirectories));
+                pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpg", SearchOption.AllDirectories));
+                pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.jpeg", SearchOption.AllDirectories));
+            }
 
             int totalCount = pathes.Count+1; //stop dividebyzero exception
             int indexProcessed = 1;

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("PlutonRifle", "Pluton Rifle", 2, true, WeaponIconColor.Green, true)]
+    [UFGWeapon("PlutonRifle", "Pluton Rifle", 2, true, WeaponIconColor.Green, true, false)]
     public class PlutonRifle : UltraFunGunBase
     {
         /* Pluton Rifle

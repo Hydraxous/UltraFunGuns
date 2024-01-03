@@ -7,7 +7,7 @@ using Configgy;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue)]
+    [UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue, false)]
     public class DiceGun : UltraFunGunBase
     {
         [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]

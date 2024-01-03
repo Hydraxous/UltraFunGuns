@@ -109,6 +109,23 @@ namespace UltraFunGuns
             if (inventoryMade)
                 return;
 
+            InitStyleItems();
+            
+            CanvasController canvas = MonoSingleton<CanvasController>.Instance;
+            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
+            {
+                inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
+            }
+            else
+            {
+                inventoryDeployer = invControllerDeployer;
+            }
+
+            inventoryMade = true;
+        }
+
+        private static void InitStyleItems()
+        {
             NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
             NewStyleItem("vibecheck", "VIBE-CHECKED");
             NewStyleItem("v2kill", "<color=#ff33001>OXIDIZED</color>");
@@ -140,17 +157,6 @@ namespace UltraFunGuns
             NewStyleItem("ultragunrainkill", "<color=red>WHAT GOES UP</color>");
             NewStyleItem("ultragunaerialkill", "DEATH FROM ABOVE");
 
-            CanvasController canvas = MonoSingleton<CanvasController>.Instance;
-            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
-            {
-                inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
-            }
-            else
-            {
-                inventoryDeployer = invControllerDeployer;
-            }
-
-            inventoryMade = true;
         }
 
         private static Dictionary<string, UFGWeapon> weapons;
@@ -296,6 +302,11 @@ namespace UltraFunGuns
             }
         }
 
+        public static void AddWeaponToSlotDict(GameObject go, int slot)
+        {
+            GunControl.Instance.slotDict.Add(go, slot);
+        }
+
         /// <summary>
         /// Adds weapon to style hud freshness
         /// </summary>
@@ -303,7 +314,6 @@ namespace UltraFunGuns
         /// <returns></returns>
         public static bool AddWeaponToFreshnessDict(GameObject go)
         {
-
             if(go == null)
             {
                 HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
@@ -402,12 +412,6 @@ namespace UltraFunGuns
             StyleHUD.Instance.AddPoints(entry.Points, $"hydraxous.ultrafunguns.{entry.Key}", entry.SourceWeapon, entry.EnemyIdentifier, entry.Count, entry.Prefix, entry.Postfix);
         }
 
-        public static Color GetColor(WeaponIconColor colorType)
-        {
-            Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
-            return color;
-        }
-
         public static void SetWeaponUnlocked(string weaponKey, bool unlocked)
         {
             if(!Weapons.ContainsKey(weaponKey))
@@ -421,7 +425,7 @@ namespace UltraFunGuns
 
             if(unlocked && InGameCheck.InLevel())
             {
-                HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.KeyCode}</color>] to open UFG Inventory.");
+                HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.Value}</color>] to open UFG Inventory.");
             }
 
             InventoryController.RefreshInventory();

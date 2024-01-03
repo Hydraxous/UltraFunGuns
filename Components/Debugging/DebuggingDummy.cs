@@ -19,14 +19,6 @@ namespace UltraFunGuns
             if (!UltraFunGuns.DebugMode)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.Keypad8))
-            {
-                PlayerDeathPatch.god = !PlayerDeathPatch.god;
-                if (PlayerDeathPatch.god)
-                {
-                    SonicReverberator.vineBoom_Loud.PlayAudioClip();
-                }
-            }
 
             if (Input.GetKeyDown(KeyCode.Keypad0))
             {
