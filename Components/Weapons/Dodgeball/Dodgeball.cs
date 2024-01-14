@@ -99,7 +99,7 @@ namespace UltraFunGuns
                 }
 
 
-                if(WeaponManager.SecretButton.WasPerformedThisFrame)
+                if(UFGInput.SecretButton.WasPeformed())
                 {
                     DoSecret();
                 }

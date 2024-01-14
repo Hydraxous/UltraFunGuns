@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace UltraFunGuns.InterfaceTypes
+namespace UltraFunGuns
 {
     public interface IParriable
     {

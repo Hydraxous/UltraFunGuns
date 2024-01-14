@@ -51,7 +51,7 @@ namespace UltraFunGuns.Components.Weapons.Melee
                 EquipNext();
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
+            if (UFGInput.SecretButton.WasPeformed() && !om.paused)
             {
                 currentWeapon?.SecretAnimation();
             }

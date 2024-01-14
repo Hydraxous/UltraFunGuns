@@ -1,11 +1,9 @@
 ﻿using BepInEx;
+using Configgy;
 using HarmonyLib;
 using HydraDynamics;
-using HydraDynamics.Debugging;
 using System;
 using System.Collections;
-using Configgy;
-using UltraFunGuns.Datas;
 using UltraFunGuns.Patches;
 using UltraFunGuns.Util;
 

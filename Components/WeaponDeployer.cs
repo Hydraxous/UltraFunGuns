@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Configgy;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,15 @@ namespace UltraFunGuns
 {
     public class WeaponDeployer : MonoBehaviour
     {
+        
+        private static ConfigKeybind[] slotKeys = new ConfigKeybind[]
+        {
+            UFGInput.Slot7Key,
+            UFGInput.Slot8Key,
+            UFGInput.Slot9Key,
+            UFGInput.Slot10Key
+        };
+
         public int WeaponsDeployed { get; private set; }
 
         GunControl gc;
@@ -48,14 +58,14 @@ namespace UltraFunGuns
             return newWeaponKeys;
         }
 
-        public void RemoveWeapons()
+        public void DisposeWeapons()
         {
             for (int i = 0; i < customSlots.Count; i++)
             {
-                for (int x = 0; x < customSlots[i].Count; x++)
+                for (int j = 0; j < customSlots[i].Count; j++)
                 {
-                    GameObject toDestroy = customSlots[i][x];
-                    customSlots[i][x] = null;
+                    GameObject toDestroy = customSlots[i][j];
+                    customSlots[i][j] = null;
                     Destroy(toDestroy);
                 }
                 customSlots[i].Clear();
@@ -65,7 +75,7 @@ namespace UltraFunGuns
         //TODO optimization
         public void DeployWeapons(bool firstTime = false)
         {
-            RemoveWeapons();
+            DisposeWeapons();
 
             weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
 
@@ -75,8 +85,6 @@ namespace UltraFunGuns
             }
 
             WeaponsDeployed = 0;
-
-
             List<UFGWeapon> weaponsDeployed = new List<UFGWeapon>();
 
             string weaponsGiven = "";
@@ -110,32 +118,17 @@ namespace UltraFunGuns
                         child.gameObject.layer = 13;
                     }
 
-                    //weaponPrefab.SetActive(false);
-
                     //Instantiate weapon and add it's component
                     GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
                     newWeapon.AddComponent(weaponInfo.Type);
                     newWeapon.SetActive(false);
                     customSlots[i].Add(newWeapon);
                     weaponsGiven += weaponKey + " ";
-                    WeaponManager.AddWeaponToFreshnessDict(newWeapon);
                     weaponsDeployed.Add(weaponInfo);
                     WeaponsDeployed++;
                 }
             }
 
-            if (weaponsGiven.Length > 0)
-            {
-                weaponsGiven = "Weapons given: " + weaponsGiven;
-                AddWeapons();
-                WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
-                HydraLogger.Log(weaponsGiven, DebugChannel.User);
-            }
-        }
-
-        //adds weapons to the gun controller
-        private void AddWeapons()
-        {
             for (int j = 0; j < customSlots.Count; j++)
             {
                 if (gc.slots.Contains(customSlots[j]))
@@ -144,30 +137,24 @@ namespace UltraFunGuns
                 }
             }
 
-            for (int i = 0; i < customSlots.Count; i++)
+            if (weaponsGiven.Length > 0)
             {
-                gc.slots.Add(customSlots[i]);
-                int slot = gc.slots.Count - 1;
-                foreach (GameObject wep in customSlots[i])
+                weaponsGiven = "Weapons given: " + weaponsGiven;
+                for (int i = 0; i < customSlots.Count; i++)
                 {
-                    if (!gc.allWeapons.Contains(wep))
-                    {
-                        if (gc.slotDict.ContainsKey(wep))
-                            gc.slotDict.Remove(wep);
-
-                        gc.allWeapons.Add(wep);
-                        gc.slotDict.Add(wep, slot);
-                    }
+                    gc.slots.Add(customSlots[i]);
                 }
+                WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
+                HydraLogger.Log(weaponsGiven, DebugChannel.User);
             }
         }
 
         //This handles input for the extra slots
         private void Update()
         {
-            for (int i = 0; i < WeaponManager.UFGSlotKeys.Length; i++)
+            for (int i = 0; i < slotKeys.Length; i++)
             {
-                if (WeaponManager.UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i + WeaponManager.SLOT_OFFSET))
+                if (slotKeys[i].WasPeformed() && (customSlots[i].Count > 1 || gc.currentSlot != i + WeaponManager.SLOT_OFFSET))
                 {
                     if (customSlots[i].Count > 0 && customSlots[i][0] != null)
                     {

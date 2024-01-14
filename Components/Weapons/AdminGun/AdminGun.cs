@@ -51,7 +51,7 @@ namespace UltraFunGuns
                 Boom();
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame)
+            if (UFGInput.SecretButton.WasPeformed())
             {
                 animator.Play("SelectFire", 0, 0);
                 gamerMode = !gamerMode;

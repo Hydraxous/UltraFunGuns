@@ -122,7 +122,7 @@ namespace UltraFunGuns
                 barrageCharge = Mathf.Clamp(barrageCharge - (Time.deltaTime * barrageChargeMultiplier), barrageChargeMin, barrageChargeMax);
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
+            if (UFGInput.SecretButton.WasPeformed() && !om.paused)
             {
                 animator?.Play("Inspect", 0, 0);
                 //DivideBullets();

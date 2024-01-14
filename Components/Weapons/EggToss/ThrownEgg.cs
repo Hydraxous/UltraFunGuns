@@ -8,7 +8,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Egg projectile script created by EggToss and EggSplosion.
-    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver
+    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver, ICoinTarget, IUFGBeamInteractable
     {
         [UFGAsset("EggImpactFX")] private static GameObject impactFX;
         [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
@@ -236,6 +236,41 @@ namespace UltraFunGuns
         public bool Targetable(TargetQuery targetQuery)
         {
             return targetQuery.CheckTargetable(transform.position);
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        {
+            Explode();
+        }
+
+        public int GetTargetPriority(Coin coin)
+        {
+            return 2;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            Explode();
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public bool CanRevolverBeamPierce(RevolverBeam beam)
+        {
+            return false;
         }
     }
 }

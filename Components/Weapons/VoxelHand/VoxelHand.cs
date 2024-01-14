@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using UltraFunGuns.InterfaceTypes;
 using UltraFunGuns.Patches;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -249,7 +248,7 @@ namespace UltraFunGuns
             if (Input.GetKeyDown(KeyCode.X))
                 ToggleHand();
 
-            if (!WeaponManager.SecretButton.WasPerformedThisFrame)
+            if (!UFGInput.SecretButton.WasPeformed())
                 return;
 
             if(palette == null)

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using UltraFunGuns.InterfaceTypes;
+﻿using System.Collections;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {

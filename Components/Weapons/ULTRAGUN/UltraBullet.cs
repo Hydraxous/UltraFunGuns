@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IUFGBeamInteractable
     {
         //I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity 
         private Transform thrustFX => ubrf.thrustFX;
@@ -406,6 +406,38 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Explode();
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    SetDirection(transform.position - beam.transform.position);
+                    Supercharge();
+                    break;
+
+                default:
+                    TimeController.Instance.ParryFlash();
+                    Explode();
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !Exploded;
+        }
+
+        public bool CanRevolverBeamPierce(RevolverBeam beam)
+        {
+            switch(beam.beamType)
+            {
+                case BeamType.Railgun:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

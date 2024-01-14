@@ -1,33 +1,14 @@
-﻿using System;
+﻿using HydraDynamics.Events;
+using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Xml.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using HydraDynamics.Keybinds;
-using UltraFunGuns.Datas;
-using HydraDynamics;
-using HydraDynamics.Events;
-using System.Data;
-using System.Transactions;
-using UnityEngine.InputSystem.Utilities;
 
 namespace UltraFunGuns
 {
     public static class WeaponManager
     {
         public const int SLOTS = 4, SLOT_OFFSET = 7;
-
-        public static Keybinding[] UFGSlotKeys = new Keybinding[] 
-        {
-            Hydynamics.GetKeybinding("Slot 7", KeyCode.Alpha7),
-            Hydynamics.GetKeybinding("Slot 8", KeyCode.Alpha8),
-            Hydynamics.GetKeybinding("Slot 9", KeyCode.Alpha9),
-            Hydynamics.GetKeybinding("Slot 10", KeyCode.Alpha0),
-        };
-
-        public static Keybinding SecretButton = Hydynamics.GetKeybinding("Secret Button", KeyCode.K);
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;
@@ -36,23 +17,6 @@ namespace UltraFunGuns
         {
             RegisterWeapons();
             InGameCheck.OnLevelChanged += OnLevelChanged;
-            CrossModEvents.SubscribeToModEvents(CheckEvent, "WeaponDeployer");
-        }
-
-        private static void CheckEvent(ModEventData data)
-        {
-            if(data.targetSubscriptionKey != "WeaponDeployer")
-                return;
-
-            if (data.targetModGUID != ConstInfo.GUID)
-                return;
-
-            if (data.eventName != "RedeployWeapons")
-                return;
-
-            DeployWeapons();
-
-            CrossModEvents.UnsubscribeFromModEvents("WeaponDeployer");
         }
 
         private static void DeInit()
@@ -76,14 +40,9 @@ namespace UltraFunGuns
   
             if (deployer == null)
             {
-                GunControl gc = MonoSingleton<GunControl>.Instance;
-                if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
+                if (!GunControl.Instance.TryGetComponent<WeaponDeployer>(out deployer))
                 {
-                    deployer = ultraFGPatch;
-                }
-                else
-                {
-                    deployer = gc.gameObject.AddComponent<WeaponDeployer>();
+                    deployer = GunControl.Instance.gameObject.AddComponent<WeaponDeployer>();
                 }
             }
 
@@ -110,15 +69,11 @@ namespace UltraFunGuns
                 return;
 
             InitStyleItems();
-            
-            CanvasController canvas = MonoSingleton<CanvasController>.Instance;
-            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
+
+            CanvasController canvas = CanvasController.Instance;
+            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out inventoryDeployer))
             {
                 inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
-            }
-            else
-            {
-                inventoryDeployer = invControllerDeployer;
             }
 
             inventoryMade = true;
@@ -192,6 +147,7 @@ namespace UltraFunGuns
             if (weaponInfo == null)
             {
                 HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+                throw new System.Exception($"Type {t} does not have UFGWeapon attribute.");
             }
 
             return weaponInfo;
@@ -280,65 +236,6 @@ namespace UltraFunGuns
             }
 
             WeaponsRegistered = true;
-        }
-
-        //Credit to Agent of Nyarlathotep for this
-        private static Dictionary<GameObject, float> FreshnessList
-        {
-            get
-            {               
-                var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
-                Dictionary<GameObject, float> freshnessList = field.GetValue(MonoSingleton<StyleHUD>.Instance) as Dictionary<GameObject, float>;          
-                return freshnessList;
-            }
-
-            set
-            {
-                if(value != null)
-                {
-                    var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
-                    field.SetValue(MonoSingleton<StyleHUD>.Instance, value);
-                }     
-            }
-        }
-
-        public static void AddWeaponToSlotDict(GameObject go, int slot)
-        {
-            GunControl.Instance.slotDict.Add(go, slot);
-        }
-
-        /// <summary>
-        /// Adds weapon to style hud freshness
-        /// </summary>
-        /// <param name="go">gameObject to add</param>
-        /// <returns></returns>
-        public static bool AddWeaponToFreshnessDict(GameObject go)
-        {
-            if(go == null)
-            {
-                HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
-                return false;
-            }
-
-            try
-            {
-                Dictionary<GameObject, float> freshnessDict = FreshnessList;
-                if (!freshnessDict.ContainsKey(go))
-                {
-                    freshnessDict.Add(go, 10f);
-                    FreshnessList = freshnessDict;
-                    return true;
-                }
-
-                HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
-                return false;
-
-            } catch (Exception ex)
-            {
-                HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
-            }
-
-            return false;
         }
 
         public static InventorySlotData[] GetDefaultLoadout()
@@ -467,7 +364,7 @@ namespace UltraFunGuns
             if (deployer == null)
                 return;
 
-            GunControl gc = MonoSingleton<GunControl>.Instance;
+            GunControl gc = GunControl.Instance;
             if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
             {
                 deployer = ultraFGPatch;
@@ -477,7 +374,7 @@ namespace UltraFunGuns
                 deployer = gc.gameObject.AddComponent<WeaponDeployer>();
             }
 
-            deployer.RemoveWeapons();
+            deployer.DisposeWeapons();
         }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
@@ -509,6 +509,43 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Pop();
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !dead;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    ExciteBall(6);
+                    break;
+
+                case BeamType.Revolver:
+                    ExciteBall();
+                    break;
+
+                case BeamType.MaliciousFace:
+                    ExciteBall(2);
+                    break;
+
+                case BeamType.Enemy:
+                    Pop();
+                    break;
+            }
+        }
+
+        public int GetTargetPriority(Coin coin)
+        {
+            return 1;
         }
     }
 }

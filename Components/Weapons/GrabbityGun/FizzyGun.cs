@@ -80,7 +80,7 @@ public class FizzyGun : UltraFunGunBase
             PhysicsLockObject();
         }
 
-        if (WeaponManager.SecretButton.IsPressed && IsHoldingObject)
+        if (UFGInput.SecretButton.IsPressed() && IsHoldingObject)
         {
             RotateManipulation();
         }else if(rotating)

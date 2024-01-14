@@ -137,7 +137,7 @@ namespace UltraFunGuns
                 Fire();
             }
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            if(UFGInput.SecretButton.WasPeformed())
             {
                 SecretAnimation();
             }

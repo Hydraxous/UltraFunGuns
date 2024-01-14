@@ -130,7 +130,7 @@ namespace UltraFunGuns
 
             timeScopedIn = (scopedIn) ? timeScopedIn + Time.deltaTime: 0.0f;
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            if(UFGInput.SecretButton.WasPeformed())
             {
                 animator?.Play("Secret");
             }

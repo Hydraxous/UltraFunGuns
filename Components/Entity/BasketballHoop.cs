@@ -49,7 +49,7 @@ namespace UltraFunGuns.Components.Entity
                 if(highScore <= 99 && currentScore >= 100)
                 {
                     //Play YIPEE Sound.
-                    HudMessageReceiver.Instance.SendHudMessage($"You have unlocked <color=orange>BasketBall Skin</color> for the weapon <color=orange>ULTRABALLER</color> use <color=orange>{WeaponManager.SecretButton.KeyCode}</color> while using it to toggle it.");
+                    HudMessageReceiver.Instance.SendHudMessage($"You have unlocked <color=orange>BasketBall Skin</color> for the weapon <color=orange>ULTRABALLER</color> use <color=orange>{UFGInput.SecretButton.Value}</color> while using it to toggle it.");
                 }
                 Data.SaveInfo.Data.basketballHighScore = currentScore;
             }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using HarmonyLib;
-using UltraFunGuns.InterfaceTypes;
 
 namespace UltraFunGuns
 {

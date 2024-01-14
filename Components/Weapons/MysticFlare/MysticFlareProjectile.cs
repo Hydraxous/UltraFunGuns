@@ -13,8 +13,9 @@ namespace UltraFunGuns
 
         private void FixedUpdate()
         {
+            MoveSpeed += (Time.fixedDeltaTime);
             transform.position += transform.forward * MoveSpeed * Time.fixedDeltaTime;
-            MoveSpeed += (Time.fixedDeltaTime*2.0f);
+            MoveSpeed += (Time.fixedDeltaTime);
         }
 
         public void Detonate()
