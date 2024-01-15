@@ -311,12 +311,6 @@ namespace UltraFunGuns
             Destroy(gameObject);
         }
 
-        //TODO this is broken.
-        public void Shot(BeamType beamType)
-        {
-            Break();
-        }
-
         private void LobAtTarget(Vector3 target)
         {
             //Vector3 newVelocity = HydraUtils.GetVelocityTrajectory(transform.position, target, brickShooter.BrickParryFlightTime);

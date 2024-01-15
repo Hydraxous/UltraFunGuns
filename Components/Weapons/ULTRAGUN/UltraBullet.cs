@@ -280,26 +280,6 @@ namespace UltraFunGuns
             Explode();
         }
 
-        public void Shot(BeamType beamType)
-        {
-            TimeController.Instance.ParryFlash();
-
-            if (beamType == BeamType.Railgun)
-            {
-                SetDirection(CameraController.Instance.transform.forward);
-                Supercharge();
-                return;
-            }
-
-            if(beamType == BeamType.MaliciousFace)
-            {
-                SetDirection(CameraController.Instance.transform.forward);
-                Divide(8);
-                return;
-            }
-
-            Explode();
-        }
 
         public void Supercharge()
         {
@@ -436,17 +416,6 @@ namespace UltraFunGuns
             return !Exploded;
         }
 
-        public bool CanRevolverBeamPierce(RevolverBeam beam)
-        {
-            switch(beam.beamType)
-            {
-                case BeamType.Railgun:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
         public Transform GetCoinTargetPoint(Coin coin)
         {
             return transform;
@@ -491,7 +460,7 @@ namespace UltraFunGuns
             }
         }
 
-        public int GetTargetPriority(Coin coin)
+        public int GetCoinTargetPriority(Coin coin)
         {
             return 1;
         }

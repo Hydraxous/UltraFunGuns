@@ -7,6 +7,6 @@ namespace UltraFunGuns
         public Transform GetCoinTargetPoint(Coin coin);
         public bool CanBeCoinTargeted(Coin coin);
         public void OnCoinReflect(Coin coin, RevolverBeam beam);
-        public int GetTargetPriority(Coin coin);
+        public int GetCoinTargetPriority(Coin coin);
     }
 }

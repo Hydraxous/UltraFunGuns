@@ -13,7 +13,7 @@ namespace UltraFunGuns
      Shatter if punched.
      Move towards player if hit with grapple.
          */
-    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class FocalyzerPylon : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IRevolverBeamShootable
     {
         [UFGAsset("FocalyzerPylonShatterFX_Red")] public static GameObject PylonShatterFX { get; private set; }
 
@@ -326,10 +326,6 @@ namespace UltraFunGuns
             }
         }
 
-        public void Shot(BeamType beamType)
-        {
-            Shatter();
-        }
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -363,5 +359,14 @@ namespace UltraFunGuns
             Shatter();
         }
 
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            Shatter();
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return true;
+        }
     }
 }

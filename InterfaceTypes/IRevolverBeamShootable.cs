@@ -9,6 +9,6 @@ namespace UltraFunGuns
     {
         public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit);
         public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit);
-        public bool CanRevolverBeamPierce(RevolverBeam beam);
+
     }
 }

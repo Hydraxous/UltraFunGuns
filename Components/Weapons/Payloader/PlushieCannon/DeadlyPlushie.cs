@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class DeadlyPlushie : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class DeadlyPlushie : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IRevolverBeamShootable, ICoinTarget
     {
         private UltraFunGunBase.ActionCooldown impactCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private Rigidbody rb;
@@ -123,7 +123,8 @@ namespace UltraFunGuns
             Destroy(gameObject);
         }
 
-        public void Shot(BeamType beamType)
+
+        private void Shot(BeamType beamType)
         {
             dying = true;
             VirtualExplosion explosion = new VirtualExplosion(transform.position, 30.0f);
@@ -161,6 +162,33 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Explode();
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            Shot(beam.beamType);
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return true;
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return true;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 2;
         }
     }
 }

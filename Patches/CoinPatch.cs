@@ -117,7 +117,7 @@ namespace UltraFunGuns
         {
             IEnumerable<ICoinTarget> uFGCoinTargets = GameObject.FindObjectsOfType<MonoBehaviour>().Where(x => typeof(ICoinTarget).IsAssignableFrom(x.GetType())).Select(x => (ICoinTarget)x);
             uFGCoinTargets = uFGCoinTargets.Where(x => x.CanBeCoinTargeted(coin));
-            uFGCoinTargets = uFGCoinTargets.OrderBy(x=>x.GetTargetPriority(coin));
+            uFGCoinTargets = uFGCoinTargets.OrderBy(x=>x.GetCoinTargetPriority(coin));
             list.AddRange(uFGCoinTargets.Select(x=>x.GetCoinTargetPoint(coin)));
         }
 

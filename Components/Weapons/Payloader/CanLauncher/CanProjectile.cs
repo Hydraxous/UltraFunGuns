@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, IRevolverBeamShootable
     {
         [UFGAsset("CanLauncher_CanExplosion")] private static GameObject canExplosion;
         [UFGAsset("CanLauncher_CanProjectile_BounceFX")] private static GameObject bounceFX;
@@ -51,6 +51,12 @@ namespace UltraFunGuns
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            GameObject hitbox = transform.Find("Sphere").gameObject;
+            if(hitbox != null)
+            {
+                hitbox.layer = 10;
+                hitbox.tag = "Breakable";
+            }
         }
 
         private void Start()
@@ -336,24 +342,6 @@ namespace UltraFunGuns
             Destroy(gameObject, 4.0f);
         }
 
-        public void Shot(BeamType beamType)
-        {
-            switch (beamType)
-            {
-                case BeamType.Railgun:
-                    Explode(Vector3.up, 3);
-                    break;
-                case BeamType.Revolver:
-                    Bounce();
-                    break;
-                case BeamType.MaliciousFace:
-                    Explode(Vector3.up, 3);
-                    break;
-                case BeamType.Enemy:
-                    Bounce();
-                    break;
-            }
-        }
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -395,6 +383,48 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Die();
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            //Todo
+            return !sleeping && !dead;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 1;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Revolver:
+                    Bounce();
+                    break;
+                case BeamType.MaliciousFace:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Enemy:
+                    Bounce();
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !dead;
         }
     }
 }

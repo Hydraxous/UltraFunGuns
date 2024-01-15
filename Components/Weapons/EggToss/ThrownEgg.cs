@@ -219,11 +219,6 @@ namespace UltraFunGuns
             }
         }
 
-        public void Shot(BeamType beamType)
-        {
-            Explode();
-        }
-
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -261,7 +256,7 @@ namespace UltraFunGuns
             Explode();
         }
 
-        public int GetTargetPriority(Coin coin)
+        public int GetCoinTargetPriority(Coin coin)
         {
             return 2;
         }
@@ -274,11 +269,6 @@ namespace UltraFunGuns
         public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
         {
             return !isEggsplosionEgg;
-        }
-
-        public bool CanRevolverBeamPierce(RevolverBeam beam)
-        {
-            return false;
         }
 
         public bool CanBeSharpshot(RevolverBeam beam, RaycastHit hit)

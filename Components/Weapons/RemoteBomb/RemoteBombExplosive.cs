@@ -465,10 +465,6 @@ namespace UltraFunGuns
             return alive;
         }
 
-        public bool CanRevolverBeamPierce(RevolverBeam beam)
-        {
-            return false;
-        }
 
         public bool CanBeShot(GameObject sourceWeapon)
         {

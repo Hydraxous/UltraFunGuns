@@ -434,34 +434,12 @@ namespace UltraFunGuns
             }    
         }
 
-        public void Shot(BeamType beamType)
-        {
-            switch (beamType)
-            {
-                case BeamType.Railgun:
-                    ExciteBall(6);
-                    break;
-
-                case BeamType.Revolver:
-                    ExciteBall();
-                    break;
-
-                case BeamType.MaliciousFace:
-                    ExciteBall(2);
-                    break;
-
-                case BeamType.Enemy:
-                    break;
-            }
-        }
-
         public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             SetSustainVelocity(aimVector);
             ExciteBall(2);
             return true;
         }
-
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -524,7 +502,7 @@ namespace UltraFunGuns
 
         public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
 
-        public int GetTargetPriority(Coin coin)
+        public int GetCoinTargetPriority(Coin coin)
         {
             return 1;
         }
@@ -575,9 +553,5 @@ namespace UltraFunGuns
             return !dead;
         }
 
-        public bool CanRevolverBeamPierce(RevolverBeam beam)
-        {
-            return true;
-        }
     }
 }

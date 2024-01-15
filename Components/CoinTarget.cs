@@ -19,7 +19,7 @@ namespace UltraFunGuns.Components
         }
 
       
-        public int GetTargetPriority(Coin coin)
+        public int GetCoinTargetPriority(Coin coin)
         {
             return 0;
         }
