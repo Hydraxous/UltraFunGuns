@@ -6,7 +6,7 @@ using UltraFunGuns.Components;
 
 namespace UltraFunGuns
 {
-    public class RemoteBombExplosive : MonoBehaviour, ICleanable, IUFGBeamInteractable, IUFGShootable
+    public class RemoteBombExplosive : MonoBehaviour, ICleanable, IRevolverBeamShootable, IUFGShootable
     {
         [UFGAsset("RemoteBomb_Explosive_Explosion")] public static GameObject ExplosionPrefab { get; private set; }
 

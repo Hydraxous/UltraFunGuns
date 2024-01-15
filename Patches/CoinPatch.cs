@@ -42,7 +42,10 @@ namespace UltraFunGuns
         {
             Debug.LogWarning($"Beginning compilation of {nameof(InjectCoinTargeting)}");
             CodeInstruction[] codeInstructions = instructions.ToArray();
-            bool ilMatch = ILOrderMatch(codeInstructions, out int index, 0,
+
+            //Matches IL code for locating the injection point of our code.
+            //In this case the code is injected right after the list of targets is populated with Cannonballs and Grenades.
+            bool ilMatch = ILTools.ILOrderMatch(codeInstructions, out int index, 0,
                 OpCodes.Callvirt,
                 OpCodes.Stloc_2,
                 OpCodes.Ldloc_S,
@@ -65,29 +68,7 @@ namespace UltraFunGuns
             }
         }
 
-        private static bool ILOrderMatch(CodeInstruction[] instructions, out int index, int startIndex = 0, params OpCode[] orderMatch)
-        {
-            index = -1;
-            int instructionLength = instructions.Length;
-            int orderMatchLength = orderMatch.Length;
-
-            for (int i = startIndex; i < instructions.Length; i++)
-            {
-                for(int j=0; j<orderMatch.Length; j++)
-                {
-                    if (instructions[i + j].opcode != orderMatch[j])
-                        break;
-
-                    if (j == orderMatchLength - 1)
-                    {
-                        index = i;
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
+        
 
         private static MethodInfo evalMethod = typeof(CoinPatch).GetMethod(nameof(EvalCustomCoinTarget), BindingFlags.Static | BindingFlags.NonPublic);
         private static MethodInfo lineRenderer_setPosition = typeof(LineRenderer).GetMethod(nameof(LineRenderer.SetPosition), BindingFlags.Instance | BindingFlags.Public);
@@ -103,7 +84,9 @@ namespace UltraFunGuns
             {
                 if (codeInstructions[i].opcode == OpCodes.Callvirt && codeInstructions[i].OperandIs(lineRenderer_setPosition))
                 {
-                    if (ILOrderMatch(codeInstructions, out int index, i,
+                    //Matches IL code for locating the injection point of our code.
+                    //In this case the code is injected right before the check to explode Cannonballs and Grenades.
+                    if (ILTools.ILOrderMatch(codeInstructions, out int index, i,
                         OpCodes.Callvirt,
                         OpCodes.Ldloc_S,
                         OpCodes.Ldc_I4_1,
@@ -136,9 +119,9 @@ namespace UltraFunGuns
             uFGCoinTargets = uFGCoinTargets.Where(x => x.CanBeCoinTargeted(coin));
             uFGCoinTargets = uFGCoinTargets.OrderBy(x=>x.GetTargetPriority(coin));
             list.AddRange(uFGCoinTargets.Select(x=>x.GetCoinTargetPoint(coin)));
-            Debug.LogWarning("Coins added");
         }
 
+        //Currently this is only called if the coin is shot with the base revolver. TODO add railgun support
         private static void EvalCustomCoinTarget(Coin coin, LineRenderer beamLine, Transform transform)
         {
             Debug.LogWarning("EVAL CUSTOM COIN TARGET");

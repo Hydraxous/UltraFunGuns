@@ -138,6 +138,7 @@
   <ItemGroup>
     <Folder Include="Components\Silly\" />
     <Folder Include="Components\UI\Terminal\" />
+    <Folder Include="Components\Weapons\EnemyGuns\" />
     <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
     <Folder Include="Components\Weapons\NetResearchWeapons\" />
     <Folder Include="Components\Weapons\Redynamo\" />

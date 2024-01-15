@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IUFGBeamInteractable
+    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IRevolverBeamShootable, ICoinTarget
     {
         //I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity 
         private Transform thrustFX => ubrf.thrustFX;
@@ -410,6 +410,13 @@ namespace UltraFunGuns
 
         public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
         {
+            if (Supercharged)
+            {
+                TimeController.Instance.ParryFlash();
+                Explode();
+                return;
+            }
+
             switch (beam.beamType)
             {
                 case BeamType.Railgun:
@@ -438,6 +445,55 @@ namespace UltraFunGuns
                 default:
                     return false;
             }
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !Exploded;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        {
+            Debug.Log("Coin reflect uB");
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    Vector3 pos = transform.position;
+                    Vector3 direction = pos - beam.transform.position;
+                    
+                    List<EnemyIdentifier> enemies = EnemyTracker.Instance.GetCurrentEnemies();
+                    if(enemies.Count > 0)
+                    {
+                        foreach (var enemy in enemies.OrderBy(x => Vector3.Distance(x.GetCenter().position, pos)))
+                        {
+                            Vector3 toEnemy = enemy.GetCenter().position - pos;
+                            if (Physics.Raycast(pos, toEnemy, toEnemy.magnitude, LayerMaskDefaults.Get(LMD.Environment)))
+                                continue;
+
+                            direction = toEnemy;
+                            break;
+                        }
+                    }
+                    
+                    SetDirection(direction);
+                    Supercharge();
+                    break;
+
+                default:
+                    TimeController.Instance.ParryFlash();
+                    Explode();
+                    break;
+            }
+        }
+
+        public int GetTargetPriority(Coin coin)
+        {
+            return 1;
         }
     }
 }

@@ -10,9 +10,16 @@ namespace UltraFunGuns
     public static class GunControlPatch
     {
         [HarmonyPatch(nameof(GunControl.UpdateWeaponList)), HarmonyPrefix]
-        public static void OnUpdateWeaponList(bool firstTime)
+        public static void OnUpdateWeaponList(GunControl __instance, bool firstTime)
         {
             HydraLogger.Log($"GunControl: Set weapons {firstTime}");
+            if (__instance.slots == null)
+                return;
+
+            //Awful hack for a race condition present in GunControl and GunSetter.
+            if (__instance.slots.Count < 6)
+                return;
+
             WeaponManager.DeployWeapons(firstTime);
         }
 

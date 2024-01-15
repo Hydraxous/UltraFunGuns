@@ -144,6 +144,7 @@ namespace UltraFunGuns
                 {
                     gc.slots.Add(customSlots[i]);
                 }
+
                 WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
                 HydraLogger.Log(weaponsGiven, DebugChannel.User);
             }

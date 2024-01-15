@@ -25,6 +25,8 @@ namespace UltraFunGuns.Components.Entity
         {
             Rigidbody = GetComponent<Rigidbody>();
             hoop = GameObject.FindObjectOfType<BasketballHoop>();
+            BasketballHoop.EnableBasketballHoop.OnValueChanged += gameObject.SetActive;
+            gameObject.SetActive(BasketballHoop.EnableBasketballHoop.Value);
         }
 
         private void Update()
@@ -126,6 +128,11 @@ namespace UltraFunGuns.Components.Entity
         public void Cleanup()
         {
             Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            BasketballHoop.EnableBasketballHoop.OnValueChanged -= gameObject.SetActive;
         }
     }
 }

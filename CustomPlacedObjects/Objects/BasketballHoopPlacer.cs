@@ -16,7 +16,7 @@ namespace UltraFunGuns.CustomPlacedObjects.Objects
 
         public bool Place(string sceneName)
         {
-            if (sceneName != "uk_construct" || basketBallHoop == null || !Data.Config.Data.EnableBasketballHoop)
+            if (sceneName != "uk_construct" || basketBallHoop == null)
                 return false;
 
             GameObject.Instantiate(basketBallHoop, new Vector3(-136.0f,-1.5f,362.2f), Quaternion.identity);

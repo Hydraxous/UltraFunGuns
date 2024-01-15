@@ -8,7 +8,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Egg projectile script created by EggToss and EggSplosion.
-    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver, ICoinTarget, IUFGBeamInteractable
+    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver, ICoinTarget, IRevolverBeamShootable, ISharpshooterTarget
     {
         [UFGAsset("EggImpactFX")] private static GameObject impactFX;
         [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
@@ -35,6 +35,14 @@ namespace UltraFunGuns
         {
             rb = GetComponent<Rigidbody>();
             eggCollider = GetComponent<CapsuleCollider>();
+
+            GameObject limbHitbox = transform.Find("Sphere").gameObject;
+            if (limbHitbox != null)
+            {
+                //Awful hack to make piercing revolvers work
+                limbHitbox.layer = 10;
+                limbHitbox.tag = "Breakable";
+            }
 
         }
 
@@ -271,6 +279,23 @@ namespace UltraFunGuns
         public bool CanRevolverBeamPierce(RevolverBeam beam)
         {
             return false;
+        }
+
+        public bool CanBeSharpshot(RevolverBeam beam, RaycastHit hit)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public Vector3 GetSharpshooterTargetPoint()
+        {
+            return transform.position;
+        }
+
+        public void OnSharpshooterTargeted(RevolverBeam beam, RaycastHit hit) {}
+
+        public int GetSharpshooterTargetPriority()
+        {
+            return 1;
         }
     }
 }

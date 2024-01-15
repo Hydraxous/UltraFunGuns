@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UltraFunGuns.Components;
+﻿using System.Collections.Generic;
 using UltraFunGuns.Components.Entity;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, ISharpshooterTarget, IRevolverBeamShootable
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
@@ -78,6 +75,10 @@ namespace UltraFunGuns
             player = MonoSingleton<NewMovement>.Instance;
             homingSound.Play();
             homingSound.Pause();
+
+            //Fix stupid hitreg.
+            GameObject hitbox = transform.Find("LimbHitbox").gameObject;
+            hitbox.tag = "Breakable";
         }
 
         private void Update()
@@ -521,7 +522,33 @@ namespace UltraFunGuns
             return !dead;
         }
 
-        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
+
+        public int GetTargetPriority(Coin coin)
+        {
+            return 1;
+        }
+
+        public bool CanBeSharpshot(RevolverBeam beam, RaycastHit hit)
+        {
+            return !dead;
+        }
+
+        public Vector3 GetSharpshooterTargetPoint()
+        {
+            return transform.position;
+        }
+
+        //The ball will be hit by revolverbeam, no need to do anything here.
+        public void OnSharpshooterTargeted(RevolverBeam beam, RaycastHit hit) {}
+
+        //Unused.
+        public int GetSharpshooterTargetPriority()
+        {
+            return 1;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
         {
             switch (beam.beamType)
             {
@@ -543,9 +570,14 @@ namespace UltraFunGuns
             }
         }
 
-        public int GetTargetPriority(Coin coin)
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
         {
-            return 1;
+            return !dead;
+        }
+
+        public bool CanRevolverBeamPierce(RevolverBeam beam)
+        {
+            return true;
         }
     }
 }
