@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, IRevolverBeamShootable
+    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, IRevolverBeamShootable, IParriable
     {
         [UFGAsset("CanLauncher_CanExplosion")] private static GameObject canExplosion;
         [UFGAsset("CanLauncher_CanProjectile_BounceFX")] private static GameObject bounceFX;
