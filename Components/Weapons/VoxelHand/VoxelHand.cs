@@ -191,13 +191,13 @@ namespace UltraFunGuns
         {
             if(Input.GetKeyDown(KeyCode.PageDown))
             {
-                VoxelWorld.SaveWorld();
+                VoxelWorld.SaveWorld("debug");
                 Debug.Log("Saved.");
             }
 
             if(Input.GetKeyDown(KeyCode.PageUp))
             {
-                VoxelWorld.LoadWorld();
+                VoxelWorld.LoadWorld(VoxelSaveManager.LoadFromName("debug"));
                 Debug.Log("Saved.");
             }
 
@@ -205,7 +205,6 @@ namespace UltraFunGuns
             {
                 BuildStructure();
             }
-
         }
 
         private void BuildStructure()
@@ -307,6 +306,7 @@ namespace UltraFunGuns
                 return;
 
             Voxel placedVoxel = Voxel.Create(location, currentVoxelData);
+            VoxelWorld.ReplaceVoxel(location, placedVoxel);
 
             if (currentVoxelData.Sound != null)
                 AudioSource.PlayClipAtPoint(currentVoxelData.Sound, gridPosition);

@@ -35,7 +35,6 @@ namespace UltraFunGuns
          * Weapon swapping -> instant cooldown reset
          * 
          * Synergy -> 
-         * Enriched Core -> Hit 3 shots of the rifle on a core to make it a mindflayer explosion
          * Alchemical Enrichment -> Hit 3 shots on a coin to instantly fire upon three enemies
          * Purification -> Firing on a focalyzer crystal increases its dps
          * Enrichment -> When shooting enemy projectiles, they become supercharged, if they are parried, they will release a core nuke explosion on impact.

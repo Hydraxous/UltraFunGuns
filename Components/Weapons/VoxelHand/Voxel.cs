@@ -77,9 +77,6 @@ namespace UltraFunGuns
             newBlock.transform.localScale = Vector3.one * VoxelWorld.WorldScale;
 
             Voxel newVoxel = newBlock.AddComponent<Voxel>();
-            VoxelWorld.ReplaceVoxel(position, newVoxel);
-
-
 
             if(state == null)
             {

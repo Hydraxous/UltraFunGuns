@@ -33,6 +33,9 @@ namespace UltraFunGuns
 
         public float reviveParryThrowForce = 180.0f;
 
+        private float lastParryTime;
+        private static float parryCooldown = 0.5f;
+
         public float killTime = 4.5f;
         private float killTimer = 0.0f;
 
@@ -235,6 +238,12 @@ namespace UltraFunGuns
                 return false;
             }
 
+            if(Time.time-lastParryTime < parryCooldown)
+            {
+                return false;
+            }
+
+            lastParryTime = Time.time;
             tracking = false;
             //canBeParried = false;
             killTimer += killTime;
@@ -396,7 +405,10 @@ namespace UltraFunGuns
             return !sleeping && !dead;
         }
 
-        public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) 
+        {
+
+        }
 
         public int GetCoinTargetPriority(Coin coin)
         {
@@ -411,7 +423,21 @@ namespace UltraFunGuns
                     Explode(Vector3.up, 3);
                     break;
                 case BeamType.Revolver:
-                    Bounce();
+                    
+                    if(!beam.strongAlt)
+                    {
+                        Bounce();
+                        break;
+                    }
+                    if (sleeping)
+                    {
+                        Explode(Vector3.up, 2);
+                    }
+                    else if (bounced)
+                    {
+                        Vector3 direction = transform.position - beam.transform.position;
+                        Explode(direction, 2);
+                    }
                     break;
                 case BeamType.MaliciousFace:
                     Explode(Vector3.up, 3);

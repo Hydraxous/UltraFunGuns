@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using JetBrains.Annotations;
+using Configgy;
 
 namespace UltraFunGuns
 {
@@ -31,7 +32,6 @@ namespace UltraFunGuns
         public bool IsOpen => container.activeInHierarchy;
 
         private Dictionary<VoxelData, VoxelMenuButton> instancedButtons = new Dictionary<VoxelData, VoxelMenuButton>();
-
 
         private VoxelHand voxelHand;
 
@@ -236,7 +236,7 @@ namespace UltraFunGuns
             instancedButtons.Clear();
         }
 
-        //TODO this is horrid. Assumes the VoxelHand calls OpenMenu and provides it's SetHeldVoxel method as onSelect. Disgusting... Fix this.
+        //TODO this is horrid. Assumes the VoxelHand calls OpenMenu and provides it's SetHeldVoxel method as onSelect. Disgusting... Fix this. she dont know sry.
         public void Button_DeselectHeldVoxel()
         {
             voxelHand?.SetHeldVoxel(null);
@@ -250,25 +250,18 @@ namespace UltraFunGuns
             VoxelDatabase.ImportCustomBlocksAsync(null);
         }
 
-
         public void Button_OpenCustomVoxelFolder()
         {
             VoxelDatabase.OpenCustomVoxelFolder();
         }
 
-        public void Button_SaveCurrentScene()
-        {
-            VoxelWorld.SaveWorld();
-        }
-
-        public void Button_LoadCurrentScene()
-        {
-            VoxelWorld.LoadWorld();
-        }
-
         public void Button_ClearAllVoxels()
         {
-            VoxelWorld.ClearBlocks();
+            ModalDialogue.ShowSimple("Are you sure?", "You are about to clear everything, this is irreversable! Are you sure you want to do this?", (confirm) =>
+            {
+                if (confirm)
+                    VoxelWorld.ClearBlocks();
+            });
         }
     }
 }

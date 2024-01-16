@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 
 namespace UltraFunGuns
 {
-    public interface IVoxelState : ISerializable
+    public interface IVoxelState
     {
-        //Called when Deserialized.
-        public void SetStateData(object stateData);
+        public BinaryWriter WriteStateData(BinaryWriter bw);
+        public void ReadStateData(BinaryReader br);
 
-        //Called for serialization
-        public object GetStateData();
+        public string GetID();
 
         //Called when the state is set on a voxel
         public void OnVoxel(Voxel voxel);

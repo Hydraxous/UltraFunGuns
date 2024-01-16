@@ -53,7 +53,7 @@ namespace UltraFunGuns
         [UFGAsset("boulder_impact_on_stones_14 fast")]
         private static AudioClip defaultClip;
 
-        private static string customVoxelsFolder => HydraDynamics.DataPersistence.DataManager.GetDataPath("Voxel", "CustomVoxels");
+        private static string customVoxelsFolder => Paths.VoxelBlockTexturesFolder;
 
         private static Dictionary<string, Texture2D> loadedTextures = new Dictionary<string,Texture2D>();
         
@@ -75,13 +75,16 @@ namespace UltraFunGuns
 
         [Configgable("TEST")]
         private static ConfigToggle useCyberGrindTextures = new ConfigToggle(false);
-        private static string cyberGrindTextureFolder => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Textures");
+        private static string cyberGrindTextureFolder => Paths.CybergrindTexturesFolder;
 
         private static IEnumerator ImportCustomTexturesAsync(Action onComplete)
         {
             IsImportingTextures = true;
 
             List<string> pathes = new List<string>();
+
+            if(!Directory.Exists(customVoxelsFolder))
+                Directory.CreateDirectory(customVoxelsFolder);
 
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png", SearchOption.AllDirectories));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg", SearchOption.AllDirectories));

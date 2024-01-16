@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using UnityEngine;
@@ -9,13 +10,6 @@ namespace UltraFunGuns
     [Serializable]
     public class VoxelGlass : IVoxelState
     {
-        public void GetObjectData(SerializationInfo info, StreamingContext context) {}
-
-        public object GetStateData()
-        {
-            return this;
-        }
-
 
         public void OnVoxel(Voxel voxel)
         {
@@ -60,6 +54,21 @@ namespace UltraFunGuns
         {
             Vector3 pos = voxel.transform.position;
             Debug.LogWarning("Glass broken!");
+        }
+
+        public BinaryWriter WriteStateData(BinaryWriter bw)
+        {
+            return bw;
+        }
+
+        public void ReadStateData(BinaryReader br)
+        {
+            //Nothing to read :)
+        }
+
+        public string GetID()
+        {
+            return "glass";
         }
     }
 }

@@ -90,7 +90,8 @@ namespace UltraFunGuns
 
                     currentLocation.Coordinate = origin + new Vector3Int(x, y, z);
                     VoxelData currentVoxel = (isEdge) ? floorBorderVoxel : floorVoxel;
-                    Voxel.Create(currentLocation, currentVoxel);
+                    Voxel voxel = Voxel.Create(currentLocation, currentVoxel);
+                    VoxelWorld.ReplaceVoxel(currentLocation, voxel);
                 }
             }
         }

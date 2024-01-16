@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
@@ -24,16 +25,6 @@ namespace UltraFunGuns
 
         public ExplosiveVoxel() 
         { }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-
-        }
-
-        public object GetStateData()
-        {
-            return null;
-        }
 
         public void OnVoxel(Voxel voxel)
         {
@@ -126,6 +117,20 @@ namespace UltraFunGuns
         public void SetStateData(object stateData)
         {
 
+        }
+
+        public BinaryWriter WriteStateData(BinaryWriter bw)
+        {
+            return bw;
+        }
+
+        public void ReadStateData(BinaryReader br)
+        {
+        }
+
+        public string GetID()
+        {
+            return "explosive";
         }
     }
 }

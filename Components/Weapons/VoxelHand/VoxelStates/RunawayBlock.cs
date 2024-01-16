@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using UnityEngine;
@@ -15,15 +16,7 @@ namespace UltraFunGuns
         {
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("0", travels);
-        }
-
-        public object GetStateData()
-        {
-            return this;
-        }
+       
 
         public void OnVoxel(Voxel voxel)
         {
@@ -60,6 +53,22 @@ namespace UltraFunGuns
         public void PrintState(Voxel voxel)
         {
             Debug.LogWarning($"Current travels: {travels}");
+        }
+
+        public void ReadStateData(BinaryReader br)
+        {
+            travels = br.ReadInt32();
+        }
+
+        public BinaryWriter WriteStateData(BinaryWriter bw)
+        {
+            bw.Write(travels);
+            return bw;
+        }
+
+        public string GetID()
+        {
+            return "runawayblock";
         }
 
         public void SetStateData(object stateData)
