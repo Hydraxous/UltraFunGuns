@@ -1,13 +1,5 @@
-﻿using Logic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UltraFunGuns.Patches;
+﻿using UltraFunGuns.Patches;
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {
@@ -191,7 +183,7 @@ namespace UltraFunGuns
         {
             if(Input.GetKeyDown(KeyCode.PageDown))
             {
-                VoxelWorld.SaveWorld("debug");
+                VoxelWorld.SaveCurrentWorld();
                 Debug.Log("Saved.");
             }
 

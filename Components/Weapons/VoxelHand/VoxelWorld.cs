@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -27,19 +24,6 @@ namespace UltraFunGuns
         private bool worldDirty;
 
         public static VoxelWorldFile CurrentFile { get; private set; }
-
-        public static void NewSave()
-        {
-            CurrentFile = new VoxelWorldFile();
-            CurrentFile.Header = new VoxelWorldFileHeader();
-            CurrentFile.VoxelData = new SerializedVoxel[0];
-            CurrentFile.Header.DisplayName = "My Voxel World!";
-            CurrentFile.Header.Description = "A world of my very own creation.";
-            CurrentFile.Header.WorldScale = VoxelWorld.WorldScale;
-            CurrentFile.Header.SceneName = SceneHelper.CurrentScene;
-            CurrentFile.Header.GameVersion = Application.version;
-            CurrentFile.Header.ModVersion = ConstInfo.VERSION;
-        }
 
         public static bool IsWorldDirty()
         {
@@ -63,13 +47,12 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            if(CurrentFile == null)
-            {
-                NewSave();
-            }
-
             worldScale.OnValueChanged += OnWorldScaleChanged;
-            PopulateWorld(CurrentFile);
+
+            if (CurrentFile != null)
+            {
+                PopulateWorld(CurrentFile);
+            }
         }
 
         private void OnWorldScaleChanged(float newValue)
@@ -242,18 +225,31 @@ namespace UltraFunGuns
                     voxelState.ReadStateData(new BinaryReader(new MemoryStream(voxel.stateData)));
                 }
 
-                //Debug.LogWarning($"[{index+1}] - - -\nID:{voxelData.ID}\nDN:{voxelData.DisplayName}\nC:{voxelLocation.Coordinate}\nP:{voxelLocation.Position}");
-
                 Voxel newVoxel = Voxel.Create(voxelLocation, voxelData, voxelState);
                 SetVoxelInternal(voxelLocation, newVoxel);
                 ++index;
             }
         }
 
-        public static void SaveWorld(string fileName)
+        public static void SaveCurrentWorld()
         {
-            VoxelWorldFile worldData = BuildNewWorldFile(fileName);
-            VoxelSaveManager.SaveWorldData(fileName, worldData);
+            if(CurrentFile == null)
+            {
+                if (instance.worldDirty)
+                {
+                    //File not yet saved, prompt user to save as.
+                    ModalDialogue.ShowSimple("No save selected.", "Would you like to save the current world as a new file?", (r) =>
+                    {
+                        if (r)
+                        {
+                            //Open save as menu and prompt for file name.
+                        }
+                    });
+                }
+                return;
+            }
+
+            VoxelSaveManager.SaveWorldData(CurrentFile.Header.FilePath, CurrentFile);
             instance.worldDirty = false;
         }
 

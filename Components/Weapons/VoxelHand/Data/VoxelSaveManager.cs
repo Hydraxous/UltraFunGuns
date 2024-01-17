@@ -113,12 +113,11 @@ namespace UltraFunGuns
             return File.Exists(filePath);
         }
 
-        public static void SaveWorldData(string fileName, VoxelWorldFile data)
+        public static void SaveWorldData(string filePath, VoxelWorldFile data)
         {
-            if(!Directory.Exists(Paths.VoxelSavesFolder))
+            if (!Directory.Exists(Paths.VoxelSavesFolder))
                 Directory.CreateDirectory(Paths.VoxelSavesFolder);
 
-            string filePath = NameToFilePath(fileName);
             using (FileStream file = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 using (BinaryWriter bw = new BinaryWriter(file))
