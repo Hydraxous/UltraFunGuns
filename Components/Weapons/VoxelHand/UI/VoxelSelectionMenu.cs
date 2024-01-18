@@ -26,7 +26,7 @@ namespace UltraFunGuns
 
         private List<List<GameObject>> pages = new List<List<GameObject>>();
 
-        public bool IsOpen => container.activeInHierarchy;
+        public bool IsOpen => container.activeInHierarchy || (savesMenu != null && savesMenu.gameObject.activeInHierarchy);
 
         private Dictionary<VoxelData, VoxelMenuButton> instancedButtons = new Dictionary<VoxelData, VoxelMenuButton>();
 
@@ -53,7 +53,7 @@ namespace UltraFunGuns
 
             savesMenu = GetComponentInChildren<VoxelSavesMenu>(true);
 
-            voxelSelectGameState = new GameState("VoxelSelect", container);
+            voxelSelectGameState = new GameState("VoxelSelect");
             voxelSelectGameState.cursorLock = LockMode.Unlock;
             voxelSelectGameState.cameraInputLock = LockMode.Unlock;
             voxelSelectGameState.playerInputLock = LockMode.Unlock;
@@ -64,6 +64,17 @@ namespace UltraFunGuns
         private void Start()
         {
             StartCoroutine(ButtonUpdate());
+
+            references.WorldsButton.onClick.AddListener(Button_Worlds);
+
+            references.SaveButton.onClick.AddListener(() =>
+            {
+                VoxelWorld.SaveCurrentWorld();
+                references.SaveButton.gameObject.SetActive(false);
+            });
+
+            references.ClearAllVoxelsButton.SetClickAction(Button_ClearAllVoxels);
+            references.OpenVoxelFolderButton.SetClickAction(Button_OpenCustomVoxelFolder);
         }
 
         private IEnumerator ButtonUpdate()
@@ -169,7 +180,7 @@ namespace UltraFunGuns
             voxelHand?.SetHeldVoxel(data);
         }
         
-        private void SavesButtonPressed()
+        private void Button_Worlds()
         {
             container.SetActive(false);
             savesMenu.Open();
@@ -191,11 +202,15 @@ namespace UltraFunGuns
         {
             RebuildMenu();
             container.SetActive(true);
+
+            references.SaveButton.gameObject.SetActive(VoxelWorld.IsWorldDirty());
+
             SetPage(currentPage);
-            Time.timeScale = 0f;
-            OptionsManager.Instance.paused = true;
-            CameraController.Instance.enabled = false;
-            GameStateManager.Instance.RegisterState(voxelSelectGameState);
+            Pauser.Pause(container);
+            //Time.timeScale = 0f;
+            //OptionsManager.Instance.paused = true;
+            //CameraController.Instance.enabled = false;
+            //GameStateManager.Instance.RegisterState(voxelSelectGameState);
         }
 
         public void SetPage(int index)
@@ -227,10 +242,10 @@ namespace UltraFunGuns
                 return;
             }
 
-            OptionsManager.Instance.paused = false;
-            CameraController.Instance.enabled = true;
-            Time.timeScale = 1f;
-            GameStateManager.Instance.PopState(voxelSelectGameState.key);
+            //OptionsManager.Instance.paused = false;
+            //CameraController.Instance.enabled = true;
+            //Time.timeScale = 1f;
+            //GameStateManager.Instance.PopState(voxelSelectGameState.key);
             container.SetActive(false);
         }
 
@@ -266,6 +281,12 @@ namespace UltraFunGuns
         public void Button_OpenCustomVoxelFolder()
         {
             VoxelDatabase.OpenCustomVoxelFolder();
+        }
+
+        public void NewWorld()
+        {
+            OpenMenu();
+            savesMenu.NewFile();
         }
 
         public void Button_ClearAllVoxels()

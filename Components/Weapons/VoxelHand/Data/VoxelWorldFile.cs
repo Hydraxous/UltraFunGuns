@@ -1,4 +1,5 @@
 ﻿using Logic;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,6 +51,20 @@ namespace UltraFunGuns
             bw.Write(ModVersion);
             bw.Write(GameVersion);
             return bw;
+        }
+
+        public override bool Equals(object obj)
+        {
+           var other = obj as VoxelWorldFileHeader;
+            if (other == null)
+                return false;
+
+            return this.FilePath == other.FilePath;
+        }
+
+        public override int GetHashCode()
+        {
+            return FilePath.GetHashCode();
         }
     }
 }

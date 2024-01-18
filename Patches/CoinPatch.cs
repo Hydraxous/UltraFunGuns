@@ -38,9 +38,9 @@ namespace UltraFunGuns
         private static MethodInfo transformGetPositon = typeof(Transform).GetMethod("get_position", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
         [HarmonyPatch(typeof(Coin), nameof(Coin.ReflectRevolver)), HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> InjectCoinTargeting(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> InjectICoinTargetDiscovery(IEnumerable<CodeInstruction> instructions)
         {
-            Debug.LogWarning($"Beginning compilation of {nameof(InjectCoinTargeting)}");
+            Debug.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetDiscovery)}");
             CodeInstruction[] codeInstructions = instructions.ToArray();
 
             //Matches IL code for locating the injection point of our code.
@@ -75,9 +75,9 @@ namespace UltraFunGuns
 
 
         [HarmonyPatch(typeof(Coin), nameof(Coin.ReflectRevolver)), HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> InjectInterfaceEvaluation(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> InjectICoinTargetEvaluation(IEnumerable<CodeInstruction> instructions)
         {
-            Debug.LogWarning($"Beginning compilation of {nameof(InjectInterfaceEvaluation)}");
+            Debug.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetEvaluation)}");
             CodeInstruction[] codeInstructions = instructions.ToArray();
 
             for (int i = 0; i < codeInstructions.Length; i++)

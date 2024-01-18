@@ -91,6 +91,13 @@ namespace UltraFunGuns
             return newVoxel;
         }
 
+        public static Voxel Build(VoxelLocation position, VoxelData data, IVoxelState state = null)
+        {
+            Voxel voxel = Create(position, data, state);
+            VoxelWorld.ReplaceVoxel(position, voxel);
+            return voxel;
+        }
+
         public VoxelLocation GetLocation()
         {
             return new VoxelLocation(transform.position);

@@ -47,6 +47,7 @@ namespace UltraFunGuns
         private void Start()
         {
             SetHeldVoxel(null);
+            VoxelWorld.QueryInstance();
         }
 
         private void Update()
@@ -204,8 +205,11 @@ namespace UltraFunGuns
             if (!TryGetLookLocation(out VoxelLocation location))
                 return;
 
-            MyVoxelHouse myHouse = new MyVoxelHouse();
-            myHouse.Build(location.Coordinate, UnityEngine.Random.Range(0,260));
+            MySphere mySphere = new MySphere();
+            //MyVoxelHouse myHouse = new MyVoxelHouse();
+            
+            mySphere.Build(location.Coordinate, UnityEngine.Random.Range(0,9999));
+            //myHouse.Build(location.Coordinate, UnityEngine.Random.Range(0,260));
         }
 
         private bool TryGetLookLocation(out VoxelLocation location, bool invertNormal = false)
@@ -297,8 +301,7 @@ namespace UltraFunGuns
             if (VoxelWorld.CheckVoxelCollision(gridPosition))
                 return;
 
-            Voxel placedVoxel = Voxel.Create(location, currentVoxelData);
-            VoxelWorld.ReplaceVoxel(location, placedVoxel);
+            Voxel.Build(location, currentVoxelData);
 
             if (currentVoxelData.Sound != null)
                 AudioSource.PlayClipAtPoint(currentVoxelData.Sound, gridPosition);

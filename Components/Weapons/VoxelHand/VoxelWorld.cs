@@ -1,6 +1,7 @@
 ﻿using Configgy;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -25,6 +26,11 @@ namespace UltraFunGuns
 
         public static VoxelWorldFile CurrentFile { get; private set; }
 
+        internal static void SetCurrentFile(VoxelWorldFile file)
+        {
+            CurrentFile = file;
+        }
+
         public static bool IsWorldDirty()
         {
             return instance.worldDirty;
@@ -39,20 +45,36 @@ namespace UltraFunGuns
         {
             get
             {
-                if(_instance == null)
+                if (_instance == null)
+                {
                     _instance = new GameObject("VoxelWorld").AddComponent<VoxelWorld>();
+                }
                 return _instance;
             }
         }
 
-        private void Awake()
+        private void Start()
         {
-            worldScale.OnValueChanged += OnWorldScaleChanged;
+            if(_instance != null && _instance != this)
+            {
+                Debug.LogError("VoxelWorld already exists! Destroying new instance.");
+                DestroyImmediate(this);
+                return;
+            }
 
             if (CurrentFile != null)
             {
+                Debug.Log("Populating existing voxel world.");
                 PopulateWorld(CurrentFile);
             }
+
+            worldScale.OnValueChanged += OnWorldScaleChanged;
+        }
+
+        //lol
+        public static bool QueryInstance()
+        {
+            return instance != null;
         }
 
         private void OnWorldScaleChanged(float newValue)
@@ -201,9 +223,11 @@ namespace UltraFunGuns
         private static void PopulateWorld(VoxelWorldFile worldData)
         {
             if (worldData == null)
-                throw new NullReferenceException("World data is null!");
-
-            worldScale.SetValue(worldData.Header.WorldScale);
+            {
+                //throw new NullReferenceException("World data is null!");
+                Debug.LogError("No world data ahh boy!");
+            }
+            //worldScale.SetValue(worldData.Header.WorldScale);
 
             int index = 0;
             foreach (SerializedVoxel voxel in worldData.VoxelData)
@@ -243,12 +267,21 @@ namespace UltraFunGuns
                         if (r)
                         {
                             //Open save as menu and prompt for file name.
+                            VoxelSelectionMenu menu = GameObject.FindObjectOfType<VoxelSelectionMenu>();
+                            if(menu == null)
+                            {
+                                Debug.LogError("No voxel selection menu?!?!");
+                                return;
+                            }
+
+                            menu.NewWorld();
                         }
                     });
                 }
                 return;
             }
 
+            CurrentFile.VoxelData = SerializeCurrentVoxels();
             VoxelSaveManager.SaveWorldData(CurrentFile.Header.FilePath, CurrentFile);
             instance.worldDirty = false;
         }
@@ -314,13 +347,17 @@ namespace UltraFunGuns
         private static void CleanWorldData()
         {
             if (instance.voxelData == null)
+            {
+                instance.voxelData = new Dictionary<Vector3Int, Voxel>();
                 return;
+            }
 
             instance.voxelData = instance.voxelData.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
         }
 
         private void OnDestroy()
         {
+            _instance = null;
             worldScale.OnValueChanged -= OnWorldScaleChanged;
         }
 

@@ -37,7 +37,19 @@ namespace UltraFunGuns
 
         private void Awake()
         {
-            inspector = GetComponentInChildren<VoxelFileInspector>();
+            InitializeReferences();
+        }
+
+        private bool initialized;
+
+        private void InitializeReferences()
+        {
+            if (initialized)
+                return;
+
+            selectionMenu = GetComponentInParent<VoxelSelectionMenu>();
+
+            inspector = GetComponentInChildren<VoxelFileInspector>(true);
             inspector.gameObject.SetActive(false);
 
             listViewPanel = LocateComponent<RectTransform>("ListView").gameObject;
@@ -78,6 +90,8 @@ namespace UltraFunGuns
                 deleteButton,
                 discordButton
             };
+
+            initialized = true;
         }
 
         private void SelectEntry(VoxelWorldFileHeader header, FileSelecitonButton button)
@@ -96,6 +110,14 @@ namespace UltraFunGuns
             {
                 listViewPanel.SetActive(false);
                 inspector.OpenWithFile(header);
+            });
+
+            bool isLoaded = VoxelWorld.CurrentFile != null && VoxelWorld.CurrentFile.Header.FilePath == header.FilePath;
+
+            saveButton.gameObject.SetActive(isLoaded);
+            saveButton.SetClickAction(() =>
+            {
+                VoxelWorld.SaveCurrentWorld();
             });
 
             loadButton.gameObject.SetActive(true);
@@ -193,6 +215,7 @@ namespace UltraFunGuns
                     {
                         VoxelWorldFile data = VoxelSaveManager.LoadAtFilePath(header.FilePath);
                         VoxelWorld.LoadWorld(data);
+                        RebuildList();
                     }
                 });
             };
@@ -247,6 +270,9 @@ namespace UltraFunGuns
 
         public void Open()
         {
+            gameObject.SetActive(true);
+            Pauser.Pause(gameObject);
+            InitializeReferences();
             DeselectAll();
             listViewPanel.SetActive(true);
 
@@ -254,6 +280,15 @@ namespace UltraFunGuns
                 inspector.Close();
 
             RebuildList();
+        }
+
+        public void NewFile()
+        {
+            InitializeReferences();
+
+            listViewPanel.SetActive(false);
+            inspector.Open();
+            inspector.CreationMode();
         }
 
         public void Close()
@@ -266,7 +301,6 @@ namespace UltraFunGuns
 
             gameObject.SetActive(false);
             selectionMenu.OpenMenu();
-
         }
 
         public void EscapeAction()
@@ -285,18 +319,24 @@ namespace UltraFunGuns
         {
             DisableAllSideButtons();
 
+            openInFolderButton.gameObject.SetActive(true);
+            openInFolderButton.SetClickAction(() =>
+            {
+                Application.OpenURL($"file://{Paths.VoxelSavesFolder}");
+            });
+
             returnButton.gameObject.SetActive(true);
             returnButton.SetClickAction(() =>
             {
                 listViewPanel.SetActive(true);
                 gameObject.SetActive(false);
+                selectionMenu.OpenMenu();
             });
 
             newButton.gameObject.SetActive(true);
             newButton.SetClickAction(() =>
             {
-                inspector.Open();
-                inspector.CreationMode();
+                NewFile();
             });
 
             discordButton.gameObject.SetActive(true);
@@ -319,19 +359,25 @@ namespace UltraFunGuns
             public GameObject GameObject { get; }
 
             private Color defaultFrameColor;
-            private static readonly Color orange = new Color(1, 0.5f, 0);
+            private static readonly Color orange = new Color(1, 0.8f, 0);
 
             public bool IsSelected;
 
+            private bool IsLoaded()
+            {
+                return VoxelWorld.CurrentFile != null && VoxelWorld.CurrentFile.Header.FilePath == Header.FilePath;
+            }
+
             public FileSelecitonButton(VoxelWorldFileHeader header, GameObject gameObject)
             {
+                Header = header;
                 GameObject = gameObject;
                 Button = gameObject.GetComponent<Button>();
-                Frame = gameObject.GetComponentsInChildren<Image>().Where(x => x.name == "Border").FirstOrDefault();
+                Frame = gameObject.GetComponentsInChildren<Image>(true).Where(x => x.name == "Border").FirstOrDefault();
                 defaultFrameColor = Frame.color;
-                WorldNameText = gameObject.GetComponentsInChildren<Text>().Where(x => x.name == "Text_WorldDisplayName").FirstOrDefault();
-                FileNameText = gameObject.GetComponentsInChildren<Text>().Where(x => x.name == "Text_FileName").FirstOrDefault();
-                VoxelCountText = gameObject.GetComponentsInChildren<Text>().Where(x => x.name == "Text_VoxelCount").FirstOrDefault();
+                WorldNameText = gameObject.GetComponentsInChildren<Text>(true).Where(x => x.name == "Text_WorldName").FirstOrDefault();
+                FileNameText = gameObject.GetComponentsInChildren<Text>(true).Where(x => x.name == "Text_FileName").FirstOrDefault();
+                VoxelCountText = gameObject.GetComponentsInChildren<Text>(true).Where(x => x.name == "Text_VoxelCount").FirstOrDefault();
             }
 
             public void RefreshValues()
@@ -339,7 +385,16 @@ namespace UltraFunGuns
                 WorldNameText.text = Header.DisplayName;
                 FileNameText.text = Path.GetFileNameWithoutExtension(Header.FilePath);
                 VoxelCountText.text = Header.TotalVoxelCount.ToString("N0") + " VOXELS";
-                Frame.color = IsSelected ?  orange : defaultFrameColor;
+
+                Color frameColor = defaultFrameColor;
+
+                if (IsLoaded())
+                    frameColor = Color.green;
+
+                if (IsSelected)
+                    frameColor = orange;
+
+                Frame.color = frameColor;
             }
 
             public void Dispose()

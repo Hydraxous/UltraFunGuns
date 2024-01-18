@@ -88,6 +88,20 @@ namespace UltraFunGuns
             return worldData;
         }
 
+        public static VoxelWorldFile LoadFromBytes(byte[] bytes)
+        {
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    int fileVersion = br.ReadInt32();
+                    IVoxelFileReader fileInterpreter = VoxelFileReaderFactory.GetReader(fileVersion);
+                    VoxelWorldFile worldData = fileInterpreter.ReadWorldData(br);
+                    return worldData;
+                }
+            }
+        }
+
         public static byte[] ToBytes(VoxelWorldFile file)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -144,6 +158,10 @@ namespace UltraFunGuns
             VoxelWorldFile file = LoadAtFilePath(filePath);
             file.Header = header;
             SaveWorldData(filePath, file);
+
+            if(VoxelWorld.CurrentFile != null)
+                if(VoxelWorld.CurrentFile.Header.FilePath == filePath)
+                    VoxelWorld.CurrentFile.Header = header;
         }
 
         public static void DeleteFile(VoxelWorldFileHeader header)
@@ -158,15 +176,22 @@ namespace UltraFunGuns
 
         public static void RenameFile(VoxelWorldFileHeader header, string newPath)
         {
-            if(!File.Exists(header.FilePath))
+            if (!File.Exists(header.FilePath))
             {
                 throw new Exception($"Cannot rename file {header.FilePath}, file does not exist or filepath is invalid.");
             }
 
+            string oldFilePath = header.FilePath;
             byte[] bytes = File.ReadAllBytes(header.FilePath);
+
             File.WriteAllBytes(newPath, bytes);
             File.Delete(header.FilePath);
+         
             header.FilePath = newPath;
+
+            if (VoxelWorld.CurrentFile != null)
+                if (VoxelWorld.CurrentFile.Header.FilePath == oldFilePath)
+                    VoxelWorld.CurrentFile.Header.FilePath = newPath;
         }
     }
 }

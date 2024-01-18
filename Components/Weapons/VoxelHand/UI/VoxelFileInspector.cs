@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Configgy;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,6 @@ namespace UltraFunGuns
             Open();
 
             menu.DisableAllSideButtons();
-            menu.saveButton.onClick.RemoveAllListeners();
             menu.returnButton.gameObject.SetActive(true);
 
             menu.returnButton.SetClickAction(() =>
@@ -59,47 +59,95 @@ namespace UltraFunGuns
             {
                 menu.Load(header);
             });
+
+            
         }
 
         public void CreationMode()
         {
             InitializeReferences();
-            VoxelWorldFileHeader newHeader = new VoxelWorldFileHeader();
-
+            VoxelWorldFileHeader header = new VoxelWorldFileHeader();
+            this.target = header;
             string newName = "NewWorld";
             int nameIndex = 0;
 
             while (File.Exists(VoxelSaveManager.NameToFilePath(newName + ((nameIndex > 0) ? $" ({nameIndex})" : ""))))
                 ++nameIndex;
 
-            newHeader.FilePath = newName + ((nameIndex > 0) ? $" ({nameIndex})" : "");
-            newHeader.DisplayName = "New World";
-            newHeader.Description = "A new world";
-            newHeader.SceneName = SceneHelper.CurrentScene;
-            newHeader.TotalVoxelCount = 0;
-            newHeader.WorldScale = VoxelWorld.WorldScale;
-            newHeader.ModVersion = ConstInfo.VERSION;
-            newHeader.GameVersion = Application.version;
+            header.FilePath = VoxelSaveManager.NameToFilePath(newName + ((nameIndex > 0) ? $" ({nameIndex})" : ""));
+            header.DisplayName = "New World";
+            header.Description = "A new world";
+            header.SceneName = SceneHelper.CurrentScene;
+            header.TotalVoxelCount = 0;
+            header.WorldScale = VoxelWorld.WorldScale;
+            header.ModVersion = ConstInfo.VERSION;
+            header.GameVersion = Application.version;
 
-            SelectFile(newHeader);
+            SelectFile(header);
             menu.DisableAllSideButtons();
 
             menu.confirmButton.gameObject.SetActive(true);
             menu.confirmButton.SetClickAction(() =>
             {
-                VoxelWorldFile file = new VoxelWorldFile();
-                file.VoxelData = new SerializedVoxel[0];
+                VoxelWorldFile file = null;
 
                 //use existing or something
                 if (VoxelWorld.CurrentFile != null)
                 {
                     file = VoxelWorld.CurrentFile;
                 }
+                else
+                {
+                    file = new VoxelWorldFile();
+                    VoxelWorld.SetCurrentFile(file);
+                }
 
+                header.FilePath = VoxelSaveManager.NameToFilePath(currentSaveName);
+                file.VoxelData = VoxelWorld.SerializeCurrentVoxels();
                 file.Header = target;
+                
                 VoxelSaveManager.SaveWorldData(file.Header.FilePath, file);
                 Close();
                 menu.Open();
+            });
+
+            menu.cancelButton.gameObject.SetActive(true);
+            menu.cancelButton.SetClickAction(() =>
+            {
+                Close();
+                menu.Open();
+            });
+
+            fileNameInputField.SetTextWithoutNotify(Path.GetFileNameWithoutExtension(header.FilePath));
+            fileNameInputField.onEndEdit.RemoveAllListeners();
+            fileNameInputField.onValueChanged.RemoveAllListeners();
+            fileNameInputField.onValueChanged.AddListener(OnInputFieldChanged);
+            fileNameInputField.onEndEdit.AddListener((v) =>
+            {
+                if (CheckName(v))
+                {
+                    header.FilePath = VoxelSaveManager.NameToFilePath(v);
+                }
+                else
+                {
+                    fileNameInputField.text = Path.GetFileNameWithoutExtension(header.FilePath);
+                }
+            });
+
+
+            worldDisplayNameInputField.text = header.DisplayName;
+            worldDisplayNameInputField.onEndEdit.RemoveAllListeners();
+            worldDisplayNameInputField.onEndEdit.AddListener((v) =>
+            {
+                header.DisplayName = v;
+            });
+
+
+            descriptionInputField.text = header.Description;
+            descriptionInputField.onEndEdit.RemoveAllListeners();
+            descriptionInputField.onEndEdit.AddListener((v) =>
+            {
+                header.Description = v;
             });
 
         }
@@ -115,17 +163,24 @@ namespace UltraFunGuns
 
             Func<bool> checkDirty = () =>
             {
+                //New file creation.
+                if(!File.Exists(header.FilePath))
+                {
+                    return false;
+                }
+
                 return newDisplayName != header.DisplayName ||
                 newDescription != header.Description ||
                 currentSaveName != Path.GetFileNameWithoutExtension(header.FilePath);
             };
 
             this.target = header; 
-            fileNameInputField.text = Path.GetFileNameWithoutExtension(header.FilePath);
+            fileNameInputField.SetTextWithoutNotify(Path.GetFileNameWithoutExtension(header.FilePath));
             fileNameInputField.onEndEdit.RemoveAllListeners();
             fileNameInputField.onValueChanged.RemoveAllListeners();
             fileNameInputField.onValueChanged.AddListener(OnInputFieldChanged);
             fileNameInputField.onEndEdit.AddListener(OnEndEdit);
+
 
             worldDisplayNameInputField.text = header.DisplayName;
             worldDisplayNameInputField.onEndEdit.RemoveAllListeners();
@@ -144,17 +199,33 @@ namespace UltraFunGuns
                 menu.saveButton.gameObject.SetActive(checkDirty());
             });
 
+            menu.saveButton.SetClickAction(() =>
+            {
+                header.Description = newDescription;
+                header.DisplayName = newDisplayName;
+
+                VoxelSaveManager.UpdateHeaderFile(header);
+
+                if (currentSaveName != Path.GetFileNameWithoutExtension(header.FilePath))
+                {
+                    VoxelSaveManager.RenameFile(header, VoxelSaveManager.NameToFilePath(currentSaveName));
+                }
+
+                menu.saveButton.gameObject.SetActive(checkDirty());
+            });
+
             voxelCountText.text = header.TotalVoxelCount.ToString("N0") + " VOXELS";
         }
 
         public void Open()
         {
-            this.gameObject.SetActive(true);
+            gameObject.SetActive(true);
+            Pauser.Pause(gameObject);
         }
 
         public void Close()
         {
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
             target = null;
         }
 
@@ -208,15 +279,23 @@ namespace UltraFunGuns
             if (CheckName(value))
                 currentSaveName = value;
             else
-                currentSaveName = "";
+                currentSaveName = Path.GetFileNameWithoutExtension(target.FilePath);
 
             fileNameInputField.SetTextWithoutNotify(currentSaveName);
+
+            bool dirty = File.Exists(target.FilePath) && (value != Path.GetFileNameWithoutExtension(target.FilePath));
+            menu.saveButton.gameObject.SetActive(dirty);
         }
 
         private bool CheckName(string name)
         {
             bool nameValid = TryValidateSaveName(name, out string errorMessage);
+
+            if (name == currentSaveName)
+                nameValid = true;
+
             menu.saveButton.interactable = nameValid;
+            menu.confirmButton.interactable = nameValid;
             fileNameWarningPanel.SetActive(!nameValid);
             if (!nameValid)
             {
@@ -235,6 +314,12 @@ namespace UltraFunGuns
                 errorMessage = "Save name cannot be empty or whitespace";
                 return false;
             }
+            
+            if (saveName == ":3")
+            {
+                errorMessage = "no :3";
+                return false;
+            }
 
             if (saveName.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
             {
@@ -248,6 +333,8 @@ namespace UltraFunGuns
                 errorMessage = $"Save name is too long. Max {MAX_SAVE_NAME_CHARACTERS} chars. Literally, how did you even manage to do this?";
                 return false;
             }
+
+            
 
             if (VoxelSaveManager.Exists(saveName))
             {
