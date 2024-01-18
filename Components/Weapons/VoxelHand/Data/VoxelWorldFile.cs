@@ -26,11 +26,6 @@ namespace UltraFunGuns
         }
     }
 
-    public static class VoxelWorldFileExtensions
-    {
-        
-    }
-
     public class VoxelWorldFileHeader
     {
         //Not serialized

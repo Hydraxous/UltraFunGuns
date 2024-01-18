@@ -32,6 +32,8 @@ namespace UltraFunGuns
 
         private VoxelHand voxelHand;
 
+        private VoxelSavesMenu savesMenu;
+
         public void SetVoxelHand(VoxelHand voxelHand)
         {
             this.voxelHand = voxelHand;
@@ -48,6 +50,8 @@ namespace UltraFunGuns
             importButton = references.ImportButton;
             importButtonText = references.ImportButtonText;
             pageNumberLabel = references.PageNumberLabel;
+
+            savesMenu = GetComponentInChildren<VoxelSavesMenu>(true);
 
             voxelSelectGameState = new GameState("VoxelSelect", container);
             voxelSelectGameState.cursorLock = LockMode.Unlock;
@@ -164,6 +168,12 @@ namespace UltraFunGuns
 
             voxelHand?.SetHeldVoxel(data);
         }
+        
+        private void SavesButtonPressed()
+        {
+            container.SetActive(false);
+            savesMenu.Open();
+        }
 
         private void Update()
         {
@@ -211,6 +221,12 @@ namespace UltraFunGuns
 
         public void CloseMenu()
         {
+            if (savesMenu.gameObject.activeInHierarchy)
+            {
+                savesMenu.EscapeAction();
+                return;
+            }
+
             OptionsManager.Instance.paused = false;
             CameraController.Instance.enabled = true;
             Time.timeScale = 1f;

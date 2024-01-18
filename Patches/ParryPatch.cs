@@ -6,10 +6,11 @@ using HarmonyLib;
 
 namespace UltraFunGuns
 {
-    [HarmonyPatch(typeof(Punch), "CheckForProjectile")]
+    [HarmonyPatch]
     public static class ParryPatch
     {
-        public static bool Prefix(Punch __instance, Transform target, bool __result, ref bool ___hitSomething)
+        [HarmonyPatch(typeof(Punch), "TryParryProjectile"), HarmonyPrefix]
+        public static bool Prefix(Punch __instance, Transform target, bool __result, bool canProjectileBoost)
         {
             if (!target.TryFindComponent<IParriable>(out IParriable parriable))
                 return true;
@@ -18,8 +19,7 @@ namespace UltraFunGuns
                 return true;
 
             __instance.anim.Play("Hook", 0, 0.065f);
-            MonoSingleton<TimeController>.Instance.ParryFlash();
-            ___hitSomething = true;
+            TimeController.Instance.ParryFlash();
             __result = true;
             return false;
         }

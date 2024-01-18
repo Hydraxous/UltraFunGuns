@@ -132,5 +132,41 @@ namespace UltraFunGuns
         {
             return Path.Combine(Paths.VoxelSavesFolder, name + Paths.VOXEL_SAVE_FILE_EXTENSION);
         }
+
+        public static void UpdateHeaderFile(VoxelWorldFileHeader header)
+        {
+            string filePath = header.FilePath;
+            if (!File.Exists(filePath))
+            {
+                throw new Exception($"Cannot update header in file {filePath}, file does not exist or filepath is invalid.");
+            }
+
+            VoxelWorldFile file = LoadAtFilePath(filePath);
+            file.Header = header;
+            SaveWorldData(filePath, file);
+        }
+
+        public static void DeleteFile(VoxelWorldFileHeader header)
+        {
+            if (!File.Exists(header.FilePath))
+            {
+                throw new Exception($"Cannot delete file {header.FilePath}, file does not exist or filepath is invalid.");
+            }
+
+            File.Delete(header.FilePath);
+        }
+
+        public static void RenameFile(VoxelWorldFileHeader header, string newPath)
+        {
+            if(!File.Exists(header.FilePath))
+            {
+                throw new Exception($"Cannot rename file {header.FilePath}, file does not exist or filepath is invalid.");
+            }
+
+            byte[] bytes = File.ReadAllBytes(header.FilePath);
+            File.WriteAllBytes(newPath, bytes);
+            File.Delete(header.FilePath);
+            header.FilePath = newPath;
+        }
     }
 }

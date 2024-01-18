@@ -10,6 +10,13 @@ namespace UltraFunGuns
         public VoxelWorldFileHeader ReadHeader(BinaryReader br)
         {
             VoxelWorldFileHeader header = new VoxelWorldFileHeader();
+            header.TotalVoxelCount = br.ReadInt32();
+            header.WorldScale = br.ReadSingle();
+            header.SceneName = br.ReadString();
+            header.DisplayName = br.ReadString();
+            header.Description = br.ReadString();
+            header.ModVersion = br.ReadString();
+            header.GameVersion = br.ReadString();
             return header;
         }
 

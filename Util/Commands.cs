@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using BepInEx;
 using GameConsole;
+using UnityEngine;
 
 namespace UltraFunGuns
 {
@@ -102,19 +103,19 @@ namespace UltraFunGuns
                             }
                             else
                             {
-                                con.PrintLine($"UFG {args[0].ToLower()} method does not exist.", ConsoleLogType.Error);
+                                Debug.Log($"UFG {args[0].ToLower()} method does not exist.");
                             }
                         }else
                         {
                             foreach(KeyValuePair<string, UFGDebugMethod> keyValuePair in ufgCommands[args[0].ToLower()])
                             {
-                                con.PrintLine($"{Commands.CommandAlias} {args[0].ToLower()} {keyValuePair.Value.MethodName} - {keyValuePair.Value.Name}: {keyValuePair.Value.Description}");
+                                Debug.Log($"{Commands.CommandAlias} {args[0].ToLower()} {keyValuePair.Value.MethodName} - {keyValuePair.Value.Name}: {keyValuePair.Value.Description}");
                             }
                         }
                     }
                     else
                     {
-                        con.PrintLine("UFG Subcommand does not exist.", ConsoleLogType.Error);
+                        Debug.Log("UFG Subcommand does not exist.");
                     }
                 }
                 else
@@ -126,7 +127,7 @@ namespace UltraFunGuns
             {
                 foreach (KeyValuePair<string, Dictionary<string, UFGDebugMethod>> keyValuePair in ufgCommands)
                 {
-                    con.PrintLine($"{Commands.CommandAlias} {keyValuePair.Key}");
+                    Debug.Log($"{Commands.CommandAlias} {keyValuePair.Key}");
                 }
             }
         }

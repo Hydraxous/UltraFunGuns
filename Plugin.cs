@@ -55,7 +55,7 @@ namespace UltraFunGuns
                     DoPatching();
                     InGameCheck.Init();
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
-                    CheatsPatch.NoHighScorePatch.Init();
+                    NoHighScorePatch.Init();
                     Commands.Register();
                     FreecamAssist.Init();
                     TextureLoader.Init();
