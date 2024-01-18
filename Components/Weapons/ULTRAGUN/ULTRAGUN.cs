@@ -22,34 +22,34 @@ namespace UltraFunGuns
         private ActionCooldown primaryFire = new ActionCooldown(0.5f, true);
         private ActionCooldown secondaryBoost = new ActionCooldown(0.5f, true);
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float primaryFireCooldown = 0.5f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float secondaryFireCooldown = 0.5f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float powerRestoreRate = 50.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float minPower = 10.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")] 
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")] 
         private static float maxPower = 80.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float minPowerCost = 30.0f;
 
         private float power;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static float barrageChargeMin = 0.0f, barrageChargeMax = 1.15f, barrageChargeMultiplier = 1.0f;
         private float barrageCharge;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
         private static int barrageAmount = 3;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraGun")] 
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")] 
         private static float barrageFireDelay = 0.15f;
 
         private AbilityMeter powerDisplay;

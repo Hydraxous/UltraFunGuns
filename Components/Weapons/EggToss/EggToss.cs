@@ -16,15 +16,15 @@ namespace UltraFunGuns
     {
         [UFGAsset("ThrownEgg")] public static GameObject ThrownEggPrefab { get; private set; }
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg Toss")]
+        [Configgy.Configgable("Weapons/Egg Toss/Egg Toss")]
         private static float primaryFireCooldown = 0.6f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg Toss")]
+        [Configgy.Configgable("Weapons/Egg Toss/Egg Toss")]
         private static float secondaryFireCooldown = 0.3f;
 
         private ActionCooldown throwEgg = new ActionCooldown(primaryFireCooldown, true), dropEgg = new ActionCooldown(secondaryFireCooldown, true);
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Egg Toss/Egg Toss")]
+        [Configgy.Configgable("Weapons/Egg Toss/Egg Toss")]
         private static float forceMultiplier = 59.0f;
         
         private bool throwingEgg = false;

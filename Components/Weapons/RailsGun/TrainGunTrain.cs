@@ -11,19 +11,19 @@ namespace UltraFunGuns
         
         [SerializeField] private BoxCollider boxcastRef;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")]
+        [Configgy.Configgable("Weapons/Conductor")]
         public static float moveSpeed = 150f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")] 
+        [Configgy.Configgable("Weapons/Conductor")] 
         private static float hitCooldownTime = 0.35f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")] 
+        [Configgy.Configgable("Weapons/Conductor")] 
         private static float enemyDamage = 3f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")] 
+        [Configgy.Configgable("Weapons/Conductor")] 
         private static float rbLaunchForce = 85f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")] 
+        [Configgy.Configgable("Weapons/Conductor")] 
         private static float travelDistance = 1000f;
 
         private Dictionary<Collider, float> hits = new Dictionary<Collider, float>();

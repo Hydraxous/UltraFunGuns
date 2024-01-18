@@ -24,7 +24,7 @@ namespace UltraFunGuns
         public float maxTargetAngle = 150.0f;
         public float spreadTightness = 3.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")]
+        [Configgy.Configgable("Weapons/Tricksniper")]
 
         [Range(0,100)]
         private static float bulletPenetrationChance = 20.0f; // 100 Percentage
@@ -32,13 +32,13 @@ namespace UltraFunGuns
         public int revolutions = 0;
         public float rotationalAngleMultiplier = 4.5f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")]
+        [Configgy.Configgable("Weapons/Tricksniper")]
         private static float maxRange = 2000.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper", description:"Controls the max amount of ricochets possible.")]
+        [Configgy.Configgable("Weapons/Tricksniper", description:"Controls the max amount of ricochets possible.")]
         private static int maxRicochet = 200;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")]
+        [Configgy.Configgable("Weapons/Tricksniper")]
         [Range(0,1)]
         private static float addedRicochetChance = 0f;
 
@@ -50,34 +50,34 @@ namespace UltraFunGuns
 
         public bool scopedIn = false;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")]
+        [Configgy.Configgable("Weapons/Tricksniper")]
         private static float scopeInTime = 0.25f;
 
         public float scopeTime = 0.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float scopedInBaseDamage = 1.6f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float noscopeBaseDamage = 0.4f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float noscopeMaxDistanceDamage = 15.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float noscopeDistanceDamageMultiplier = 0.15f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float noscopeDistanceDamageMaxDistance = 35.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")] 
+        [Configgy.Configgable("Weapons/Tricksniper")] 
         private static float bankshotDamageMultiplier = 0.40f;
 
         private float timeScopedIn = 0.0f;
 
         public float spinCooldownMinThreshold = 5.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Tricksniper")]
+        [Configgy.Configgable("Weapons/Tricksniper")]
         private static float primaryFireCooldown = 0.65f;
 
         private ActionCooldown fireCooldown = new ActionCooldown(primaryFireCooldown, true);

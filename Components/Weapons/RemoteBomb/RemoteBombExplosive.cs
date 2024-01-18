@@ -20,28 +20,28 @@ namespace UltraFunGuns
         public float blinkInterval = 0.75f;
         public float blinkTime = 0.05f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")]
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")]
         private static float parryForce = 150.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")]
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")]
         private static float playerKnockbackMultiplier = 70.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float rigidbodyForceMultiplier = 70.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float explosionRadius = 6f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float explosionDamage = 1.6f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float explosionChainDelay = 0.20f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float stuckDamageMultiplier = 1.5f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Radio Explosive/Bomb")] 
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
         private static float stickDamage = 0.05f;
 
         private bool thrown = false;

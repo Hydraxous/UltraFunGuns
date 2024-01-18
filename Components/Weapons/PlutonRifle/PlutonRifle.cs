@@ -42,27 +42,27 @@ namespace UltraFunGuns
          */
 
         #region Configurable
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static int shotBurstCount = 3;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float maxShotWindowTime = 0.75f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float minShotWindowTime = 0.25f;
 
         //Max cooldown is 3 seconds, minimum is 0.5
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float ventCooldownPerShot = 1.25f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float minimumBurstCooldown = 0.5f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float maxRange = 2000f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Pluton Rifle")]
+        [Configgy.Configgable("Weapons/Pluton Rifle")]
         private static float projectileSpeed = 14f;
         #endregion
 

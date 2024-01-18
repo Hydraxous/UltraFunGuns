@@ -30,32 +30,32 @@ namespace UltraFunGuns
 
         public float chargeLevel = 0.0f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float chargeSpeedMultiplier = 2.8f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")]
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
         private static float chargeDecayMultiplier = 0.25f;
 
         private float maxTargetAngle = 80.0f;
         private float minTargetAngle = 18.0f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")]
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
         private static float maxRange = 2000.0f;
 
         private int lastChargeState = 0;
 
         public Vector3 playerKnockbackVector = new Vector3(0,2.0f,8.0f);
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")]
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
         private static float playerKnockbackMultiplier = 0.8f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float playerKnockbackVerticalMultiplier = 1.2f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float playerKnockbackJumpMultiplier = 1.5f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float playerKnockbackMaxRange = 5000.0f;
 
         public bool charging = false;
@@ -64,13 +64,13 @@ namespace UltraFunGuns
 
         private Animator moyaiAnimator;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float cooldownRate = 0.17f;
         
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float minimumCooldown = 0.75f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Sonic Reverberator")] 
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
         private static float maximumCooldown = 600.0f;
         
         private float lastKnownCooldownTime = 0.0f;

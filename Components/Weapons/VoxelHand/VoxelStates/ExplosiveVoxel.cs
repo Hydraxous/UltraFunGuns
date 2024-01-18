@@ -12,10 +12,10 @@ namespace UltraFunGuns
     public class ExplosiveVoxel : IVoxelState
     {
 
-        [Configgy.Configgable("UltraFunGuns/Voxel/TNT")]
+        [Configgy.Configgable("Voxel/TNT")]
         private static float activateForce = 3f;
 
-        [Configgy.Configgable("UltraFunGuns/Voxel/TNT")]
+        [Configgy.Configgable("Voxel/TNT")]
         private static float explosionSizeMultiplier = 1f;
 
         private Rigidbody rb;

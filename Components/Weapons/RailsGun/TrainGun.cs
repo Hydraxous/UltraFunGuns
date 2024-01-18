@@ -10,10 +10,10 @@ namespace UltraFunGuns
         [UFGAsset("TrainGun_Train")] private static GameObject TrainPrefab;
         [UFGAsset("TrainGunWarningLoop")] private static AudioClip trainWarningClip;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")]
+        [Configgy.Configgable("Weapons/Conductor")]
         private static float arrivalDelay = 2.5f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Conductor")] 
+        [Configgy.Configgable("Weapons/Conductor")] 
         private static float cooldown = 5f;
 
         private List<TrainGunTrain> instancedTrains = new List<TrainGunTrain>();

@@ -10,19 +10,19 @@ namespace UltraFunGuns
     [UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue, false)]
     public class DiceGun : UltraFunGunBase
     {
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer")]
         private static int startingDice = 3;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer")]
         private static int maxDice = 12;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer")]
         private static float diceSpawnFloorOffset = 4f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer")]
         private static int diceDropCount = 1;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"debug_all_spells")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer", displayName:"debug_all_spells")]
         private static bool addSpellsOnEnable = false;
 
         private int diceLeft;
@@ -110,7 +110,7 @@ namespace UltraFunGuns
             spell.OnSpellAddedToPool(this);
         }
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/Deterministic Observer/Deterministic Observer", displayName:"Add random spell to pool")]
+        [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer", displayName:"Add random spell to pool")]
         public static void PickupRandomSpellStatic()
         {
             //Debug

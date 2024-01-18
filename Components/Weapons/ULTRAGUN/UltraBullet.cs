@@ -44,10 +44,10 @@ namespace UltraFunGuns
         private float maxPower;
         public float Power { get; private set; }
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraBullet")] 
+        [Configgy.Configgable("Weapons/UltraGun/UltraBullet")] 
         public static float PowerDecayRate = 30f;
 
-        [Configgy.Configgable("UltraFunGuns/Weapons/UltraGun/UltraBullet")]
+        [Configgy.Configgable("Weapons/UltraGun/UltraBullet")]
         public static float Damage = 1.2f;
 
         public bool Falling { get; private set; }
