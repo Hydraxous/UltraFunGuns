@@ -65,5 +65,10 @@ namespace UltraFunGuns
                 return (T)(object)transform.gameObject.AddComponent(typeof(T));
             }
         }
+
+        public static T LocateComponent<T>(this Transform tf, string name)  where T : Component
+        {
+            return tf.GetComponentsInChildren<T>(true).Where(x=>x.name == name).FirstOrDefault();
+        }
     }
 }

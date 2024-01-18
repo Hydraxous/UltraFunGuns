@@ -34,6 +34,10 @@ namespace UltraFunGuns
         [SerializeField] private Button clearAllVoxelsButton;
         public Button ClearAllVoxelsButton => clearAllVoxelsButton;
 
+        [SerializeField] private Button refreshVoxels;
+        public Button RefreshVoxels => refreshVoxels;
+
+
         [SerializeField] private Text importButtonText;
         public Text ImportButtonText => importButtonText;
         

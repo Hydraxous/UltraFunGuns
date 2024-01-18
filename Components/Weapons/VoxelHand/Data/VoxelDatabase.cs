@@ -73,7 +73,7 @@ namespace UltraFunGuns
         public static bool IsImportingTextures { get; private set; }
         public static float TextureImportProgress { get; private set; }
 
-        [Configgable("TEST")]
+        [Configgable("Voxel")]
         private static ConfigToggle useCyberGrindTextures = new ConfigToggle(false);
         private static string cyberGrindTextureFolder => Paths.CybergrindTexturesFolder;
 
@@ -101,7 +101,7 @@ namespace UltraFunGuns
 
             foreach (string path in pathes)
             {
-                TextureImportProgress = (float)indexProcessed / ((float)totalCount*2);
+                TextureImportProgress = (float)indexProcessed / ((float)totalCount);
                 ++indexProcessed;
 
                 if (loadedTextures.ContainsKey(path))
@@ -125,7 +125,7 @@ namespace UltraFunGuns
 
             foreach (Texture2D texture in loadedTextures.Values)
             {
-                TextureImportProgress = (float)indexProcessed / ((float)totalCount * 2);
+                TextureImportProgress = (float)indexProcessed / ((float)totalCount);
                 ++indexProcessed;
 
                 if (texture == null)

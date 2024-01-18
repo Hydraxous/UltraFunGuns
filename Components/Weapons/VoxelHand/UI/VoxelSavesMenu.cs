@@ -31,7 +31,7 @@ namespace UltraFunGuns
         private VoxelSelectionMenu selectionMenu;
         public VoxelWorldFileHeader SelectedFile { get; private set; }
 
-        [SerializeField] private GameObject buttonFilePrefab;
+        [UFGAsset("VoxelSaveMenuFileButton")] private static GameObject buttonFilePrefab;
 
         private List<FileSelecitonButton> instancedButtons = new List<FileSelecitonButton>();
 
@@ -215,7 +215,7 @@ namespace UltraFunGuns
                     {
                         VoxelWorldFile data = VoxelSaveManager.LoadAtFilePath(header.FilePath);
                         VoxelWorld.LoadWorld(data);
-                        RebuildList();
+                        UpdateList();
                     }
                 });
             };

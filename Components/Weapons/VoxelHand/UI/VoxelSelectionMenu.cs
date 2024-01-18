@@ -10,17 +10,25 @@ namespace UltraFunGuns
     public class VoxelSelectionMenu : MonoBehaviour
     {
         [UFGAsset("VoxelSelectionMenu")] private static GameObject prefab;
+        [UFGAsset("BlockSelectionIcon")] private static GameObject selectionButtonPrefab;
         public static GameObject VoxelSelectionMenuPrefab => prefab;
 
-        private VoxelSelectionMenuReferences references;
         private GameObject container;
         private RectTransform contentBody;
-        private GameObject selectionButtonPrefab;
 
-        private Button importButton;
-        private Text importButtonText;
+        private Button refreshButton;
+        private Text refreshButtonText;
         private Text pageNumberLabel;
 
+        private Button nextPageButton;
+        private Button previousPageButton;
+        private Button deselectButton;
+        private Button openFolderButton;
+        private Button saveButton;
+        private Button clearButton;
+        private Button worldsButton;
+
+        private InputField searchField;
 
         private int currentPage = 0;
 
@@ -43,15 +51,59 @@ namespace UltraFunGuns
         private void Awake()
         {
             //GUH
-            references = GetComponent<VoxelSelectionMenuReferences>();
-            container = references.Container;
-            contentBody = references.ContentBody;
-            selectionButtonPrefab = references.SelectionButtonPrefab;
-            importButton = references.ImportButton;
-            importButtonText = references.ImportButtonText;
-            pageNumberLabel = references.PageNumberLabel;
+            InitializeReferences();
+        }
 
+        private void Start()
+        {
+            StartCoroutine(ButtonUpdate());
+        }
+
+        private bool initialized;
+
+        private void InitializeReferences()
+        {
+            if (initialized)
+                return;
+
+            container = transform.LocateComponent<RectTransform>("Panel_SelectionMenu").gameObject;
+            contentBody = transform.LocateComponent<RectTransform>("ListView_VoxelContent");
+
+            pageNumberLabel = transform.LocateComponent<Text>("Text_PageNumber");
+            
             savesMenu = GetComponentInChildren<VoxelSavesMenu>(true);
+
+            saveButton = container.transform.LocateComponent<Button>("Button_Save");
+            refreshButton = transform.LocateComponent<Button>("Button_RefreshVoxels");
+            openFolderButton = transform.LocateComponent<Button>("Button_OpenVoxelsFolder");
+            clearButton = transform.LocateComponent<Button>("Button_ClearAll");
+            worldsButton = transform.LocateComponent<Button>("Button_Worlds");
+            previousPageButton = transform.LocateComponent<Button>("Button_PreviousPage");
+            nextPageButton = transform.LocateComponent<Button>("Button_NextPage");
+            deselectButton = transform.LocateComponent<Button>("Button_Deselect");
+
+            refreshButtonText = refreshButton.transform.LocateComponent<Text>("Text");
+
+            searchField = transform.LocateComponent<InputField>("InputField_VoxelSearchBar");
+            searchField.interactable = false;
+            searchField.placeholder.GetComponent<Text>().text = "Search not implemented yet! Sorry!";
+
+            worldsButton.SetClickAction(Button_Worlds);
+
+            saveButton.SetClickAction(() =>
+            {
+                VoxelWorld.SaveCurrentWorld();
+                saveButton.gameObject.SetActive(false);
+            });
+
+            clearButton.SetClickAction(Button_ClearAllVoxels);
+            openFolderButton.SetClickAction(Button_OpenCustomVoxelFolder);
+            refreshButton.SetClickAction(Button_RefreshVoxels);
+            worldsButton.SetClickAction(Button_Worlds);
+            deselectButton.SetClickAction(Button_DeselectHeldVoxel);
+
+            previousPageButton.SetClickAction(() => NextPage(-1));
+            nextPageButton.SetClickAction(() => NextPage(1));
 
             voxelSelectGameState = new GameState("VoxelSelect");
             voxelSelectGameState.cursorLock = LockMode.Unlock;
@@ -59,27 +111,14 @@ namespace UltraFunGuns
             voxelSelectGameState.playerInputLock = LockMode.Unlock;
             voxelSelectGameState.priority = 100;
             container.SetActive(false);
+
+            initialized = true;
         }
 
-        private void Start()
-        {
-            StartCoroutine(ButtonUpdate());
-
-            references.WorldsButton.onClick.AddListener(Button_Worlds);
-
-            references.SaveButton.onClick.AddListener(() =>
-            {
-                VoxelWorld.SaveCurrentWorld();
-                references.SaveButton.gameObject.SetActive(false);
-            });
-
-            references.ClearAllVoxelsButton.SetClickAction(Button_ClearAllVoxels);
-            references.OpenVoxelFolderButton.SetClickAction(Button_OpenCustomVoxelFolder);
-        }
 
         private IEnumerator ButtonUpdate()
         {
-            string buttonText = importButtonText.text;
+            string buttonText = refreshButtonText.text;
             bool importingLastCheck = false;
 
             while (true)
@@ -88,13 +127,13 @@ namespace UltraFunGuns
 
                 if(importing)
                 {
-                    importButtonText.text = $"{Mathf.CeilToInt(VoxelDatabase.TextureImportProgress * 100f)}%";
-                    importButton.interactable = false;
+                    refreshButtonText.text = $"{Mathf.CeilToInt(VoxelDatabase.TextureImportProgress * 100f)}%";
+                    refreshButton.interactable = false;
                 }
                 else if(importingLastCheck)
                 {
-                    importButtonText.text = buttonText;
-                    importButton.interactable = true;
+                    refreshButtonText.text = buttonText;
+                    refreshButton.interactable = true;
                 }
 
                 importingLastCheck = importing;
@@ -104,10 +143,10 @@ namespace UltraFunGuns
 
         private bool rebuilding;
 
-        [Configgy.Configgable("UltraFunGuns/Voxel/Palette")]
+        [Configgy.Configgable("Voxel/Palette")]
         private static int maxIconsPerFrame = 10;
 
-        [Configgy.Configgable("UltraFunGuns/Voxel/Palette")]
+        [Configgy.Configgable("Voxel/Palette")]
         private static int maxIconsPerPage = 128;
 
 
@@ -200,17 +239,15 @@ namespace UltraFunGuns
 
         public void OpenMenu() 
         {
+            InitializeReferences();
+
             RebuildMenu();
             container.SetActive(true);
 
-            references.SaveButton.gameObject.SetActive(VoxelWorld.IsWorldDirty());
+            saveButton.gameObject.SetActive(VoxelWorld.IsWorldDirty());
 
             SetPage(currentPage);
             Pauser.Pause(container);
-            //Time.timeScale = 0f;
-            //OptionsManager.Instance.paused = true;
-            //CameraController.Instance.enabled = false;
-            //GameStateManager.Instance.RegisterState(voxelSelectGameState);
         }
 
         public void SetPage(int index)
@@ -236,6 +273,8 @@ namespace UltraFunGuns
 
         public void CloseMenu()
         {
+            InitializeReferences();
+
             if (savesMenu.gameObject.activeInHierarchy)
             {
                 savesMenu.EscapeAction();
