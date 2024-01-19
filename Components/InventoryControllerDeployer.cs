@@ -65,14 +65,19 @@ namespace UltraFunGuns
             CheckStatus();
         }
 
+        [Configgable("Advanced", "Show Update Notifications")]
+        private static ConfigToggle showUpdateNotifications = new ConfigToggle(true);
+        private static bool showedUpdateNotification;
+
         private void CheckStatus()
         {
 
             if(inventoryManagerOpen)
             {
-                if (!UltraFunGuns.UsingLatestVersion)
+                if (!UltraFunGuns.UsingLatestVersion && showUpdateNotifications.Value && !showedUpdateNotification)
                 {
-                    SendVersionHelpMessage();
+                    showedUpdateNotification = true;
+                    NotifyUpdateAvailable();
                 }
 
                 if(Input.GetKeyDown(KeyCode.Escape))
@@ -102,6 +107,40 @@ namespace UltraFunGuns
 
                 OpenInventory();
             }
+        }
+
+
+        private void NotifyUpdateAvailable()
+        {
+            ModalDialogue.ShowDialogue(new ModalDialogueEvent()
+            {
+                Title = "Outdated",
+                Message = $"You are using an outdated version of {ConstInfo.NAME}: (<color=red>{ConstInfo.RELEASE_VERSION}</color>). Please consider updating to the latest version: (<color=green>{UltraFunGuns.LatestVersion}</color>)",
+                Options = new DialogueBoxOption[]
+                        {
+                            new DialogueBoxOption()
+                            {
+                                Name = "Open Browser",
+                                Color = Color.white,
+                                OnClick = () => Application.OpenURL(ConstInfo.GITHUB_URL+"/releases/latest")
+                            },
+                            new DialogueBoxOption()
+                            {
+                                Name = "Later",
+                                Color = Color.white,
+                                OnClick = () => { }
+                            },
+                            new DialogueBoxOption()
+                            {
+                                Name = "Don't Ask Again.",
+                                Color = Color.red,
+                                OnClick = () =>
+                                {
+                                    showUpdateNotifications.SetValue(false);
+                                }
+                            }
+                        }
+            });
         }
 
         public void CloseInventory()
