@@ -165,6 +165,10 @@ namespace UltraFunGuns.Util
             List<Texture2D> newTextures = new List<Texture2D>();
 
             string path = GetTextureFolder();
+            
+            if(!Directory.Exists(path))
+                return Array.Empty<Texture2D>();
+            
             string[] pngs = System.IO.Directory.GetFiles(path, "*.png", SearchOption.AllDirectories);
             string[] jpgs = System.IO.Directory.GetFiles(path, "*.jpg", SearchOption.AllDirectories);
 

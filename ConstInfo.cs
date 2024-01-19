@@ -30,7 +30,6 @@
             "- Added an extra damage boost when shooting Guttertanks with the ULTRAGUN\n" +
             "- Added new info page in inventory menu.\n" +
             "- Removed one Hydra plushie from credits museum\n" +
-            "- Updated Basketball hoop to be easily togglable using Configgy.\n" +
-            "- Made UFG inventory button less obnoxious. I am sorry for the first design.";
+            "- Updated Basketball hoop to be easily togglable using Configgy.";
     }
 }

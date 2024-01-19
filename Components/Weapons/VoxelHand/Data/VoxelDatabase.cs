@@ -59,6 +59,9 @@ namespace UltraFunGuns
         
         public static void OpenCustomVoxelFolder()
         {
+            if(!Directory.Exists(customVoxelsFolder))
+                Directory.CreateDirectory(customVoxelsFolder);
+
             Application.OpenURL($"file://{customVoxelsFolder}");
         }
 
