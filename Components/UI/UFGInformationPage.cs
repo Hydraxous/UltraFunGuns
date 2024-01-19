@@ -85,7 +85,8 @@ namespace UltraFunGuns
         {
             if(pfpSprite != null)
             {
-                pfpImage.sprite = pfpSprite;
+                if(pfpImage != null)
+                    pfpImage.sprite = pfpSprite;
                 return;
             }
 
