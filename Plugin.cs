@@ -1,22 +1,20 @@
 ﻿using BepInEx;
+using Configgy;
 using HarmonyLib;
-using HydraDynamics;
-using HydraDynamics.Debugging;
 using System;
 using System.Collections;
-using UltraFunGuns.Datas;
 using UltraFunGuns.Patches;
 using UltraFunGuns.Util;
 
 namespace UltraFunGuns
 {
-    [BepInDependency("Hydraxous.HydraDynamics", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("Hydraxous.ULTRAKILL.Configgy", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(ConstInfo.GUID, ConstInfo.NAME, ConstInfo.VERSION)]
-    [HydynamicsInfo(ConstInfo.NAME, ConstInfo.GUID, ConstInfo.VERSION)]
     [BepInProcess("ULTRAKILL.exe")]
     public class UltraFunGuns : BaseUnityPlugin
     {
-        Harmony harmony = new Harmony("Hydraxous.ULTRAKILL.UltraFunGuns");
+        Harmony harmony = new Harmony(ConstInfo.GUID);
+        ConfigBuilder config = new ConfigBuilder(ConstInfo.GUID, ConstInfo.NAME);
 
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
@@ -49,13 +47,13 @@ namespace UltraFunGuns
                 {
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
-                    VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
+                    config.Build();
+                    Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_VERSION_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
-                    CheatsPatch.NoHighScorePatch.Init();
+                    NoHighScorePatch.Init();
                     Commands.Register();
-                    FreecamAssist.Init();
                     TextureLoader.Init();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();
@@ -85,6 +83,7 @@ namespace UltraFunGuns
         }
 
         [Commands.UFGDebugMethod("Toggle Debug", "Toggles the debug mode for UFG.")]
+        [Configgy.Configgable("Commands", displayName:"Toggle Debug Mode")]
         public static void ToggleDebugMode()
         {
             bool debugMode = !DebugMode;

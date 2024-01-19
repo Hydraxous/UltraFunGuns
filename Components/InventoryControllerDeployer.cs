@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Configgy;
+using Configgy.UI;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UltraFunGuns.Datas;
-using HydraDynamics.Keybinds;
-using HydraDynamics;
 
 namespace UltraFunGuns
 {
@@ -21,7 +18,9 @@ namespace UltraFunGuns
 
         public bool inventoryManagerOpen = false;
 
-        public static Keybinding inventoryKey { get; private set; } = Hydynamics.GetKeybinding("Inventory", KeyCode.I);
+
+        [Configgable("Binds", "Open UFG Inventory")]
+        public static ConfigKeybind inventoryKey = new ConfigKeybind(KeyCode.I);
 
         private static bool sentVersionMessage = false;
 
@@ -32,8 +31,6 @@ namespace UltraFunGuns
         [UFGAsset("WMUINode")] public static GameObject UFGInventoryNode { get; private set; }
         [UFGAsset("UFGKeybindsMenu")] private static GameObject UFGKeybindsUI;
 
-
-        private KeybindMenu keybindMenu;
 
 
         //TODO optimization
@@ -46,19 +43,21 @@ namespace UltraFunGuns
             invControllerButton = GameObject.Instantiate<GameObject>(UFGInventoryButton, canvas).GetComponent<Button>();
             invControllerButton.onClick.AddListener(OpenInventory);
 
+
             invController = GameObject.Instantiate<GameObject>(UFGInventoryUI, canvas).GetComponent<InventoryController>();
             invController.gameObject.SetActive(false);
             invControllerButton.gameObject.SetActive(false);
-
-            keybindMenu = GameObject.Instantiate<GameObject>(UFGKeybindsUI, canvas).GetComponent<KeybindMenu>();
-            keybindMenu.gameObject.SetActive(false);
 
             configHelpMessage = invController.transform.Find("ConfigMessage");
             versionHelpMessage = invController.transform.Find("VersionMessage");
             versionHelpMessage.GetComponentInChildren<Text>().text = string.Format(versionHelpMessage.GetComponentInChildren<Text>().text, UltraFunGuns.LatestVersion); //?????????????
 
             configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
-            configHelpButton.onClick.AddListener(OpenKeybindMenu);
+            configHelpButton.onClick.AddListener(() =>
+            {
+                CloseInventory();
+                ConfigurationMenu.OpenAtPath("UltraFunGuns/Binds");
+            });
         }
 
         private void Update()
@@ -66,14 +65,19 @@ namespace UltraFunGuns
             CheckStatus();
         }
 
+        [Configgable("Advanced", "Show Update Notifications")]
+        private static ConfigToggle showUpdateNotifications = new ConfigToggle(true);
+        private static bool showedUpdateNotification;
+
         private void CheckStatus()
         {
 
             if(inventoryManagerOpen)
             {
-                if (!UltraFunGuns.UsingLatestVersion)
+                if (!UltraFunGuns.UsingLatestVersion && showUpdateNotifications.Value && !showedUpdateNotification)
                 {
-                    SendVersionHelpMessage();
+                    showedUpdateNotification = true;
+                    NotifyUpdateAvailable();
                 }
 
                 if(Input.GetKeyDown(KeyCode.Escape))
@@ -86,18 +90,57 @@ namespace UltraFunGuns
                 displayingHelpMessage = false;
                 if (Data.SaveInfo.Data.firstTimeModLoaded)
                 {
-                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.KeyCode.ToString()), "", "", 2);
+                    MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage(String.Format("UFG: Set a custom loadout for UFG weapons with [<color=orange>{0}</color>] or in the pause menu.", inventoryKey.Value.ToString()), "", "", 2);
                     Data.SaveInfo.Data.firstTimeModLoaded = false;
                     Data.SaveInfo.Save();
                 }
             }
-            
-            invControllerButton.gameObject.SetActive(om.paused && !inventoryManagerOpen);
 
-            if (inventoryKey.WasPerformedThisFrame)
+            bool paused = GameStateManager.Instance.IsStateActive("pause");
+            invControllerButton.gameObject.SetActive(paused && !inventoryManagerOpen);
+
+            if (inventoryKey.WasPeformed())
             {
+                //frick u
+                if (om.paused)
+                    return;
+
                 OpenInventory();
             }
+        }
+
+
+        private void NotifyUpdateAvailable()
+        {
+            ModalDialogue.ShowDialogue(new ModalDialogueEvent()
+            {
+                Title = "Outdated",
+                Message = $"You are using an outdated version of {ConstInfo.NAME}: (<color=red>{ConstInfo.RELEASE_VERSION}</color>). Please consider updating to the latest version: (<color=green>{UltraFunGuns.LatestVersion}</color>)",
+                Options = new DialogueBoxOption[]
+                        {
+                            new DialogueBoxOption()
+                            {
+                                Name = "Open Browser",
+                                Color = Color.white,
+                                OnClick = () => Application.OpenURL(ConstInfo.GITHUB_URL+"/releases/latest")
+                            },
+                            new DialogueBoxOption()
+                            {
+                                Name = "Later",
+                                Color = Color.white,
+                                OnClick = () => { }
+                            },
+                            new DialogueBoxOption()
+                            {
+                                Name = "Don't Ask Again.",
+                                Color = Color.red,
+                                OnClick = () =>
+                                {
+                                    showUpdateNotifications.SetValue(false);
+                                }
+                            }
+                        }
+            });
         }
 
         public void CloseInventory()
@@ -143,42 +186,6 @@ namespace UltraFunGuns
             invControllerButton.gameObject.SetActive(false);
             invController.gameObject.SetActive(true);
             inventoryManagerOpen = true;
-        }
-
-        public void OpenKeybindMenu()
-        {
-            if(keybindMenu.gameObject.activeInHierarchy)
-            {
-                return;
-            }
-
-            if (inventoryManagerOpen)
-            {
-                CloseInventory();
-            }
-
-            if (om.paused)
-            {
-                om.UnPause();
-            }
-
-            om.paused = true;
-
-            keybindMenu.gameObject.SetActive(true);
-            keybindMenu.RefreshNodes();
-
-            GameState ufgKeybindState = new GameState("ufg_keybinds", keybindMenu.gameObject);
-            ufgKeybindState.cursorLock = LockMode.Unlock;
-            ufgKeybindState.playerInputLock = LockMode.Lock;
-            ufgKeybindState.cameraInputLock = LockMode.Lock;
-            ufgKeybindState.priority = 3;
-            GameStateManager.Instance.RegisterState(ufgKeybindState);
-        }
-
-        public void CloseKeybindMenu()
-        {
-            om.UnPause();
-            keybindMenu.gameObject.SetActive(false);
         }
 
         public void SendConfigHelpMessage()

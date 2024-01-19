@@ -5,7 +5,7 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Base class for UFG weapons.
-    public abstract class UltraFunGunBase : MonoBehaviour
+    public abstract class UltraFunGunBase : MonoBehaviour, IUFGWeapon
     {
         public Dictionary<string, AudioSource> soundEffects = new Dictionary<string, AudioSource>();
 
@@ -110,7 +110,7 @@ namespace UltraFunGuns
                 FireSecondary();
             }
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            if(UFGInput.SecretButton.WasPeformed())
             {
                 DoSecret();
             }
@@ -231,7 +231,6 @@ namespace UltraFunGuns
             }
 
             soundEffects[name].Play();
-
         }
 
         public class ActionCooldown

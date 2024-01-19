@@ -44,9 +44,15 @@ namespace UltraFunGuns
         };
 
         private float targetBeamThickness = 0.5f, maxBeamDistance = 50.0f;
-        public float shootForce = 130.0f, spinSpeed = 90.0f;
 
-        public float damage = 1.0f;
+        [Configgy.Configgable("Weapons/dev_cannon")]
+        private static float shootForce = 130.0f;
+
+        [Configgy.Configgable("Weapons/dev_cannon")]
+        private static float plushieSpinSpeed = 90.0f;
+
+        [Configgy.Configgable("Weapons/dev_cannon")]
+        private static float damage = 1.0f;
 
         //[UFGAsset("HydraPlushie")] public static GameObject HydraPlushie { get; private set; }
 
@@ -82,7 +88,7 @@ namespace UltraFunGuns
             {
                 rb.velocity = targetVelocity;
                 float torqueDir = (UnityEngine.Random.value - 0.5f) * 2;
-                rb.AddRelativeTorque(Vector3.forward * spinSpeed * torqueDir);
+                rb.AddRelativeTorque(Vector3.forward * plushieSpinSpeed * torqueDir);
             }
 
             GameObject newMuzzleFX = GameObject.Instantiate<GameObject>(Prefabs.CanLauncher_MuzzleFX, firePoint.position, Quaternion.identity);

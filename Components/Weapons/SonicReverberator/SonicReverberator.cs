@@ -29,21 +29,34 @@ namespace UltraFunGuns
         public float gyroRotationSpeedModifier = 0.1f;
 
         public float chargeLevel = 0.0f;
-        public float chargeSpeedMultiplier = 2.8f;
-        public float chargeDecayMultiplier = 0.25f;
+        
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float chargeSpeedMultiplier = 2.8f;
+
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
+        private static float chargeDecayMultiplier = 0.25f;
 
         private float maxTargetAngle = 80.0f;
         private float minTargetAngle = 18.0f;
 
-        private float maxRange = 2000.0f;
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
+        private static float maxRange = 2000.0f;
 
         private int lastChargeState = 0;
 
         public Vector3 playerKnockbackVector = new Vector3(0,2.0f,8.0f);
-        private float playerKnockbackMultiplier = 0.8f;
-        private float playerKnockbackVerticalMultiplier = 1.2f;
-        private float playerKnockbackJumpMultiplier = 1.5f;
-        private float playerKnockbackMaxRange = 5000.0f;
+
+        [Configgy.Configgable("Weapons/Sonic Reverberator")]
+        private static float playerKnockbackMultiplier = 0.8f;
+        
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float playerKnockbackVerticalMultiplier = 1.2f;
+        
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float playerKnockbackJumpMultiplier = 1.5f;
+        
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float playerKnockbackMaxRange = 5000.0f;
 
         public bool charging = false;
 
@@ -51,12 +64,18 @@ namespace UltraFunGuns
 
         private Animator moyaiAnimator;
 
-        private float cooldownRate = 0.17f;
-        private float minimumCooldown = 0.75f;
-        private float maximumCooldown = 600.0f;
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float cooldownRate = 0.17f;
+        
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float minimumCooldown = 0.75f;
+
+        [Configgy.Configgable("Weapons/Sonic Reverberator")] 
+        private static float maximumCooldown = 600.0f;
+        
         private float lastKnownCooldownTime = 0.0f;
 
-        private ActionCooldown fireCooldown = new ActionCooldown(0.75f, true);
+        private ActionCooldown fireCooldown = new ActionCooldown(minimumCooldown, true);
 
         private GyroRotator[] rotators;
 
@@ -118,7 +137,7 @@ namespace UltraFunGuns
                 Fire();
             }
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            if(UFGInput.SecretButton.WasPeformed())
             {
                 SecretAnimation();
             }

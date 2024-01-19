@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Configgy;
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace UltraFunGuns
 {
-    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class ThrownBrick : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IParriable
     {
         [UFGAsset("BrickBreakFX")] private static GameObject brickBreakFX;
         [UFGAsset("TennisHit")] private static AudioClip tennisHit;
@@ -27,12 +26,13 @@ namespace UltraFunGuns
         private int enemyParries = 0;
         private bool parried;
 
-        private static int HitsRemaining = 25;
+        [Configgable("Weapons/Brick")]
+        private static int MaxHitsPerBrick = 25;
 
         [Commands.UFGDebugMethod("Remaining Set", "Set htings")]
         public static void RemainingsSet()
         {
-            HitsRemaining = 50000;
+            MaxHitsPerBrick = 50000;
         }
 
         private void Awake()
@@ -44,7 +44,7 @@ namespace UltraFunGuns
 
         private void Start()
         {
-            hitsRemaining = HitsRemaining;
+            hitsRemaining = MaxHitsPerBrick;
         }
 
         public void SetBrickGun(Brick brickGun)
@@ -112,7 +112,7 @@ namespace UltraFunGuns
 
             Vector3 newDirection = flockTarget - transform.position;
 
-            rb.velocity = newDirection * brickShooter.BrickstormFlockSpeed;
+            rb.velocity = newDirection * Brick.BrickstormFlockSpeed;
         }
 
         private void CheckStorm()
@@ -145,9 +145,9 @@ namespace UltraFunGuns
 
             float distanceFromMaster = toMaster.magnitude;
 
-            if(distanceFromMaster > brickShooter.BrickstormOffset + 0.35f || distanceFromMaster < brickShooter.BrickstormOffset - 0.35f)
+            if(distanceFromMaster > Brick.BrickstormOffset + 0.35f || distanceFromMaster < Brick.BrickstormOffset - 0.35f)
             {
-                float offsetBias = brickShooter.BrickstormPullSpeed * -Mathf.Sign(brickShooter.BrickstormOffset - distanceFromMaster);
+                float offsetBias = Brick.BrickstormPullSpeed * -Mathf.Sign(Brick.BrickstormOffset - distanceFromMaster);
                 tangetFromPlayer += toMaster.normalized * offsetBias * Time.deltaTime;
             }
 
@@ -313,12 +313,6 @@ namespace UltraFunGuns
             Destroy(gameObject);
         }
 
-        //TODO this is broken.
-        public void Shot(BeamType beamType)
-        {
-            Break();
-        }
-
         private void LobAtTarget(Vector3 target)
         {
             //Vector3 newVelocity = HydraUtils.GetVelocityTrajectory(transform.position, target, brickShooter.BrickParryFlightTime);
@@ -416,7 +410,7 @@ namespace UltraFunGuns
                 //Just toss it forward, there are no enemies found.
                 Vector3 biasBasis = CameraController.Instance.transform.rotation * Vector3.up;
                 Vector3 fireDirection = inDirection.normalized + (biasBasis * 0.25f);
-                Vector3 newVelocity = fireDirection * brickShooter.BrickstormFlockSpeed * 25.0f;
+                Vector3 newVelocity = fireDirection * Brick.BrickstormFlockSpeed * 25.0f;
                 rb.velocity = newVelocity;
                 RandomRoll();
             }
@@ -450,7 +444,7 @@ namespace UltraFunGuns
             enemyParries = 0;
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             if (rb == null || brickShooter == null || parried)
             {

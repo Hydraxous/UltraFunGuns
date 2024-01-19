@@ -97,6 +97,9 @@
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
+	<Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
 	<Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
@@ -112,8 +115,8 @@
 	<Reference Include="NewBlood">
 		<HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\NewBlood.LegacyInput.dll</HintPath>
 	</Reference>
-	<Reference Include="HydraDynamics">
-		<HintPath>$(ULTRAKILLPath)\BepInEx\plugins\HydraDynamics\HydraDynamics.dll</HintPath>
+	<Reference Include="Configgy">
+		<HintPath>$(ULTRAKILLPath)\BepInEx\plugins\Configgy\Configgy.dll</HintPath>
 	</Reference>
   </ItemGroup>
 
@@ -133,8 +136,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\Silly\" />
     <Folder Include="Components\UI\Terminal\" />
+    <Folder Include="Components\Weapons\EnemyGuns\" />
     <Folder Include="Components\Weapons\Focalyzer\Refractor\" />
+    <Folder Include="Components\Weapons\NetResearchWeapons\" />
     <Folder Include="Components\Weapons\Redynamo\" />
     <Folder Include="Components\Weapons\Payloader\Thumper\" />
     <Folder Include="Components\Weapons\Slasher\" />

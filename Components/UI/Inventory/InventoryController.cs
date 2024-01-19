@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UltraFunGuns.Datas;
+using Configgy;
 
 namespace UltraFunGuns
 {
@@ -13,13 +14,24 @@ namespace UltraFunGuns
         private OptionsManager om;
         private WeaponInfoCard infoCard;
 
+        private ConfigKeybind[] slotKeys;
+
         private static int maxSlots = 4; //Hardcoded for now.
         private List<InventorySlot> slots = new List<InventorySlot>();
         private List<Text> slotKeyNames = new List<Text>();
         GunControl gc;
 
+
         private void Awake()
         {
+            slotKeys = new ConfigKeybind[]
+            {
+                UFGInput.Slot7Key,
+                UFGInput.Slot8Key,
+                UFGInput.Slot9Key,
+                UFGInput.Slot10Key
+            };
+
             om = MonoSingleton<OptionsManager>.Instance;
             gc = MonoSingleton<GunControl>.Instance;
             infoCard = transform.Find("InfoCard").gameObject.AddComponent<WeaponInfoCard>();
@@ -58,7 +70,6 @@ namespace UltraFunGuns
             RefreshSlotKeyDisplays();
         }
 
-
         //Refreshes the keybind displays for each slot.
         public void RefreshSlotKeyDisplays()
         {
@@ -66,7 +77,7 @@ namespace UltraFunGuns
             {
                 for (int i=0; i<slotKeyNames.Count; i++)
                 {
-                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", WeaponManager.SLOT_OFFSET+i, WeaponManager.UFGSlotKeys[i].KeyCode.ToString());
+                    slotKeyNames[i].text = string.Format("Slot {0} [<color=orange>{1}</color>]", WeaponManager.SLOT_OFFSET+i, slotKeys[i].Value.ToString());
                 }
             }
         }
@@ -115,20 +126,20 @@ namespace UltraFunGuns
                     slot.Refresh();
                     break;
             }
+
             SaveInventoryData();
             Refresh();
-
-            RedeployWeapons();
+            RedeployAllWeapons();
         }
 
-        private void RedeployWeapons()//This will cause the UFGWeaponManager to deploy the weapons again as well as vanilla weapons.
+        private void RedeployAllWeapons()//This will cause the UFGWeaponManager to deploy the weapons again as well as vanilla weapons.
         {
-            if(MonoSingleton<GunSetter>.Instance == null)
+            if(GunSetter.Instance == null)
             {
                 WeaponManager.DeployWeapons();
             }else
             {
-                MonoSingleton<GunSetter>.Instance.ResetWeapons();
+                GunSetter.Instance.ResetWeapons();
             }
         }
 
@@ -142,7 +153,6 @@ namespace UltraFunGuns
 
         public void SaveInventoryData()
         {
-            //data = GetCurrentInventoryData();
             Data.Loadout.Data.slots = GetInventoryLoadout();
             Data.Loadout.Save();
             HydraLogger.Log("Inventory saved.");
@@ -163,7 +173,6 @@ namespace UltraFunGuns
         {
             if (infoCard != null)
             {
-                //HydraLogger.Log("Weapon Card info set");
                 infoCard.SetWeaponInfo(info);
             }
         }

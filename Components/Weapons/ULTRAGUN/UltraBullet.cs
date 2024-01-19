@@ -11,19 +11,44 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns
 {
-    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class UltraBullet : MonoBehaviour, IUFGInteractionReceiver, ICleanable, IRevolverBeamShootable, ICoinTarget
     {
-        [SerializeField] private Transform thrustFX;
-        [SerializeField] private Transform fallFX;
-        [SerializeField] private Transform getParriedShowPlayerThis;
-        [SerializeField] private MeshRenderer bulletMesh;
-        [SerializeField] private Material easterEggMaterial;
+        //I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity I hate Unity 
+        private Transform thrustFX => ubrf.thrustFX;
+        private Transform fallFX => ubrf.fallFX;
+        private Transform parryThrustFX => ubrf.parryThrustFX;
+        private MeshRenderer bulletMesh => ubrf.bulletMesh;
+        private Material easterEggMaterial => ubrf.easterEggMaterial;
+
+        /*
+        * Literally the most annoying bug I've ever experienced with Unity. It cost me hours of my sanity, so grab some popcorn and read my story.
+        * For some reason, Unity DLL reference serialization completely sucks. It's the worst. I have no idea why, but for some reason Unity REFUSES to serialize
+        * the parryThrustFX field for this component. This issue is not present for any other components in the entire mod. The only solution I have found to fixing it
+        * is to rename the field to something completely random, then roll a d20 and pray for a Nat 20. Only then, will the reference serialize and I will
+        * actually be able to build the assetbundle and use the reference in-game. Otherwise, it just breaks! So... Thanks Unity. <3
+        */
+
+        [SerializeField] private UltraBulletReferenceFix _ubrf;
+
+        private UltraBulletReferenceFix ubrf
+        {
+            get
+            {
+                if(_ubrf == null)
+                    _ubrf = GetComponent<UltraBulletReferenceFix>();
+
+                return _ubrf;
+            }
+        }
 
         private float maxPower;
         public float Power { get; private set; }
-        public float PowerDecayRate = 30f;
 
-        public float Damage = 1.2f;
+        [Configgy.Configgable("Weapons/UltraGun/UltraBullet")] 
+        public static float PowerDecayRate = 30f;
+
+        [Configgy.Configgable("Weapons/UltraGun/UltraBullet")]
+        public static float Damage = 1.2f;
 
         public bool Falling { get; private set; }
         public bool Supercharged { get; private set; }
@@ -137,8 +162,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (getParriedShowPlayerThis != null)
-                getParriedShowPlayerThis.gameObject.SetActive(false);
+            if (parryThrustFX != null)
+                parryThrustFX.gameObject.SetActive(false);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(true);
@@ -255,26 +280,6 @@ namespace UltraFunGuns
             Explode();
         }
 
-        public void Shot(BeamType beamType)
-        {
-            TimeController.Instance.ParryFlash();
-
-            if (beamType == BeamType.Railgun)
-            {
-                SetDirection(CameraController.Instance.transform.forward);
-                Supercharge();
-                return;
-            }
-
-            if(beamType == BeamType.MaliciousFace)
-            {
-                SetDirection(CameraController.Instance.transform.forward);
-                Divide(8);
-                return;
-            }
-
-            Explode();
-        }
 
         public void Supercharge()
         {
@@ -291,8 +296,8 @@ namespace UltraFunGuns
             if (thrustFX != null)
                 thrustFX.gameObject.SetActive(false);
 
-            if (getParriedShowPlayerThis.gameObject != null)
-                getParriedShowPlayerThis.gameObject.SetActive(true);
+            if (parryThrustFX.gameObject != null)
+                parryThrustFX.gameObject.SetActive(true);
 
             if (fallFX != null)
                 fallFX.gameObject.SetActive(false);
@@ -308,6 +313,11 @@ namespace UltraFunGuns
             float damageValue = (IsDivision) ? Damage * divisionScale : Damage;
             damageValue = (Supercharged) ? damageValue * 1.5f : damageValue;   
 
+            //Petty damage boost for guttertank, bc I hate them :)
+            if(eid.enemyType == EnemyType.Guttertank)
+            {
+                damageValue *= 2f;
+            }
             
             if(Falling && Vector3.Dot(Vector3.down, lastVelocity) > 0.75f && Vector3.Dot(startDirection, Vector3.down) > 0.75f)
             {
@@ -330,7 +340,7 @@ namespace UltraFunGuns
 
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             SetDirection(aimVector);
             if(Falling)
@@ -381,6 +391,83 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Explode();
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            if (Supercharged)
+            {
+                TimeController.Instance.ParryFlash();
+                Explode();
+                return;
+            }
+
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    SetDirection(transform.position - beam.transform.position);
+                    Supercharge();
+                    break;
+
+                default:
+                    TimeController.Instance.ParryFlash();
+                    Explode();
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !Exploded;
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !Exploded;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        {
+            Debug.Log("Coin reflect uB");
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    Vector3 pos = transform.position;
+                    Vector3 direction = pos - beam.transform.position;
+                    
+                    List<EnemyIdentifier> enemies = EnemyTracker.Instance.GetCurrentEnemies();
+                    if(enemies.Count > 0)
+                    {
+                        foreach (var enemy in enemies.OrderBy(x => Vector3.Distance(x.GetCenter().position, pos)))
+                        {
+                            Vector3 toEnemy = enemy.GetCenter().position - pos;
+                            if (Physics.Raycast(pos, toEnemy, toEnemy.magnitude, LayerMaskDefaults.Get(LMD.Environment)))
+                                continue;
+
+                            direction = toEnemy;
+                            break;
+                        }
+                    }
+                    
+                    SetDirection(direction);
+                    Supercharge();
+                    break;
+
+                default:
+                    TimeController.Instance.ParryFlash();
+                    Explode();
+                    break;
+            }
+        }
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 1;
         }
     }
 }

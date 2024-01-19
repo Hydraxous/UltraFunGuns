@@ -17,9 +17,8 @@ namespace UltraFunGuns.Patches
             if (__instance.weaponDescriptor != null)
                 return true;
 
-            if(__instance.TryGetComponent<UltraFunGunBase>(out UltraFunGunBase ufgBase))
+            if(__instance.TryGetComponent<IUFGWeapon>(out IUFGWeapon ufgBase))
             {
-
                 UFGWeapon weaponInfo = ufgBase.GetWeaponInfo();
 
                 __instance.weaponDescriptor = ScriptableObject.CreateInstance<WeaponDescriptor>();

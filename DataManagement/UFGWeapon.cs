@@ -180,4 +180,27 @@ namespace UltraFunGuns
 
     public enum RichTextColors { aqua, black, blue, brown, darkblue, fuchsia, green, grey, lightblue, lime, magenta, maroon, navy, olive, orange, purple, red, silver, teal, white, yellow }
     public enum WeaponIconColor { Blue, Green, Red, Yellow}
+
+    public static class WeaponIconColorExtensions
+    {
+        public static Color ToColor(this WeaponIconColor color)
+        {
+            if(ColorBlindSettings.Instance != null)
+                return ColorBlindSettings.Instance.variationColors[(int)color];
+
+            switch (color)
+            {
+                case WeaponIconColor.Blue:
+                    return Color.blue;
+                case WeaponIconColor.Green:
+                    return Color.green;
+                case WeaponIconColor.Red:
+                    return Color.red;
+                case WeaponIconColor.Yellow:
+                    return Color.yellow;
+                default:
+                    return Color.white;
+            }
+        }
+    }
 }

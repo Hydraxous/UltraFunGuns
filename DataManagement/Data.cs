@@ -1,14 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.IO;
-using System;
-using UnityEngine;
 using System.Reflection;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using GameConsole;
-using UltraFunGuns.Datas;
-using HydraDynamics.DataPersistence;
-using HydraDynamics;
 
 namespace UltraFunGuns
 {
@@ -67,7 +59,7 @@ namespace UltraFunGuns
         public static void CheckSetup()
         {
             InGameCheck.OnLevelChanged += (_) => SaveAll();
-            DirectoryInfo dataFolderInfo = new DirectoryInfo(DataManager.GetDataPath());
+            DirectoryInfo dataFolderInfo = new DirectoryInfo(Paths.DataFolder);
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
                 FirstTimeSetup();
@@ -96,171 +88,8 @@ namespace UltraFunGuns
 
     }
 
-    [System.Serializable]
-    public class Loadout : Validatable
-    {
-        public override bool AllowExternalRead => true;
 
-        public InventorySlotData[] slots;
-
-        public Loadout(InventorySlotData[] slots)
-        {
-            this.slots = slots;
-        }
-
-        public Loadout()
-        {
-            this.slots = WeaponManager.GetDefaultLoadout();
-        }
-
-        public bool CheckUnlocked(string weaponKey)
-        {
-            foreach (InventorySlotData slot in slots)
-            {
-                foreach (InventoryNodeData node in slot.slotNodes)
-                {
-                    if (node.weaponKey != weaponKey)
-                        continue;
-
-                    return node.weaponUnlocked;
-                }
-            }
-
-            return false;
-        }
-
-        public void SetUnlocked(string weaponKey, bool unlocked)
-        {
-            foreach (InventorySlotData slot in slots)
-            {
-                foreach (InventoryNodeData node in slot.slotNodes)
-                {
-                    if (node.weaponKey != weaponKey)
-                        continue;
-
-                    node.weaponUnlocked = unlocked;
-                    return;
-                }
-            }
-        }
-
-        public override bool Validate()
-        {
-            if (!(slots.Length > 0))
-            {
-                return false;
-            }
-
-            int wepCounter = 0;
-            for (int i = 0; i < slots.Length; i++)
-            {
-                if (slots[i] == null)
-                {
-                    return false;
-                }
-
-                if (slots[i].slotNodes.Length > 0)
-                {
-                    wepCounter += slots[i].slotNodes.Length;
-                }
-
-                if (!(wepCounter > 0))
-                {
-                    return false;
-                }
-            }
-
-            if (wepCounter != WeaponManager.WeaponCount)
-            {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    [System.Serializable]
-    public class SaveInfo : Validatable
-    {
-        public override bool AllowExternalRead => true;
-
-        public bool firstTimeUsingInventory;
-        public bool firstTimeModLoaded;
-        public string modVersion;
-
-        public int basketballHighScore;
-
-        public SaveInfo()
-        {
-            this.modVersion = ConstInfo.RELEASE_VERSION;
-            this.firstTimeModLoaded = true;
-            this.firstTimeUsingInventory = true;
-            this.basketballHighScore = 0;
-        }
-
-        public override bool Validate()
-        {
-            if (modVersion == null)
-            {
-                return false;
-            }
-
-            if (modVersion == "")
-            {
-                return false;
-            }
-
-            //If the version is mismatched with the save files, regenerate all files.
-            if (modVersion != ConstInfo.RELEASE_VERSION)
-            {
-                //DataManager.Config.New();
-                //DataManager.Loadout.New();
-                //DataManager.Keybinds.New();
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    [System.Serializable]
-    public class Config : Validatable
-    {
-        public override bool AllowExternalRead => false;
-
-        //Generic
-        public bool DebugMode;
-        public bool DisableVersionMessages;
-        public bool EnableVisualizer;
-        public bool EnableAutosave;
-        public bool EnableBasketballHoop;
-        public bool EnableWeaponsInAllScenes;
-
-        //Weapon values
-        public bool BasketBallMode;
-        public bool TricksniperReactionsEnabled;
-
-        //UI
-        public float MouseOverNodeTime;
-        public float InventoryInfoCardScale;
-        public Config()
-        {
-            this.DisableVersionMessages = false;
-            this.BasketBallMode = false;
-            this.MouseOverNodeTime = 0.8f;
-            this.DebugMode = false;
-            this.EnableVisualizer = false;
-            this.InventoryInfoCardScale = 1.0f;
-            this.EnableAutosave = true;
-            this.EnableBasketballHoop = true;
-            this.TricksniperReactionsEnabled = true;
-        }
-
-        public override bool Validate()
-        {
-            return true;
-        }
-    }
+    
 }
 
 

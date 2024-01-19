@@ -23,14 +23,24 @@ namespace UltraFunGuns
 
         public float maxTargetAngle = 150.0f;
         public float spreadTightness = 3.0f;
-        public float bulletPenetrationChance = 20.0f; // 100 Percentage
+
+        [Configgy.Configgable("Weapons/Tricksniper")]
+
+        [Range(0,100)]
+        private static float bulletPenetrationChance = 20.0f; // 100 Percentage
 
         public int revolutions = 0;
         public float rotationalAngleMultiplier = 4.5f;
 
-        public float maxRange = 2000.0f;
-        public int maxRicochet = 200;
-        public float maxRicochetAngle = 27.0f;
+        [Configgy.Configgable("Weapons/Tricksniper")]
+        private static float maxRange = 2000.0f;
+        
+        [Configgy.Configgable("Weapons/Tricksniper", description:"Controls the max amount of ricochets possible.")]
+        private static int maxRicochet = 200;
+        
+        [Configgy.Configgable("Weapons/Tricksniper")]
+        [Range(0,1)]
+        private static float addedRicochetChance = 0f;
 
         public float turnCountThreshold = 6.0f;
         public int revolveCountThreshold = 18;
@@ -39,21 +49,38 @@ namespace UltraFunGuns
         public float lastRecordedRotation = 0.0f;
 
         public bool scopedIn = false;
-        public float scopeInTime = 0.25f;
+
+        [Configgy.Configgable("Weapons/Tricksniper")]
+        private static float scopeInTime = 0.25f;
+
         public float scopeTime = 0.0f;
 
-        public float scopedInBaseDamage = 1.6f;
-        public float noscopeBaseDamage = 0.4f;
-        public float noscopeMaxDistanceDamage = 15.0f;
-        public float noscopeDistanceDamageMultiplier = 0.15f;
-        public float noscopeDistanceDamageMaxDistance = 35.0f;
-        public float bankshotDamageMultiplier = 0.40f;
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float scopedInBaseDamage = 1.6f;
+
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float noscopeBaseDamage = 0.4f;
+        
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float noscopeMaxDistanceDamage = 15.0f;
+        
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float noscopeDistanceDamageMultiplier = 0.15f;
+        
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float noscopeDistanceDamageMaxDistance = 35.0f;
+        
+        [Configgy.Configgable("Weapons/Tricksniper")] 
+        private static float bankshotDamageMultiplier = 0.40f;
 
         private float timeScopedIn = 0.0f;
 
         public float spinCooldownMinThreshold = 5.0f;
 
-        private ActionCooldown fireCooldown = new ActionCooldown(0.65f, true);
+        [Configgy.Configgable("Weapons/Tricksniper")]
+        private static float primaryFireCooldown = 0.65f;
+
+        private ActionCooldown fireCooldown = new ActionCooldown(primaryFireCooldown, true);
         private ActionCooldown turnExpiry = new ActionCooldown(0.35f);
 
         private TricksniperReactions reactions;
@@ -103,7 +130,7 @@ namespace UltraFunGuns
 
             timeScopedIn = (scopedIn) ? timeScopedIn + Time.deltaTime: 0.0f;
 
-            if(WeaponManager.SecretButton.WasPerformedThisFrame)
+            if(UFGInput.SecretButton.WasPeformed())
             {
                 animator?.Play("Secret");
             }
@@ -316,7 +343,10 @@ namespace UltraFunGuns
                     }
                     else
                     {
-                        bool ricochet = UnityEngine.Random.value < (1 - Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal))); //The greater angle, the greater the chance to ricochet
+
+                        float ricochetCheck = (1 + addedRicochetChance) - Mathf.Abs(Vector3.Dot(hitRay.direction, hits[i].normal));
+
+                        bool ricochet = UnityEngine.Random.value < ricochetCheck; //The greater angle, the greater the chance to ricochet
 
                         if (ricochet && pointsOfContact.Count < maxRicochet)
                         {

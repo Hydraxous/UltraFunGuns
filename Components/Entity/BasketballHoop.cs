@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Configgy;
+using HarmonyLib;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace UltraFunGuns.Components.Entity
         [UFGAsset("MegaDunk")] private static AudioClip megaDunkAudio;
         [UFGAsset("BasketballScoreFX")] private static GameObject basketballScoreFX;
         [UFGAsset("CardboardTubeHit1")] private static AudioClip ballSpawnSound;
+
+        [Configgable("Ballin", "Basketball Hoop In Sandbox")]
+        public static ConfigToggle EnableBasketballHoop = new ConfigToggle(true);
 
         [SerializeField] private Transform hoop;
         [SerializeField] private Rigidbody[] netRbs;
@@ -49,7 +53,7 @@ namespace UltraFunGuns.Components.Entity
                 if(highScore <= 99 && currentScore >= 100)
                 {
                     //Play YIPEE Sound.
-                    HudMessageReceiver.Instance.SendHudMessage($"You have unlocked <color=orange>BasketBall Skin</color> for the weapon <color=orange>ULTRABALLER</color> use <color=orange>{WeaponManager.SecretButton.KeyCode}</color> while using it to toggle it.");
+                    HudMessageReceiver.Instance.SendHudMessage($"You have unlocked <color=orange>BasketBall Skin</color> for the weapon <color=orange>ULTRABALLER</color> use <color=orange>{UFGInput.SecretButton.Value}</color> while using it to toggle it.");
                 }
                 Data.SaveInfo.Data.basketballHighScore = currentScore;
             }
@@ -60,8 +64,11 @@ namespace UltraFunGuns.Components.Entity
 
         private void Start()
         {
+            EnableBasketballHoop.OnValueChanged += transform.root.gameObject.SetActive;
             UpdateScore();
+            transform.root.gameObject.SetActive(EnableBasketballHoop.Value);
         }
+
 
         public Vector3 GetHoopPos()
         {
@@ -182,7 +189,8 @@ namespace UltraFunGuns.Components.Entity
             Vector3 spawnPos = hoop.position+(hoop.transform.forward*10.0f);
             ballSpawnSound.PlayAudioClip();
             Instantiate(Prefabs.SmackFX, spawnPos, Quaternion.identity);
-            spawnedBasketballs.Add(Instantiate(basketballPrefab, spawnPos, Quaternion.identity));
+            GameObject newBall = Instantiate(basketballPrefab, spawnPos, Quaternion.identity);
+            spawnedBasketballs.Add(newBall);
             spawnedBasketballs = spawnedBasketballs.Where(x => x != null).ToList();
             if(spawnedBasketballs.Count > maxBalls)
             {
@@ -244,6 +252,10 @@ namespace UltraFunGuns.Components.Entity
             }
         }
 
+        private void OnDestroy()
+        {
+            EnableBasketballHoop.OnValueChanged -= transform.root.gameObject.SetActive;
+        }
         
     }
 }

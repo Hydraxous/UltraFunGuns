@@ -243,8 +243,16 @@ namespace UltraFunGuns
             return attributeList.ToArray();
         }
 
-        
 
+        public static Transform[] GetChildren(this Transform tf)
+        {
+            List<Transform> children = new List<Transform>();
+            for (int i = 0; i < tf.childCount; i++)
+            {
+                children.Add(tf.GetChild(i));
+            }
+            return children.ToArray();
+        }
 
         public static Ray ToRay(this Transform transform)
         {
@@ -366,6 +374,9 @@ namespace UltraFunGuns
             time = Mathf.Clamp01(time);
             return points[Mathf.FloorToInt((points.Length - 1) * time)];
         }
+
+        
+
     }
 
     public class Ring
@@ -470,4 +481,6 @@ namespace UltraFunGuns
             return positions.ToArray();
         }
     }
+
+    
 }

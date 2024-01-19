@@ -48,7 +48,7 @@ namespace UltraFunGuns
         /// <summary>
         /// Enumerated version of the Ultrakill scene types
         /// </summary>
-        public enum UKLevelType { Intro, MainMenu, Level, Endless, Sandbox, Credits, Custom, Intermission, Secret, PrimeSanctum, Unknown }
+        public enum UKLevelType { Intro, MainMenu, Level, Endless, Sandbox, Credits, Custom, Intermission, Secret, Tutorial, PrimeSanctum, Unknown }
 
         /// <summary>
         /// Returns the current level type
@@ -129,6 +129,8 @@ namespace UltraFunGuns
                     return UKLevelType.PrimeSanctum;
                 case "CreditsMuseum2":
                     return UKLevelType.Credits;
+                case "Tutorial":
+                    return UKLevelType.Tutorial;
                 default:
                     return UKLevelType.Unknown;
             }
@@ -141,7 +143,7 @@ namespace UltraFunGuns
         /// <returns></returns>
         public static bool InLevel()
         {
-            bool inNonPlayable = (CurrentLevelType == UKLevelType.MainMenu || CurrentLevelType == UKLevelType.Intro || CurrentLevelType == UKLevelType.Intermission || CurrentLevelType == UKLevelType.Secret || CurrentLevelType == UKLevelType.Unknown);
+            bool inNonPlayable = (CurrentLevelType == UKLevelType.MainMenu || CurrentLevelType == UKLevelType.Tutorial || CurrentLevelType == UKLevelType.Intro || CurrentLevelType == UKLevelType.Intermission || CurrentLevelType == UKLevelType.Secret || CurrentLevelType == UKLevelType.Unknown);
             return !inNonPlayable;
         }
     }

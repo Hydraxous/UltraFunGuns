@@ -1,32 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Xml.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using HydraDynamics.Keybinds;
-using UltraFunGuns.Datas;
-using HydraDynamics;
-using HydraDynamics.Events;
-using System.Data;
-using System.Transactions;
 
 namespace UltraFunGuns
 {
     public static class WeaponManager
     {
         public const int SLOTS = 4, SLOT_OFFSET = 7;
-
-        public static Keybinding[] UFGSlotKeys = new Keybinding[] 
-        {
-            Hydynamics.GetKeybinding("Slot 7", KeyCode.Alpha7),
-            Hydynamics.GetKeybinding("Slot 8", KeyCode.Alpha8),
-            Hydynamics.GetKeybinding("Slot 9", KeyCode.Alpha9),
-            Hydynamics.GetKeybinding("Slot 10", KeyCode.Alpha0),
-        };
-
-        public static Keybinding SecretButton = Hydynamics.GetKeybinding("Secret Button", KeyCode.K);
 
         public delegate void OnWeaponsDeployedHandler(UFGWeapon[] weapons);
         public static OnWeaponsDeployedHandler OnWeaponsDeployed;
@@ -35,23 +16,6 @@ namespace UltraFunGuns
         {
             RegisterWeapons();
             InGameCheck.OnLevelChanged += OnLevelChanged;
-            CrossModEvents.SubscribeToModEvents(CheckEvent, "WeaponDeployer");
-        }
-
-        private static void CheckEvent(ModEventData data)
-        {
-            if(data.targetSubscriptionKey != "WeaponDeployer")
-                return;
-
-            if (data.targetModGUID != ConstInfo.GUID)
-                return;
-
-            if (data.eventName != "RedeployWeapons")
-                return;
-
-            DeployWeapons();
-
-            CrossModEvents.UnsubscribeFromModEvents("WeaponDeployer");
         }
 
         private static void DeInit()
@@ -75,14 +39,9 @@ namespace UltraFunGuns
   
             if (deployer == null)
             {
-                GunControl gc = MonoSingleton<GunControl>.Instance;
-                if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
+                if (!GunControl.Instance.TryGetComponent<WeaponDeployer>(out deployer))
                 {
-                    deployer = ultraFGPatch;
-                }
-                else
-                {
-                    deployer = gc.gameObject.AddComponent<WeaponDeployer>();
+                    deployer = GunControl.Instance.gameObject.AddComponent<WeaponDeployer>();
                 }
             }
 
@@ -108,6 +67,19 @@ namespace UltraFunGuns
             if (inventoryMade)
                 return;
 
+            InitStyleItems();
+
+            CanvasController canvas = CanvasController.Instance;
+            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out inventoryDeployer))
+            {
+                inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
+            }
+
+            inventoryMade = true;
+        }
+
+        private static void InitStyleItems()
+        {
             NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
             NewStyleItem("vibecheck", "VIBE-CHECKED");
             NewStyleItem("v2kill", "<color=#ff33001>OXIDIZED</color>");
@@ -139,17 +111,6 @@ namespace UltraFunGuns
             NewStyleItem("ultragunrainkill", "<color=red>WHAT GOES UP</color>");
             NewStyleItem("ultragunaerialkill", "DEATH FROM ABOVE");
 
-            CanvasController canvas = MonoSingleton<CanvasController>.Instance;
-            if (!canvas.TryGetComponent<InventoryControllerDeployer>(out InventoryControllerDeployer invControllerDeployer))
-            {
-                inventoryDeployer = canvas.gameObject.AddComponent<InventoryControllerDeployer>();
-            }
-            else
-            {
-                inventoryDeployer = invControllerDeployer;
-            }
-
-            inventoryMade = true;
         }
 
         private static Dictionary<string, UFGWeapon> weapons;
@@ -185,6 +146,7 @@ namespace UltraFunGuns
             if (weaponInfo == null)
             {
                 HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+                throw new System.Exception($"Type {t} does not have UFGWeapon attribute.");
             }
 
             return weaponInfo;
@@ -231,7 +193,7 @@ namespace UltraFunGuns
                     continue;
                 }
 
-                if (attribute.WeaponKey == "NULL")
+                if (attribute.WeaponKey == "NULL")//???????
                 {
                     continue;
                 }
@@ -273,61 +235,6 @@ namespace UltraFunGuns
             }
 
             WeaponsRegistered = true;
-        }
-
-        //Credit to Agent of Nyarlathotep for this
-        private static Dictionary<GameObject, float> FreshnessList
-        {
-            get
-            {               
-                var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
-                Dictionary<GameObject, float> freshnessList = field.GetValue(MonoSingleton<StyleHUD>.Instance) as Dictionary<GameObject, float>;          
-                return freshnessList;
-            }
-
-            set
-            {
-                if(value != null)
-                {
-                    var field = typeof(StyleHUD).GetField("weaponFreshness", BindingFlags.NonPublic | BindingFlags.Instance);
-                    field.SetValue(MonoSingleton<StyleHUD>.Instance, value);
-                }     
-            }
-        }
-
-        /// <summary>
-        /// Adds weapon to style hud freshness
-        /// </summary>
-        /// <param name="go">gameObject to add</param>
-        /// <returns></returns>
-        public static bool AddWeaponToFreshnessDict(GameObject go)
-        {
-
-            if(go == null)
-            {
-                HydraLogger.Log($"WeaponManager: Attempted to register null gameobject into freshness dict.", DebugChannel.Error);
-                return false;
-            }
-
-            try
-            {
-                Dictionary<GameObject, float> freshnessDict = FreshnessList;
-                if (!freshnessDict.ContainsKey(go))
-                {
-                    freshnessDict.Add(go, 10f);
-                    FreshnessList = freshnessDict;
-                    return true;
-                }
-
-                HydraLogger.Log($"WeaponManager: Attempted to register existing weapon to freshness dict.", DebugChannel.Error);
-                return false;
-
-            } catch (Exception ex)
-            {
-                HydraLogger.Log($"WeaponManager: Could not register {go.name} to freshness dict.\n{ex.Message}\n{ex.StackTrace}", DebugChannel.Fatal);
-            }
-
-            return false;
         }
 
         public static InventorySlotData[] GetDefaultLoadout()
@@ -401,12 +308,6 @@ namespace UltraFunGuns
             StyleHUD.Instance.AddPoints(entry.Points, $"hydraxous.ultrafunguns.{entry.Key}", entry.SourceWeapon, entry.EnemyIdentifier, entry.Count, entry.Prefix, entry.Postfix);
         }
 
-        public static Color GetColor(WeaponIconColor colorType)
-        {
-            Color color = MonoSingleton<ColorBlindSettings>.Instance.variationColors[(int)colorType];
-            return color;
-        }
-
         public static void SetWeaponUnlocked(string weaponKey, bool unlocked)
         {
             if(!Weapons.ContainsKey(weaponKey))
@@ -420,7 +321,7 @@ namespace UltraFunGuns
 
             if(unlocked && InGameCheck.InLevel())
             {
-                HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.KeyCode}</color>] to open UFG Inventory.");
+                HudMessageReceiver.Instance.SendHudMessage($"You have unlocked a new weapon. Press [<color=orange>{InventoryControllerDeployer.inventoryKey.Value}</color>] to open UFG Inventory.");
             }
 
             InventoryController.RefreshInventory();
@@ -451,187 +352,28 @@ namespace UltraFunGuns
             Prep();
             DeployWeapons(false, true);
         }
-    }
 
-    public class WeaponDeployer : MonoBehaviour
-    {
-
-        public int WeaponsDeployed { get; private set; }
-
-        GunControl gc;
-
-        private List<List<string>> weaponKeySlots = new List<List<string>>();
-
-        //Empty slots for the weapons. Don't remove this.
-        private List<List<GameObject>> customSlots = new List<List<GameObject>>()
+        public static void RemoveAllWeapons()
         {
-            new List<GameObject>(),
-            new List<GameObject>(),
-            new List<GameObject>(),
-            new List<GameObject>()
-        };
-
-        private void Awake()
-        {
-            gc = GetComponent<GunControl>();
-        }
-
-        public List<List<string>> CreateWeaponKeyset(Loadout invControllerData)
-        {
-            List<List<string>> newWeaponKeys = new List<List<string>>();
-            for (int x = 0; x < invControllerData.slots.Length; x++)
-            {
-                List<string> newWeaponKeyList = new List<string>();
-                for (int y = 0; y < invControllerData.slots[x].slotNodes.Length; y++)
-                {
-                    if (invControllerData.slots[x].slotNodes[y].weaponEnabled && (invControllerData.slots[x].slotNodes[y].weaponUnlocked || UltraFunGuns.DebugMode))
-                    {
-                        newWeaponKeyList.Add(invControllerData.slots[x].slotNodes[y].weaponKey);
-                    }
-                }
-                newWeaponKeys.Add(newWeaponKeyList);
-            }
-            return newWeaponKeys;
-        }
-
-        private void RemoveWeapons()
-        {
-            for(int i=0; i< customSlots.Count; i++)
-            {
-                for(int x =0; x < customSlots[i].Count; x++)
-                {
-                    GameObject toDestroy = customSlots[i][x];
-                    customSlots[i][x] = null;
-                    Destroy(toDestroy);
-                }
-                customSlots[i].Clear();
-            }
-        }
-
-        //TODO optimization
-        public void DeployWeapons(bool firstTime = false)
-        {
-            RemoveWeapons();
-
-            weaponKeySlots = CreateWeaponKeyset(Data.Loadout.Data);
-
-            if (!(weaponKeySlots.Count > 0))
+            if (!InGameCheck.InLevel() && !inventoryMade)
             {
                 return;
             }
 
-            WeaponsDeployed = 0;
+            if (deployer == null)
+                return;
 
-
-            List<UFGWeapon> weaponsDeployed = new List<UFGWeapon>();
-
-            string weaponsGiven = "";
-            for (int i = 0; i < weaponKeySlots.Count; i++)
+            GunControl gc = GunControl.Instance;
+            if (gc.TryGetComponent<WeaponDeployer>(out WeaponDeployer ultraFGPatch))
             {
-                if (weaponKeySlots[i].Count <= 0)
-                {
-                    continue;
-                }
-
-                foreach (string weaponKey in weaponKeySlots[i])
-                {
-                    if (!WeaponManager.Weapons.TryGetValue(weaponKey, out UFGWeapon weaponInfo))
-                    {
-                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
-                        this.enabled = false;
-                        return;
-                    }
-
-                    if (!HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
-                    {
-                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...", DebugChannel.Error);
-                        continue;
-                    }
-
-                    //Set layers correctly
-                    weaponPrefab.layer = 13;
-                    Transform[] childs = weaponPrefab.GetComponentsInChildren<Transform>();
-                    foreach (Transform child in childs)
-                    {
-                        child.gameObject.layer = 13;
-                    }
-
-                    //weaponPrefab.SetActive(false);
-
-                    //Instantiate weapon and add it's component
-                    GameObject newWeapon = GameObject.Instantiate<GameObject>(weaponPrefab, this.transform);
-                    newWeapon.AddComponent(weaponInfo.Type);
-                    newWeapon.SetActive(false);
-                    customSlots[i].Add(newWeapon);
-                    weaponsGiven += weaponKey + " ";
-                    WeaponManager.AddWeaponToFreshnessDict(newWeapon);
-                    weaponsDeployed.Add(weaponInfo);
-                    WeaponsDeployed++;
-                }
+                deployer = ultraFGPatch;
+            }
+            else
+            {
+                deployer = gc.gameObject.AddComponent<WeaponDeployer>();
             }
 
-            if (weaponsGiven.Length > 0)
-            {
-                weaponsGiven = "Weapons given: " + weaponsGiven;
-                AddWeapons();
-                WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
-                HydraLogger.Log(weaponsGiven, DebugChannel.User);
-            }
+            deployer.DisposeWeapons();
         }
-
-        //adds weapons to the gun controller
-        private void AddWeapons()
-        {
-            for (int j = 0; j < customSlots.Count; j++)
-            {
-                if (gc.slots.Contains(customSlots[j]))
-                {
-                    gc.slots.Remove(customSlots[j]);
-                }
-            }
-
-            for (int i = 0; i < customSlots.Count; i++)
-            {
-                gc.slots.Add(customSlots[i]);
-                foreach (GameObject wep in customSlots[i])
-                {
-                    if (!gc.allWeapons.Contains(wep))
-                    {
-                        gc.allWeapons.Add(wep);
-                    }
-                }
-            }
-        }
-
-        //This handles input for the extra slots
-        private void Update()
-        {
-            for (int i = 0; i < WeaponManager.UFGSlotKeys.Length; i++)
-            {
-                if (WeaponManager.UFGSlotKeys[i].WasPerformedThisFrame && (customSlots[i].Count > 1 || gc.currentSlot != i + WeaponManager.SLOT_OFFSET))
-                {
-                    if (customSlots[i].Count > 0 && customSlots[i][0] != null)
-                    {
-                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, customSlots[i], false, false);
-                    }
-                }
-            }
-
-            if(Input.GetKeyDown(KeyCode.Keypad4))
-            {
-                if(spawnedRod != null)
-                {
-                    return;
-                }
-
-                spawnedRod = GameObject.Instantiate<GameObject>(Prefabs.FishingRod.Asset, this.transform);
-                spawnedRod.SetActive(false);
-                customSlots[0].Add(spawnedRod);
-                WeaponManager.AddWeaponToFreshnessDict(spawnedRod);
-                gc.allWeapons.Add(spawnedRod);
-            }
-        }
-
-        private GameObject spawnedRod;
     }
 }

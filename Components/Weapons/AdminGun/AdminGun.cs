@@ -18,12 +18,22 @@ namespace UltraFunGuns
         public static UKAsset<GameObject> somethingWicked = new UKAsset<GameObject>("Assets/Prefabs/Enemies/Wicked.prefab");
         [UFGAsset("GunClick1")] private static AudioClip switchFireModeSound;
 
-        public int hitscans = 16;
-        public float spread = 0.06f;
+        [Configgy.Configgable("Weapons/Ultra***")]
+        private static int hitscans = 16;
+        
+        [Configgy.Configgable("Weapons/Ultra***")]
+        private static float bulletSpread = 0.06f;
 
-        private bool gamerMode;
+        [Configgy.Configgable("Weapons/Ultra***")]
+        private static bool gamerMode;
 
-        private ActionCooldown primaryFire = new ActionCooldown(0.05f), secondaryFire = new ActionCooldown(0.05f);
+        [Configgy.Configgable("Weapons/Ultra***")]
+        private static float primaryFireCooldown = 0.05f;
+        
+        [Configgy.Configgable("Weapons/Ultra***")]
+        private static float secondaryFireCooldown = 0.05f;
+
+        private ActionCooldown primaryFire = new ActionCooldown(primaryFireCooldown), secondaryFire = new ActionCooldown(secondaryFireCooldown);
 
         public override void GetInput()
         {
@@ -41,7 +51,7 @@ namespace UltraFunGuns
                 Boom();
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame)
+            if (UFGInput.SecretButton.WasPeformed())
             {
                 animator.Play("SelectFire", 0, 0);
                 gamerMode = !gamerMode;
@@ -204,8 +214,30 @@ namespace UltraFunGuns
             Ray ray = mainCam.ToRay();
             if (HydraUtils.SphereCastMacro(ray.origin, 0.15f, ray.direction, Mathf.Infinity, out RaycastHit hit))
             {
-                GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
+                if (CheckCoin(hit))
+                {
+                    EnemyIdentifier[] enemies = EnemyTracker.Instance.GetCurrentEnemies().Where(x => (!x.dead && !x.blessed)).ToArray();
+
+                    Vector3 coinPosition = hit.collider.transform.position;
+                    Instantiate(Prefabs.ShittyExplosionFX, coinPosition, Quaternion.identity);
+                    Prefabs.ShittyExplosionSound?.PlayAudioClip(coinPosition, 1.3f, 1.0f, 0.7f);
+
+                    for (int i = 0; i < enemies.Length; i++)
+                    {
+                        Vector3 enemyPos = enemies[i].GetTargetPoint();
+                        Vector3 direction = enemyPos - coinPosition;
+                        if (!Physics.Raycast(coinPosition, direction, out RaycastHit explosionHit, Mathf.Infinity, LayerMaskDefaults.Get(LMD.EnemiesAndEnvironment)))
+                            continue;
+
+                        GameObject.Instantiate(Prefabs.UK_Explosion.Asset, explosionHit.point, Quaternion.identity);
+                    }
+                }
+                else
+                {
+                    GameObject.Instantiate(Prefabs.UK_Explosion.Asset, hit.point, Quaternion.identity);
+                }
             }
+
             AdminGun_FireSound.PlayAudioClip(firePoint.position, UnityEngine.Random.Range(0.6f, 1.0f), 1.0f, 0.0f);
         }
 
@@ -213,7 +245,7 @@ namespace UltraFunGuns
         {
             Ray ray = new Ray();
 
-            Vector3 randomDirection = UnityEngine.Random.insideUnitCircle*spread;
+            Vector3 randomDirection = UnityEngine.Random.insideUnitCircle*bulletSpread;
             randomDirection.z = 1;
 
             ray.origin = mainCam.position;

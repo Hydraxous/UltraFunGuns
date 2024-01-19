@@ -8,10 +8,19 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     //Egg projectile script created by EggToss and EggSplosion.
-    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver
+    public class ThrownEgg : MonoBehaviour, IUFGInteractionReceiver, ICoinTarget, IRevolverBeamShootable, ISharpshooterTarget
     {
         [UFGAsset("EggImpactFX")] private static GameObject impactFX;
         [UFGAsset("EggSplosion")] private static GameObject eggsplosionPrefab;
+
+        [Configgy.Configgable("Weapons/Egg Toss/Egg")]
+        private static float velocityDamageMultiplier = 0.035f;
+
+        [Configgy.Configgable("Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Damage Multiplier")]
+        private static float eggsplosionEggDamageMultiplier = 0.75f;
+
+        [Configgy.Configgable("Weapons/Egg Toss/Egg/Eggsplosion", displayName:"Velocity Damage Multiplier")]
+        private static float eggsplosionEggDamageVelocityMultiplier = 0.25f;
 
         private Rigidbody rb;
         private CapsuleCollider eggCollider;
@@ -26,6 +35,14 @@ namespace UltraFunGuns
         {
             rb = GetComponent<Rigidbody>();
             eggCollider = GetComponent<CapsuleCollider>();
+
+            GameObject limbHitbox = transform.Find("Sphere").gameObject;
+            if (limbHitbox != null)
+            {
+                //Awful hack to make piercing revolvers work
+                limbHitbox.layer = 10;
+                limbHitbox.tag = "Breakable";
+            }
 
         }
 
@@ -76,7 +93,7 @@ namespace UltraFunGuns
                 GameObject impact = GameObject.Instantiate<GameObject>(impactFX, col.GetContact(0).point, Quaternion.identity);
                 impact.transform.up = col.GetContact(0).normal;
                 impact.transform.parent = col.transform;
-                float damage = rb.velocity.magnitude * 0.035f; //Scales damage from speed of egg
+                float damage = rb.velocity.magnitude * velocityDamageMultiplier; //Scales damage from speed of egg
 
                 if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
                 {
@@ -101,7 +118,7 @@ namespace UltraFunGuns
                         }
                         else
                         {
-                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*0.25f, col.GetContact(0).point, damage*0.75f, false);
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity*eggsplosionEggDamageVelocityMultiplier, col.GetContact(0).point, damage*eggsplosionEggDamageMultiplier, false);
                             MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
                         }
                     }
@@ -133,7 +150,7 @@ namespace UltraFunGuns
                 Vector3 collisionNormalGuess = MonoSingleton<NewMovement>.Instance.transform.position - transform.position;
                 impact.transform.up = collisionNormalGuess;
                 impact.transform.parent = col.transform;
-                float damage = rb.velocity.magnitude * 0.018f; //Scales damage from speed of egg :)
+                float damage = rb.velocity.magnitude * velocityDamageMultiplier; //Scales damage from speed of egg :)
 
                 if (col.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyPart))
                 {
@@ -161,7 +178,7 @@ namespace UltraFunGuns
                         }
                         else
                         {
-                            enemy.DeliverDamage(enemy.gameObject, oldVelocity * 0.25f, transform.position, damage * 0.25f, false);
+                            enemy.DeliverDamage(enemy.gameObject, oldVelocity * eggsplosionEggDamageVelocityMultiplier, transform.position, damage * eggsplosionEggDamageMultiplier, false);
                             MonoSingleton<StyleHUD>.Instance.AddPoints(10, "hydraxous.ultrafunguns.egged");
                         }
                     }
@@ -202,15 +219,6 @@ namespace UltraFunGuns
             }
         }
 
-        public void Shot(BeamType beamType)
-        {
-            Explode();
-        }
-
-        public bool Parried(Vector3 aimVector)
-        {
-            return false;
-        }
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -231,6 +239,53 @@ namespace UltraFunGuns
         public bool Targetable(TargetQuery targetQuery)
         {
             return targetQuery.CheckTargetable(transform.position);
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam)
+        {
+            Explode();
+        }
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 2;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            Explode();
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public bool CanBeSharpshot(RevolverBeam beam, RaycastHit hit)
+        {
+            return !isEggsplosionEgg;
+        }
+
+        public Vector3 GetSharpshooterTargetPoint()
+        {
+            return transform.position;
+        }
+
+        public void OnSharpshooterTargeted(RevolverBeam beam, RaycastHit hit) {}
+
+        public int GetSharpshooterTargetPriority()
+        {
+            return 1;
         }
     }
 }

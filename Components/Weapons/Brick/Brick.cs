@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Configgy;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Timers;
@@ -22,15 +23,29 @@ namespace UltraFunGuns
 
         public Vector2 BrickstormSpeed { get; private set; } = new Vector2(5.0f, 5.0f);
 
-        public float BrickstormOffset { get; private set; } = 3.5f;
-        public float BrickstormPullSpeed { get; private set; } = 15.0f;
-        public float BrickstormFlockSpeed { get; private set; } = 8.0f;
+        [Configgable("Weapons/Brick")]
+        public static float BrickstormOffset = 3.5f;
+
+        [Configgable("Weapons/Brick")]
+        public static float BrickstormPullSpeed = 15.0f;
+
+        [Configgable("Weapons/Brick")]
+        public static float BrickstormFlockSpeed = 8.0f;
+        
+
         public float Brickshake { get; private set; } = 0.075f;
+        
         public float BrickParryFlightTime { get; private set; } = 0.85f;
 
-        public float force = 75.0f;
-        public float flockMaxRange = 10.0f;
-        public float targetPointSurfaceOffset = 0.3f;
+        [Configgable("Weapons/Brick")]
+        public static float throwForce = 75.0f;
+
+        [Configgable("Weapons/Brick")]
+        public static float flockMaxRange = 10.0f;
+
+        [Configgable("Weapons/Brick")]
+        public static float targetPointSurfaceOffset = 0.3f;
+        
         private bool ready = false;
 
         private bool throwingBrick = false;
@@ -139,7 +154,7 @@ namespace UltraFunGuns
                         whoosh.PlayAudioClip(UnityEngine.Random.Range(0.6f, 0.9f));
                     }
 
-                    rb.velocity = aimRay.direction * force;
+                    rb.velocity = aimRay.direction * throwForce;
                 }
 
                 if(newBrick.TryGetComponent<ThrownBrick>(out ThrownBrick brick))

@@ -20,7 +20,7 @@ namespace UltraFunGuns.CustomPlacedObjects.Objects
             if (sceneName != "CreditsMuseum2")
                 return false;
 
-            Place(new Vector3(-261.0277f, 75.00449f, 708.2495f), Vector3.zero);
+            //Place(new Vector3(-261.0277f, 75.00449f, 708.2495f), Vector3.zero);
             //Place(new Vector3(75.01125f, 22.00494f, 742.4724f), Vector3.zero);
             Place(new Vector3(231.2761f, 75.04001f, 710.4579f), new Vector3(0, 90.0f, 0.0f));
             return true;

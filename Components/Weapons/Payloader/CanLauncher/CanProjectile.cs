@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace UltraFunGuns
 {
-    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class CanProjectile : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, IRevolverBeamShootable, IParriable
     {
         [UFGAsset("CanLauncher_CanExplosion")] private static GameObject canExplosion;
         [UFGAsset("CanLauncher_CanProjectile_BounceFX")] private static GameObject bounceFX;
@@ -33,6 +33,9 @@ namespace UltraFunGuns
 
         public float reviveParryThrowForce = 180.0f;
 
+        private float lastParryTime;
+        private static float parryCooldown = 0.5f;
+
         public float killTime = 4.5f;
         private float killTimer = 0.0f;
 
@@ -51,6 +54,12 @@ namespace UltraFunGuns
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            GameObject hitbox = transform.Find("Sphere").gameObject;
+            if(hitbox != null)
+            {
+                hitbox.layer = 10;
+                hitbox.tag = "Breakable";
+            }
         }
 
         private void Start()
@@ -222,13 +231,19 @@ namespace UltraFunGuns
             AlterVelocity(bounceForce, false);
         }
 
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             if (dead || !canBeParried || sleeping)
             {
                 return false;
             }
 
+            if(Time.time-lastParryTime < parryCooldown)
+            {
+                return false;
+            }
+
+            lastParryTime = Time.time;
             tracking = false;
             //canBeParried = false;
             killTimer += killTime;
@@ -336,24 +351,6 @@ namespace UltraFunGuns
             Destroy(gameObject, 4.0f);
         }
 
-        public void Shot(BeamType beamType)
-        {
-            switch (beamType)
-            {
-                case BeamType.Railgun:
-                    Explode(Vector3.up, 3);
-                    break;
-                case BeamType.Revolver:
-                    Bounce();
-                    break;
-                case BeamType.MaliciousFace:
-                    Explode(Vector3.up, 3);
-                    break;
-                case BeamType.Enemy:
-                    Bounce();
-                    break;
-            }
-        }
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -395,6 +392,65 @@ namespace UltraFunGuns
         public void Cleanup()
         {
             Die();
+        }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            //Todo
+            return !sleeping && !dead;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) 
+        {
+
+        }
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 1;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Revolver:
+                    
+                    if(!beam.strongAlt)
+                    {
+                        Bounce();
+                        break;
+                    }
+                    if (sleeping)
+                    {
+                        Explode(Vector3.up, 2);
+                    }
+                    else if (bounced)
+                    {
+                        Vector3 direction = transform.position - beam.transform.position;
+                        Explode(direction, 2);
+                    }
+                    break;
+                case BeamType.MaliciousFace:
+                    Explode(Vector3.up, 3);
+                    break;
+                case BeamType.Enemy:
+                    Bounce();
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !dead;
         }
     }
 }

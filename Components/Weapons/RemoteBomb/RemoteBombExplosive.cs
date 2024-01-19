@@ -6,7 +6,7 @@ using UltraFunGuns.Components;
 
 namespace UltraFunGuns
 {
-    public class RemoteBombExplosive : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class RemoteBombExplosive : MonoBehaviour, ICleanable, IRevolverBeamShootable, IUFGShootable
     {
         [UFGAsset("RemoteBomb_Explosive_Explosion")] public static GameObject ExplosionPrefab { get; private set; }
 
@@ -19,15 +19,30 @@ namespace UltraFunGuns
         public float armTime = 0.05f;
         public float blinkInterval = 0.75f;
         public float blinkTime = 0.05f;
-        public float parryForce = 150.0f;
-        public float playerKnockbackMultiplier = 70.0f;
-        public float rigidbodyForceMultiplier = 70.0f;
-        public float explosionRadius = 6f;
-        public float explosionDamage = 1.6f;
-        public float explosionChainDelay = 0.20f;
 
-        public float stuckDamageMultiplier = 1.5f;
-        public float stickDamage = 0.05f;
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")]
+        private static float parryForce = 150.0f;
+
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")]
+        private static float playerKnockbackMultiplier = 70.0f;
+        
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float rigidbodyForceMultiplier = 70.0f;
+        
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float explosionRadius = 6f;
+        
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float explosionDamage = 1.6f;
+        
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float explosionChainDelay = 0.20f;
+
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float stuckDamageMultiplier = 1.5f;
+        
+        [Configgy.Configgable("Weapons/Radio Explosive/Bomb")] 
+        private static float stickDamage = 0.05f;
 
         private bool thrown = false;
         private bool armed = false;
@@ -81,7 +96,7 @@ namespace UltraFunGuns
             return (!landed && !armed);
         }
 
-        public bool Parried(Vector3 direction)
+        public bool Parry(Vector3 origin, Vector3 direction)
         {
             if(!landed && !armed)
             {
@@ -425,52 +440,40 @@ namespace UltraFunGuns
             }
         }
 
-        public void Shot(BeamType beamType)
-        {
-            switch (beamType)
-            {
-                case BeamType.Railgun:
-                    Detonate(true);
-                    break;
-                case BeamType.Revolver:
-                    Detonate(false);
-                    break;
-                case BeamType.MaliciousFace:
-                    Detonate(true);
-                    break;
-                case BeamType.Enemy:
-                    Detonate(true);
-                    break;
-            }
-        }
-
-        public bool Interact(UFGInteractionEventData interaction)
-        {
-            if(interaction.ContainsAnyTag("shot", "explode") && interaction.invokeType.Name != nameof(RemoteBombExplosive))
-            {
-                Detonate(true);
-                return true;
-            }
-
-            return false;
-        }
-
-        public Vector3 GetPosition()
-        {
-            return transform.position;
-        }
-
-        public bool Targetable(TargetQuery targetQuery)
-        {
-            if (landed)
-                return false;
-
-            return targetQuery.CheckTargetable(transform.position);
-        }
-
         public void Cleanup()
         {
             Detonate(true);
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                case BeamType.Enemy:
+                case BeamType.MaliciousFace:
+                    Detonate(true);
+                    break;
+                default:
+                    Detonate(false);
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return alive;
+        }
+
+
+        public bool CanBeShot(GameObject sourceWeapon)
+        {
+            return alive;
+        }
+
+        public void OnShot(GameObject sourceWeapon)
+        {
+            Detonate(false);
         }
     }
 }

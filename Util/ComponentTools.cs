@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -63,6 +64,11 @@ namespace UltraFunGuns
             {
                 return (T)(object)transform.gameObject.AddComponent(typeof(T));
             }
+        }
+
+        public static T LocateComponent<T>(this Transform tf, string name)  where T : Component
+        {
+            return tf.GetComponentsInChildren<T>(true).Where(x=>x.name == name).FirstOrDefault();
         }
     }
 }

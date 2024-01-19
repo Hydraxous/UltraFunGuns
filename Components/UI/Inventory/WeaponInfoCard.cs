@@ -49,7 +49,7 @@ namespace UltraFunGuns
             body.text = info.GetCodexText();
             //body.text = $"{mousePos}\n\n\n{Screen.dpi}\n\n{Screen.dpi/referenceDpi}";
 
-            Color color = WeaponManager.GetColor(info.IconColor);
+            Color color = info.IconColor.ToColor();
             header.color = color;
             headerShadow.effectColor = new Color(color.r,color.g,color.b, color.a*0.3803f);
             background.color = new Color(color.r, color.g, color.b, color.a * 0.3568f);

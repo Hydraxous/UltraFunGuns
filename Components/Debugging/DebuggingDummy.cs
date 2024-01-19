@@ -1,22 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Transactions;
-using UltraFunGuns.Datas;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using HydraDynamics.Keybinds;
-using HydraDynamics;
-using BepInEx;
-using HydraDynamics.DataPersistence;
-using Newtonsoft.Json;
-using System.Runtime.CompilerServices;
-using HydraDynamics.Events;
-using UltraFunGuns.Util;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceLocations;
-using JetBrains.Annotations;
 
 namespace UltraFunGuns
 {
@@ -33,14 +19,6 @@ namespace UltraFunGuns
             if (!UltraFunGuns.DebugMode)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.Keypad8))
-            {
-                PlayerDeathPatch.god = !PlayerDeathPatch.god;
-                if (PlayerDeathPatch.god)
-                {
-                    SonicReverberator.vineBoom_Loud.PlayAudioClip();
-                }
-            }
 
             if (Input.GetKeyDown(KeyCode.Keypad0))
             {
@@ -86,8 +64,6 @@ namespace UltraFunGuns
                     data += FormatResourceLocation(rlocation);
                 }
 
-
-                System.IO.File.WriteAllText("Z:/QuickThings/iodump/rlocation.txt", data);
             }
         }
 

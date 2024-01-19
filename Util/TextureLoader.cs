@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using HydraDynamics;
+using UnityEngine.Networking;
 
 namespace UltraFunGuns.Util
 {
@@ -12,7 +11,7 @@ namespace UltraFunGuns.Util
     {
         public static string GetTextureFolder()
         {
-            return HydraDynamics.DataPersistence.DataManager.GetDataPath("tex");
+            return Path.Combine(Paths.DataFolder, "Textures");
         }
 
         private static Texture2D[] cachedTextures = new Texture2D[0];
@@ -55,6 +54,35 @@ namespace UltraFunGuns.Util
             File.WriteAllBytes(path, bytes);
         }
 
+        public static void DownloadTexture(string url, Action<TextureDownloadResult> onComplete)
+        {
+            StaticCoroutine.RunCoroutine(DownloadImageCoroutine(url, onComplete));
+        }
+
+        private static IEnumerator DownloadImageCoroutine(string url, Action<TextureDownloadResult> onComplete)
+        {
+            using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(url))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError)
+                {
+                    onComplete.Invoke(new TextureDownloadResult() { Success = false });
+                }
+                else 
+                {
+                    Texture2D tex = DownloadHandlerTexture.GetContent(www);
+                    onComplete.Invoke(new TextureDownloadResult() { Success = true, Texture = tex });
+                }
+            }
+        }
+
+        public struct TextureDownloadResult
+        {
+            public bool Success;
+            public Texture2D Texture;
+        }
+
         public static bool TryLoadTexture(string path, out Texture2D tex, bool checkerIfNull = false)
         {
             tex = null;
@@ -75,6 +103,7 @@ namespace UltraFunGuns.Util
             }
 
             tex = new Texture2D(16, 16);
+
             if (!tex.LoadImage(byteArray))
             {
                 HydraLogger.Log("texture loading failed!");
@@ -136,6 +165,10 @@ namespace UltraFunGuns.Util
             List<Texture2D> newTextures = new List<Texture2D>();
 
             string path = GetTextureFolder();
+            
+            if(!Directory.Exists(path))
+                return Array.Empty<Texture2D>();
+            
             string[] pngs = System.IO.Directory.GetFiles(path, "*.png", SearchOption.AllDirectories);
             string[] jpgs = System.IO.Directory.GetFiles(path, "*.jpg", SearchOption.AllDirectories);
 

@@ -22,21 +22,35 @@ namespace UltraFunGuns
         private ActionCooldown primaryFire = new ActionCooldown(0.5f, true);
         private ActionCooldown secondaryBoost = new ActionCooldown(0.5f, true);
 
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float primaryFireCooldown = 0.5f;
 
-        public float powerRestoreRate = 50.0f;
-        public float minPower = 10.0f;
-        public float maxPower = 80.0f;
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float secondaryFireCooldown = 0.5f;
 
-        private float minPowerCost = 30.0f;
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float powerRestoreRate = 50.0f;
+        
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float minPower = 10.0f;
+
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")] 
+        private static float maxPower = 80.0f;
+
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float minPowerCost = 30.0f;
 
         private float power;
 
-        private float barrageChargeMin = 0.0f, barrageChargeMax = 1.15f, barrageChargeMultiplier = 1.0f;
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static float barrageChargeMin = 0.0f, barrageChargeMax = 1.15f, barrageChargeMultiplier = 1.0f;
         private float barrageCharge;
 
-        private int barrageAmount = 3;
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")]
+        private static int barrageAmount = 3;
 
-        private float barrageFireDelay = 0.15f;
+        [Configgy.Configgable("Weapons/UltraGun/UltraGun")] 
+        private static float barrageFireDelay = 0.15f;
 
         private AbilityMeter powerDisplay;
         private Vibrate vibrate;
@@ -65,6 +79,9 @@ namespace UltraFunGuns
         //fired bullets take fuel to fly.
         private void Start()
         {
+            primaryFire = new ActionCooldown(primaryFireCooldown, true);
+            secondaryBoost = new ActionCooldown(secondaryFireCooldown, true);
+
             chargingAudioSrc = gameObject.AddComponent<AudioSource>();
             chargingAudioSrc.clip = chargingLoopClip;
             chargingAudioSrc.playOnAwake = true;
@@ -105,7 +122,7 @@ namespace UltraFunGuns
                 barrageCharge = Mathf.Clamp(barrageCharge - (Time.deltaTime * barrageChargeMultiplier), barrageChargeMin, barrageChargeMax);
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame && !om.paused)
+            if (UFGInput.SecretButton.WasPeformed() && !om.paused)
             {
                 animator?.Play("Inspect", 0, 0);
                 //DivideBullets();

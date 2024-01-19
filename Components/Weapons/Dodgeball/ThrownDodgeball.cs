@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UltraFunGuns.Components;
+﻿using System.Collections.Generic;
 using UltraFunGuns.Components.Entity;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable
+    public class ThrownDodgeball : MonoBehaviour, IUFGInteractionReceiver, ICleanable, ICoinTarget, ISharpshooterTarget, IRevolverBeamShootable
     {
         private UltraFunGunBase.ActionCooldown hurtCooldown = new UltraFunGunBase.ActionCooldown(0.1f);
         private UltraFunGunBase.ActionCooldown hitSoundCooldown = new UltraFunGunBase.ActionCooldown(0.015f);
@@ -78,6 +75,10 @@ namespace UltraFunGuns
             player = MonoSingleton<NewMovement>.Instance;
             homingSound.Play();
             homingSound.Pause();
+
+            //Fix stupid hitreg.
+            GameObject hitbox = transform.Find("LimbHitbox").gameObject;
+            hitbox.tag = "Breakable";
         }
 
         private void Update()
@@ -433,34 +434,12 @@ namespace UltraFunGuns
             }    
         }
 
-        public void Shot(BeamType beamType)
-        {
-            switch (beamType)
-            {
-                case BeamType.Railgun:
-                    ExciteBall(6);
-                    break;
-
-                case BeamType.Revolver:
-                    ExciteBall();
-                    break;
-
-                case BeamType.MaliciousFace:
-                    ExciteBall(2);
-                    break;
-
-                case BeamType.Enemy:
-                    break;
-            }
-        }
-
-        public bool Parried(Vector3 aimVector)
+        public bool Parry(Vector3 origin, Vector3 aimVector)
         {
             SetSustainVelocity(aimVector);
             ExciteBall(2);
             return true;
         }
-
 
         public bool Interact(UFGInteractionEventData interaction)
         {
@@ -510,5 +489,69 @@ namespace UltraFunGuns
         {
             Pop();
         }
+
+        public Transform GetCoinTargetPoint(Coin coin)
+        {
+            return transform;
+        }
+
+        public bool CanBeCoinTargeted(Coin coin)
+        {
+            return !dead;
+        }
+
+        public void OnCoinReflect(Coin coin, RevolverBeam beam) {}
+
+        public int GetCoinTargetPriority(Coin coin)
+        {
+            return 1;
+        }
+
+        public bool CanBeSharpshot(RevolverBeam beam, RaycastHit hit)
+        {
+            return !dead;
+        }
+
+        public Vector3 GetSharpshooterTargetPoint()
+        {
+            return transform.position;
+        }
+
+        //The ball will be hit by revolverbeam, no need to do anything here.
+        public void OnSharpshooterTargeted(RevolverBeam beam, RaycastHit hit) {}
+
+        //Unused.
+        public int GetSharpshooterTargetPriority()
+        {
+            return 1;
+        }
+
+        public void OnRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            switch (beam.beamType)
+            {
+                case BeamType.Railgun:
+                    ExciteBall(6);
+                    break;
+
+                case BeamType.Revolver:
+                    ExciteBall();
+                    break;
+
+                case BeamType.MaliciousFace:
+                    ExciteBall(2);
+                    break;
+
+                case BeamType.Enemy:
+                    Pop();
+                    break;
+            }
+        }
+
+        public bool CanRevolverBeamHit(RevolverBeam beam, ref RaycastHit hit)
+        {
+            return !dead;
+        }
+
     }
 }

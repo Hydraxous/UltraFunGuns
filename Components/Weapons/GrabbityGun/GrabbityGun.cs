@@ -35,7 +35,7 @@ namespace UltraFunGuns
                 FirePrimary();
             }
 
-            if (WeaponManager.SecretButton.WasPerformedThisFrame)
+            if (UFGInput.SecretButton.WasPeformed())
             {
                 setVelo = !setVelo;
             }

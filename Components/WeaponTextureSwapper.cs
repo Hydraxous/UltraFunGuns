@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using UltraFunGuns.Util;
+using Configgy;
 
 namespace UltraFunGuns.Components
 {
@@ -12,6 +13,7 @@ namespace UltraFunGuns.Components
     {
         [SerializeField] private Renderer[] texturedRenderers;
 
+        
 
         string texturePath => Path.Combine(TextureLoader.GetTextureFolder(), "WeaponTextures");
 
