@@ -1,4 +1,5 @@
 ﻿using Configgy;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -83,6 +84,9 @@ namespace UltraFunGuns
             header.ModVersion = ConstInfo.VERSION;
             header.GameVersion = Application.version;
 
+            if(menu == null)
+                menu = GetComponentInParent<VoxelSavesMenu>();
+
             SelectFile(header);
             menu.DisableAllSideButtons();
 
@@ -102,7 +106,6 @@ namespace UltraFunGuns
                     VoxelWorld.SetCurrentFile(file);
                 }
 
-                header.FilePath = VoxelSaveManager.NameToFilePath(currentSaveName);
                 file.VoxelData = VoxelWorld.SerializeCurrentVoxels();
                 file.Header = target;
                 
@@ -118,20 +121,25 @@ namespace UltraFunGuns
                 menu.Open();
             });
 
+            //guh this is still broken TODO
             fileNameInputField.SetTextWithoutNotify(Path.GetFileNameWithoutExtension(header.FilePath));
             fileNameInputField.onEndEdit.RemoveAllListeners();
             fileNameInputField.onValueChanged.RemoveAllListeners();
-            fileNameInputField.onValueChanged.AddListener(OnInputFieldChanged);
+            fileNameInputField.onValueChanged.AddListener((v) =>
+            {
+                bool validPath = CheckName(v, Path.GetFileNameWithoutExtension(header.FilePath));
+
+            });
+
             fileNameInputField.onEndEdit.AddListener((v) =>
             {
-                if (CheckName(v))
+                bool nameValid = CheckName(v, Path.GetFileNameWithoutExtension(header.FilePath));
+                if (nameValid)
                 {
                     header.FilePath = VoxelSaveManager.NameToFilePath(v);
                 }
-                else
-                {
-                    fileNameInputField.text = Path.GetFileNameWithoutExtension(header.FilePath);
-                }
+
+                menu.confirmButton.interactable = nameValid;
             });
 
 
@@ -149,7 +157,6 @@ namespace UltraFunGuns
             {
                 header.Description = v;
             });
-
         }
 
         private void SelectFile(VoxelWorldFileHeader header)
@@ -159,7 +166,7 @@ namespace UltraFunGuns
 
             string newDisplayName = header.DisplayName;
             string newDescription = header.Description;
-            currentSaveName = Path.GetFileNameWithoutExtension(header.FilePath);
+            string newFileName = Path.GetFileNameWithoutExtension(header.FilePath);
 
             Func<bool> checkDirty = () =>
             {
@@ -171,15 +178,31 @@ namespace UltraFunGuns
 
                 return newDisplayName != header.DisplayName ||
                 newDescription != header.Description ||
-                currentSaveName != Path.GetFileNameWithoutExtension(header.FilePath);
+                newFileName != Path.GetFileNameWithoutExtension(header.FilePath);
             };
 
             this.target = header; 
             fileNameInputField.SetTextWithoutNotify(Path.GetFileNameWithoutExtension(header.FilePath));
             fileNameInputField.onEndEdit.RemoveAllListeners();
             fileNameInputField.onValueChanged.RemoveAllListeners();
-            fileNameInputField.onValueChanged.AddListener(OnInputFieldChanged);
-            fileNameInputField.onEndEdit.AddListener(OnEndEdit);
+            fileNameInputField.onValueChanged.AddListener((v) =>
+            {
+                CheckName(v, Path.GetFileNameWithoutExtension(header.FilePath));
+            });
+
+            fileNameInputField.onEndEdit.AddListener((v) =>
+            {
+                bool nameValid = CheckName(v, Path.GetFileNameWithoutExtension(header.FilePath));
+
+                if (nameValid)
+                {
+                    newFileName = v;
+                }
+
+                menu.saveButton.interactable = nameValid;
+                fileNameInputField.SetTextWithoutNotify(v);
+                menu.saveButton.gameObject.SetActive(checkDirty());
+            });
 
 
             worldDisplayNameInputField.text = header.DisplayName;
@@ -201,14 +224,22 @@ namespace UltraFunGuns
 
             menu.saveButton.SetClickAction(() =>
             {
+
+                if(newDescription.Length > MAX_DESCRIPTION_CHARACTERS)
+                    newDescription = newDescription.Substring(0, MAX_DESCRIPTION_CHARACTERS);
+
                 header.Description = newDescription;
+
+                if(newDisplayName.Length > MAX_WORLD_NAME_CHARACTERS)
+                    newDisplayName = newDisplayName.Substring(0, MAX_SAVE_NAME_CHARACTERS);
+
                 header.DisplayName = newDisplayName;
 
                 VoxelSaveManager.UpdateHeaderFile(header);
 
-                if (currentSaveName != Path.GetFileNameWithoutExtension(header.FilePath))
+                if (newFileName != Path.GetFileNameWithoutExtension(header.FilePath))
                 {
-                    VoxelSaveManager.RenameFile(header, VoxelSaveManager.NameToFilePath(currentSaveName));
+                    VoxelSaveManager.RenameFile(header, VoxelSaveManager.NameToFilePath(newFileName));
                 }
 
                 menu.saveButton.gameObject.SetActive(checkDirty());
@@ -230,11 +261,17 @@ namespace UltraFunGuns
         }
 
         const int MAX_SAVE_NAME_CHARACTERS = 32;
-        string currentSaveName = "";
+        const int MAX_WORLD_NAME_CHARACTERS = 48;
+        const int MAX_DESCRIPTION_CHARACTERS = 2048;
 
         private void Awake()
         {
             InitializeReferences();
+        }
+
+        public void SetMenu(VoxelSavesMenu menu)
+        {
+            this.menu = menu;
         }
 
         private bool initialized = false;
@@ -243,11 +280,19 @@ namespace UltraFunGuns
             if (initialized)
                 return;
 
-            menu = GetComponentInParent<VoxelSavesMenu>();
+            if(menu == null)
+                menu = GetComponentInParent<VoxelSavesMenu>();
+
             fileNameInputField = LocateComponent<InputField>("InputField_FileName");
+            
+
             descriptionInputField = LocateComponent<InputField>("InputField_WorldDescription");
+            descriptionInputField.characterLimit = MAX_DESCRIPTION_CHARACTERS;
+
             voxelCountText = LocateComponent<Text>("Text_VoxelCount");
+
             worldDisplayNameInputField = LocateComponent<InputField>("InputField_WorldName");
+            worldDisplayNameInputField.characterLimit = MAX_SAVE_NAME_CHARACTERS;
 
             fileNameWarningPanel = LocateComponent<RectTransform>("Panel_FileNameWarning").gameObject;
             fileNameWarningText = LocateComponent<Text>("Text_FileNameWarning");
@@ -255,8 +300,6 @@ namespace UltraFunGuns
 
             if (fileNameInputField != null)
             {
-                fileNameInputField.onValueChanged.AddListener(OnInputFieldChanged);
-                fileNameInputField.onEndEdit.AddListener(OnEndEdit);
                 fileNameInputField.characterLimit = MAX_SAVE_NAME_CHARACTERS;
                 fileNameInputField.SetTextWithoutNotify("");
             }
@@ -269,33 +312,14 @@ namespace UltraFunGuns
             return transform.GetComponentsInChildren<T>().Where(x => x.name == name).FirstOrDefault();
         }
 
-        private void OnInputFieldChanged(string value)
-        {
-            CheckName(value);
-        }
-
-        private void OnEndEdit(string value)
-        {
-            if (CheckName(value))
-                currentSaveName = value;
-            else
-                currentSaveName = Path.GetFileNameWithoutExtension(target.FilePath);
-
-            fileNameInputField.SetTextWithoutNotify(currentSaveName);
-
-            bool dirty = File.Exists(target.FilePath) && (value != Path.GetFileNameWithoutExtension(target.FilePath));
-            menu.saveButton.gameObject.SetActive(dirty);
-        }
-
-        private bool CheckName(string name)
+        private bool CheckName(string name, string oldName)
         {
             bool nameValid = TryValidateSaveName(name, out string errorMessage);
 
-            if (name == currentSaveName)
+            if (name == oldName)
                 nameValid = true;
 
-            menu.saveButton.interactable = nameValid;
-            menu.confirmButton.interactable = nameValid;
+            
             fileNameWarningPanel.SetActive(!nameValid);
             if (!nameValid)
             {
@@ -333,8 +357,6 @@ namespace UltraFunGuns
                 errorMessage = $"Save name is too long. Max {MAX_SAVE_NAME_CHARACTERS} chars. Literally, how did you even manage to do this?";
                 return false;
             }
-
-            
 
             if (VoxelSaveManager.Exists(saveName))
             {

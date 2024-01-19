@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Configgy;
+using Configgy.UI;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UltraFunGuns.Datas;
-using HydraDynamics.Keybinds;
-using HydraDynamics;
-using Configgy;
 
 namespace UltraFunGuns
 {
@@ -36,8 +32,6 @@ namespace UltraFunGuns
         [UFGAsset("UFGKeybindsMenu")] private static GameObject UFGKeybindsUI;
 
 
-        private KeybindMenu keybindMenu;
-
 
         //TODO optimization
         private void Awake()
@@ -49,19 +43,21 @@ namespace UltraFunGuns
             invControllerButton = GameObject.Instantiate<GameObject>(UFGInventoryButton, canvas).GetComponent<Button>();
             invControllerButton.onClick.AddListener(OpenInventory);
 
+
             invController = GameObject.Instantiate<GameObject>(UFGInventoryUI, canvas).GetComponent<InventoryController>();
             invController.gameObject.SetActive(false);
             invControllerButton.gameObject.SetActive(false);
-
-            keybindMenu = GameObject.Instantiate<GameObject>(UFGKeybindsUI, canvas).GetComponent<KeybindMenu>();
-            keybindMenu.gameObject.SetActive(false);
 
             configHelpMessage = invController.transform.Find("ConfigMessage");
             versionHelpMessage = invController.transform.Find("VersionMessage");
             versionHelpMessage.GetComponentInChildren<Text>().text = string.Format(versionHelpMessage.GetComponentInChildren<Text>().text, UltraFunGuns.LatestVersion); //?????????????
 
             configHelpButton = invController.transform.Find("MenuBorder/SlotNames").GetComponent<Button>();
-            configHelpButton.onClick.AddListener(OpenKeybindMenu);
+            configHelpButton.onClick.AddListener(() =>
+            {
+                CloseInventory();
+                ConfigurationMenu.OpenAtPath("UltraFunGuns/Binds");
+            });
         }
 
         private void Update()
@@ -100,6 +96,10 @@ namespace UltraFunGuns
 
             if (inventoryKey.WasPeformed())
             {
+                //frick u
+                if (om.paused)
+                    return;
+
                 OpenInventory();
             }
         }
@@ -147,42 +147,6 @@ namespace UltraFunGuns
             invControllerButton.gameObject.SetActive(false);
             invController.gameObject.SetActive(true);
             inventoryManagerOpen = true;
-        }
-
-        public void OpenKeybindMenu()
-        {
-            if(keybindMenu.gameObject.activeInHierarchy)
-            {
-                return;
-            }
-
-            if (inventoryManagerOpen)
-            {
-                CloseInventory();
-            }
-
-            if (om.paused)
-            {
-                om.UnPause();
-            }
-
-            om.paused = true;
-
-            keybindMenu.gameObject.SetActive(true);
-            keybindMenu.RefreshNodes();
-
-            GameState ufgKeybindState = new GameState("ufg_keybinds", keybindMenu.gameObject);
-            ufgKeybindState.cursorLock = LockMode.Unlock;
-            ufgKeybindState.playerInputLock = LockMode.Lock;
-            ufgKeybindState.cameraInputLock = LockMode.Lock;
-            ufgKeybindState.priority = 3;
-            GameStateManager.Instance.RegisterState(ufgKeybindState);
-        }
-
-        public void CloseKeybindMenu()
-        {
-            om.UnPause();
-            keybindMenu.gameObject.SetActive(false);
         }
 
         public void SendConfigHelpMessage()

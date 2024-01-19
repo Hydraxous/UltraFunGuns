@@ -124,7 +124,7 @@ namespace UltraFunGuns
         //Currently this is only called if the coin is shot with the base revolver. TODO add railgun support
         private static void EvalCustomCoinTarget(Coin coin, LineRenderer beamLine, Transform transform)
         {
-            Debug.LogWarning("EVAL CUSTOM COIN TARGET");
+            //Debug.LogWarning("EVAL CUSTOM COIN TARGET");
             RevolverBeam rb = beamLine.GetComponent<RevolverBeam>();
 
             if(transform.TryGetComponent<ICoinTarget>(out ICoinTarget coinTarget))

@@ -325,6 +325,7 @@ namespace UltraFunGuns
         public void NewWorld()
         {
             OpenMenu();
+            Button_Worlds();
             savesMenu.NewFile();
         }
 

@@ -191,11 +191,6 @@ namespace UltraFunGuns
             }
         }
 
-        public void OpenCreditsPage()
-        {
-
-        }
-
         private static InventoryController invController;
 
         public static void RefreshInventory()

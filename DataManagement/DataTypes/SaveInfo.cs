@@ -1,5 +1,4 @@
-﻿using HydraDynamics.DataPersistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,8 +13,8 @@ namespace UltraFunGuns
         public bool firstTimeUsingInventory;
         public bool firstTimeModLoaded;
         public string modVersion;
-
         public int basketballHighScore;
+        public bool usedVoxelhandBefore;
 
         public SaveInfo()
         {
@@ -23,6 +22,7 @@ namespace UltraFunGuns
             this.firstTimeModLoaded = true;
             this.firstTimeUsingInventory = true;
             this.basketballHighScore = 0;
+            this.usedVoxelhandBefore = false;
         }
 
         public override bool Validate()

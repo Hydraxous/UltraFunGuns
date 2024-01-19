@@ -9,36 +9,37 @@ using UnityEngine;
 namespace UltraFunGuns
 {
     [UFGWeapon("Gigahammer", "Giga Hammer", 0, true, WeaponIconColor.Red)]
+    [WeaponAbility("Smash", "Press <color=orange>Fire 1</color> to smack things with a giant hammer.", 0, RichTextColors.aqua)]
     public class ColossalHammer : UltraFunGunBase
     {
         private Animator anim;
 
         private float charge;
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float chargeRate = 0.1f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float hitstop = 0.05f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float camShake = 0.5f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float maxCharge = 1f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float maxRange = 4f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float minCharge = 0.3f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float fireDelay = 0.15f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float damage = 4f;
 
-        [Configgable("TEST/GigaHammer")]
+        [Configgable("Weapons/GigaHammer")]
         private static float scalar = 1f;
 
         [UFGAsset("CrowbarHitEnemy")]

@@ -9,6 +9,9 @@ namespace UltraFunGuns.Patches
     [HarmonyPatch(typeof(CanvasController))]
     public static class InstanceUIComponents
     {
+        [UFGAsset("VoxelHandOverlay")]
+        private static GameObject voxelHandOverlay;
+
         public static RectTransform Rect { get; private set; }
 
         [HarmonyPatch("Awake"), HarmonyPostfix]
@@ -16,6 +19,8 @@ namespace UltraFunGuns.Patches
         {
             Rect = __instance.GetComponent<RectTransform>();
             RectTransform rt = __instance.GetComponent<RectTransform>();
+
+            GameObject voxelHandOverlayInstance = GameObject.Instantiate<GameObject>(voxelHandOverlay, rt);
         }
     }
 }

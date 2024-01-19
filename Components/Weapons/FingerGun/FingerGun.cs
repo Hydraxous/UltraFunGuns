@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Configgy;
 
 namespace UltraFunGuns
 {
@@ -29,21 +30,36 @@ namespace UltraFunGuns
                 }
             }
         }
-        public int maxAmmo = 8;
 
-        public int penetrations = 4;
 
-        public float forceMultiplier = 5.0f;
-        public float damageMultipler = 2.2f;
+        [Configgable("Weapons/Handgun")]
+        public static int maxAmmo = 8;
 
-        public float explosionRadius = 2.5f;
-        public float explosionDamageMultiplier = 0.5f;
+        [Configgable("Weapons/Handgun")]
+        public static int penetrations = 4;
+
+        [Configgable("Weapons/Handgun")]
+        public static float forceMultiplier = 5.0f;
+
+
+        [Configgable("Weapons/Handgun")]
+        public static float damageMultipler = 2.2f;
+
+        [Configgable("Weapons/Handgun")]
+        public static float explosionRadius = 2.5f;
+        
+        [Configgable("Weapons/Handgun")]
+        public static float explosionDamageMultiplier = 0.5f;
 
         private bool reloading = false;
         private bool shooting = false;
 
-        public float hitRayWidth = 0.5f;
-        private float maxRange = 350.0f;
+
+        [Configgable("Weapons/Handgun")]
+        public static float hitRayWidth = 0.5f;
+
+        [Configgable("Weapons/Handgun")]
+        private static float maxRange = 350.0f;
 
         private Text ammoCounter;
 

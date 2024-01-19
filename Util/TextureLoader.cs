@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using HydraDynamics;
+using UnityEngine.Networking;
 
 namespace UltraFunGuns.Util
 {
@@ -12,7 +11,7 @@ namespace UltraFunGuns.Util
     {
         public static string GetTextureFolder()
         {
-            return HydraDynamics.DataPersistence.DataManager.GetDataPath("tex");
+            return Path.Combine(Paths.DataFolder, "Textures");
         }
 
         private static Texture2D[] cachedTextures = new Texture2D[0];
@@ -53,6 +52,35 @@ namespace UltraFunGuns.Util
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
             }
             File.WriteAllBytes(path, bytes);
+        }
+
+        public static void DownloadTexture(string url, Action<TextureDownloadResult> onComplete)
+        {
+            StaticCoroutine.RunCoroutine(DownloadImageCoroutine(url, onComplete));
+        }
+
+        private static IEnumerator DownloadImageCoroutine(string url, Action<TextureDownloadResult> onComplete)
+        {
+            using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(url))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError)
+                {
+                    onComplete.Invoke(new TextureDownloadResult() { Success = false });
+                }
+                else 
+                {
+                    Texture2D tex = DownloadHandlerTexture.GetContent(www);
+                    onComplete.Invoke(new TextureDownloadResult() { Success = true, Texture = tex });
+                }
+            }
+        }
+
+        public struct TextureDownloadResult
+        {
+            public bool Success;
+            public Texture2D Texture;
         }
 
         public static bool TryLoadTexture(string path, out Texture2D tex, bool checkerIfNull = false)

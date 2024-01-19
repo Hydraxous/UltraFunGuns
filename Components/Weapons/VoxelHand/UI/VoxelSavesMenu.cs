@@ -50,6 +50,7 @@ namespace UltraFunGuns
             selectionMenu = GetComponentInParent<VoxelSelectionMenu>();
 
             inspector = GetComponentInChildren<VoxelFileInspector>(true);
+            inspector.SetMenu(this);
             inspector.gameObject.SetActive(false);
 
             listViewPanel = LocateComponent<RectTransform>("ListView").gameObject;
@@ -285,8 +286,8 @@ namespace UltraFunGuns
         public void NewFile()
         {
             InitializeReferences();
-
             listViewPanel.SetActive(false);
+            
             inspector.Open();
             inspector.CreationMode();
         }

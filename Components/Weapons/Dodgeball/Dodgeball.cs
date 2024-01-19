@@ -4,6 +4,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UltraFunGuns.Datas;
+using Configgy;
 
 namespace UltraFunGuns
 {
@@ -29,16 +30,24 @@ namespace UltraFunGuns
         private bool chargingBall = false;
 
         public bool dodgeBallActive = false;
-        public float throwForce = 90.0f;
-        public float softThrowForce = 30.0f;
 
-        public float pullForce = 150.0f;
+        [Configgable("Weapons/Dodgeball")]
+        public static float throwForce = 90.0f;
 
-        private float chargeMultiplier = 1.42f;
+        [Configgable("Weapons/Dodgeball")]
+        public static float softThrowForce = 30.0f;
 
-        private float minCharge = 1.0f;
+        [Configgable("Weapons/Dodgeball")]
+        public static float pullForce = 150.0f;
+
+        [Configgable("Weapons/Dodgeball")]
+        private static float chargeMultiplier = 1.42f;
+
+        [Configgable("Weapons/Dodgeball")]
+        private static float minCharge = 1.0f;
         private float currentCharge = 1.0f;
-        private float maxCharge = 4.0f;
+        [Configgable("Weapons/Dodgeball")]
+        private static float maxCharge = 4.0f;
 
         private float pullTimer = 0.0f;
 

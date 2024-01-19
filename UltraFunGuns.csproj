@@ -97,6 +97,9 @@
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
+	<Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
 	<Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
@@ -111,9 +114,6 @@
 	</Reference>
 	<Reference Include="NewBlood">
 		<HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\NewBlood.LegacyInput.dll</HintPath>
-	</Reference>
-	<Reference Include="HydraDynamics">
-		<HintPath>$(ULTRAKILLPath)\BepInEx\plugins\HydraDynamics\HydraDynamics.dll</HintPath>
 	</Reference>
 	<Reference Include="Configgy">
 		<HintPath>$(ULTRAKILLPath)\BepInEx\plugins\Configgy\Configgy.dll</HintPath>

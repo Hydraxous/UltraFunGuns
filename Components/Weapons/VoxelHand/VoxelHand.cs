@@ -1,9 +1,13 @@
-﻿using UltraFunGuns.Patches;
+﻿using System.Collections.Generic;
+using UltraFunGuns.Patches;
 using UnityEngine;
 
 namespace UltraFunGuns
 {
     [UFGWeapon("VoxelHand", "Architect's Hand", 0, true, WeaponIconColor.Green, true)]
+    [WeaponAbility("Manifest", "Press <color=orange>Fire 1</color> to manifest voxels.", 0, RichTextColors.aqua)]
+    [WeaponAbility("Obliterate", "Press <color=orange>Fire 2</color> to obliterate voxels.", 1, RichTextColors.lime)]
+    [WeaponAbility("Summon World", "Press <color=orange>Secret</color> to summon world.", 3, RichTextColors.yellow)]
     public class VoxelHand : UltraFunGunBase
     {
         [Configgy.Configgable("Weapons/Architects Hand")]
@@ -34,14 +38,18 @@ namespace UltraFunGuns
 
         private GameObject selectionVisual;
         private VoxelHandReferences parts;
+        private VoxelHandOverlay overlay;
 
         int anim_Equip = Animator.StringToHash("Equip");
         int anim_Place = Animator.StringToHash("Place");
         int anim_Punch = Animator.StringToHash("Punch");
 
+
         public override void OnAwakeFinished()
         {
             parts = GetComponent<VoxelHandReferences>();
+            overlay = GameObject.FindObjectOfType<VoxelHandOverlay>();
+            overlay.SetOpen(gameObject.activeInHierarchy);
         }
 
         private void Start()
@@ -151,7 +159,50 @@ namespace UltraFunGuns
             if (currentVoxelData == null)
                 InteractAction();
             else
-                PlaceBlockAction();
+            {
+                //if (Input.GetKey(KeyCode.LeftAlt))
+                //    PlaceNormalLayer();
+                //else
+                    PlaceBlockAction();
+            }
+        }
+
+        private void PlaceNormalLayer()
+        {
+            if (currentVoxelData == null)
+                return;
+
+            if (!Physics.Raycast(mainCam.position, mainCam.forward, out RaycastHit hit, interactRange, LayerMaskDefaults.Get(LMD.Environment)))
+                return;
+
+            Vector3 samplePosition = hit.point + hit.normal * placeBlockFaceOffset;
+            Vector3 gridPosition = VoxelLocation.SnapToWorldGrid(samplePosition);
+
+            VoxelLocation location = new VoxelLocation(gridPosition);
+
+            Vector3 inversePosition = hit.point - (hit.normal * placeBlockFaceOffset);
+            Vector3 inverseGrid = VoxelLocation.SnapToWorldGrid(inversePosition);
+
+            VoxelLocation blockLocation = new VoxelLocation(inverseGrid);
+
+            Vector3Int normal = location.Coordinate - blockLocation.Coordinate;
+
+            if (VoxelWorld.CheckVoxelCollision(gridPosition))
+                return;
+            
+            PlaceNormalLayer(location, currentVoxelData, normal);
+
+            if (currentVoxelData.Sound != null)
+                AudioSource.PlayClipAtPoint(currentVoxelData.Sound, gridPosition);
+
+            animator?.Play(anim_Place, 0, 0);
+        }
+
+        private void PlaceNormalLayer(VoxelLocation location, VoxelData data, Vector3Int normal)
+        {
+            const int MAX_PLACE = 256;
+            int placed = 0;
+            //TODO
         }
 
         private void InteractAction()
@@ -182,6 +233,7 @@ namespace UltraFunGuns
 
         private void HandleDebugSerialization()
         {
+            return;
             if(Input.GetKeyDown(KeyCode.PageDown))
             {
                 VoxelWorld.SaveCurrentWorld();
@@ -248,7 +300,9 @@ namespace UltraFunGuns
 
             if(palette == null)
             {
-                palette = GameObject.Instantiate(VoxelSelectionMenu.VoxelSelectionMenuPrefab, InstanceUIComponents.Rect).GetComponent<VoxelSelectionMenu>();
+                palette = GameObject.FindObjectOfType<VoxelSelectionMenu>();
+                if(palette == null)
+                    palette = GameObject.Instantiate(VoxelSelectionMenu.VoxelSelectionMenuPrefab, InstanceUIComponents.Rect).GetComponent<VoxelSelectionMenu>();
                 palette.SetVoxelHand(this);
             }
 
@@ -283,6 +337,9 @@ namespace UltraFunGuns
 
             if(lastVoxelData != voxel)
                 animator?.Play(anim_Equip, 0, 0);
+
+            if (overlay != null)
+                overlay.UpdateBlockText(voxel);
         }
 
         private void PlaceBlockAction()
@@ -371,17 +428,25 @@ namespace UltraFunGuns
         private void OnEnable()
         {
             animator?.Play(anim_Equip, 0, 0);
+            if (overlay != null)
+                overlay.SetOpen(true);
         }
 
         private void OnDisable()
         {
             GetSelectionVisual().SetActive(false);
+            if (overlay != null)
+                overlay.SetOpen(false);
+
         }
 
         private void OnDestroy()
         {
             if(selectionVisual != null)
                 Destroy(selectionVisual);
+
+            if (overlay != null)
+                overlay.SetOpen(false);
         }
 
     }

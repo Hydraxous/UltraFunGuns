@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+﻿using BepInEx.Bootstrap;
+using System;
 using System.IO;
-using UnityEngine.SceneManagement;
-using BepInEx;
-using BepInEx.Bootstrap;
 using System.Reflection;
-using System.Linq;
-using UltraFunGuns.Datas;
-using HydraDynamics.DataPersistence;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UltraFunGuns
 {

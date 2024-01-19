@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("TrainGun", "Conductor", 2, true, WeaponIconColor.Red)]
+    [UFGWeapon("TrainGun", "Conductor", 2, true, WeaponIconColor.Red, false)]
     public class TrainGun : UltraFunGunBase
     {
         [UFGAsset("TrainGun_Train")] private static GameObject TrainPrefab;

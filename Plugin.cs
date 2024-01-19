@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using Configgy;
 using HarmonyLib;
-using HydraDynamics;
 using System;
 using System.Collections;
 using UltraFunGuns.Patches;
@@ -10,9 +9,7 @@ using UltraFunGuns.Util;
 namespace UltraFunGuns
 {
     [BepInDependency("Hydraxous.ULTRAKILL.Configgy", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("Hydraxous.HydraDynamics", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(ConstInfo.GUID, ConstInfo.NAME, ConstInfo.VERSION)]
-    [HydynamicsInfo(ConstInfo.NAME, ConstInfo.GUID, ConstInfo.VERSION)]
     [BepInProcess("ULTRAKILL.exe")]
     public class UltraFunGuns : BaseUnityPlugin
     {
@@ -51,13 +48,12 @@ namespace UltraFunGuns
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
                     config.Build();
-                    Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
+                    Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_VERSION_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();
                     CustomPlacedObjects.CustomPlacedObjectManager.Init();
                     NoHighScorePatch.Init();
                     Commands.Register();
-                    FreecamAssist.Init();
                     TextureLoader.Init();
                     HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
                     gameObject.AddComponent<DebuggingDummy>();

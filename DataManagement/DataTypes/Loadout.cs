@@ -1,9 +1,4 @@
-﻿using HydraDynamics.DataPersistence;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UltraFunGuns
+﻿namespace UltraFunGuns
 {
     [System.Serializable]
     public class Loadout : Validatable

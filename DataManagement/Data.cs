@@ -1,14 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.IO;
-using System;
-using UnityEngine;
 using System.Reflection;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using GameConsole;
-using UltraFunGuns.Datas;
-using HydraDynamics.DataPersistence;
-using HydraDynamics;
 
 namespace UltraFunGuns
 {
@@ -67,7 +59,7 @@ namespace UltraFunGuns
         public static void CheckSetup()
         {
             InGameCheck.OnLevelChanged += (_) => SaveAll();
-            DirectoryInfo dataFolderInfo = new DirectoryInfo(DataManager.GetDataPath());
+            DirectoryInfo dataFolderInfo = new DirectoryInfo(Paths.DataFolder);
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
                 FirstTimeSetup();
