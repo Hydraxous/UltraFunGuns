@@ -27,8 +27,6 @@
             "- Added configurable values for most weapons\n" +
             "- Added new weapon GigaHammer\n" +
             "- Added new weapon Architect's Hand and Voxel System\n" +
-            "- Added new weapon Conductor\n" +
-            "- Added new weapon Bowler\n" +
             "- Added an extra damage boost when shooting Guttertanks with the ULTRAGUN\n" +
             "- Added new info page in inventory menu.\n" +
             "- Removed one Hydra plushie from credits museum\n" +
