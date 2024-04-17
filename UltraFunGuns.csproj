@@ -35,88 +35,88 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>libs\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Unity.InputSystem">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.InputSystem.dll</HintPath>
+      <HintPath>libs\Managed\Unity.InputSystem.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>libs\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.AIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.GridModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.GridModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.GridModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.InputModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextCoreModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.TextCoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
 	<Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
 	<Reference Include="UnityEngine.UnityWebRequestTextureModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
     </Reference>
 	<Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>libs\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
 	<Reference Include="UnityEngine.Addressables">
-	  <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.Addressables.dll</HintPath>
+	  <HintPath>libs\Managed\Unity.Addressables.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEngine.ResourceManager">
-	  <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Unity.ResourceManager.dll</HintPath>
+	  <HintPath>libs\Managed\Unity.ResourceManager.dll</HintPath>
 	</Reference>
 	<Reference Include="BepInEx">
-		<HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
+		<HintPath>libs\BepInEx\BepInEx.dll</HintPath>
 	</Reference>
 	<Reference Include="NewBlood">
-		<HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\NewBlood.LegacyInput.dll</HintPath>
+		<HintPath>libs\Managed\NewBlood.LegacyInput.dll</HintPath>
 	</Reference>
 	<Reference Include="Configgy">
-		<HintPath>$(ULTRAKILLPath)\BepInEx\plugins\Configgy\Configgy.dll</HintPath>
+		<HintPath>libs\Other\Configgy.dll</HintPath>
 	</Reference>
   </ItemGroup>
 
@@ -151,7 +151,7 @@
     <Error Condition="!Exists($(ULTRAKILLPath))" Text="ULTRAKILLPath not set, create a .csproj.user file that sets this property to compile" />
   </Target>
   <Target Name="CopyModDlls" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(ULTRAKILLPath)\BepInEx\Plugins\UFG\" />
+    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="libs\BepInEx\Plugins\UFG\" />
   </Target>
   <Target Name="CopyModDlls2" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(UnityKitPath)" />
