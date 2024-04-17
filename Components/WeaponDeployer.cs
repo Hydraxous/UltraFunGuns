@@ -73,7 +73,7 @@ namespace UltraFunGuns
         }
 
         //TODO optimization
-        public void DeployWeapons(bool firstTime = false)
+        public void DeployWeapons()
         {
             DisposeWeapons();
 

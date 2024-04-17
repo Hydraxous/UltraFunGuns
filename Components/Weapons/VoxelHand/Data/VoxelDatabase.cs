@@ -26,6 +26,9 @@ namespace UltraFunGuns
 
         private static Dictionary<string, VoxelData> voxelRegistry;
         private static Dictionary<string, VoxelData> customBlocks = new Dictionary<string, VoxelData>();
+        private static Dictionary<string, VoxelData> placeholderDatas = new Dictionary<string, VoxelData>();
+
+        private static HashSet<string> checkedPathes = new HashSet<string>();
 
         //Blacklisted from being in the usable pool
         //TODO move this to the UI Code when able.
@@ -65,7 +68,7 @@ namespace UltraFunGuns
             Application.OpenURL($"file://{customVoxelsFolder}");
         }
 
-        public static void ImportCustomBlocksAsync(Action onComplete)
+        public static void ImportCustomBlocksAsync()
         {
             if (IsImportingTextures)
                 return;
@@ -92,6 +95,7 @@ namespace UltraFunGuns
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.png", SearchOption.AllDirectories));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpg", SearchOption.AllDirectories));
             pathes.AddRange(Directory.GetFiles(customVoxelsFolder, "*.jpeg", SearchOption.AllDirectories));
+
             if (useCyberGrindTextures.Value)
             {
                 pathes.AddRange(Directory.GetFiles(cyberGrindTextureFolder, "*.png", SearchOption.AllDirectories));
@@ -107,8 +111,10 @@ namespace UltraFunGuns
                 TextureImportProgress = (float)indexProcessed / ((float)totalCount);
                 ++indexProcessed;
 
-                if (loadedTextures.ContainsKey(path))
+                if (loadedTextures.ContainsKey(path) || checkedPathes.Contains(path))
                     continue;
+
+                checkedPathes.Add(path);
 
                 yield return new WaitForEndOfFrame();
 
@@ -186,17 +192,20 @@ namespace UltraFunGuns
             customBlocks.Add(voxelData.ID, voxelData);
         }
 
+
         private static void InitializeVoxelDatabase()
         {
             ImportPackagedVoxels();
-            ImportCustomBlocksAsync(null);
-
-            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            ImportCustomBlocksAsync();
         }
 
-        private static void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+        public static void Flush()
         {
-            ImportCustomBlocksAsync(null);
+            builtInVoxelData = null;
+            voxelRegistry = null;
+            customBlocks.Clear();
+            loadedTextures.Clear();
+            checkedPathes.Clear();
         }
 
         public static VoxelData GetVoxelData(string id)
@@ -216,7 +225,27 @@ namespace UltraFunGuns
         //Used for custom blocks, fe they dont exist anymore.
         public static VoxelData GetPlaceholderVoxelData(string id)
         {
-            return new VoxelData(id, id, VoxelMaterialManager.GetDefaultMaterial(), defaultClip);
+            if (!placeholderDatas.ContainsKey(id))
+            {
+                VoxelData placeholderData = new VoxelData(id, id, VoxelMaterialManager.GetDefaultMaterial(), defaultClip);
+                placeholderDatas.Add(id, placeholderData);
+            }
+            
+            return placeholderDatas[id];
         }
+
+        public static bool VoxelIsPlaceholder(VoxelData voxelData)
+        {
+            return placeholderDatas.ContainsKey(voxelData.ID);
+        }
+
+        public static bool VoxelExists(string id)
+        {
+            if (voxelRegistry == null)
+                InitializeVoxelDatabase();
+
+            return voxelRegistry.ContainsKey(id) || customBlocks.ContainsKey(id);
+        }
+
     }
 }

@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 namespace UltraFunGuns.Patches
 {
-    //TODO also  fix red revolver beam patch bc it fucking broke bruh
     //VariationColoredRenders.Length is called in OnEnable. If the component is added programatically like in UltraFunGunBase, it will throw a null reference error. This fixes that.
     [HarmonyPatch(typeof(WeaponIcon), "OnEnable")]
     public static class WeaponIconFix

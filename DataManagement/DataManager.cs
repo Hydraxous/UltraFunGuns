@@ -21,6 +21,9 @@ namespace UltraFunGuns
                 return;
             }
 
+            if(!Directory.Exists(Paths.DataFolder))
+                Directory.CreateDirectory(Paths.DataFolder);
+
             string serializedData = JsonConvert.SerializeObject(data.Data, data.Formatting);
             string dataFilePath = Path.Combine(Paths.DataFolder, data.FileName);
             File.WriteAllText(dataFilePath, serializedData);

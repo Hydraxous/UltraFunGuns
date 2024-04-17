@@ -268,7 +268,6 @@ namespace UltraFunGuns
                         if(eid2 != eid)
                         {
                             GuidedLob(homingTarget,Vector3.up*0.25f);
-                            //LobAtTarget(homingTarget.position);
                         }
                     }else
                     {
@@ -315,7 +314,6 @@ namespace UltraFunGuns
 
         private void LobAtTarget(Vector3 target)
         {
-            //Vector3 newVelocity = HydraUtils.GetVelocityTrajectory(transform.position, target, brickShooter.BrickParryFlightTime);
             Trajectory brickTrajectory = new Trajectory(transform.position, target, brickShooter.BrickParryFlightTime/(enemyParries+1));
             Vector3 newVelocity = brickTrajectory.GetRequiredVelocity();
             rb.velocity = newVelocity;
@@ -403,7 +401,6 @@ namespace UltraFunGuns
             if (EnemyTools.TryGetHomingTarget(transform.position, out Transform homingTarget, out EnemyIdentifier eid))
             {
                 GuidedLob(homingTarget);
-                //LobAtTarget(homingTarget.position);
             }
             else
             {

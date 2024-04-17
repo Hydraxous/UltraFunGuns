@@ -281,10 +281,6 @@ namespace UltraFunGuns
                 return;
             }
 
-            //OptionsManager.Instance.paused = false;
-            //CameraController.Instance.enabled = true;
-            //Time.timeScale = 1f;
-            //GameStateManager.Instance.PopState(voxelSelectGameState.key);
             container.SetActive(false);
         }
 
@@ -303,7 +299,6 @@ namespace UltraFunGuns
             instancedButtons.Clear();
         }
 
-        //TODO this is horrid. Assumes the VoxelHand calls OpenMenu and provides it's SetHeldVoxel method as onSelect. Disgusting... Fix this. she dont know sry.
         public void Button_DeselectHeldVoxel()
         {
             voxelHand?.SetHeldVoxel(null);
@@ -314,7 +309,7 @@ namespace UltraFunGuns
             if (VoxelDatabase.IsImportingTextures)
                 return;
 
-            VoxelDatabase.ImportCustomBlocksAsync(null);
+            VoxelDatabase.ImportCustomBlocksAsync();
         }
 
         public void Button_OpenCustomVoxelFolder()

@@ -18,6 +18,12 @@ namespace UltraFunGuns
         [Configgy.Configgable("Voxel/World")]
         private static int maxBlocks = 10000;
 
+        [Configgable("Voxel/Advanced", "Clear Texture Cache On Scene Changed", description:FLUSH_TEXTURE_ON_SCENE_CHANGE_DESCRIPTION)]
+        private static ConfigToggle flushTextureCacheOnSceneChanged = new ConfigToggle(true);
+
+        private const string FLUSH_TEXTURE_ON_SCENE_CHANGE_DESCRIPTION = 
+            "When the scene changes, textures get flushed to restore the memory used by them. Disabling this will keep the textures loaded at the cost of high memory usage.";
+
         public static float WorldScale => worldScale.Value;
         public static int MaxBlocks => maxBlocks;
 
@@ -69,7 +75,9 @@ namespace UltraFunGuns
             }
 
             worldScale.OnValueChanged += OnWorldScaleChanged;
+            VoxelDatabase.OnCustomBlocksUpdated += FixPlaceholders;
         }
+
 
         //lol
         public static bool QueryInstance()
@@ -220,6 +228,30 @@ namespace UltraFunGuns
             PopulateWorld(data);
         }
 
+
+        private void FixPlaceholders()
+        {
+            foreach (KeyValuePair<Vector3Int, Voxel> voxel in voxelData)
+            {
+                if (voxel.Value == null)
+                    continue;
+
+                Voxel vox = voxel.Value;
+                if (vox.VoxelData == null)
+                    continue;
+
+                VoxelData data = vox.VoxelData;
+                if (!VoxelDatabase.VoxelIsPlaceholder(data))
+                    continue;
+
+                if(VoxelDatabase.VoxelExists(data.ID))
+                {
+                    VoxelData realData = VoxelDatabase.GetVoxelData(data.ID);
+                    vox.SetVoxelData(realData);
+                }
+            }
+        }
+
         private static void PopulateWorld(VoxelWorldFile worldData)
         {
             if (worldData == null)
@@ -238,7 +270,6 @@ namespace UltraFunGuns
                 if (voxelData == null)
                 {
                     voxelData = VoxelDatabase.GetPlaceholderVoxelData(voxel.id);
-                    VoxelDatabase.RegisterCustomVoxelData(voxelData);
                 }
 
                 IVoxelState voxelState = null;
@@ -355,11 +386,19 @@ namespace UltraFunGuns
             instance.voxelData = instance.voxelData.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
         }
 
+        
+
         private void OnDestroy()
         {
             _instance = null;
             worldScale.OnValueChanged -= OnWorldScaleChanged;
-        }
+            VoxelDatabase.OnCustomBlocksUpdated -= FixPlaceholders;
 
+            if (flushTextureCacheOnSceneChanged.Value)
+            {
+                if (SceneHelper.PendingScene != SceneHelper.CurrentScene)
+                    VoxelDatabase.Flush();
+            }
+        }
     }
 }

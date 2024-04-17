@@ -121,7 +121,6 @@ namespace UltraFunGuns
                 menu.Open();
             });
 
-            //guh this is still broken TODO
             fileNameInputField.SetTextWithoutNotify(Path.GetFileNameWithoutExtension(header.FilePath));
             fileNameInputField.onEndEdit.RemoveAllListeners();
             fileNameInputField.onValueChanged.RemoveAllListeners();
@@ -285,7 +284,6 @@ namespace UltraFunGuns
 
             fileNameInputField = LocateComponent<InputField>("InputField_FileName");
             
-
             descriptionInputField = LocateComponent<InputField>("InputField_WorldDescription");
             descriptionInputField.characterLimit = MAX_DESCRIPTION_CHARACTERS;
 

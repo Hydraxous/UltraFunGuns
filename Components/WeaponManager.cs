@@ -45,7 +45,7 @@ namespace UltraFunGuns
                 }
             }
 
-            deployer.DeployWeapons(firstTime);
+            deployer.DeployWeapons();
         }
 
         private static void OnLevelChanged(InGameCheck.UKLevelType levType)
