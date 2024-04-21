@@ -148,13 +148,4 @@
     <Folder Include="Resources\TextFiles\" />
   </ItemGroup>
 
-  <Target Name="WarnBeforeBuild" BeforeTargets="BeforeBuild">
-    <Error Condition="!Exists($(ULTRAKILLPath))" Text="ULTRAKILLPath not set, create a .csproj.user file that sets this property to compile" />
-  </Target>
-  <Target Name="CopyModDlls" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="libs\BepInEx\Plugins\UFG\" />
-  </Target>
-  <Target Name="CopyModDlls2" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(UnityKitPath)" />
-  </Target>
 </Project>
