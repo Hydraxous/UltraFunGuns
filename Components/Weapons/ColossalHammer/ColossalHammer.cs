@@ -16,13 +16,13 @@ namespace UltraFunGuns
 
         private float charge;
         [Configgable("Weapons/GigaHammer")]
-        private static float chargeRate = 0.1f;
+        private static float chargeRate = 1f;
 
         [Configgable("Weapons/GigaHammer")]
-        private static float hitstop = 0.05f;
+        private static float hitstop = 0.06f;
 
         [Configgable("Weapons/GigaHammer")]
-        private static float camShake = 0.5f;
+        private static float camShake = 0.75f;
 
         [Configgable("Weapons/GigaHammer")]
         private static float maxCharge = 1f;
@@ -31,13 +31,13 @@ namespace UltraFunGuns
         private static float maxRange = 4f;
 
         [Configgable("Weapons/GigaHammer")]
-        private static float minCharge = 0.3f;
+        private static float minCharge = 0.6f;
 
         [Configgable("Weapons/GigaHammer")]
-        private static float fireDelay = 0.15f;
+        private static float fireDelay = 0.14f;
 
         [Configgable("Weapons/GigaHammer")]
-        private static float damage = 4f;
+        private static float damage = 15f;
 
         [Configgable("Weapons/GigaHammer")]
         private static float scalar = 1f;

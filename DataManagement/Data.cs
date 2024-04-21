@@ -65,6 +65,14 @@ namespace UltraFunGuns
                 FirstTimeSetup();
                 HydraLogger.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
             }
+
+            Paths.CheckFolders();
+
+            string voxelReadmeFilePath = Path.Combine(Paths.VoxelBlockTexturesFolder, nameof(Properties.Resources.customvoxels_readme)+".txt");
+            
+            if (!File.Exists(voxelReadmeFilePath))
+                File.WriteAllText(voxelReadmeFilePath, Properties.Resources.customvoxels_readme);
+
         }
 
         public static string GetDataPath(params string[] subpath)

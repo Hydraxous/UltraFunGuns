@@ -59,6 +59,7 @@ namespace UltraFunGuns
             rb = GetComponent<Rigidbody>();
            
             animator = GetComponent<Animator>();
+            //DISGUSTING
             ballMesh = transform.Find("DodgeballMesh");
             bigHitSound = transform.Find("Audios/BigHit").GetComponent<AudioSource>();
             homingSound = transform.Find("Audios/HomingSound").GetComponent<AudioSource>();
@@ -76,7 +77,7 @@ namespace UltraFunGuns
             homingSound.Play();
             homingSound.Pause();
 
-            //Fix stupid hitreg.
+            //Fix stupid beam hitreg.
             GameObject hitbox = transform.Find("LimbHitbox").gameObject;
             hitbox.tag = "Breakable";
         }
@@ -413,6 +414,7 @@ namespace UltraFunGuns
 
         private void OnTriggerEnter(Collider col)
         {
+            //why he check name??!?!
             if(col.gameObject.name == "DodgeballCatcher")
             {
                 StopHomingAttack();

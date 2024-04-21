@@ -313,7 +313,7 @@ namespace UltraFunGuns
             float damageValue = (IsDivision) ? Damage * divisionScale : Damage;
             damageValue = (Supercharged) ? damageValue * 1.5f : damageValue;   
 
-            //Petty damage boost for guttertank, bc I hate them :)
+            //Guttertank can have double damage as a treat
             if(eid.enemyType == EnemyType.Guttertank)
             {
                 damageValue *= 2f;

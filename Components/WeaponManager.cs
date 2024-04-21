@@ -45,7 +45,7 @@ namespace UltraFunGuns
                 }
             }
 
-            deployer.DeployWeapons(firstTime);
+            deployer.DeployWeapons();
         }
 
         private static void OnLevelChanged(InGameCheck.UKLevelType levType)
@@ -80,36 +80,36 @@ namespace UltraFunGuns
 
         private static void InitStyleItems()
         {
-            NewStyleItem("vaporized", "<color=cyan>VAPORIZED</color>");
-            NewStyleItem("vibecheck", "VIBE-CHECKED");
-            NewStyleItem("v2kill", "<color=#ff33001>OXIDIZED</color>");
-            NewStyleItem("gabrielkill", "<color=#ff0051>L-DISTRIBUTED</color>");
-            NewStyleItem("wickedkill", "<color=#919191>NOT WICKED ENOUGH</color>");
-            NewStyleItem("minoskill", "<color=#03ffa7>JUDGED</color>");
-            NewStyleItem("orbited", "ORBITAL LAUNCH");
-            NewStyleItem("egged", "EGGED");
-            NewStyleItem("eggstrike", "TACTICAL EGG STRIKE");
-            NewStyleItem("eggsplosion", "<color=yellow>EGGSPLOSION</color>");
-            NewStyleItem("refractionhit", "BUG ZAPPER");
-            NewStyleItem("discohit", "DISCO INFERNO");
-            NewStyleItem("dodgeballhit", "OUTPLAYED");
-            NewStyleItem("dodgeballparry", "BOOST BALL");
-            NewStyleItem("dodgeballparryhit", "<color=orange>SLAM DUNK</color>");
-            NewStyleItem("dodgeballreversehit", "REBOUND");
-            NewStyleItem("fingergunhit", "BANG'D");
-            NewStyleItem("fingergunfullpenetrate", "<color=cyan>KABOOMA!</color>");
-            NewStyleItem("fingergunprojhit", "DENIAL");
-            NewStyleItem("admingunkill", "<color=red>GAMING CHAIR</color>");
-            NewStyleItem("brickmindkill", "<color=orange>SOUL ASSIMILATION</color>");
-            NewStyleItem("brickparrykill", "BRICKED");
-            NewStyleItem("tricksniperquickscope", "QUICKSCOPE");
-            NewStyleItem("tricksniper360", "<color=cyan>TRICKSHOT</color>");
-            NewStyleItem("tricksnipernoscope", "<color=orange>NOSCOPE</color>");
-            NewStyleItem("tricksniperbankshot", "<color=orange>BANKSHOT</color>");
-            NewStyleItem("ultragunsuperchargekill", "<color=cyan>EXPRESS BILLING</color>");
-            NewStyleItem("ultragunkill", "BILLED");
-            NewStyleItem("ultragunrainkill", "<color=red>WHAT GOES UP</color>");
-            NewStyleItem("ultragunaerialkill", "DEATH FROM ABOVE");
+            NewStyleItem("vaporized", CustomStyleDefinitions.VAPORIZED);
+            NewStyleItem("vibecheck", CustomStyleDefinitions.VIBE_CHECK);
+            NewStyleItem("v2kill", CustomStyleDefinitions.V2_KILL);
+            NewStyleItem("gabrielkill", CustomStyleDefinitions.GABRIEL_KILL);
+            NewStyleItem("wickedkill", CustomStyleDefinitions.WICKED_KILL);
+            NewStyleItem("minoskill", CustomStyleDefinitions.MINOS_KILL);
+            NewStyleItem("orbited", CustomStyleDefinitions.ORBITED);
+            NewStyleItem("egged", CustomStyleDefinitions.EGGED);
+            NewStyleItem("eggstrike", CustomStyleDefinitions.EGG_STRIKE);
+            NewStyleItem("eggsplosion", CustomStyleDefinitions.EGG_SPLOSION);
+            NewStyleItem("refractionhit", CustomStyleDefinitions.LASER_REFRACTION_HIT);
+            NewStyleItem("discohit", CustomStyleDefinitions.LASER_DISCO_HIT);
+            NewStyleItem("dodgeballhit", CustomStyleDefinitions.DODGEBALL_HIT);
+            NewStyleItem("dodgeballparry", CustomStyleDefinitions.DODGEBALL_PARRY);
+            NewStyleItem("dodgeballparryhit", CustomStyleDefinitions.DODGEBALL_PARRY_HIT);
+            NewStyleItem("dodgeballreversehit", CustomStyleDefinitions.DODGEBALL_REVERSE_HIT);
+            NewStyleItem("fingergunhit", CustomStyleDefinitions.FINGER_GUN_HIT);
+            NewStyleItem("fingergunfullpenetrate", CustomStyleDefinitions.FINGER_GUN_PENETRATE);
+            NewStyleItem("fingergunprojhit", CustomStyleDefinitions.FINGER_GUN_PROJECTILE_HIT);
+            NewStyleItem("admingunkill", CustomStyleDefinitions.ADMIN_GUN_KILL);
+            NewStyleItem("brickmindkill", CustomStyleDefinitions.BRICK_MIND_KILL);
+            NewStyleItem("brickparrykill", CustomStyleDefinitions.BRICK_PARRY_KILL);
+            NewStyleItem("tricksniperquickscope", CustomStyleDefinitions.TRICKSNIPER_QUICKSCOPE);
+            NewStyleItem("tricksniper360", CustomStyleDefinitions.TRICKSNIPER_360);
+            NewStyleItem("tricksnipernoscope", CustomStyleDefinitions.TRICKSNIPER_NOSCOPE);
+            NewStyleItem("tricksniperbankshot", CustomStyleDefinitions.TRICKSNIPER_BANKSHOT);
+            NewStyleItem("ultragunsuperchargekill", CustomStyleDefinitions.ULTRAGUN_SUPERCHARGE_KILL);
+            NewStyleItem("ultragunkill", CustomStyleDefinitions.ULTRAGUN_KILL);
+            NewStyleItem("ultragunrainkill", CustomStyleDefinitions.ULTRAGUN_RAIN_KILL);
+            NewStyleItem("ultragunaerialkill", CustomStyleDefinitions.ULTRAGUN_AERIAL_KILL);
 
         }
 

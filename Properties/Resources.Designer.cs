@@ -61,6 +61,20 @@ namespace UltraFunGuns.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to To add custom voxel textures, place images in this folder. Then press refresh custom voxels.
+        ///Please note:
+        ///- supported filetypes are .png .jpeg and .jpg
+        ///- non-square images are not supported
+        ///- custom transparent textures arent supported yet.
+        ///- changing the name of the image in the folder may break save files that use it..
+        /// </summary>
+        public static string customvoxels_readme {
+            get {
+                return ResourceManager.GetString("customvoxels_readme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] UltraFunGuns {
@@ -81,7 +95,7 @@ namespace UltraFunGuns.Properties {
         ///    &quot;Assets/Models/SisyphusPrime/SisyHeart.mat&quot;,
         ///    &quot;Assets/Data/Sandbox/Enemies/Mindflayer.asset&quot;,
         ///    &quot;Assets/Data/Sandbox/Enemies/Super Projectile Husk.asset&quot;,
-        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantes [rest of string was truncated]&quot;;.
+        ///    &quot;Assets/Sounds/Sisyphus Prime/sp_youcantescape.ogg&quot;, [rest of string was truncated]&quot;;.
         /// </summary>
         public static string UnhardendedBundlesJson {
             get {
