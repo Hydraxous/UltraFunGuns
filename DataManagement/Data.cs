@@ -70,6 +70,9 @@ namespace UltraFunGuns
 
             string voxelReadmeFilePath = Path.Combine(Paths.VoxelBlockTexturesFolder, nameof(Properties.Resources.customvoxels_readme)+".txt");
             
+            if (!Directory.Exists(Path.GetDirectoryName(voxelReadmeFilePath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(voxelReadmeFilePath));
+
             if (!File.Exists(voxelReadmeFilePath))
                 File.WriteAllText(voxelReadmeFilePath, Properties.Resources.customvoxels_readme);
 
