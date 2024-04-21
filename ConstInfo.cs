@@ -4,8 +4,8 @@
     {
         public const string NAME = "UltraFunGuns";
         public const string GUID = "Hydraxous.ULTRAKILL.UltraFunGuns";
-        public const string VERSION = "1.3.1";
-        public const string RELEASE_VERSION = "Release-1.3.1";
+        public const string VERSION = "1.3.2";
+        public const string RELEASE_VERSION = "Release-1.3.2";
         public const string GITHUB_VERSION_URL = "https://api.github.com/repos/Hydraxous/UltraFunGuns/tags";
         public const string GITHUB_URL = "https://github.com/Hydraxous/UltraFunGuns";
         public const string KOFI_URL = "https://ko-fi.com/Hydraxous/";
@@ -17,20 +17,9 @@
         public const string PROFILE_PICTURE_URL = "https://avatars.githubusercontent.com/hydraxous";
 
         public const string CHANGELOG =
-            "- Updated for Violence and fixed firing issues.\n" +
-            "- Updated coin integration to function properly\n" +
-            "- Updated Sharpshooter integration\n" +
-            "- Updated Revolver/Railgun integration\n" +
-            "- Added dependency Configgy\n" +
-            "- Removed UFG Keybinding menu\n" +
-            "- Removed dependency HydraDynamics\n" +
-            "- Added configurable values for most weapons\n" +
-            "- Added new weapon GigaHammer\n" +
-            "- Added new weapon Architect's Hand and Voxel System\n" +
-            "- Added an extra damage boost when shooting Guttertanks with the ULTRAGUN\n" +
-            "- Added new info page in inventory menu.\n" +
-            "- Removed one Hydra plushie from credits museum\n" +
-            "- Updated Basketball hoop to be easily togglable using Configgy.\n" +
-            "- Fixed info page";
+            "- Updated for Patch 15\n" +
+            "- Fixed Colossal Hammer default settings to function\n" +
+            "- Fixed style formatting errors\n" +
+            "- Moved data folder into BepInEx/config/UltraFunGuns";
     }
 }

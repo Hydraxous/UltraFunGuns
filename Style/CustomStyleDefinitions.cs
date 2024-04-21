@@ -6,7 +6,7 @@ namespace UltraFunGuns
 {
     public static class CustomStyleDefinitions
     {
-        public const string VAPORIZED = "<color=cyan>VAPORIZED</color>";
+        public const string VAPORIZED = "<color=#0bd6fcff>VAPORIZED</color>";
         public const string VIBE_CHECK = "VIBE-CHECKED";
         public const string V2_KILL = "<color=#ff33001>OXIDIZED</color>";
         public const string GABRIEL_KILL = "<color=#ff0051>L-DISTRIBUTED</color>";
@@ -23,16 +23,16 @@ namespace UltraFunGuns
         public const string DODGEBALL_PARRY_HIT = "<color=orange>SLAM DUNK</color>";
         public const string DODGEBALL_REVERSE_HIT = "REBOUND";
         public const string FINGER_GUN_HIT = "BANG'D";
-        public const string FINGER_GUN_PENETRATE = "<color=cyan>KABOOMA!</color>";
+        public const string FINGER_GUN_PENETRATE = "<color=#0bd6fcff>KABOOMA!</color>";
         public const string FINGER_GUN_PROJECTILE_HIT = "DENIAL";
         public const string ADMIN_GUN_KILL = "<color=red>GAMING CHAIR</color>";
         public const string BRICK_MIND_KILL = "<color=orange>SOUL ASSIMILATION</color>";
         public const string BRICK_PARRY_KILL = "BRICKED";
         public const string TRICKSNIPER_QUICKSCOPE = "QUICKSCOPE";
-        public const string TRICKSNIPER_360 = "<color=cyan>TRICKSHOT</color>";
+        public const string TRICKSNIPER_360 = "<color=#0bd6fcff>TRICKSHOT</color>";
         public const string TRICKSNIPER_NOSCOPE = "<color=orange>NOSCOPE</color>";
         public const string TRICKSNIPER_BANKSHOT = "<color=orange>BANKSHOT</color>";
-        public const string ULTRAGUN_SUPERCHARGE_KILL = "<color=cyan>EXPRESS BILLING</color>";
+        public const string ULTRAGUN_SUPERCHARGE_KILL = "<color=#0bd6fcff>EXPRESS BILLING</color>";
         public const string ULTRAGUN_KILL = "BILLED";
         public const string ULTRAGUN_RAIN_KILL = "<color=red>WHAT GOES UP</color>";
         public const string ULTRAGUN_AERIAL_KILL = "DEATH FROM ABOVE";

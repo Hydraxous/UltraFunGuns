@@ -11,6 +11,7 @@ namespace UltraFunGuns
         //This is copied from the game with minor tweaks (it doesnt work at all :))
         //TODO fix this
         public static void ParryProjectile(Projectile proj, Vector3 parryDirection)
+
         {
             proj.hittingPlayer = false;
             proj.friendly = true;

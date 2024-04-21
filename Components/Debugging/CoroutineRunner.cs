@@ -25,6 +25,7 @@ namespace UltraFunGuns
         public Coroutine RunCoroutine(IEnumerator coroutine)
         {
             DontDestroyOnLoad(gameObject);
+            gameObject.hideFlags = HideFlags.HideAndDontSave;
             return StartCoroutine(RunExternalCoroutine(coroutine));
         }
 

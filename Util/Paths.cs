@@ -7,12 +7,17 @@ using UnityEngine;
 
 namespace UltraFunGuns
 {
-    public static class Paths
+    internal static class Paths
     {
         public static string GameFolder => Directory.GetParent(Application.dataPath).FullName;
         public static string ModFolder => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string DataFolder => Path.Combine(BepInExConfigFolder, ConstInfo.NAME);
 
-        public static string DataFolder => Path.Combine(ModFolder, "Data");
+        public static string LegacyDataFolder => Path.Combine(ModFolder, "Data");
+
+        public static string BepInExFolder => Path.Combine(GameFolder, "BepInEx");
+        public static string BepInExConfigFolder => Path.Combine(BepInExFolder, "config");
+
         public const string SAVE_FILE_EXTENSION = ".ufg";
         public static string SaveFilePath => Path.Combine(UFGSlotDataFolder, "save"+SAVE_FILE_EXTENSION);
 
@@ -30,11 +35,39 @@ namespace UltraFunGuns
         public static string UFGSlotDataFolder => Path.Combine(CurrentSaveSlotFolder, ConstInfo.NAME);
 
 
-        public static string BepInExFolder => Path.Combine(GameFolder, "BepInEx");
-
         public static string CybergrindFolder => Path.Combine(GameFolder, "Cybergrind");
         public static string CybergrindTexturesFolder => Path.Combine(CybergrindFolder, "Textures");
 
         public static string CurrentSaveSlotFolder => GameProgressSaver.SavePath;
+
+        public static void CheckFolders()
+        {
+            if (!Directory.Exists(DataFolder))
+                Directory.CreateDirectory(DataFolder);
+
+
+            if (Directory.Exists(LegacyDataFolder))
+            {
+                Debug.LogWarning("Found legacy UFG data. Moving to new location.");
+                CopyFilesRecursively(LegacyDataFolder, DataFolder);
+                Debug.LogWarning("Legacy data moved.");
+                Directory.Delete(LegacyDataFolder, true);
+            }
+        }
+
+        private static void CopyFilesRecursively(string sourcePath, string targetPath)
+        {
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+            }
+
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+            }
+        }
     }
 }

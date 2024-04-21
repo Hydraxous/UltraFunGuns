@@ -47,7 +47,7 @@ namespace UltraFunGuns
                 {
                     HydraLogger.StartMessage();
                     UltraLoader.LoadAll();
-                    config.Build();
+                    config.BuildAll();
                     Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_VERSION_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
                     DoPatching();
                     InGameCheck.Init();
