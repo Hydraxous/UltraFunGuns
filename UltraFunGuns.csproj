@@ -147,5 +147,12 @@
     <Folder Include="Components\Weapons\SmartRocket\GuidedRocket\" />
     <Folder Include="Resources\TextFiles\" />
   </ItemGroup>
+  
+  <Target Name="WarnBeforeBuild" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists($(ULTRAKILLPath))" Text="ULTRAKILLPath not set, create a .csproj.user file that sets this property to compile" />
+  </Target>
+  <Target Name="CopyModDlls" AfterTargets="AfterBuild">
+    <Copy SourceFiles="$(OutDir)/$(AssemblyName).dll" DestinationFolder="$(ULTRAKILLPath)\BepInEx\Plugins\UFG\" />
+  </Target>
 
 </Project>
