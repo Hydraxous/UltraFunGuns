@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using UltraFunGuns.Components;
 using UnityEngine;
 using UnityEngine.Events;

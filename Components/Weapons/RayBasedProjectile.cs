@@ -1,8 +1,5 @@
-
-using System;
 using UltraFunGuns;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class RayBasedProjectile : MonoBehaviour, ICleanable
 {

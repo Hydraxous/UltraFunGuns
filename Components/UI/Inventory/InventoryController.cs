@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Configgy;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UltraFunGuns.Datas;
-using Configgy;
 
 namespace UltraFunGuns
 {

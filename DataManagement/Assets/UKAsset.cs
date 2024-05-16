@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using UnityEngine.InputSystem;
+﻿using System.IO;
 using UnityEngine.AddressableAssets;
 
 namespace UltraFunGuns.Datas

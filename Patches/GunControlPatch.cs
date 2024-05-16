@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HarmonyLib;
 using System.Text;
 using UnityEngine;
-using HarmonyLib;
 
 namespace UltraFunGuns
 {

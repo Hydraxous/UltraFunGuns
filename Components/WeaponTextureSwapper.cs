@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using System.IO;
+﻿using System.IO;
 using UltraFunGuns.Util;
-using Configgy;
+using UnityEngine;
 
 namespace UltraFunGuns.Components
 {

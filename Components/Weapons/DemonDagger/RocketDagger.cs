@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Text;
-using UltraFunGuns;
+﻿using UltraFunGuns;
 using UnityEngine;
 
 [UFGWeapon("RocketDagger","Rocket Dagger", 2, false, WeaponIconColor.Red, false, false)]

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using UnityEngine.AI;
+﻿using UnityEngine;
 
 namespace UltraFunGuns
 {
-    
+
     [UFGWeapon("MysticFlare", "Mystic Flare", 0, true, WeaponIconColor.Red, false)]
     [WeaponAbility("Flare", "Throw a flare using <color=orange>Fire 1</color>.", 6, RichTextColors.red)]
     public class MysticFlare : UltraFunGunBase

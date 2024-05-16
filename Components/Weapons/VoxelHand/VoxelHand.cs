@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UltraFunGuns.Patches;
+﻿using UltraFunGuns.Patches;
 using UnityEngine;
 
 namespace UltraFunGuns

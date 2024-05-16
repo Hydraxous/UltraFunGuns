@@ -1,11 +1,8 @@
-﻿using System;
+﻿using GameConsole;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using BepInEx;
-using GameConsole;
+using System.Reflection;
 using UnityEngine;
 
 namespace UltraFunGuns

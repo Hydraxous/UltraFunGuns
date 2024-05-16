@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Text;
-using UnityEngine;
-using UltraFunGuns.Datas;
+﻿using UnityEngine;
 
 namespace UltraFunGuns
 {

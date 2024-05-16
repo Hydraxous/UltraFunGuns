@@ -1,11 +1,7 @@
 ﻿using Configgy;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Timers;
-using UltraFunGuns;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 
 namespace UltraFunGuns
 {

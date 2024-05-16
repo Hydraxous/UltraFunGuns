@@ -1,8 +1,7 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections;
-using UnityEngine;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace UltraFunGuns
 {

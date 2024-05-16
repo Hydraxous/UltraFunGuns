@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UltraFunGuns
+﻿namespace UltraFunGuns
 {
     public class BowlingBallThrower : UltraFunGunBase
     {
