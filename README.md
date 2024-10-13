@@ -273,3 +273,20 @@ Your BepInEx plugins folder should look something like this if you have other mo
 
 3. Enjoy.
 _______________________________________________________________________________________________________________________________________
+
+# Additional Credits
+[Agent of Nyarlathotep](https://github.com/PetersonE1) - Provided code for fixing an issue involving weapon freshness
+
+[Critter Man](https://www.planetminecraft.com/member/critter_man/) - Created V1 Minecraft Skin
+
+[Temperz87](https://github.com/Temperz87) - UMM port when UFG was using UMM
+
+[Fat Tony/The TM Guy](https://x.com/The_Tm_Guy) - Reference for adding custom weapons
+
+[Ben/Zombie](https://github.com/DaZombieKiller) - Assistance with AssetBundles
+
+Nintendo - Various Sound Effects
+
+OpenGameArt - Various Sound Effects
+
+GameAudioGDC - Various Sound Effects
