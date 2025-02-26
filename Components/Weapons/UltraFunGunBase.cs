@@ -42,7 +42,7 @@ namespace UltraFunGuns
             om = MonoSingleton<OptionsManager>.Instance;
             player = MonoSingleton<NewMovement>.Instance;
             animator = GetComponent<Animator>();
-            UltraFunGuns.Log.LogWarning("Added wep icon");
+            //UltraFunGuns.Log.LogWarning("Added wep icon");
             weaponIcon = gameObject.AddComponent<WeaponIcon>();
             weaponIdentifier = gameObject.AddComponent<WeaponIdentifier>();
 

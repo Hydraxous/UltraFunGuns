@@ -177,7 +177,7 @@ namespace UltraFunGuns
             //Check if a key was provided to the attribute, otherwise use the member's name.
             string assetKey = (assetTag.Key != "") ? assetTag.Key : property.Name;
 
-            UltraFunGuns.Log.Log($"AssetLoader: Found asset {((property.PropertyType.IsArray) ? "array " : "")}tag {assetKey}");
+            //UltraFunGuns.Log.Log($"AssetLoader: Found asset {((property.PropertyType.IsArray) ? "array " : "")}tag {assetKey}");
 
 
             if (!property.CanWrite)
@@ -214,7 +214,7 @@ namespace UltraFunGuns
                 if (loadedAssets.Count > 0)
                 {
                     property.SetValue(null, loadedAssets.ToArray());
-                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({property.PropertyType}), successfully cached to {property.DeclaringType}.{property.Name} with {loadedAssets.Count} indicies.");
+                    //UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({property.PropertyType}), successfully cached to {property.DeclaringType}.{property.Name} with {loadedAssets.Count} indicies.");
                 }
 
             }
@@ -224,7 +224,7 @@ namespace UltraFunGuns
 
                 if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, propertyType, out UnityEngine.Object loadedAsset))
                 {
-                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
+                   //UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
                     property.SetValue(null, loadedAsset);
                 }
                 else

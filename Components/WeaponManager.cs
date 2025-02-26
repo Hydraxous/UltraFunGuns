@@ -230,7 +230,7 @@ namespace UltraFunGuns
 
                 int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
 
-                UltraFunGuns.Log.Log($"Found weapon: {attribute.DisplayName}");
+                //UltraFunGuns.Log.Log($"Found weapon: {attribute.DisplayName}");
                 weapons.Add(attribute.WeaponKey, attribute);
             }
 
@@ -257,7 +257,7 @@ namespace UltraFunGuns
                 if (!slotData[slot].Contains(newNodeData))
                 {
                     slotData[slot].Add(newNodeData);
-                    UltraFunGuns.Log.Log($"Found weapon: {infos[i].DisplayName}");
+                    //UltraFunGuns.Log.Log($"Found weapon: {infos[i].DisplayName}");
                 }
             }
 

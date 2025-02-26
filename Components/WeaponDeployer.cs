@@ -154,7 +154,8 @@ namespace UltraFunGuns
                 {
                     if (customSlots[i].Count > 0 && customSlots[i][0] != null)
                     {
-                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, null, false, false, true); //Hopefully this works.
+                        //int nextIndex = (gc.currentSlotIndex != i) ? 0 : (gc.currentVariationIndex + 1) % ((customSlots[i].Count > 0) ? customSlots[i].Count : 1); //Prevent division by zero.
+                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, null, false, false, false); //Hopefully this works.
                     }
                 }
             }
