@@ -10,7 +10,7 @@ namespace UltraFunGuns
         [HarmonyPatch(nameof(GunControl.UpdateWeaponList)), HarmonyPrefix]
         public static void OnUpdateWeaponList(GunControl __instance, bool firstTime)
         {
-            HydraLogger.Log($"GunControl: Set weapons {firstTime}");
+            UltraFunGuns.Log.Log($"GunControl: Set weapons {firstTime}");
             if (__instance.slots == null)
                 return;
 
@@ -26,7 +26,7 @@ namespace UltraFunGuns
         {
             GunControl gc = GunControl.Instance;
             StringBuilder sb = new StringBuilder();
-            Debug.Log($"FIRST :{firstTime}");
+            UltraFunGuns.Log.Log($"FIRST :{firstTime}");
             for (int i = 0; i < gc.slots.Count; i++)
             {
                 sb.AppendLine("--------------------");
@@ -36,7 +36,7 @@ namespace UltraFunGuns
                     sb.AppendLine($"Weapon {j}: {gc.slots[i][j].name}");
                 }
 
-                Debug.Log(sb.ToString());
+                UltraFunGuns.Log.Log(sb.ToString());
                 sb.Clear();
             }
 

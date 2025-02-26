@@ -40,10 +40,10 @@ namespace UltraFunGuns.CustomPlacedObjects
             {
                 if(customPlacedObject.Place(sceneName))
                 {
-                    HydraLogger.Log($"{customPlacedObject.GetType().Name}: Placed");
+                    UltraFunGuns.Log.Log($"{customPlacedObject.GetType().Name}: Placed");
                 }else
                 {
-                    HydraLogger.Log($"{customPlacedObject.GetType().Name}: Failed to place", DebugChannel.Error);
+                    UltraFunGuns.Log.LogError($"{customPlacedObject.GetType().Name}: Failed to place");
                 }
             }
         }

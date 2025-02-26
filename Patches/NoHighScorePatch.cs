@@ -8,11 +8,11 @@ namespace UltraFunGuns.Patches
         [HarmonyPatch(typeof(LeaderboardController), nameof(LeaderboardController.SubmitCyberGrindScore)), HarmonyPrefix]
         public static bool OnSubmitCyberGrindScore()
         {
-            HydraLogger.Log("Trying To Submit Cybergrind Highscore.", DebugChannel.Warning);
+            UltraFunGuns.Log.LogWarning("Trying To Submit Cybergrind Highscore.");
 
             if (weaponsUsed)
             {
-                HydraLogger.Log($"Modded weapons used. Disqualifying Cybergrind submission. WeaponsUsed:{weaponsUsed}", DebugChannel.Warning);
+                UltraFunGuns.Log.LogWarning($"Modded weapons used. Disqualifying Cybergrind submission. WeaponsUsed:{weaponsUsed}");
                 return false;
             }
             return true;
@@ -21,11 +21,11 @@ namespace UltraFunGuns.Patches
         [HarmonyPatch(typeof(LeaderboardController), nameof(LeaderboardController.SubmitLevelScore)), HarmonyPrefix]
         public static bool OnSubmitLevelScore()
         {
-            HydraLogger.Log($"Trying To Submit Level Highscore. WeaponsUsed:{weaponsUsed}", DebugChannel.Warning);
+            UltraFunGuns.Log.LogWarning($"Trying To Submit Level Highscore. WeaponsUsed:{weaponsUsed}");
 
             if (weaponsUsed)
             {
-                HydraLogger.Log("Modded weapons used. Disqualifying Level submission.", DebugChannel.Warning);
+                UltraFunGuns.Log.LogWarning("Modded weapons used. Disqualifying Level submission.");
                 return false;
             }
             return true;

@@ -25,7 +25,7 @@ namespace UltraFunGuns
             {
                 PlayerDead = true;
                 Events.OnPlayerDeath?.Invoke();
-                HydraLogger.Log("Player died!",DebugChannel.Warning);
+                UltraFunGuns.Log.LogWarning("Player died!");
             }
         }
     }

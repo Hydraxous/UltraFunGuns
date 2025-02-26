@@ -17,7 +17,7 @@ namespace UltraFunGuns
         {
             if (!data.Data.Validate())
             {
-                Debug.LogError($"Invalid data!! {data.FileName}");
+                UltraFunGuns.Log.LogError($"Invalid data!! {data.FileName}");
                 return;
             }
 
@@ -41,7 +41,7 @@ namespace UltraFunGuns
 
             if (data == null)
             {
-                Debug.LogError("UFG: Data file was incorrectly setup. This is a result of an initialization error.");
+                UltraFunGuns.Log.LogError("UFG: Data file was incorrectly setup. This is a result of an initialization error.");
                 return null;
             }
 
@@ -63,7 +63,7 @@ namespace UltraFunGuns
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"UFG: Data file {data.FileName} could not be validated or deserialized.");
+                    UltraFunGuns.Log.LogError($"UFG: Data file {data.FileName} could not be validated or deserialized.");
                 }
 
             }

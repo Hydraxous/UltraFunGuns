@@ -54,7 +54,7 @@ namespace UltraFunGuns
         public override void FirePrimary()
         {
 
-            HydraLogger.Log($"Remote bomb fired primary");
+            UltraFunGuns.Log.Log($"Remote bomb fired primary");
             if(throwBombCD.CanFire())
             {
                 if(!throwingExplosive)
@@ -100,7 +100,7 @@ namespace UltraFunGuns
                     DetonateExplosives(bombsToDetonate);
                 }else
                 {
-                    HydraLogger.Log($"({gameObject.name}) No bombs to detonate");
+                    UltraFunGuns.Log.Log($"({gameObject.name}) No bombs to detonate");
                 }
                 
             }
@@ -108,7 +108,7 @@ namespace UltraFunGuns
 
         private IEnumerator ThrowExplosive()
         {
-            HydraLogger.Log($"({gameObject.name}) Throwing explosive");
+            UltraFunGuns.Log.Log($"({gameObject.name}) Throwing explosive");
             animator.Play("RemoteBomb_Anim_Throw", 0, 0.0f);
             throwingExplosive = true;
             yield return new WaitForSeconds(0.1666f);

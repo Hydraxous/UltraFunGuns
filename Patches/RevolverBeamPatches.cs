@@ -14,7 +14,7 @@ namespace UltraFunGuns
             if (currentHit.transform == null)
                 return true;
 
-            //Debug.Log($"EXEC HIT: {currentHit.transform.name}");
+            //UltraFunGuns.Log.Log($"EXEC HIT: {currentHit.transform.name}");
 
             if (!currentHit.transform.TryFindComponent<IRevolverBeamShootable>(out IRevolverBeamShootable beamInteractable))
                     return true;
@@ -44,13 +44,13 @@ namespace UltraFunGuns
         public static bool OnRicochetAimAssist(RevolverBeam __instance, GameObject beam)
         {
             bool usedInterface = false;
-            //Debug.Log($"RicochetAimAssist patch exec");
+            //UltraFunGuns.Log.Log($"RicochetAimAssist patch exec");
 
             RaycastHit[] hits = Physics.SphereCastAll(beam.transform.position, 5f, beam.transform.forward, float.PositiveInfinity, LayerMaskDefaults.Get(LMD.Enemies));
             if (hits == null || hits.Length == 0)
                 return true;
 
-            //Debug.Log($"HITS: {hits.Length}");
+            //UltraFunGuns.Log.Log($"HITS: {hits.Length}");
 
 
             Vector3 worldPosition = beam.transform.forward * 1000f;

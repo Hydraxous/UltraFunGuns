@@ -446,7 +446,7 @@ namespace UltraFunGuns
         public bool Interact(UFGInteractionEventData interaction)
         {
             
-            HydraLogger.Log($"{gameObject.name} shot by {interaction.invokeType.Name}");
+            UltraFunGuns.Log.Log($"{gameObject.name} shot by {interaction.invokeType.Name}");
 
             switch(interaction.invokeType.Name)
             {

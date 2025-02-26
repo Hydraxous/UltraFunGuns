@@ -62,7 +62,7 @@ namespace UltraFunGuns
                 yield return new WaitForSeconds(0.2f);
                 if (attempts >= 5)
                 {
-                    HydraLogger.Log($"Couldn't load the game bundle.", DebugChannel.Fatal);
+                    UltraFunGuns.Log.LogError($"Couldn't load the game bundle.");
                     yield break;
                 }
                 request = AssetBundle.LoadFromFileAsync(Environment.CurrentDirectory + "\\ULTRAKILL_Data\\StreamingAssets\\common");
@@ -88,7 +88,7 @@ namespace UltraFunGuns
             foreach (T asset in allAssets)
                 if (asset.name == name) result = asset;
             if (result == default)
-                HydraLogger.Log($"Failed to find asset: {name} of type {typeof(T)}");
+                UltraFunGuns.Log.Log($"Failed to find asset: {name} of type {typeof(T)}");
             return result;
         }
 
@@ -106,7 +106,7 @@ namespace UltraFunGuns
                 }
             }
 
-            HydraLogger.Log($"Could not find asset : {name}", DebugChannel.Fatal);
+            UltraFunGuns.Log.LogError($"Could not find asset : {name}");
 
             return false;
         }

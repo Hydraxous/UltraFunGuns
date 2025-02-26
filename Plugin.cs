@@ -3,8 +3,11 @@ using Configgy;
 using HarmonyLib;
 using System;
 using System.Collections;
+using System.IO;
+using UltraFunGuns.Logging;
 using UltraFunGuns.Patches;
 using UltraFunGuns.Util;
+using UnityEngine;
 
 namespace UltraFunGuns
 {
@@ -19,6 +22,8 @@ namespace UltraFunGuns
         public static bool UsingLatestVersion = true;
         public static string LatestVersion = "UNKNOWN";
 
+        internal static Ilogger Log { get; private set; }
+
         private UltraFunGunBase.ActionCooldown autosave = new UltraFunGunBase.ActionCooldown(120f);
 
         private Action<bool, string> onVersionCheckFinished = (usingLatest, latestVersion) =>
@@ -32,6 +37,7 @@ namespace UltraFunGuns
         private void Awake()
         {
             UFG = this;
+            Log = new BepInExLogger(Logger);
             Data.CheckSetup();
             StartCoroutine(Startup());
         }
@@ -45,7 +51,8 @@ namespace UltraFunGuns
             {
                 if (loaded)
                 {
-                    HydraLogger.StartMessage();
+                    UltraFunGuns.Log.LogWarning(ConstInfo.FUN_HEADER);
+                    Log.Log($"{ConstInfo.NAME} is loading... Version: {ConstInfo.RELEASE_VERSION}");
                     UltraLoader.LoadAll();
                     config.BuildAll();
                     Configgy.VersionCheck.CheckVersion(ConstInfo.GITHUB_VERSION_URL, ConstInfo.RELEASE_VERSION, onVersionCheckFinished);
@@ -55,12 +62,12 @@ namespace UltraFunGuns
                     NoHighScorePatch.Init();
                     Commands.Register();
                     TextureLoader.Init();
-                    HydraLogger.Log("Successfully Loaded!", DebugChannel.User);
+                    UltraFunGuns.Log.Log("Successfully Loaded!");
                     gameObject.AddComponent<DebuggingDummy>();
                 }
                 else
                 {
-                    HydraLogger.Log("Loading failed.", DebugChannel.Fatal);
+                    UltraFunGuns.Log.LogError("Loading failed.");
                     enabled = false;
                 }
             });
@@ -90,19 +97,14 @@ namespace UltraFunGuns
             Data.Config.Data.DebugMode = debugMode;
             Data.Config.Save();
          
-            HydraLogger.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}", DebugChannel.User);
+            UltraFunGuns.Log.Log($"Debug mode: {((debugMode) ? "Enabled" : "Disabled")}");
         }
 
         private void OnApplicationQuit()
         {
             Data.SaveAll();
-            HydraLogger.WriteLog();
         }
 
-        private void OnDisable()
-        {
-            HydraLogger.WriteLog();
-        }
 
         public static bool DebugMode
         {

@@ -12,11 +12,10 @@ namespace UltraFunGuns
 
         public static void SaveAll()
         {
-            HydraLogger.Log("Saving all.", DebugChannel.User);
+            UltraFunGuns.Log.Log("Saving all.");
             Loadout.Save();
             SaveInfo.Save();
             Config.Save();
-            HydraLogger.WriteLog();
         }
 
         [Commands.UFGDebugMethod("Reload Config", "Reloads the config file.")]
@@ -50,7 +49,7 @@ namespace UltraFunGuns
         [Commands.UFGDebugMethod("Reset All Data", "Resets UFG Mod data.")]
         public static void FirstTimeSetup()
         {
-            HydraLogger.Log("Creating new persistent data.", DebugChannel.User);
+            UltraFunGuns.Log.Log("Creating new persistent data.");
             Loadout.New();
             Config.New();
             SaveInfo.New();
@@ -63,7 +62,7 @@ namespace UltraFunGuns
             if (dataFolderInfo.GetFiles().Length <= 0)
             {
                 FirstTimeSetup();
-                HydraLogger.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra", DebugChannel.User);
+                UltraFunGuns.Log.Log($"Thanks for installing UltraFunGuns! I hope you enjoy my silly weapons. :) -Hydra");
             }
 
             Paths.CheckFolders();

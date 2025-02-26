@@ -37,7 +37,7 @@ namespace UltraFunGuns
         [HarmonyPatch(typeof(Coin), nameof(Coin.ReflectRevolver)), HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> InjectICoinTargetDiscovery(IEnumerable<CodeInstruction> instructions)
         {
-            Debug.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetDiscovery)}");
+            UltraFunGuns.Log.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetDiscovery)}");
             CodeInstruction[] codeInstructions = instructions.ToArray();
 
             //Matches IL code for locating the injection point of our code.
@@ -57,7 +57,7 @@ namespace UltraFunGuns
                     yield return new CodeInstruction(OpCodes.Ldarg_0);
                     yield return new CodeInstruction(OpCodes.Ldloc_S, 16);
                     yield return new CodeInstruction(OpCodes.Call, coinMethod);
-                    Debug.LogWarning("Complilation Sucess!");
+                    UltraFunGuns.Log.LogWarning("Complilation Sucess!");
 
                 }
 
@@ -74,7 +74,7 @@ namespace UltraFunGuns
         [HarmonyPatch(typeof(Coin), nameof(Coin.ReflectRevolver)), HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> InjectICoinTargetEvaluation(IEnumerable<CodeInstruction> instructions)
         {
-            Debug.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetEvaluation)}");
+            UltraFunGuns.Log.LogWarning($"Beginning compilation of {nameof(InjectICoinTargetEvaluation)}");
             CodeInstruction[] codeInstructions = instructions.ToArray();
 
             for (int i = 0; i < codeInstructions.Length; i++)
@@ -101,7 +101,7 @@ namespace UltraFunGuns
                             yield return new CodeInstruction(OpCodes.Ldloc_S, 27);
                             yield return new CodeInstruction(OpCodes.Ldloc_S, 17);
                             yield return new CodeInstruction(OpCodes.Call, evalMethod);
-                            Debug.LogWarning("Complilation Sucess!");
+                            UltraFunGuns.Log.LogWarning("Complilation Sucess!");
                         }
                     }
                 }
@@ -121,7 +121,7 @@ namespace UltraFunGuns
         //Currently this is only called if the coin is shot with the base revolver. TODO add railgun support
         private static void EvalCustomCoinTarget(Coin coin, LineRenderer beamLine, Transform transform)
         {
-            //Debug.LogWarning("EVAL CUSTOM COIN TARGET");
+            //UltraFunGuns.Log.LogWarning("EVAL CUSTOM COIN TARGET");
             RevolverBeam rb = beamLine.GetComponent<RevolverBeam>();
 
             if(transform.TryGetComponent<ICoinTarget>(out ICoinTarget coinTarget))

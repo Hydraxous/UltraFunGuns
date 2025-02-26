@@ -62,14 +62,14 @@ namespace UltraFunGuns
         {
             if(_instance != null && _instance != this)
             {
-                Debug.LogError("VoxelWorld already exists! Destroying new instance.");
+                UltraFunGuns.Log.LogError("VoxelWorld already exists! Destroying new instance.");
                 DestroyImmediate(this);
                 return;
             }
 
             if (CurrentFile != null)
             {
-                Debug.Log("Populating existing voxel world.");
+                UltraFunGuns.Log.Log("Populating existing voxel world.");
                 PopulateWorld(CurrentFile);
             }
 
@@ -217,7 +217,7 @@ namespace UltraFunGuns
         {
             if(data == null)
             {
-                Debug.LogError($"VoxelWorld: parameter data is null! load aborted.");
+                UltraFunGuns.Log.LogError($"VoxelWorld: parameter data is null! load aborted.");
                 return;
             }
 
@@ -256,7 +256,7 @@ namespace UltraFunGuns
             if (worldData == null)
             {
                 //throw new NullReferenceException("World data is null!");
-                Debug.LogError("No world data ahh boy!");
+                UltraFunGuns.Log.LogError("No world data ahh boy!");
             }
             //worldScale.SetValue(worldData.Header.WorldScale);
 
@@ -300,7 +300,7 @@ namespace UltraFunGuns
                             VoxelSelectionMenu menu = GameObject.FindObjectOfType<VoxelSelectionMenu>();
                             if(menu == null)
                             {
-                                Debug.LogError("No voxel selection menu?!?!");
+                                UltraFunGuns.Log.LogError("No voxel selection menu?!?!");
                                 return;
                             }
 

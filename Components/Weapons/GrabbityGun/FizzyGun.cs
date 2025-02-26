@@ -172,7 +172,7 @@ public class FizzyGun : UltraFunGunBase
 
         if (hits.Length > 0)
         {
-            Debug.LogWarning(hits[0].collider.gameObject.name);
+            UltraFunGuns.Log.LogWarning(hits[0].collider.gameObject.name);
             hittingSomething = true;
             lastDistFromCamera = hits[0].distance;
             UpdateHolderPosition();
@@ -233,7 +233,7 @@ public class FizzyGun : UltraFunGunBase
 
         heldObjectRigidbody = col.attachedRigidbody;
 
-        HydraLogger.Log($"Beginning manipulation on object {heldObjectRigidbody.name}", DebugChannel.Warning);
+        UltraFunGuns.Log.LogWarning($"Beginning manipulation on object {heldObjectRigidbody.name}");
 
 
         if(!oldKinematicStates.ContainsKey(heldObjectRigidbody))
@@ -258,7 +258,7 @@ public class FizzyGun : UltraFunGunBase
         if (!IsHoldingObject)
             return;
      
-        HydraLogger.Log($"Ending manipulation on object {heldObjectRigidbody.name}", DebugChannel.Warning);
+        UltraFunGuns.Log.LogWarning($"Ending manipulation on object {heldObjectRigidbody.name}");
 
         heldObjectRigidbody.transform.parent = heldObjectParent;
         heldObjectParent = null;

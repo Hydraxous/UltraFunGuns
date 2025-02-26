@@ -23,7 +23,7 @@ namespace UltraFunGuns
             {
                 aimRay.origin = projectileOrigin.position;
                 aimRay.direction = hit.point - projectileOrigin.position;
-                HydraLogger.Log($"Raycast hit [{hit.collider.gameObject.name}]");
+                UltraFunGuns.Log.Log($"Raycast hit [{hit.collider.gameObject.name}]");
             }
 
             return aimRay;

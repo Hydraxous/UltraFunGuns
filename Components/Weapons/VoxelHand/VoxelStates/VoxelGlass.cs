@@ -50,7 +50,7 @@ namespace UltraFunGuns
         public void OnVoxelBreak(Voxel voxel)
         {
             Vector3 pos = voxel.transform.position;
-            Debug.LogWarning("Glass broken!");
+            UltraFunGuns.Log.LogWarning("Glass broken!");
         }
 
         public BinaryWriter WriteStateData(BinaryWriter bw)

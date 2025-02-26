@@ -94,14 +94,14 @@ namespace UltraFunGuns
                 {
                     if (!WeaponManager.Weapons.TryGetValue(weaponKey, out UFGWeapon weaponInfo))
                     {
-                        HydraLogger.Log($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).", DebugChannel.Fatal);
+                        UltraFunGuns.Log.LogError($"Weaponkey {weaponKey} doesn't exist. Someone seriously screwed up (it was Hydra).");
                         this.enabled = false;
                         return;
                     }
 
                     if (!HydraLoader.prefabRegistry.TryGetValue(weaponKey, out GameObject weaponPrefab))
                     {
-                        HydraLogger.Log($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...", DebugChannel.Error);
+                        UltraFunGuns.Log.LogError($"Weapon Manager could not retrieve {weaponKey} from prefab registry. Skipping...");
                         continue;
                     }
 
@@ -141,7 +141,7 @@ namespace UltraFunGuns
                 }
 
                 WeaponManager.OnWeaponsDeployed?.Invoke(weaponsDeployed.ToArray());
-                HydraLogger.Log(weaponsGiven, DebugChannel.User);
+                UltraFunGuns.Log.Log(weaponsGiven);
             }
         }
 
@@ -150,11 +150,11 @@ namespace UltraFunGuns
         {
             for (int i = 0; i < slotKeys.Length; i++)
             {
-                if (slotKeys[i].WasPeformed() && (customSlots[i].Count > 1 || gc.currentSlot != i + WeaponManager.SLOT_OFFSET))
+                if (slotKeys[i].WasPeformed() && (customSlots[i].Count > 1 || gc.currentSlotIndex != i + WeaponManager.SLOT_OFFSET))
                 {
                     if (customSlots[i].Count > 0 && customSlots[i][0] != null)
                     {
-                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, customSlots[i], false, false);
+                        gc.SwitchWeapon(i + WeaponManager.SLOT_OFFSET, null, false, false, true); //Hopefully this works.
                     }
                 }
             }

@@ -7,7 +7,7 @@ namespace UltraFunGuns.Components
 
         private void Awake()
         {
-            Debug.Log("CT: I'm in danger!");
+            UltraFunGuns.Log.Log("CT: I'm in danger!");
         }
 
         public bool CanBeCoinTargeted(Coin coin)
@@ -23,8 +23,8 @@ namespace UltraFunGuns.Components
 
         public void OnCoinReflect(Coin coin, RevolverBeam beam)
         {
-            Debug.Log("REFLECT COIN!");
-            Debug.Log($"Coin: {coin.name} Beam: {beam.name}");
+            UltraFunGuns.Log.Log("REFLECT COIN!");
+            UltraFunGuns.Log.Log($"Coin: {coin.name} Beam: {beam.name}");
         }
 
         public Transform GetCoinTargetPoint(Coin coin)

@@ -1,3 +1,0 @@
-All of these assemblies are stripped of their contents, are non-functional and meant to be used only as references for VS
-
-The stripper batch file was made by Wafflethings, Thanks Wafflethings!

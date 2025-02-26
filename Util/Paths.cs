@@ -45,9 +45,9 @@ namespace UltraFunGuns
 
             if (Directory.Exists(LegacyDataFolder))
             {
-                Debug.LogWarning("Found legacy UFG data. Moving to new location.");
+                UltraFunGuns.Log.LogWarning("Found legacy UFG data. Moving to new location.");
                 CopyFilesRecursively(LegacyDataFolder, DataFolder);
-                Debug.LogWarning("Legacy data moved.");
+                UltraFunGuns.Log.LogWarning("Legacy data moved.");
                 Directory.Delete(LegacyDataFolder, true);
             }
         }

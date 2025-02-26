@@ -36,13 +36,13 @@ namespace UltraFunGuns
             weaponIcon_Disabled = new Color(73f, 73f, 73f, 255f);
             nodeBg_Enabled = new Color(185.0f, 185.0f, 185.0f, 110f);
             nodeBg_Disabled = new Color(49.0f, 49.0f, 49.0f, 110f);
-            HydraLogger.Log(data.weaponKey + " NODE INIT!");
+            UltraFunGuns.Log.Log(data.weaponKey + " NODE INIT!");
             this.slotIndexPosition = slotIndex;
             this.data = data;
             this.slot = slot;
             if(!WeaponManager.Weapons.TryGetValue(data.weaponKey, out nodeInfo))
             {
-                HydraLogger.Log($"Inventory node could not get weapon info from key {data.weaponKey}");
+                UltraFunGuns.Log.Log($"Inventory node could not get weapon info from key {data.weaponKey}");
             }
             nodeTransform = GetComponent<RectTransform>();
             HydraLoader.dataRegistry.TryGetValue(this.data.weaponKey + "_weaponIcon", out UnityEngine.Object obj);

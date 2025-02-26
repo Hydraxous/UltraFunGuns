@@ -88,7 +88,7 @@ namespace UltraFunGuns.Util
             tex = null;
             if (!File.Exists(path))
             {
-                HydraLogger.Log("Invalid location: " + path);
+                UltraFunGuns.Log.Log("Invalid location: " + path);
                 return false;
             }
 
@@ -99,14 +99,14 @@ namespace UltraFunGuns.Util
             }
             catch (System.Exception e)
             {
-                HydraLogger.Log("Invalid path: " + path);
+                UltraFunGuns.Log.Log("Invalid path: " + path);
             }
 
             tex = new Texture2D(16, 16);
 
             if (!tex.LoadImage(byteArray))
             {
-                HydraLogger.Log("texture loading failed!");
+                UltraFunGuns.Log.Log("texture loading failed!");
                 if (checkerIfNull)
                 {
                     Checker(ref tex);
@@ -200,7 +200,7 @@ namespace UltraFunGuns.Util
                 newTextures.Add(additionalTextures[i]);
             }
 
-            HydraLogger.Log($"Found {newTextures.Count} textures");
+            UltraFunGuns.Log.Log($"Found {newTextures.Count} textures");
 
             return newTextures.ToArray();
         }

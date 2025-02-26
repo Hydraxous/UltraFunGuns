@@ -172,7 +172,7 @@ namespace UltraFunGuns
             if (chainedExplosives.Contains(source) || !alive || waitingToExplode)
                 return false;
 
-            HydraLogger.Log($"Detonating after time! {delay}");
+            UltraFunGuns.Log.Log($"Detonating after time! {delay}");
             waitingToExplode = true;
             StartCoroutine(DetonateAfterTime(delay));
             return true;

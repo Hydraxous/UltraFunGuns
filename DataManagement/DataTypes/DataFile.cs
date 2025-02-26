@@ -100,7 +100,7 @@ namespace UltraFunGuns
         {
             if (FileName == null)
             {
-                //HydraLogger.Log($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.", DebugChannel.Fatal);
+                //UltraFunGuns.Log.LogError($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.");
                 New();
                 return;
             }
@@ -121,7 +121,7 @@ namespace UltraFunGuns
         {
             if (fallbackData == null)
             {
-                //HydraLogger.Log($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.", DebugChannel.Fatal);
+                //UltraFunGuns.Log.LogError($"Data object was incorrectly set up. It is null and cannot be loaded. Please check this Hydra.");
                 data = default(T);
                 return;
             }

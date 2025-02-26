@@ -48,7 +48,7 @@ namespace UltraFunGuns
 
         public void PrintState(Voxel voxel)
         {
-            Debug.LogWarning($"Current travels: {travels}");
+            UltraFunGuns.Log.LogWarning($"Current travels: {travels}");
         }
 
         public void ReadStateData(BinaryReader br)

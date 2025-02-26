@@ -83,7 +83,7 @@ namespace UltraFunGuns.Components.Entity
 
         private void CheckSlamDunk()
         {
-            HydraLogger.Log("Dunk: Trying!");
+            UltraFunGuns.Log.Log("Dunk: Trying!");
 
             CameraController cc = CameraController.Instance;
             Vector3 hoopPos = hoop.GetHoopPos();
@@ -92,26 +92,26 @@ namespace UltraFunGuns.Components.Entity
             float horizontalDistance = Mathf.Abs(new Vector2(camToHoop.x, camToHoop.z).magnitude);
             float verticalDistance = Mathf.Abs(camToHoop.z);
 
-            HydraLogger.Log($"Dunk: Range {horizontalDistance}:{verticalDistance}!");
+            UltraFunGuns.Log.Log($"Dunk: Range {horizontalDistance}:{verticalDistance}!");
 
 
             if (verticalDistance> 3.9f || horizontalDistance > 2.5f) //Not in range.
                 return;
 
-            HydraLogger.Log("Dunk: In range!");
+            UltraFunGuns.Log.Log("Dunk: In range!");
 
             NewMovement player = NewMovement.Instance;
 
             if (player.gc.onGround || !player.gc.heavyFall) //Not slamming.
                 return;
 
-            HydraLogger.Log("Dunk: Slamming!");
+            UltraFunGuns.Log.Log("Dunk: Slamming!");
 
 
             if (!(Vector3.Dot((camPos-hoopPos).normalized,Vector3.up) >= -0.1f)) // below rim.
                 return;
 
-            HydraLogger.Log("Dunk: Above rim!");
+            UltraFunGuns.Log.Log("Dunk: Above rim!");
 
             if (!(Vector3.Dot(camToHoop.normalized, cc.transform.forward) > 0.83f))
                 return;

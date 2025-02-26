@@ -198,7 +198,7 @@ namespace UltraFunGuns
 
                 if(similarEntries.Count > 0)
                 {
-                    Debug.LogWarning("Combined similar entries");
+                    UltraFunGuns.Log.LogWarning("Combined similar entries");
                 }
 
                 WeaponManager.AddStyle(entry);

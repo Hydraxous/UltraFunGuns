@@ -40,7 +40,7 @@ namespace UltraFunGuns
                     $"Camera: {cameraPos.x}|{cameraPos.y}|{cameraPos.z}\n" +
                     $"HitPos: {hitPosition.x}|{hitPosition.y}|{hitPosition.z}";
 
-                HydraLogger.Log(message, DebugChannel.Warning);
+                UltraFunGuns.Log.LogWarning(message);
             }
 
             if (Input.GetKeyDown(KeyCode.Keypad4))

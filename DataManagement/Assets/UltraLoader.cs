@@ -22,7 +22,7 @@ namespace UltraFunGuns
 
             
             
-            HydraLogger.Log($"AssetLoader: Finding asset tags.");
+            UltraFunGuns.Log.Log($"AssetLoader: Finding asset tags.");
 
             foreach (Type type in assembly.GetTypes())
             {
@@ -30,7 +30,7 @@ namespace UltraFunGuns
             }
 
             AssetsLoaded = true;
-            HydraLogger.Log($"UltraLoader: Asset loading complete.");
+            UltraFunGuns.Log.Log($"UltraLoader: Asset loading complete.");
             return true;
         }
 
@@ -123,11 +123,11 @@ namespace UltraFunGuns
             //Check if a key was provided to the attribute, otherwise use the member's name.
             string assetKey = (assetTag.Key != "") ? assetTag.Key : field.Name;
 
-            HydraLogger.Log($"AssetLoader: Found asset {((field.FieldType.IsArray) ? "array " : "")}tag {assetKey}");
+            UltraFunGuns.Log.Log($"AssetLoader: Found asset {((field.FieldType.IsArray) ? "array " : "")}tag {assetKey}");
 
             if(field.FieldType.IsArray && !assetKey.Contains("{0}"))
             {
-                HydraLogger.Log($"AssetLoader: Error if an asset tag is placed on an array the key must contain a placeholder bracket with 0 to be iteratable. Skipping.", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError($"AssetLoader: Error if an asset tag is placed on an array the key must contain a placeholder bracket with 0 to be iteratable. Skipping.");
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace UltraFunGuns
                 if (loadedAssets.Count > 0)
                 {
                     field.SetValue(null, loadedAssets.ToArray());
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name} with {loadedAssets.Count} indicies.");
+                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({field.FieldType}), successfully cached to {field.DeclaringType}.{field.Name} with {loadedAssets.Count} indicies.");
                 }
 
             }
@@ -162,12 +162,12 @@ namespace UltraFunGuns
                 Type fieldType = field.FieldType;
                 if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, fieldType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({fieldType.Name}), successfully cached to {field.DeclaringType.Name}.{field.Name}");
+                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({fieldType.Name}), successfully cached to {field.DeclaringType.Name}.{field.Name}");
                     field.SetValue(null, loadedAsset);
                 }
                 else
                 {
-                    HydraLogger.Log($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                    UltraFunGuns.Log.LogError($"{field.DeclaringType.Name}:{field.Name}:CacheOnLoad: ({assetKey}) Load error, see above.");
                 }
             }
         }
@@ -177,19 +177,19 @@ namespace UltraFunGuns
             //Check if a key was provided to the attribute, otherwise use the member's name.
             string assetKey = (assetTag.Key != "") ? assetTag.Key : property.Name;
 
-            HydraLogger.Log($"AssetLoader: Found asset {((property.PropertyType.IsArray) ? "array " : "")}tag {assetKey}");
+            UltraFunGuns.Log.Log($"AssetLoader: Found asset {((property.PropertyType.IsArray) ? "array " : "")}tag {assetKey}");
 
 
             if (!property.CanWrite)
             {
-                HydraLogger.Log($"AssetLoader: {property.DeclaringType.Name}: {property.Name}: No setter found, unable to assign asset.", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError($"AssetLoader: {property.DeclaringType.Name}: {property.Name}: No setter found, unable to assign asset.");
                 return;
             }
 
 
             if (property.PropertyType.IsArray && !assetKey.Contains("{0}"))
             {
-                HydraLogger.Log($"AssetLoader: Error if an asset tag is placed on an array the key must contain a placeholder bracket with 0 to be iteratable. Skipping.", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError($"AssetLoader: Error if an asset tag is placed on an array the key must contain a placeholder bracket with 0 to be iteratable. Skipping.");
                 return;
             }
 
@@ -214,7 +214,7 @@ namespace UltraFunGuns
                 if (loadedAssets.Count > 0)
                 {
                     property.SetValue(null, loadedAssets.ToArray());
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({property.PropertyType}), successfully cached to {property.DeclaringType}.{property.Name} with {loadedAssets.Count} indicies.");
+                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({property.PropertyType}), successfully cached to {property.DeclaringType}.{property.Name} with {loadedAssets.Count} indicies.");
                 }
 
             }
@@ -224,12 +224,12 @@ namespace UltraFunGuns
 
                 if (TryLoadAsset(assetKey, HydraLoader.AssetBundle, propertyType, out UnityEngine.Object loadedAsset))
                 {
-                    HydraLogger.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
+                    UltraFunGuns.Log.Log($"AssetLoader: {assetKey} ({propertyType.Name}), successfully cached to {property.DeclaringType.Name}.{property.Name}");
                     property.SetValue(null, loadedAsset);
                 }
                 else
                 {
-                    HydraLogger.Log($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.", DebugChannel.Error);
+                    UltraFunGuns.Log.LogError($"{property.DeclaringType.Name}:{property.Name}:CacheOnLoad: ({assetKey}) Load error, see above.");
                 }
             }       
         }
@@ -247,7 +247,7 @@ namespace UltraFunGuns
 
             if (obj == null)
             {
-                HydraLogger.Log($"AssetLoader: Attempted to load asset {key} of type {type.Name}, but it was not found in the assetbundle.", DebugChannel.Error);
+                UltraFunGuns.Log.LogError($"AssetLoader: Attempted to load asset {key} of type {type.Name}, but it was not found in the assetbundle.");
                 return false;
             }
 

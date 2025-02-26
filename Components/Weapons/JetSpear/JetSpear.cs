@@ -50,7 +50,7 @@ namespace UltraFunGuns
         {
             if(jetEnabled)
             {
-                //Debug.Log("Applyin force!");
+                //UltraFunGuns.Log.Log("Applyin force!");
                 rb.velocity += ((mainCam.forward) * jetForce) * (smoothing/smoothingSpeed);
             }
         }

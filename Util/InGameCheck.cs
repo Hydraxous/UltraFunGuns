@@ -27,11 +27,11 @@ namespace UltraFunGuns
         {
             if((scene == null || scene.buildIndex == -1) && !force)
             {
-                HydraLogger.Log($"SCENEHELPER: Scene is null!");
+                UltraFunGuns.Log.Log($"SCENEHELPER: Scene is null!");
                 return;
             }
 
-            HydraLogger.Log($"=============================\n" +
+            UltraFunGuns.Log.Log($"=============================\n" +
                 $"SCENE FOUND: {scene.name}\n" +
                 $"VALID: {scene.IsValid()}\n" +
                 $"INDEX: {scene.buildIndex}\n" +
@@ -96,7 +96,7 @@ namespace UltraFunGuns
         public static UKLevelType GetUKLevelType(string sceneName)
         {
 
-            HydraLogger.Log($"Scene Loaded: [{sceneName}]");
+            UltraFunGuns.Log.Log($"Scene Loaded: [{sceneName}]");
 
             sceneName = (sceneName.Contains("P-")) ? "Sanctum" : sceneName;
             sceneName = (sceneName.Contains("-S")) ? "Secret" : sceneName;

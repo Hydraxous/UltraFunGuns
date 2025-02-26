@@ -99,7 +99,7 @@ namespace UltraFunGuns
                 }
                 else
                 {
-                    Debug.LogError("Error retrieving picture...");
+                    UltraFunGuns.Log.LogError("Error retrieving picture...");
                 }
             });
         }

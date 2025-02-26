@@ -152,7 +152,7 @@ namespace UltraFunGuns
         {
             Data.Loadout.Data.slots = GetInventoryLoadout();
             Data.Loadout.Save();
-            HydraLogger.Log("Inventory saved.");
+            UltraFunGuns.Log.Log("Inventory saved.");
         }
 
         public InventorySlotData[] GetInventoryLoadout()
@@ -183,7 +183,7 @@ namespace UltraFunGuns
 
             if(enabled != infoCard.gameObject.activeInHierarchy)
             {
-                //HydraLogger.Log("Weapon Card info state changed " + enabled);
+                //UltraFunGuns.Log.Log("Weapon Card info state changed " + enabled);
                 infoCard.gameObject.SetActive(enabled);
             }
         }

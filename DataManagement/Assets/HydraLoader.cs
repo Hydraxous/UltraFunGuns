@@ -18,7 +18,7 @@ namespace UltraFunGuns
 
         public static void LoadAssets(Action<bool> onLoaderComplete)
         {
-            HydraLogger.Log("Loader: Loading Assetbundle.");
+            UltraFunGuns.Log.Log("Loader: Loading Assetbundle.");
 
             //Check error here.
             bundleRequest = AssetBundle.LoadFromMemoryAsync(Properties.Resources.UltraFunGuns);
@@ -28,7 +28,7 @@ namespace UltraFunGuns
             {
                 AssetManifest.RegisterAssets();
                 AssetBundle = bundleRequest.assetBundle;
-                HydraLogger.Log("Loader: Assetbundle Loaded.");
+                UltraFunGuns.Log.Log("Loader: Assetbundle Loaded.");
                 bool loadSuccess = RegisterAll();
                 BundleLoaded = loadSuccess;
                 onLoaderComplete?.Invoke(loadSuccess);
@@ -80,16 +80,16 @@ namespace UltraFunGuns
         {
             try
             {
-                HydraLogger.Log("Loader: Registering all assets.");
+                UltraFunGuns.Log.Log("Loader: Registering all assets.");
                 RegisterDataFiles();
                 RegisterCustomAssets();
-                HydraLogger.Log("Loader: Asset registration complete.");
+                UltraFunGuns.Log.Log("Loader: Asset registration complete.");
                 return true;
             }
             catch (System.Exception e)
             {
-                HydraLogger.Log("Loader: Asset loading failed!", DebugChannel.Fatal);
-                HydraLogger.Log($"Loader: {e.Message}", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError("Loader: Asset loading failed!");
+                UltraFunGuns.Log.LogError($"Loader: {e.Message}");
                 return false;
             }
         }
@@ -98,16 +98,16 @@ namespace UltraFunGuns
         {
             try
             {
-                HydraLogger.Log("HydraLoader: loading mod assets");
+                UltraFunGuns.Log.Log("HydraLoader: loading mod assets");
                 //assetBundle = AssetBundle.LoadFromMemory(assetBundleObject);
                 RegisterDataFiles();
                 RegisterCustomAssets();
-                HydraLogger.Log("HydraLoader: loading complete");
+                UltraFunGuns.Log.Log("HydraLoader: loading complete");
                 return true;
             }
             catch (Exception e)
             {
-                HydraLogger.Log($"HydraLoader: asset loading failed\n{e.Message}", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError($"HydraLoader: asset loading failed\n{e.Message}");
                 return false;
             }
         }
@@ -128,7 +128,7 @@ namespace UltraFunGuns
                     }
                     
                 }
-                HydraLogger.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
+                UltraFunGuns.Log.Log(String.Format("HydraLoader: {0} asset datas registered successfully", dataRegistry.Count));
                 dataRegistered = true;
             }
         }
@@ -143,7 +143,7 @@ namespace UltraFunGuns
 
                     if(newPrefab == null)
                     {
-                        HydraLogger.Log($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle", DebugChannel.Error);
+                        UltraFunGuns.Log.LogError($"HydraLoader: (Load Error): {asset.name} could not be found in assetbundle");
                         newPrefab = AssetBundle.LoadAsset<GameObject>("BrokenAsset");
                         newPrefab.name = asset.name;
                     }
@@ -157,7 +157,7 @@ namespace UltraFunGuns
                         prefabRegistry.Add(asset.name, newPrefab);
                     }
                 }
-                HydraLogger.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
+                UltraFunGuns.Log.Log(String.Format("HydraLoader: {0} prefabs registered successfully", prefabRegistry.Count));
 
                 assetsRegistered = true;
             }
@@ -179,7 +179,7 @@ namespace UltraFunGuns
                     this.modules = componentsToAdd;
                 }
                 assetsToRegister.Add(this);
-                HydraLogger.Log(String.Format("prefab: {0}, registered successfully.", assetName));
+                UltraFunGuns.Log.Log(String.Format("prefab: {0}, registered successfully.", assetName));
 
             }
         }
@@ -197,7 +197,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataFile = dataFile;
                 dataToRegister.Add(this);
-                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
+                UltraFunGuns.Log.Log(String.Format("{0} of type: {1} registered successfully.", dataName, dataFile.GetType().ToString()));
             }
 
             public CustomAssetData(string dataName, Type type) //For loading general assets
@@ -205,7 +205,7 @@ namespace UltraFunGuns
                 this.name = dataName;
                 this.dataType = type;
                 dataToRegister.Add(this);
-                HydraLogger.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
+                UltraFunGuns.Log.Log(String.Format("{0} of type: {1} registered successfully.", dataName, type.ToString()));
             }
         }
     }

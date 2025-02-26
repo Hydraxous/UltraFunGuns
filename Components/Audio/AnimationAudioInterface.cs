@@ -11,7 +11,7 @@ namespace UltraFunGuns
         {
             if (clipIndex >= clips.Length || clipIndex < 0)
             {
-                HydraLogger.Log($"Audio clip index ({clipIndex}) out of range on {gameObject.name}", DebugChannel.Error);
+                UltraFunGuns.Log.LogError($"Audio clip index ({clipIndex}) out of range on {gameObject.name}");
                 return;
             }
 
@@ -31,7 +31,7 @@ namespace UltraFunGuns
         {
             if (clip == null)
             {
-                HydraLogger.Log($"Warning audio clip attempted to be played on {gameObject.name} through animation. The provided clip was null.",DebugChannel.Error);
+                UltraFunGuns.Log.LogError($"Warning audio clip attempted to be played on {gameObject.name} through animation. The provided clip was null.");
                 return;
             }
 

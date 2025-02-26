@@ -69,7 +69,7 @@ namespace UltraFunGuns
                 }
             }
             
-            HydraLogger.Log($"Eggsplosion spawned eggs: {eggsSpawned}");
+            UltraFunGuns.Log.Log($"Eggsplosion spawned eggs: {eggsSpawned}");
         }
     }
 }

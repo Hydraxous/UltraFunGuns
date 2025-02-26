@@ -145,7 +145,7 @@ namespace UltraFunGuns
 
             if (weaponInfo == null)
             {
-                HydraLogger.Log($"Weapon info null when requested for type {t.ToString()}", DebugChannel.Fatal);
+                UltraFunGuns.Log.LogError($"Weapon info null when requested for type {t.ToString()}");
                 throw new System.Exception($"Type {t} does not have UFGWeapon attribute.");
             }
 
@@ -230,7 +230,7 @@ namespace UltraFunGuns
 
                 int slot = ((attribute.Slot < 0) ? 0 : (attribute.Slot > SLOTS) ? SLOTS - 1 : attribute.Slot);
 
-                HydraLogger.Log($"Found weapon: {attribute.DisplayName}");
+                UltraFunGuns.Log.Log($"Found weapon: {attribute.DisplayName}");
                 weapons.Add(attribute.WeaponKey, attribute);
             }
 
@@ -257,7 +257,7 @@ namespace UltraFunGuns
                 if (!slotData[slot].Contains(newNodeData))
                 {
                     slotData[slot].Add(newNodeData);
-                    HydraLogger.Log($"Found weapon: {infos[i].DisplayName}");
+                    UltraFunGuns.Log.Log($"Found weapon: {infos[i].DisplayName}");
                 }
             }
 

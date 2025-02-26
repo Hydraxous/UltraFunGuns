@@ -152,7 +152,7 @@ namespace UltraFunGuns
                 v.transform.forward = fakeProjVector;
             });
 
-            HydraLogger.Log("Pluton: Bang!");
+            UltraFunGuns.Log.Log("Pluton: Bang!");
 
             lastFireTime = Time.time;
             --burstShotsRemaining;

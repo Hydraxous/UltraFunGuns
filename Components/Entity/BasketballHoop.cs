@@ -73,7 +73,7 @@ namespace UltraFunGuns.Components.Entity
 
         public void OnTriggerEnter(Collider col)
         { 
-            HydraLogger.Log($"TRIGGERED {col.gameObject.name} ENTER");
+            UltraFunGuns.Log.Log($"TRIGGERED {col.gameObject.name} ENTER");
             if (col.attachedRigidbody == null)
                 return;
                 
@@ -93,16 +93,16 @@ namespace UltraFunGuns.Components.Entity
 
             bool inHoop = rbsInHoop.Contains(col.attachedRigidbody);
 
-            HydraLogger.Log($"isball: {isBall} inhoop: {ballInHoop} dot: {dot > 0}");
+            UltraFunGuns.Log.Log($"isball: {isBall} inhoop: {ballInHoop} dot: {dot > 0}");
 
             if ( isBall && !inHoop && dot > 0)
             {
                 rbsInHoop.Add(col.attachedRigidbody);
-                HydraLogger.Log($"In da hoop {col.gameObject.name}");
+                UltraFunGuns.Log.Log($"In da hoop {col.gameObject.name}");
                 return;
             }
 
-            HydraLogger.Log($"Failed check {col.gameObject.name}");
+            UltraFunGuns.Log.Log($"Failed check {col.gameObject.name}");
         }
 
         float lastThrowDistance = 0;
@@ -112,7 +112,7 @@ namespace UltraFunGuns.Components.Entity
         public void OnTriggerExit(Collider col)
         {
 
-            HydraLogger.Log($"TRIGGERED {col.gameObject.name} EXIT");
+            UltraFunGuns.Log.Log($"TRIGGERED {col.gameObject.name} EXIT");
 
             if (col.attachedRigidbody == null)
                 return;
@@ -130,17 +130,17 @@ namespace UltraFunGuns.Components.Entity
 
             bool isBall = IsBall(col, dot<0);
 
-            HydraLogger.Log($"isball: {isBall} inhoop: {inHoop} dot: {dot > 0}");
+            UltraFunGuns.Log.Log($"isball: {isBall} inhoop: {inHoop} dot: {dot > 0}");
 
             if (isBall  && dot > 0)
             {
                 rbsInHoop.Remove(col.attachedRigidbody);
-                HydraLogger.Log($"Out da {col.gameObject.name}");
+                UltraFunGuns.Log.Log($"Out da {col.gameObject.name}");
                 Score();
                 return;
             }
 
-            HydraLogger.Log($"Failed check {col.gameObject.name}");
+            UltraFunGuns.Log.Log($"Failed check {col.gameObject.name}");
         }
 
         private bool IsBall(Collider col, bool aboveHoop)
@@ -210,7 +210,7 @@ namespace UltraFunGuns.Components.Entity
 
         private void Score()
         {
-            HydraLogger.Log("SCORED");
+            UltraFunGuns.Log.Log("SCORED");
             Instantiate(basketballScoreFX, GetHoopPos(), Quaternion.identity);
             if(lastBallVelo.magnitude > 100.0f)
             {

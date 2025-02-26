@@ -130,7 +130,7 @@ namespace UltraFunGuns
             Rigidbody.velocity = storedVelocity;
             IsDivision = true;
 
-            HydraLogger.Log($"Bullet divided from {gameObject.name}");
+            UltraFunGuns.Log.Log($"Bullet divided from {gameObject.name}");
 
             for (int i = 1; i < ringPositions.Length; i++)
             {
@@ -189,7 +189,7 @@ namespace UltraFunGuns
             if (Physics.Raycast(transform.position + (Rigidbody.velocity.normalized * 0.4f), Rigidbody.velocity * Time.fixedDeltaTime, out RaycastHit hit, Rigidbody.velocity.magnitude * Time.fixedDeltaTime, LayerMask.GetMask("Armor", "Water")))
             {
                 Visualizer.DrawSphere(hit.point, 0.5f, 5.0f);
-                HydraLogger.Log("Hit amror");
+                UltraFunGuns.Log.Log("Hit amror");
                 Vector3 newDirection = Vector3.Reflect(Rigidbody.velocity, hit.normal);
                 SetDirection(newDirection);
             }
@@ -237,7 +237,7 @@ namespace UltraFunGuns
                 EnemyIdentifier[] enemiesInRange = virtualExplosion.GetAffectedEnemies();
                 for (int i = 0; i < enemiesInRange.Length; i++)
                 {
-                    Debug.LogWarning($"Enemyinrange_{i}");
+                    UltraFunGuns.Log.LogWarning($"Enemyinrange_{i}");
                     enemiesInRange[i].Override().AddStyleEntryOnDeath(new StyleEntry(30, "ultragunsuperchargekill", 1.0f));
                     Vector3 enemyTargetPoint = enemiesInRange[i].GetTargetPoint();
                     enemiesInRange[i].DeliverDamage(enemiesInRange[i].gameObject, enemyTargetPoint - transform.position * 200.0f, enemyTargetPoint, 0.4f, true, 0.4f, (originWeapon) ? originWeapon.gameObject : null);
@@ -427,7 +427,7 @@ namespace UltraFunGuns
 
         public void OnCoinReflect(Coin coin, RevolverBeam beam)
         {
-            Debug.Log("Coin reflect uB");
+            UltraFunGuns.Log.Log("Coin reflect uB");
             switch (beam.beamType)
             {
                 case BeamType.Railgun:

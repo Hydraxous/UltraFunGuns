@@ -236,13 +236,13 @@ namespace UltraFunGuns
             if(Input.GetKeyDown(KeyCode.PageDown))
             {
                 VoxelWorld.SaveCurrentWorld();
-                Debug.Log("Saved.");
+                UltraFunGuns.Log.Log("Saved.");
             }
 
             if(Input.GetKeyDown(KeyCode.PageUp))
             {
                 VoxelWorld.LoadWorld(VoxelSaveManager.LoadFromName("debug"));
-                Debug.Log("Saved.");
+                UltraFunGuns.Log.Log("Saved.");
             }
 
             if(Input.GetKeyDown(KeyCode.N))

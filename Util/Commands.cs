@@ -100,19 +100,19 @@ namespace UltraFunGuns
                             }
                             else
                             {
-                                Debug.Log($"UFG {args[0].ToLower()} method does not exist.");
+                                UltraFunGuns.Log.Log($"UFG {args[0].ToLower()} method does not exist.");
                             }
                         }else
                         {
                             foreach(KeyValuePair<string, UFGDebugMethod> keyValuePair in ufgCommands[args[0].ToLower()])
                             {
-                                Debug.Log($"{Commands.CommandAlias} {args[0].ToLower()} {keyValuePair.Value.MethodName} - {keyValuePair.Value.Name}: {keyValuePair.Value.Description}");
+                                UltraFunGuns.Log.Log($"{Commands.CommandAlias} {args[0].ToLower()} {keyValuePair.Value.MethodName} - {keyValuePair.Value.Name}: {keyValuePair.Value.Description}");
                             }
                         }
                     }
                     else
                     {
-                        Debug.Log("UFG Subcommand does not exist.");
+                        UltraFunGuns.Log.Log("UFG Subcommand does not exist.");
                     }
                 }
                 else
@@ -124,7 +124,7 @@ namespace UltraFunGuns
             {
                 foreach (KeyValuePair<string, Dictionary<string, UFGDebugMethod>> keyValuePair in ufgCommands)
                 {
-                    Debug.Log($"{Commands.CommandAlias} {keyValuePair.Key}");
+                    UltraFunGuns.Log.Log($"{Commands.CommandAlias} {keyValuePair.Key}");
                 }
             }
         }
