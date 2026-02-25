@@ -2,7 +2,8 @@
 An ULTRAKILL mod with fun weapons!!
 
 ### Disclaimer
-Almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons will be re-balanced properly when most of the weapons are done. For now it's just for fun so try not to take it too seriously.
+Almost all the weapons are ridiculously overpowered as the balance has not yet been refined. The weapons may be re-balanced properly when most of the weapons are done. For now it's just for fun so try not to take it too seriously.
+Also as of the Fraud update, portals don't work with UFG weapons and I don't know if I will add it or not.
 
 # [DOWNLOAD HERE](https://github.com/Hydraxous/UltraFunGuns/releases/download/Release-1.2.1/UFG-1.2.1-Release.zip)
 

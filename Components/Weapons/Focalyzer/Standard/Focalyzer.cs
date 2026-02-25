@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -31,6 +33,9 @@ namespace UltraFunGuns
         private ActionCooldown damageTick = new ActionCooldown(0.25f);
         private ActionCooldown throwPylonCooldown = new ActionCooldown(1.0f, true);
 
+
+        private GameObject sphereDebugger;
+
         public override void OnAwakeFinished()
         {
             tubeController = transform.Find("viewModelWrapper/FocalyzerGunModel/Tubes").gameObject.AddComponent<FocalyzerTubeController>();
@@ -38,7 +43,13 @@ namespace UltraFunGuns
 
         private void Start()
         {
-            laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "Outdoors", "Armor", "Default");
+            //sphereDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //sphereDebugger.layer = LayerMask.NameToLayer("Environment");
+            //sphereDebugger.transform.localScale = new Vector3(3f, 3f, 3f);
+            //sphereDebugger.GetComponent<MeshRenderer>().material.color = Color.red;
+            //Destroy(sphereDebugger.GetComponent<Collider>());
+
+            laserHitMask = LayerMask.GetMask("Projectile", "Limb", "BigCorpse", "Environment", "EnvironmentBaked",  "OutdoorsBaked", "Armor", "Default");
             laser = GameObject.Instantiate<GameObject>(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<FocalyzerLaserController>();
             laser.focalyzer = this;
         }
@@ -99,115 +110,133 @@ namespace UltraFunGuns
         public void FireLaser()
         {
             Vector3 laserVector = mainCam.TransformDirection(0, 0, 1);
-            RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask);
-            if (hits.Length > 0)
+
+            List<RaycastHit> hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask).OrderBy(x=>x.distance).ToList();
+            //remove bs
+            for (int i = 0; i < hits.Count; i++)
             {
-                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
+                if(hits[i].collider.gameObject.name == "CameraCollisionChecker" ||
+                    hits[i].collider.gameObject.name == "Projectile Parry Zone")
                 {
-                    bool hitPylon = false;
-                    int endingHit = 0;
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
-                    for (int i = 0; i < hits.Length; i++)
-                    {
-                        endingHit = i;
-
-                        if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
-                        {
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
-                        {
-                            if (damageTick.CanFire())
-                            {
-                                damageTick.AddCooldown();
-                                enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
-                            }
-                            break;
-                        }
-                        else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-                        {
-                            if (damageTick.CanFire())
-                            {
-                                damageTick.AddCooldown();
-                                enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
-                            }
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteraction))
-                        {
-                            ufgInteraction.Interact(new UFGInteractionEventData() 
-                            {
-                                invokeType = GetType(),
-                                direction = laserVector,
-                                interactorPosition = mainCam.transform.position,
-                                power = 1.0f,
-                                tags = new string[] {"shot", "laser"}
-                            });
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
-                        {
-                            breakable.Break();
-                            break;
-                        }
-
-                        //Add refraction to glass >:3
-                        if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
-                        {
-                            UltraFunGuns.Log.Log("FOUND COIN WITH LASER");
-                            if(EnemyTools.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
-                            {
-
-                                if(eid != null)
-                                {
-                                    if(!eid.dead)
-                                    {
-                                        if (damageTick.CanFire())
-                                        {
-                                            damageTick.AddCooldown();
-                                            Vector3 newDirection = eid.transform.position - coin.transform.position;
-                                            eid.DeliverDamage(eid.gameObject, newDirection, eid.transform.position, 1.5f, false);
-                                        }
-                                    }
-                                }
-                                
-                            }
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                        {
-                            MonoSingleton<TimeController>.Instance.ParryFlash();
-                            grenade.Explode();
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
-                        {
-                            hittingAPylon = true; //need this here because of the coroutine in FocalyzerPylon
-                            pylon.DoRefraction(pylon, true);
-                            hitPylon = true;
-                            break;
-                        }
-                    }
-
-                    hittingAPylon = hitPylon;
-                    DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
-                    return;
+                    hits.RemoveAt(i);
+                    --i;
+                    continue;
                 }
             }
-            hittingAPylon = false;
-            Ray missingRay = new Ray();
-            missingRay.origin = firePoint.position;
-            missingRay.direction = mainCam.TransformDirection(0, 0, 1);
-            Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
-            Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
-            DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
+
+            if(hits.Count <= 0)
+            {
+                hittingAPylon = false;
+                Ray missingRay = new Ray();
+                missingRay.origin = firePoint.position;
+                missingRay.direction = mainCam.TransformDirection(0, 0, 1);
+                Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
+                Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
+                DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
+                return;
+            }
+
+            objectHitName = hits[0].collider.gameObject.name;
+            hitpoint = hits[0].point;
+            hitnormal = hits[0].normal;
+
+            bool hitPylon = false;
+            int endingHit = 0;
+
+            for (int i = 0; i < hits.Count; i++)
+            {
+                endingHit = i;
+
+                //World layers I think?
+                if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
+                {
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
+                {
+                    if (damageTick.CanFire())
+                    {
+                        damageTick.AddCooldown();
+                        enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                    }
+                    break;
+                }
+                else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+                {
+                    if (damageTick.CanFire())
+                    {
+                        damageTick.AddCooldown();
+                        enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                    }
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteraction))
+                {
+                    ufgInteraction.Interact(new UFGInteractionEventData()
+                    {
+                        invokeType = GetType(),
+                        direction = laserVector,
+                        interactorPosition = mainCam.transform.position,
+                        power = 1.0f,
+                        tags = new string[] { "shot", "laser" }
+                    });
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+                {
+                    breakable.Break();
+                    break;
+                }
+
+                //Add refraction to glass >:3
+                if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
+                {
+                    if (EnemyTools.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+                    {
+                        if (eid != null)
+                        {
+                            if (!eid.dead)
+                            {
+                                if (damageTick.CanFire())
+                                {
+                                    damageTick.AddCooldown();
+                                    Vector3 newDirection = eid.transform.position - coin.transform.position;
+                                    eid.DeliverDamage(eid.gameObject, newDirection, eid.transform.position, 1.5f, false);
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
+                {
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    grenade.Explode();
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
+                {
+                    hittingAPylon = true; //need this here because of the coroutine in FocalyzerPylon
+                    pylon.DoRefraction(pylon, true);
+                    hitPylon = true;
+                    break;
+                }
+            }
+
+            hittingAPylon = hitPylon;
+            DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
         }
 
         private void DrawLaser(Vector3 origin, Vector3 endPoint, Vector3 normal)
         {
+            if (sphereDebugger)
+            {
+                sphereDebugger.transform.position = endPoint;
+            }
             laser.AddLinePosition(origin);
             laser.AddLinePosition(endPoint);
             laser.BuildLine(normal);
@@ -249,6 +278,18 @@ namespace UltraFunGuns
             animator.Play("Focalyzer_Equip");
         }
 
+        private void OnDestroy()
+        {
+            if (sphereDebugger)
+            {
+                Destroy(sphereDebugger);
+            }
+        }
+
+        string objectHitName = "NULL";
+        Vector3 hitpoint = Vector3.zero;
+        Vector3 hitnormal = Vector3.zero;
+
         public override string GetDebuggingText()
         {
             string debug = base.GetDebuggingText();
@@ -256,6 +297,11 @@ namespace UltraFunGuns
             debug += $"REFRACTING: {hittingAPylon}\n";
             if (laser != null)
                 debug += $"PYLONS: {laser.GetPylonCount()}\n";
+
+                debug += $"HIT: {objectHitName}\n";
+                debug += $"HITPOINT: {hitpoint}\n";
+                debug += $"HITNORMAL: {hitnormal}\n";
+
             return debug;
         }
     }

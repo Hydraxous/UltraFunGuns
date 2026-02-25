@@ -8,7 +8,7 @@ namespace UltraFunGuns
 {
     public class EnemyOverride : MonoBehaviour
     {
-        public EnemyIdentifier Enemy { get; private set; }
+        public EnemyIdentifier EnemyIdentifier { get; private set; }
 
         private NavMeshAgent navMeshAgent;
 
@@ -52,7 +52,7 @@ namespace UltraFunGuns
 
             initialized = true;
 
-            Enemy = GetComponent<EnemyIdentifier>();
+            EnemyIdentifier = GetComponent<EnemyIdentifier>();
             navMeshAgent = GetComponent<NavMeshAgent>();
             animator = GetComponent<Animator>();
 
@@ -62,7 +62,7 @@ namespace UltraFunGuns
             spiderBody = GetComponent<SpiderBody>();
             statue = GetComponent<Statue>();
 
-            Enemy.onDeath.AddListener(ExecuteOnDeathEvents);
+            EnemyIdentifier.onDeath.AddListener(ExecuteOnDeathEvents);
 
             GetPhysicsComponents();
             GetRenderComponents();
@@ -158,8 +158,8 @@ namespace UltraFunGuns
 
         public void AddStyleEntryOnDeath(StyleEntry entry, bool allowMultiple = false)
         {
-            if (Enemy != null)
-                entry.EnemyIdentifier = Enemy;
+            if (EnemyIdentifier != null)
+                entry.EnemyIdentifier = EnemyIdentifier;
 
             if(!allowMultiple)
             {
@@ -242,10 +242,10 @@ namespace UltraFunGuns
 
         public void SetComponents(bool active)
         {
-            if (Enemy == null)
+            if (EnemyIdentifier == null)
                 return;
 
-            if (Enemy.dead)
+            if (EnemyIdentifier.dead)
                 return;
 
             if (navMeshAgent != null)
@@ -307,11 +307,14 @@ namespace UltraFunGuns
 
         public float GetHealth()
         {
+
+            if(TryGetComponent<Enemy>(out var enemy))
+            {
+                return enemy.health;
+            }
+
             if (spiderBody != null)
                 return spiderBody.health;
-
-            if (drone != null)
-                return drone.health;
 
             if (zombie != null)
                 return zombie.health;
@@ -322,7 +325,7 @@ namespace UltraFunGuns
             if (statue != null)
                 return statue.health;
 
-            return Enemy.health;
+            return EnemyIdentifier.health;
         }
 
     }

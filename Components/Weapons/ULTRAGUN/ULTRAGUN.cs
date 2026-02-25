@@ -11,11 +11,9 @@ namespace UltraFunGuns
     [UFGWeapon("UltraGun", "ULTRAGUN", 3, true, WeaponIconColor.Green)]
     public class UltraGun : UltraFunGunBase
     {
-
         [UFGAsset("UltraBullet")] public static GameObject UltraBulletPrefab { get; private set; }
         [UFGAsset("BigGun_DeniedBoost")] private static AudioClip boostDenied_SFX;
         [UFGAsset("BigGun_Fire")] private static AudioClip fire_SFX;
-        
         
         private ActionCooldown primaryFire = new ActionCooldown(0.5f, true);
         private ActionCooldown secondaryBoost = new ActionCooldown(0.5f, true);

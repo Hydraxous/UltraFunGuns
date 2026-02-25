@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UltraFunGuns
@@ -108,73 +110,119 @@ namespace UltraFunGuns
         public void FireLaser()
         {
             Vector3 laserVector = mainCam.TransformDirection(0, 0, 1);
-            RaycastHit[] hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask);
-            if (hits.Length > 0)
+
+            List<RaycastHit> hits = Physics.SphereCastAll(mainCam.transform.position, laserWidth, laserVector, laserMaxRange, laserHitMask).OrderBy(x => x.distance).ToList();
+            //remove bs
+            for (int i = 0; i < hits.Count; i++)
             {
-                if (!(hits.Length == 1 && hits[0].collider.gameObject.name == "CameraCollisionChecker"))
+                if (hits[i].collider.gameObject.name == "CameraCollisionChecker" ||
+                    hits[i].collider.gameObject.name == "Projectile Parry Zone")
                 {
-                    int endingHit = 0;
-                    hits = HydraUtils.SortRaycastHitsByDistance(hits);
-                    for (int i = 0; i < hits.Length; i++)
-                    {
-                        endingHit = i;
-
-                        if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
-                        {
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
-                        {
-                            if (damageTick.CanFire())
-                            {
-                                damageTick.AddCooldown();
-                                enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
-                            }
-                            break;
-                        }
-                        else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
-                        {
-                            if (damageTick.CanFire())
-                            {
-                                damageTick.AddCooldown();
-                                enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
-                            }
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
-                        {
-                            breakable.Break();
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<ThrownEgg>(out ThrownEgg egg))
-                        {
-
-                            egg.Explode();
-                            break;
-                        }
-
-                        if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
-                        {
-                            MonoSingleton<TimeController>.Instance.ParryFlash();
-                            grenade.Explode();
-                            break;
-                        }
-                    }
-
-                    DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
-                    return;
+                    hits.RemoveAt(i);
+                    --i;
+                    continue;
                 }
             }
 
-            Ray missingRay = new Ray();
-            missingRay.origin = firePoint.position;
-            missingRay.direction = mainCam.TransformDirection(0, 0, 1);
-            Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
-            Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
-            DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
+            if (hits.Count <= 0)
+            {
+                Ray missingRay = new Ray();
+                missingRay.origin = firePoint.position;
+                missingRay.direction = mainCam.TransformDirection(0, 0, 1);
+                Vector3 missEndpoint = missingRay.GetPoint(laserMaxRange);
+                Vector3 towardsPlayer = mainCam.transform.position - missEndpoint;
+                DrawLaser(firePoint.position, missEndpoint, towardsPlayer);
+                return;
+            }
+
+
+            bool hitPylon = false;
+            int endingHit = 0;
+
+            for (int i = 0; i < hits.Count; i++)
+            {
+                endingHit = i;
+
+                //World layers I think?
+                if (hits[i].collider.gameObject.layer == 24 || hits[i].collider.gameObject.layer == 25 || hits[i].collider.gameObject.layer == 8)
+                {
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifierIdentifier>(out EnemyIdentifierIdentifier enemyIDID))
+                {
+                    if (damageTick.CanFire())
+                    {
+                        damageTick.AddCooldown();
+                        enemyIDID.eid.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                    }
+                    break;
+                }
+                else if (hits[i].collider.gameObject.TryGetComponent<EnemyIdentifier>(out EnemyIdentifier enemyID))
+                {
+                    if (damageTick.CanFire())
+                    {
+                        damageTick.AddCooldown();
+                        enemyID.DeliverDamage(hits[i].collider.gameObject, laserVector, hits[i].point, 0.75f, false);
+                    }
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<IUFGInteractionReceiver>(out IUFGInteractionReceiver ufgInteraction))
+                {
+                    ufgInteraction.Interact(new UFGInteractionEventData()
+                    {
+                        invokeType = GetType(),
+                        direction = laserVector,
+                        interactorPosition = mainCam.transform.position,
+                        power = 1.0f,
+                        tags = new string[] { "shot", "laser" }
+                    });
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<Breakable>(out Breakable breakable))
+                {
+                    breakable.Break();
+                    break;
+                }
+
+                //Add refraction to glass >:3
+                if (hits[i].collider.TryGetComponent<Coin>(out Coin coin))
+                {
+                    if (EnemyTools.TryGetHomingTarget(coin.transform.position, out Transform homingTarget, out EnemyIdentifier eid))
+                    {
+                        if (eid != null)
+                        {
+                            if (!eid.dead)
+                            {
+                                if (damageTick.CanFire())
+                                {
+                                    damageTick.AddCooldown();
+                                    Vector3 newDirection = eid.transform.position - coin.transform.position;
+                                    eid.DeliverDamage(eid.gameObject, newDirection, eid.transform.position, 1.5f, false);
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<Grenade>(out Grenade grenade))
+                {
+                    MonoSingleton<TimeController>.Instance.ParryFlash();
+                    grenade.Explode();
+                    break;
+                }
+
+                if (hits[i].collider.gameObject.TryGetComponent<FocalyzerPylon>(out FocalyzerPylon pylon))
+                {
+                    pylon.DoRefraction(pylon, true);
+                    hitPylon = true;
+                    break;
+                }
+            }
+
+            DrawLaser(firePoint.position, hits[endingHit].point, hits[endingHit].normal);
         }
 
         private void DrawLaser(Vector3 origin, Vector3 endPoint, Vector3 normal)

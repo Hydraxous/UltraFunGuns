@@ -17,12 +17,8 @@
         public const string PROFILE_PICTURE_URL = "https://avatars.githubusercontent.com/hydraxous";
 
         public const string CHANGELOG =
-            "- Update for UltraRevamp\n" +
-            "- Remove idiotic logging (sorry).\n" +
-            "-- 1.3.5 --\n" +
-            "- Fix Version mistake causing incorrect out of date pop-up\n\n" +
-            "-- 1.3.4 --\n" +
-            "- Recompile mod for Patch 15d";
+            "-- 1.3.6 --\n" +
+            "Updated for fraud release";
 
         public const string FUN_HEADER = @"
    __  ______             ______            ______                

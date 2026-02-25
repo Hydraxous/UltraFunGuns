@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 namespace UltraFunGuns
 {
-    [UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue, false)]
+    //[UFGWeapon("dice_gun", "Deterministic Observer", 2, false, WeaponIconColor.Blue, false)]
     public class DiceGun : UltraFunGunBase
     {
         [Configgy.Configgable("Weapons/Deterministic Observer/Deterministic Observer")]

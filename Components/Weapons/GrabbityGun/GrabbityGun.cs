@@ -84,12 +84,12 @@ namespace UltraFunGuns
 
             foreach(EnemyOverride enemyOverride in enemyOverrides)
             {
-                if(enemyOverride.Enemy == null || enemyOverride == null)
+                if(enemyOverride.EnemyIdentifier == null || enemyOverride == null)
                 {
                     continue;
                 }
 
-                if(enemyOverride.Enemy.dead)
+                if(enemyOverride.EnemyIdentifier.dead)
                 {
                     continue;
                 }

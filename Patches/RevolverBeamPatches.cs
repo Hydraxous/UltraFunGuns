@@ -61,7 +61,8 @@ namespace UltraFunGuns
 
             for (int i = 0; i < hits.Length; i++)
             {
-                bool currentHitIsCoin = MonoSingleton<CoinList>.Instance.revolverCoinsList.Count > 0 && hits[i].transform.TryGetComponent<Coin>(out Coin coin) && (!coin.shot || coin.shotByEnemy);
+                
+                bool currentHitIsCoin = CoinTracker.Instance.revolverCoinsList.Count > 0 && hits[i].transform.TryGetComponent<Coin>(out Coin coin) && (!coin.shot || coin.shotByEnemy);
                 EnemyIdentifierIdentifier enemyIdentifierIdentifier;
                 bool newTargetValid = (!coinFound || currentHitIsCoin);
                 bool environmentBlocked = Physics.Raycast(beam.transform.position, hits[i].point - beam.transform.position, hits[i].distance, LayerMaskDefaults.Get(LMD.Environment));
